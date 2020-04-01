@@ -7,6 +7,8 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.nuscript.Interpreter;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST.Script;
+import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.util.ObservableValue;
@@ -49,7 +51,6 @@ public class Proof {
      */
     private @Nullable ProofNode proofRoot;
 
-
     /**
      * The script text.
      *
@@ -59,9 +60,9 @@ public class Proof {
     private @Nullable String script;
 
     /**
-     * The script AST
+     * The AST of the script
      */
-    //private @Nullable ProofScript scriptAST;
+    private @Nullable Script scriptAST;
 
     /**
      * The project to which this proof belongs
@@ -136,7 +137,7 @@ public class Proof {
     }
 
     /**
-     * Parses a script as string representation and sets the parsed AST
+     * Parses a script as string representation and sets the parsed AST to null.
      *
      * @param script string representation of script
      */
@@ -146,6 +147,7 @@ public class Proof {
         }
 
         this.script = script;
+        this.scriptAST = null;
 
         this.proofStatus.setValue(ProofStatus.CHANGED_SCRIPT);
     }
@@ -163,8 +165,11 @@ public class Proof {
 
         try {
             // TODO Exception handling
+            this.scriptAST = Scripts.parseScript(script);
+
             Interpreter interpreter = new Interpreter(newRoot);
-            interpreter.interpret(script);
+            interpreter.interpret(scriptAST);
+
             this.proofRoot = newRoot;
             this.failException = null;
             proofStatus.setValue(newRoot.allLeavesClosed() ?
@@ -196,9 +201,6 @@ public class Proof {
     public Proof setScriptTextAndInterpret(String scriptText) {
         setScriptText(scriptText);
         interpretScript();
-        if(this.getGraph() != null){
-            graph.toString();
-        }
         return this;
     }
 
@@ -222,9 +224,9 @@ public class Proof {
      * @return an instance encapsulating the script AST.
      *         Is null as long as {@link #interpretScript()} has not yet been called validly.
      */
-   /* public ProofScript getProofScript() {
+    public Script getProofScript() {
         return scriptAST;
-    }*/
+    }
 
     /**
      * This method invalidates this proof object, sets the status to dirty

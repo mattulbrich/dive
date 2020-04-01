@@ -9,6 +9,7 @@ package edu.kit.iti.algover.nuscript.parser;
 
 import edu.kit.iti.algover.nuscript.BailOutErrorStrategy;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.ScriptContext;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -19,15 +20,15 @@ import java.io.IOException;
 
 public class Scripts {
 
-    public static ScriptAST parseScript(File file) throws IOException {
+    public static Script parseScript(File file) throws IOException {
         return parseScript(CharStreams.fromPath(file.toPath()));
     }
 
-    public static ScriptAST parseScript(String string) {
+    public static Script parseScript(String string) {
         return parseScript(CharStreams.fromString(string));
     }
 
-    private static ScriptAST parseScript(CharStream input) {
+    private static Script parseScript(CharStream input) {
 
         CommonTokenStream stream = new CommonTokenStream(new ScriptLexer(input));
         ScriptParser parser = new ScriptParser(stream);
@@ -37,7 +38,7 @@ public class Scripts {
         parser.addErrorListener(errorHandler.ERROR_LISTENER);
 
         ScriptContext ctx = parser.script();
-        ScriptAST result = ctx.accept(new ASTVisitor());
+        Script result = (Script) ctx.accept(new ASTVisitor());
 
         return result;
     }

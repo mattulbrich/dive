@@ -226,7 +226,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
         OptionalInt charIdx = hit.getCharacterIndex();
         if(charIdx.isPresent() && highlightedException != null) {
-            edu.kit.iti.algover.script.ast.Position moPos = computePositionFromCharIdx(charIdx.getAsInt(), getText());
+            edu.kit.iti.algover.nuscript.Position moPos = computePositionFromCharIdx(charIdx.getAsInt(), getText());
             if(moPos.getLineNumber() == highlightedExceptionInfo.getLine()) {
                 tooltip.setText(highlightedException.getMessage());
                 Tooltip.install(this, tooltip);
@@ -236,7 +236,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         }
     }
 
-    private edu.kit.iti.algover.script.ast.Position computePositionFromCharIdx(int charIdx, String text) {
+    private edu.kit.iti.algover.nuscript.Position computePositionFromCharIdx(int charIdx, String text) {
         int line = 1;
         int charInLine = 0;
         for (int i = 0; i < charIdx; i++) {
@@ -249,7 +249,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
                 charInLine++;
             }
         }
-        return new edu.kit.iti.algover.script.ast.Position(line, charInLine);
+        return new edu.kit.iti.algover.nuscript.Position(line, charInLine);
     }
 
     public void setHighlightedException(Exception e) {

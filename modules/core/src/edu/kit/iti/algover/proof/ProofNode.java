@@ -39,7 +39,7 @@ public class ProofNode {
     // private ProofHistory history;
 
     /**
-     * Pointer to children
+     * Pointer to children; mutable
      */
     private @Nullable List<ProofNode> children;
 
@@ -56,8 +56,10 @@ public class ProofNode {
     /**
      * Pointer to command that produced this node.
      * Null if root
+     *
+     * Can be set after construction.
      */
-    private final @Nullable Command command;
+    private @Nullable Command command;
 
     /**
      * The label a rule application has given this Node on application.
@@ -173,5 +175,13 @@ public class ProofNode {
 
     public String getLabel() {
         return label;
+    }
+
+    public Command getCommand() {
+        return command;
+    }
+
+    public void setCommand(Command command) {
+        this.command = command;
     }
 }

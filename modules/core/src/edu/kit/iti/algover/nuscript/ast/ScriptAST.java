@@ -7,6 +7,7 @@
 
 package edu.kit.iti.algover.nuscript.ast;
 
+import edu.kit.iti.algover.nuscript.Position;
 import edu.kit.iti.algover.nuscript.ScriptException;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.SingleCaseContext;
 import edu.kit.iti.algover.util.FunctionWithException;
@@ -34,6 +35,10 @@ public abstract class ScriptAST {
 
     public Token getBeginToken() {
         return begin;
+    }
+
+    public Position getPosition() {
+        return new Position(begin.getLine(), begin.getCharPositionInLine());
     }
 
     public Token getEndToken() {

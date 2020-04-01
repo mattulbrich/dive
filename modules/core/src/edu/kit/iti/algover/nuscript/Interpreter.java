@@ -7,6 +7,7 @@
 
 package edu.kit.iti.algover.nuscript;
 
+import edu.kit.iti.algover.nuscript.ast.ScriptAST;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Case;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Cases;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
@@ -16,6 +17,7 @@ import edu.kit.iti.algover.nuscript.ast.ScriptAST.Statement;
 import edu.kit.iti.algover.nuscript.parser.ASTVisitor;
 import edu.kit.iti.algover.nuscript.parser.ScriptLexer;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser;
+import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;
@@ -122,6 +124,9 @@ public class Interpreter {
             Parameters params = interpretParameters(node, rule, command.getParameters());
             ProofRuleApplication proofRuleApplication = rule.makeApplication(node, params);
             List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, node);
+            for (ProofNode pn : newNodes) {
+                pn.setCommand(command);
+            }
             currentNodes = newNodes;
         } catch (RuleException e) {
             throw new ScriptException(e, command);
@@ -189,17 +194,7 @@ public class Interpreter {
     }
 
     public void interpret(String scriptText) throws ScriptException {
-
-        CharStream stream = CharStreams.fromString(scriptText);
-        ScriptParser slp = new ScriptParser(
-                new CommonTokenStream(
-                        new ScriptLexer(stream)));
-
-        BailOutErrorStrategy errorHandler = new BailOutErrorStrategy();
-        slp.setErrorHandler(errorHandler);
-        slp.addErrorListener(errorHandler.ERROR_LISTENER);
-
-        Script script = (Script) slp.script().accept(new ASTVisitor());
+        Script script = Scripts.parseScript(scriptText);
         interpret(script);
     }
 }

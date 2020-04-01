@@ -7,16 +7,15 @@ package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
+import edu.kit.iti.algover.nuscript.Position;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST;
+import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
-import edu.kit.iti.algover.script.ast.Position;
-import edu.kit.iti.algover.script.ast.ProofScript;
-import edu.kit.iti.algover.script.parser.Facade;
-import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -28,6 +27,7 @@ import javafx.scene.input.KeyEvent;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -277,19 +277,17 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         Exception failException = null;
         try {
-            ProofScript ps = Facade.getAST(text);
-            PrettyPrinter pp = new PrettyPrinter();
-            ps.accept(pp);
+            ScriptAST ps = Scripts.parseScript(text);
 
-            view.replaceText(pp.toString());
-            //System.out.println("pp.toString() = " + pp.toString());
-        /*ProofScript ps = Facade.getAST(text);
+            // TODO Why is this done?? Sure?
+            StringBuilder sb = new StringBuilder();
+            try {
+                ps.print(sb, 0);
+                view.replaceText(sb.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        PrettyPrinter pp = new PrettyPrinter();
-        ps.accept(pp);
-        view.replaceText(pp.toString());
-
-        proof.setScriptTextAndInterpret(pp.toString());*/
             proof.setScriptTextAndInterpret(text);
         } catch (ParseCancellationException pce) {
             failException = pce;

@@ -20,14 +20,6 @@ public class ScriptReferenceTarget extends ReferenceTarget {
     private final PVC pvc;
     private final ScriptAST node;
 
-    public PVC getPvc() {
-        return pvc;
-    }
-
-    public ScriptAST getNode() {
-        return node;
-    }
-
     public ScriptReferenceTarget(PVC pvc, ScriptAST node) {
         this.pvc = pvc;
         this.node = node;
@@ -44,6 +36,18 @@ public class ScriptReferenceTarget extends ReferenceTarget {
                 "pvc=" + pvc +
                 ", ast=" + node +
                 '}';
+    }
+
+    public int getLinenumber() {
+        return node.getBeginToken().getLine();
+    }
+
+    public PVC getPvc() {
+        return pvc;
+    }
+
+    public ScriptAST getNode() {
+        return node;
     }
 
 }

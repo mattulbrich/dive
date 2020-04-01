@@ -6,7 +6,6 @@
 package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.proof.ProofNodeSelector;
-import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.util.ObservableValue;
 import javafx.beans.Observable;
 import javafx.beans.binding.BooleanBinding;
