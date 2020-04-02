@@ -45,7 +45,7 @@ import java.util.List;
 @RunWith(Parameterized.class)
 public class ScriptParserTest {
 
-    static final String testDir = ("test-res/edu/kit/iti/algover/script/scripts").replace('/', File.separatorChar);
+    static final String testDir = ("test-res/edu/kit/iti/algover/script/parser").replace('/', File.separatorChar);
 
     @Parameter(0)
     public File file;
