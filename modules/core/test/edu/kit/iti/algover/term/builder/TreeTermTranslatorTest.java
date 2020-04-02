@@ -587,8 +587,7 @@ public class TreeTermTranslatorTest {
     public String[][] parametersForTestSequentTranslation() {
         return new String[][]{
                 {"b1 ==> b2, b2 ==> b3 |- b1 && b2, b2&&b3",
-                        "$imp(b1, b2), $imp(b2, b3) |- $and(b1, b2), $and(b2, b3)"},
-                { "1==1 |- ;", "xxx"}
+                        "$imp(b1, b2), $imp(b2, b3) |- $and(b1, b2), $and(b2, b3)"}
         };
     }
 
