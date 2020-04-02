@@ -115,4 +115,13 @@ public class ParameterDescription<T> {
     public Optional<T> getDefaultValue() {
         return defaultValue;
     }
+
+    @Override
+    public String toString() {
+        return "ParameterDescription{" +
+                "name='" + name + '\'' +
+                ", type=" + type +
+                ", required=" + required +
+                '}';
+    }
 }

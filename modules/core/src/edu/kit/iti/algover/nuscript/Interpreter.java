@@ -26,8 +26,12 @@ import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.RuleApplicator;
 import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.rules.TermParameter;
+import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.Util;
 import org.antlr.v4.runtime.CharStream;
@@ -123,10 +127,15 @@ public class Interpreter {
         try {
             Parameters params = interpretParameters(node, rule, command.getParameters());
             ProofRuleApplication proofRuleApplication = rule.makeApplication(node, params);
+            proofRuleApplication = proofRuleApplication.refine();
+            if(proofRuleApplication.getApplicability() != Applicability.APPLICABLE) {
+                throw new ScriptException("This command is not applicable", command);
+            }
             List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, node);
             for (ProofNode pn : newNodes) {
                 pn.setCommand(command);
             }
+            node.setChildren(newNodes);
             currentNodes = newNodes;
         } catch (RuleException e) {
             throw new ScriptException(e, command);
@@ -165,9 +174,11 @@ public class Interpreter {
                 try {
                     // TODO this may actually be rather naive ...
                     if (string.contains("|-")) {
-                        obj = TermParser.parseSequent(node.getAllSymbols(), string);
+                        Sequent seq = TermParser.parseSequent(node.getAllSymbols(), string);
+                        obj = new TermParameter(seq, node.getSequent());
                     } else {
-                        obj = TermParser.parse(node.getAllSymbols(), string);
+                        Term term = TermParser.parse(node.getAllSymbols(), string);
+                        obj = new TermParameter(term, node.getSequent());
                     }
                 } catch (DafnyException | DafnyParserException e) {
                     throw new ScriptException("Cannot parse term/sequent " + string, e, param);

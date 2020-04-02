@@ -12,10 +12,10 @@ import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.nuscript.parser.ScriptLexer;
 import edu.kit.iti.algover.parser.*;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.rules.impl.DafnyRule;
-import edu.kit.iti.algover.script.ScriptLanguageLexer;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
@@ -58,7 +58,7 @@ public class DafnyRuleUtil {
                 List<String> builtinRuleNames = project.getBuiltinProofRules().stream().
                         map(ProofRule::getName).
                         collect(Collectors.toList());
-                String[] scriptTokens = ScriptLanguageLexer.tokenNames;
+                String[] scriptTokens = ScriptLexer.tokenNames;
                 if(lemmaRuleNames.contains(method.getName())) {
                     throw new DafnyException("Duplicated lemma name: " + method.getName(), method.getRepresentation());
                 } else if(builtinRuleNames.contains(method.getName())) {

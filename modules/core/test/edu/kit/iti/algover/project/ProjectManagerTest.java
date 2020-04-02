@@ -17,6 +17,7 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.TestUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +26,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for the methods for ProjectManagement
@@ -98,7 +101,7 @@ public class ProjectManagerTest {
         proof.interpretScript();
 
         Assert.assertEquals("Proofscript has run", ProofStatus.OPEN, proof.getProofStatus());
-        Assert.assertNull(proof.getFailException());
+        TestUtil.assertNoException(proof.getFailException());
 
         System.out.println("Proof root for PVC " + testPVCxPost + " \n" + pm.getProofForPVC(testPVCxPost).getProofRoot().getSequent());
         //get the Proof object for a PVC
@@ -124,14 +127,14 @@ public class ProjectManagerTest {
 
         String newScript = "//substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 && 4==5)';\n" +
                 "//substitute on='let x := 1 :: 1== 2 && 2 == 3 &&4==5 '; \n" +
-                "x:int := 0; \n" +
+                "//x:int := 0; \n" +
                 "andRight on='1== 2 && 2 == 3 && 4==5';\n";
         //set a new script text and parse it
         proof2.setScriptText(newScript);
         System.out.println(proof2.getScriptText());
         //interpret new Script
         proof2.interpretScript();
-        Assert.assertNull(proof.getFailException());
+        TestUtil.assertNoException(proof.getFailException());
         System.out.println(proof2.getDfyFile().getFilename() + proof2.getGraph().toString());
         pm.getAllProofs().forEach((s1, proof1) -> {
             proof1.invalidate();
@@ -176,14 +179,14 @@ public class ProjectManagerTest {
         Proof proof = pm.getProofForPVC(testPVCm1Post);
 
         proof.setScriptTextAndInterpret(" ");
-        assertTrue(proof.getProofRoot().getChildren().isEmpty());
+        assertNull(proof.getProofRoot().getChildren());
         if (proof.getFailException() != null)
             proof.getFailException().printStackTrace();
-        Assert.assertNull(proof.getFailException());
+        TestUtil.assertNoException(proof.getFailException());
 
         proof.setScriptTextAndInterpret(" /* empty script */ ");
-        assertTrue(proof.getProofRoot().getChildren().isEmpty());
-        Assert.assertNull(proof.getFailException());
+        assertNull(proof.getProofRoot().getChildren());
+        TestUtil.assertNoException(proof.getFailException());
     }
 
     @Test

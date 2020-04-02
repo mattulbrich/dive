@@ -6,20 +6,33 @@
 package edu.kit.iti.algover.util;
 
 import edu.kit.iti.algover.proof.ProofNode;
+import nonnull.NonNull;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * A collection of static methods for proof trees / proof nodes.
+ *
+ * @author Sarah Grebing
+ */
 public final class ProofTreeUtil {
 
+    private ProofTreeUtil() {
+        // not to be instantiated
+    }
+
     /**
-     * http://www.connorgarvey.com/blog/?p=82
+     * Render a proof node into a multi-line string that shows the tree structure of the
+     * proof.
      *
-     * @param node
-     * @return
+     * See also http://www.connorgarvey.com/blog/?p=82.
+     *
+     * @param node the node to print the tree for
+     * @return a multi-line string representation of the node
      */
-    public static String toStringTree(ProofNode node) {
+    public static @NonNull String toStringTree(@NonNull ProofNode node) {
         final StringBuilder buffer = new StringBuilder();
         return toStringTreeHelper(node, buffer, new LinkedList<Iterator<ProofNode>>()).toString();
     }
@@ -51,9 +64,10 @@ public final class ProofTreeUtil {
         }
         buffer.append(node.toString());
 
-        if (!node.getChildren().isEmpty()) {
-            if (node.getChildren().size() > 1) {
-                Iterator<ProofNode> it = node.getChildren().iterator();
+        List<ProofNode> children = node.getChildren();
+        if (children != null && !children.isEmpty()) {
+            if (children.size() > 1) {
+                Iterator<ProofNode> it = children.iterator();
                 parentIterators.add(it);
                 while (it.hasNext()) {
                     ProofNode child = it.next();
@@ -61,7 +75,7 @@ public final class ProofTreeUtil {
                 }
                 parentIterators.remove(it);
             } else {
-                ProofNode child = node.getChildren().get(0);
+                ProofNode child = children.get(0);
                 toStringTreeHelper(child, buffer, parentIterators);
             }
         }

@@ -45,6 +45,7 @@ public class ProofTest {
         pb.setSequent(Sequent.singleSuccedent(new ProofFormula(term)));
         pb.setPathIdentifier("test");
         pb.setReferenceMap(Collections.emptyMap());
+        pb.setProject(project);
         PVC pvc = pb.build();
         return new Proof(project, pvc);
     }
@@ -80,9 +81,9 @@ public class ProofTest {
     public void skip() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("skip;");
+        TestUtil.assertNoException(p.getFailException());
         Assert.assertEquals(ProofStatus.OPEN, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
-        Assert.assertNull(p.getFailException());
     }
 
     @Test(expected = ParseCancellationException.class)

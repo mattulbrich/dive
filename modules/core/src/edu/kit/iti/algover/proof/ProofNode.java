@@ -36,8 +36,6 @@ public class ProofNode {
      */
     private final ProofRuleApplication ruleApplication;
 
-    // private ProofHistory history;
-
     /**
      * Pointer to children; mutable
      */

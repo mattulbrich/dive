@@ -42,6 +42,7 @@ import edu.kit.iti.algover.project.ProjectBuilder;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -404,5 +405,13 @@ public class TestUtil {
             fw.write(string);
         }
         return temp;
+    }
+
+    @TestInfrastructure
+    public static void assertNoException(Exception failException) {
+        if (failException != null) {
+            failException.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
     }
 }

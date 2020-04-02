@@ -26,7 +26,7 @@ casesStmt
     ;
 
 singleCase
-    :   label=STRING_LITERAL ':' statement*
+    :   CASE? label=STRING_LITERAL ':' statement*
     // | MATCH TERM_LITERAL ':' statement*  // later
     ;
 
@@ -40,6 +40,7 @@ parameter
 
 
 BEGIN : '{';
+CASE : 'case';
 CASES : 'cases';
 END : '}';
 MATCH : 'match';

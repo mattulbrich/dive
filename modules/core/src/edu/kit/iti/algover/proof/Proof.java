@@ -108,7 +108,7 @@ public class Proof {
         return project;
     }
 
-    public @NonNull  PVC getPVC() {
+    public @NonNull PVC getPVC() {
         return pvc;
     }
 
