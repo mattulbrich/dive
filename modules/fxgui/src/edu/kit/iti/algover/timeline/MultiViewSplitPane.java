@@ -115,11 +115,9 @@ public class MultiViewSplitPane extends Pane {
         // forward
         for (int i = 0; i + 2 < dividers.size(); i+=2) {
             int boundI = i;
-            ChangeListener<Number> listener = new ChangeListener<Number>() {
-                @Override
-                public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+            ChangeListener<Number> listener =
+                    (ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) -> {
                     dividers.get(boundI + 2).setPosition(newValue.doubleValue() + (1.0 / windowSizeMultiple));
-                }
             };
 
             if (mapping.get(dividers.get(i)) == null) {
@@ -135,9 +133,11 @@ public class MultiViewSplitPane extends Pane {
         for (int i = last; i > 1; i -= 2) {
             int boundI = i;
 
-            ChangeListener<Number> listener = (ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) -> {
-                dividers.get(boundI - 2).setPosition(newValue.doubleValue() - (1.0 / windowSizeMultiple));
+            ChangeListener<Number> listener =
+                    (ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) -> {
+                        dividers.get(boundI - 2).setPosition(newValue.doubleValue() - (1.0 / windowSizeMultiple));
             };
+
             if (mapping.get(dividers.get(i)) == null) {
                 mapping.put(dividers.get(i), new LinkedList<>());
             }
@@ -232,9 +232,9 @@ public class MultiViewSplitPane extends Pane {
             alternateDividerShiftFactor *= (-1);
         } else { // if the odd indexed, fixed dividers are reset
             double desired = this.screenDividers[oldPos / 2];
-            double delta = (dividers.get(oldPos).getPosition() - desired);
+            double delta = dividers.get(oldPos).getPosition() - desired;
             dividers.get(oldPos).setPosition(desired);
-            dividers.get(newPos).setPosition(dividers.get(newPos).getPosition() - (delta));
+            dividers.get(newPos).setPosition(dividers.get(newPos).getPosition() - delta);
         }
         unlinkDividerPositions();
     }
@@ -247,7 +247,9 @@ public class MultiViewSplitPane extends Pane {
      */
     public void setDividerPositions(double pos) {
         ObservableList<SplitPane.Divider> dividers = this.splitPane.getDividers();
+        linkDividerPositions();
         dividers.get(0).setPosition(pos / this.windowSizeMultiple);
+        unlinkDividerPositions();
     }
 
     /**
