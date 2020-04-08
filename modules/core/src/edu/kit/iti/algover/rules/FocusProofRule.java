@@ -20,14 +20,17 @@ import edu.kit.iti.algover.term.Sequent;
  * {@link ProofRuleApplication} with {@link edu.kit.iti.algover.rules.ProofRuleApplication.Applicability#INSTANTIATION_REQUIRED}.
  *
  * @author Mattias Ulbrich
+ *
+ * TODO MERGE THIS WITH DefaultFocusProofRule
+ *
  */
 public abstract class FocusProofRule extends AbstractProofRule {
 
     /**
      * The on-parameter is a required parameter in focus rules
      */
-    public static ParameterDescription<TermParameter> ON_PARAM_REQ =
-            new ParameterDescription<>("on", ParameterType.TERM, false);
+    public static final ParameterDescription<TermParameter> ON_PARAM_REQ =
+            new ParameterDescription<>("on", ParameterType.TERM, true);
 
     public FocusProofRule(ParameterDescription<?>... parameters) {
         super(ON_PARAM_REQ, parameters);
