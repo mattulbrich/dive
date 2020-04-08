@@ -59,7 +59,7 @@ public class BasicFormulaView extends CodeArea {
      */
     private final SimpleObjectProperty<TermSelector> selectedTerm;
     /**
-     * the last term that was ctr-clicked on.
+     * the last term that was ctrl-clicked on.
      */
     private final SimpleObjectProperty<TermSelector> selectedReference;
     /**
@@ -294,7 +294,6 @@ public class BasicFormulaView extends CodeArea {
     private double calculateNeededHeight(String text) {
         // This is a hack, but it seems to be impossible without it...
         Bounds bounds = TextUtil.computeTextBounds(text, getStyleClass(), getStylesheets(), fontsizeProperty.get());
-
         final double safetyPadding = 1.1; // 10%, this is such a hack ... :(
 
         return safetyPadding * (bounds.getHeight()

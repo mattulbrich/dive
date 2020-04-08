@@ -32,6 +32,7 @@ import edu.kit.iti.algover.sequent.SequentTabViewController;
 import edu.kit.iti.algover.settings.SettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.ExceptionDialog;
@@ -625,8 +626,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         if (selector != null) {
             timelineView.moveFrameRight();
             ProofNode node = sequentController.getActiveSequentController().getActiveNode();
-            if (node != null) {
-                ruleApplicationController.considerApplication(node, node.getSequent(), selector);
+            Sequent targetSequent = node.getSequent();
+            if (selector.isValidForSequent(targetSequent)) {
+                if (node != null) {
+                    ruleApplicationController.considerApplication(node, node.getSequent(), selector);
+                }
             }
         }
     }
