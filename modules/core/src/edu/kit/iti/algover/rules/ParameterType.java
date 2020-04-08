@@ -1,4 +1,4 @@
-/**
+/*
  * This file is part of DIVE.
  *
  * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
@@ -26,17 +26,6 @@ import edu.kit.iti.algover.util.Util;
  * @author Mattias Ulbrich
  */
 public abstract class ParameterType<T> {
-
-    /**
-     * The type to capture match-terms in parameters in scripts
-     */
-    public static final ParameterType<TermParameter> MATCH_TERM =
-            new ParameterType<>("MatchTerm", TermParameter.class) {
-                @Override
-                public String prettyPrint(PrettyPrint prettyPrint, TermParameter value) {
-                    return prettyPrintTerm(prettyPrint, value);
-                }
-            };
 
     /**
      * The type to capture terms in parameters in scripts

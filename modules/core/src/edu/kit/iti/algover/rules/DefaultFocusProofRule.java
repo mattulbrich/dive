@@ -16,7 +16,7 @@ public abstract class DefaultFocusProofRule extends AbstractProofRule {
      * The on-parameter is an optionl parameter in default-focus rules
      */
     public static ParameterDescription<TermParameter> ON_PARAM_OPT =
-            new ParameterDescription<>("on", ParameterType.MATCH_TERM, false);
+            new ParameterDescription<>("on", ParameterType.TERM, false);
 
     public DefaultFocusProofRule(ParameterDescription<?>... parameters) {
         super(ON_PARAM_OPT, parameters);

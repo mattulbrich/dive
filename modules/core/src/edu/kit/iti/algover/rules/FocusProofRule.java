@@ -27,7 +27,7 @@ public abstract class FocusProofRule extends AbstractProofRule {
      * The on-parameter is a required parameter in focus rules
      */
     public static ParameterDescription<TermParameter> ON_PARAM_REQ =
-            new ParameterDescription<>("on", ParameterType.MATCH_TERM, false);
+            new ParameterDescription<>("on", ParameterType.TERM, false);
 
     public FocusProofRule(ParameterDescription<?>... parameters) {
         super(ON_PARAM_REQ, parameters);
