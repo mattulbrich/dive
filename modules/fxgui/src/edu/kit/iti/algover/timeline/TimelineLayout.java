@@ -9,7 +9,10 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.beans.property.*;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.value.WritableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,11 +25,13 @@ import org.controlsfx.control.HiddenSidesPane;
 /**
  * Created by philipp on 10.07.17.
  * updated by Valentin on 03.03.20.
+ *
+ * @author philipp and Valentin
  */
 public class TimelineLayout extends HiddenSidesPane {
 
     /**
-     * Design parameter form HiddenSidesPane. Same for all TimelineViews
+     * Design parameter form HiddenSidesPane. Same for all TimelineViews.
      */
     private static final double HOVER_AREA = 20;
 
@@ -40,6 +45,9 @@ public class TimelineLayout extends HiddenSidesPane {
      * Currently only set in this class.
      */
     private final SimpleIntegerProperty framePosition;
+    /**
+     * Number of views in the {@link TimelineLayout}.
+     */
     private final SimpleIntegerProperty numViews;
 
     /**
@@ -47,9 +55,19 @@ public class TimelineLayout extends HiddenSidesPane {
      * only two at a time.
      */
     private MultiViewSplitPane viewPane;
+    /**
+     * Move timeline left.
+     */
     private final SideArrowButton goLeft;
+    /**
+     * Move timeline right.
+     */
     private final SideArrowButton goRight;
 
+    /**
+     * Holds the last {@link javafx.animation.Animation}.
+     * Updated before started.
+     */
     private Timeline currentAnimation;
 
     /**
@@ -57,7 +75,7 @@ public class TimelineLayout extends HiddenSidesPane {
      *
      * @param nodes JavaFX Nodes. Elements of the TimelineLayout.
      */
-    public TimelineLayout(Node... nodes) {
+    public TimelineLayout(final Node... nodes) {
         if (nodes.length < 2) {
             throw new IllegalArgumentException("Need at least to nodes for a timeline layout");
         }
@@ -193,13 +211,12 @@ public class TimelineLayout extends HiddenSidesPane {
     }
 
 
+    /**
+     * Set divider position in view.
+     * @param position Share of left node.
+     */
     public void setDividerPosition(double position) {
         viewPane.setDividerPositions(position);
-    }
-
-    public void addAndMoveRight(Node view) {
-        nodes.add(view);
-        moveFrameRight();
     }
 
     /**

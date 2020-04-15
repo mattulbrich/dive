@@ -27,22 +27,31 @@ import javafx.scene.layout.Pane;
  * left and to the right to show exactly two items at the same time.
  * When a Divider is moved, all other divider positions are updated to preserve that condition.
  * If the number of nodes in the TimelineLayout changes a new MVSP must be instantiated.
+ *
+ * @author Valentin
  */
 public class MultiViewSplitPane extends Pane {
 
-    // SplitPane that holds the displayed items
+    /**
+     * {@link SplitPane} that holds the displayed items.
+     */
     private final SplitPane splitPane;
-    // Size of MVSP relative to parent.
+    /**
+     * Size of MVSP relative to parent.
+     */
     private final int windowSizeMultiple;
     /**
      * Every odd indexed divider has to remain in a certain global position.
      */
     private final double[] screenDividers;
 
+    /**
+     * Flag for linkage of dividers of {@link MultiViewSplitPane#splitPane}.
+     */
     private boolean dividersLinked = false;
 
     /**
-     * mapping for divider position and ChangeListeners.
+     * Mapping for divider position and ChangeListeners.
      */
     private final Map<SplitPane.Divider, List<ChangeListener<? super Number>>> dividerLinking;
 
@@ -52,8 +61,9 @@ public class MultiViewSplitPane extends Pane {
     private ReadOnlyDoubleWrapper[] positionOfNode;
 
     /**
-     * Dirty Fix: In {@link MultiViewSplitPane#resetDividerPositions(int, int)} alternate
-     * divider shift direction to avoid repaint Bug in {@link edu.kit.iti.algover.sequent.FormulaCell}.
+     * Dirty Fix: In {@link MultiViewSplitPane#resetDividerPositions(int, int)}
+     * alternate divider shift direction to avoid repaint Bug in
+     * {@link edu.kit.iti.algover.sequent.FormulaCell}.
      */
     private int alternateDividerShiftFactor = 1;
 
@@ -62,7 +72,7 @@ public class MultiViewSplitPane extends Pane {
      * @param nodes
      *          Nodes to be displayed on a MVSP
      */
-    public MultiViewSplitPane(Node... nodes) {
+    public MultiViewSplitPane(final Node... nodes) {
         this.splitPane = new SplitPane();
         this.splitPane.prefHeightProperty().bind(this.heightProperty());
 
@@ -101,7 +111,8 @@ public class MultiViewSplitPane extends Pane {
     }
 
     /**
-     * Generate {@link ChangeListener} objects that are added to the {@link SplitPane.Divider#positionProperty()}
+     * Generate {@link ChangeListener} objects that are added to the
+     * {@link SplitPane.Divider#positionProperty()}
      * of dividers of {@link MultiViewSplitPane#splitPane}.
      * The listeners that are created here cause all even indexed divider to move, if one is moved.
      * @return mapping of {@link List<ChangeListener>} for each odd index divider.
@@ -178,10 +189,6 @@ public class MultiViewSplitPane extends Pane {
         }
 
         dividersLinked = false;
-    }
-
-    public boolean isDividersLinked() {
-        return dividersLinked;
     }
 
     /**
