@@ -160,7 +160,7 @@ public class TimelineLayout extends HiddenSidesPane {
 
         // Key listening. May be moved to global Controls class
         setOnKeyPressed(event -> {
-            if (event.isAltDown()) {
+            if (event.isControlDown() && event.isAltDown()) {
                 if (event.getCode() == KeyCode.RIGHT) {
                     moveFrameRight();
                     event.consume();
@@ -183,7 +183,7 @@ public class TimelineLayout extends HiddenSidesPane {
     }
 
     /**
-     * Update left and right buttons.
+     * Update visibility of left and right buttons.
      *
      * @param position New view index
      */
@@ -213,7 +213,8 @@ public class TimelineLayout extends HiddenSidesPane {
 
     /**
      * Set divider position in view.
-     * @param position Share of left node.
+     * @param position
+     *          Share of left node.
      */
     public void setDividerPosition(double position) {
         viewPane.setDividerPositions(position);
@@ -223,7 +224,7 @@ public class TimelineLayout extends HiddenSidesPane {
      * Tell the TimelineView to move the frame to the right.
      *
      * @return true iff move was possible.
-     * @Deprecated Increment framePositionProperty.
+     * @Deprecated Increment {@link TimelineLayout#framePosition}.
      */
     @Deprecated
     public boolean moveFrameRight() {
@@ -238,7 +239,7 @@ public class TimelineLayout extends HiddenSidesPane {
      * Tell the TimelineView to move the frame to the left.
      *
      * @return true iff move was possible.
-     * @Deprecated Decrement framePositionProperty.
+     * @Deprecated Decrement {@link TimelineLayout#framePosition}.
      */
     @Deprecated
     public boolean moveFrameLeft() {
