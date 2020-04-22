@@ -30,7 +30,7 @@ import edu.kit.iti.algover.util.RuleUtil;
 public class AssumeRule extends NoFocusProofRule {
 
     private static final ParameterDescription<TermParameter> WITH_PARAM =
-            new ParameterDescription<>("#1", ParameterType.TERM, true);
+            new ParameterDescription<>("that", ParameterType.TERM, true);
 
     public AssumeRule() {
         super(WITH_PARAM);
