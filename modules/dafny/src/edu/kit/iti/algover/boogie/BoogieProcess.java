@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * This class controls the communication to a boogie process.
@@ -75,8 +76,8 @@ public class BoogieProcess {
 
     /**
      *
-     * @return
-     * @throws Exception
+     * @return whether or not boogie was able to close the target
+     * @throws RuleException if boogie somehow ran into problems
      */
     public boolean callBoogie() throws TermBuildException, IOException, RuleException {
 
@@ -113,9 +114,20 @@ public class BoogieProcess {
     }
 
     private Process buildProcess(Path tmpFile) throws IOException {
-        ProcessBuilder pb = new ProcessBuilder(COMMAND, tmpFile.toString());
-        if(VERBOSE_BOOGIE){
-            System.out.println(" Boogie called via '" + COMMAND + " " + tmpFile + "'");
+        ProcessBuilder pb;
+        if(System.getProperty("os.name").toLowerCase().contains("windows")) {
+            pb = new ProcessBuilder("cmd", "/c", COMMAND + " " + tmpFile.toString());
+            String path = System.getenv("PATH");
+            Map<String, String> env = pb.environment();
+            env.put("PATH", path);
+            if(VERBOSE_BOOGIE){
+                System.out.println(" Boogie called via '" + "cmd /c " + COMMAND + " " + tmpFile.toString());
+            }
+        } else {
+            pb = new ProcessBuilder(COMMAND, tmpFile.toString());
+            if(VERBOSE_BOOGIE){
+                System.out.println(" Boogie called via '" + COMMAND + " " + tmpFile + "'");
+            }
         }
 
         return pb.start();
