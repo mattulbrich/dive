@@ -29,6 +29,8 @@ import javafx.stage.Window;
 import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
+
+import java.lang.reflect.Parameter;
 import java.util.Map;
 
 /**
@@ -147,6 +149,9 @@ public class RuleParameterDialog extends Dialog<Void> {
             } else if(tf.getUserData().equals(ParameterType.STRING)) {
                 parameters.checkAndPutValue(pd, text);
                 //parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), text);
+            } else if(tf.getUserData().equals(ParameterType.BOOLEAN)) {
+                boolean b = Boolean.parseBoolean(text);
+                parameters.checkAndPutValue(pd, b);
             } else {
                 throw new RuntimeException("ParameterType " + tf.getUserData() + " is unkown.");
             }
@@ -155,7 +160,7 @@ public class RuleParameterDialog extends Dialog<Void> {
     }
 
     private ValidationResult booleanValidator(Control c, String newValue) {
-        if (newValue == "true" || newValue == "True" || newValue == "false" || newValue == "False") {
+        if (newValue.equals("true") || newValue.equals("True") || newValue.equals("false") || newValue.equals("False")) {
             return new ValidationResult();
         }
         return ValidationResult.fromError(c, "Boolean values must be true or false.");
