@@ -112,7 +112,11 @@ public class FixOperatorPrinterExtension implements PrettyPrintExtension {
         String op = fixOperator.getOp();
 
         printer.beginBlock(0);
-        printer.indentBlock(0, op.length() + 1);
+        if(fixOperator.isLeftAssociative() && isChaining(fixOperator, application.getTerm(0))) {
+            printer.indentBlock(0, 0);
+        } else {
+            printer.indentBlock(0, op.length() + 1);
+        }
         printer.beginTerm(0);
         visitor.setLeftPrecedence(fixOperator.getPrecedence());
         application.getTerm(0).accept(visitor, null);
@@ -126,6 +130,26 @@ public class FixOperatorPrinterExtension implements PrettyPrintExtension {
         application.getTerm(1).accept(visitor, null);
         printer.endTerm();
         printer.endBlock();
+    }
+
+    /**
+     * Find out if the given term applies the fixOperator and if that
+     * is chaining,
+     *
+     * If true is returned, an optimised linebreak can be applied.
+     *
+     * @param fixOperator the operator to check for
+     * @param term the term for which the test is made
+     * @return true iff term uses fixOperator and that is a chaining op.
+     */
+    private static boolean isChaining(FixOperatorInfo fixOperator, Term term) {
+        if (term instanceof ApplTerm) {
+            ApplTerm applTerm = (ApplTerm) term;
+            if (applTerm.getFunctionSymbol().getName().equals(fixOperator.getName())) {
+                return fixOperator.isChaining();
+            }
+        }
+        return false;
     }
 
     /**
@@ -198,12 +222,19 @@ class FixOperatorCollection {
         @XmlElement
         private boolean leftAssociative = true;
 
+        @XmlElement
+        private boolean chaining = false;
+
         public int getPrecedence() {
             return precedence;
         }
 
         public boolean isLeftAssociative() {
             return leftAssociative;
+        }
+
+        public boolean isChaining() {
+            return chaining;
         }
 
         public String getOp() {
@@ -216,7 +247,8 @@ class FixOperatorCollection {
 
         @Override
         public String toString() {
-            return "FixOperatorInfo [name=" + name + ", op=" + op + ", precedence=" + precedence + "]";
+            return "FixOperatorInfo [name=" + name + ", op=" + op +
+                    ", precedence=" + precedence + ", chaining=" + chaining + "]";
         }
 
     }
