@@ -83,7 +83,8 @@ public class RuleParameterDialog extends Dialog<Void> {
             tf.setMinWidth(200.0);
             gridPane.add(tf, 1, row);
             Platform.runLater(() -> {
-                validationSupport.registerValidator(tf, e.getValue().isRequired(), getValidatorForType(e.getValue().getType()));
+                validationSupport.registerValidator(tf, e.getValue().isRequired(),
+                        getValidatorForType(e.getValue().getType()));
             });
             row++;
         }
@@ -160,7 +161,8 @@ public class RuleParameterDialog extends Dialog<Void> {
     }
 
     private ValidationResult booleanValidator(Control c, String newValue) {
-        if (newValue.equals("true") || newValue.equals("True") || newValue.equals("false") || newValue.equals("False")) {
+        if (newValue.equalsIgnoreCase("true")
+                || newValue.equalsIgnoreCase("false")) {
             return new ValidationResult();
         }
         return ValidationResult.fromError(c, "Boolean values must be true or false.");
