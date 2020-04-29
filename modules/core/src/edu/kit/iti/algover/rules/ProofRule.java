@@ -113,7 +113,7 @@ public interface ProofRule {
     @SuppressWarnings( "unchecked" )
     public default @Nullable ParameterDescription<TermParameter> getOnParameter() {
         ParameterDescription<?> onParam = getAllParameters().get("on");
-        assert onParam == null || onParam.getType() == ParameterType.MATCH_TERM;
+        assert onParam == null || onParam.getType() == ParameterType.TERM;
         return (ParameterDescription<TermParameter>) onParam;
     }
 }

@@ -90,8 +90,10 @@ subprojects {
         header file("$rootDir/HEADER")
         include "$projectDir/src/**/*.java"
         exclude "$projectDir/gen/**/*.java"
+        mapping {
+            java = "SLASHSTAR_STYLE"
+        }
 
-        //strictCheck true
     }
 
     

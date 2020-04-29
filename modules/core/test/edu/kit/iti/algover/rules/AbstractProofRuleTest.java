@@ -32,14 +32,12 @@ public class AbstractProofRuleTest {
             new ParameterDescription<>("optionalString", ParameterType.STRING, false);
     private static final ParameterDescription<TermParameter> OPT_TERM_PARAM =
             new ParameterDescription<>("optionalTerm", ParameterType.TERM, false);
-    private static final ParameterDescription<TermParameter> OPT_M_TERM_PARAM =
-            new ParameterDescription<>("optionalMatchTerm", ParameterType.MATCH_TERM, false);
     public static final TestRule RULE = new TestRule();
 
     private static class TestRule extends NoFocusProofRule {
 
         TestRule() {
-            super(OPT_INT_PARAM, OPT_BOOL_PARAM, OPT_STRING_PARAM, OPT_TERM_PARAM, OPT_M_TERM_PARAM);
+            super(OPT_INT_PARAM, OPT_BOOL_PARAM, OPT_STRING_PARAM, OPT_TERM_PARAM);
         }
 
         @Override
@@ -75,11 +73,10 @@ public class AbstractProofRuleTest {
         ps.putValue(OPT_INT_PARAM, BigInteger.valueOf(42));
         ps.putValue(OPT_STRING_PARAM, "43");
         ps.putValue(OPT_TERM_PARAM, new TermParameter(tb.tt(), s));
-        ps.putValue(OPT_M_TERM_PARAM, new TermParameter(tb.tt(), s));
         prab.setParameters(ps);
 
         assertEquals("testRule optionalBool=true optionalInt=42 " +
-                        "optionalString=\"43\" optionalTerm='true' optionalMatchTerm='true';",
+                        "optionalString=\"43\" optionalTerm='true';",
                 RULE.getTranscript(prab.build()));
     }
 

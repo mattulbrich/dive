@@ -113,7 +113,7 @@ public class RuleParameterDialog extends Dialog<Void> {
     }
 
     private Validator<String> getValidatorForType(ParameterType<?> type) {
-        if (type == ParameterType.TERM  || type == ParameterType.MATCH_TERM) {
+        if (type == ParameterType.TERM) {
             return this::termValidator;
         } else if (type == ParameterType.BOOLEAN) {
             return this::booleanValidator;
@@ -130,7 +130,7 @@ public class RuleParameterDialog extends Dialog<Void> {
             String text = tf.getText();
             String label = ((Label) (gridPane.getChildren().get(i * 2))).getText();
             ParameterDescription<?> pd = rule.getAllParameters().get(label);
-            if(tf.getUserData().equals(ParameterType.TERM) || tf.getUserData().equals(ParameterType.MATCH_TERM)) {
+            if(tf.getUserData().equals(ParameterType.TERM)) {
                 try {
                     Term t = termParser.parse(text);
                     parameters.checkAndPutValue(pd, new TermParameter(t, sequent));
