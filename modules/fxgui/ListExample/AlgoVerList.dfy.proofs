@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-<comment>Created by DIVE at Mon Sep 16 11:13:58 CEST 2019</comment>
+<comment>Created by DIVE at Tue Apr 28 19:51:39 CEST 2020</comment>
 <entry key="List.removeAt/then/else/Bounds">expand on='... ((?match: this.Valid())) ... |-';
 boogie ;
 
@@ -153,11 +153,8 @@ boogie ;
 </entry>
 <entry key="List.removeAt/then/then/Post.1">boogie;
 </entry>
-<entry key="List.size/InitInv.2">expand on='... ((?match: this.Valid())) ... |-';
-boogie ;
-</entry>
+<entry key="List.size/InitInv.2"></entry>
 <entry key="List.size/InitInv.1">expand on='... ((?match: this.Valid())) ... |-';
-boogie ;
 </entry>
 <entry key="List.removeAt/then/then/Post">boogie;
 </entry>
@@ -232,8 +229,7 @@ expand on='|- ... ((?match: this.Valid()@$heap[node₁.next := ((node₁.next).n
 boogie ;
 </entry>
 <entry key="List.removeAt/else/loop_exit/then/Null"></entry>
-<entry key="List.size/loop/Dec">boogie;
-</entry>
+<entry key="List.size/loop/Dec"></entry>
 <entry key="List.insertAt/loop/Dec">boogie;
 </entry>
 <entry key="List.insertAt/loop/Inv">boogie;
