@@ -29,8 +29,6 @@ import javafx.stage.Window;
 import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
-
-import java.lang.reflect.Parameter;
 import java.util.Map;
 
 /**
