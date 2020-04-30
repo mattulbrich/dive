@@ -16,6 +16,7 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.HistoryProofUtils;
 import edu.kit.iti.algover.util.ProofUtils;
+import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import org.junit.Assert;
 import org.junit.Before;
@@ -170,11 +171,13 @@ public class ReferenceGraphDirectParentsSingleTests {
     }
 
     @Test
-    public void testReplacedTerm() throws FormatException, RuleException {
+    public void testReplacedTerm() throws Exception {
         Proof proofDisj = pm.getProofForPVC("simpleSplit/Post");
         proofDisj.setScriptTextAndInterpret("orRight on= '|- _ || _';");
+        TestUtil.assertNoException(proofDisj.getFailException());
         ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0");
         ProofTermReferenceTarget right = new ProofTermReferenceTarget(lastNode, new TermSelector("S.0.1"));
+        System.out.println(proofDisj.getGraph());
         Set<ProofTermReferenceTarget> directParents = proofDisj.getGraph().findDirectParents(right, proofDisj);
         Assert.assertEquals(1, directParents.size());
         ProofTermReferenceTarget directParentTarget = directParents.iterator().next();

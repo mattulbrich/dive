@@ -7,15 +7,11 @@
 
 package edu.kit.iti.algover.nuscript;
 
-import edu.kit.iti.algover.nuscript.ast.ScriptAST;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Case;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Cases;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Parameter;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Script;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Statement;
-import edu.kit.iti.algover.nuscript.parser.ASTVisitor;
-import edu.kit.iti.algover.nuscript.parser.ScriptLexer;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser;
 import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.parser.DafnyException;
@@ -37,9 +33,6 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.Util;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
@@ -52,13 +45,15 @@ public class Interpreter {
 
     private final Map<String, ProofRule> knownRules;
     private final ProofNode rootNode;
+    private final Proof proof;
     private final ReferenceGraph referenceGraph;
 
     private List<ProofNode> currentNodes;
 
     public Interpreter(Proof proof) {
         this.referenceGraph = proof.getGraph();
-        this.rootNode = proof.getProofRoot();
+        this.rootNode = ProofNode.createRoot(proof.getPVC());
+        this.proof = proof;
         this.knownRules = makeKnownRules();
     }
 
@@ -141,6 +136,9 @@ public class Interpreter {
             }
             node.setChildren(newNodes);
             currentNodes = newNodes;
+
+
+
         } catch (RuleException | TermBuildException e) {
             throw new ScriptException(e, command);
         }
@@ -199,7 +197,7 @@ public class Interpreter {
                 throw new Error("Should not be reached: " + value);
             }
 
-            if(!knownParam.acceptsValue(obj)) {
+            if (!knownParam.acceptsValue(obj)) {
                 throw new ScriptException("Parameter " + paramName +
                         " expects an argument of type " + knownParam.getType() +
                         ", not " + obj, param);
@@ -213,5 +211,9 @@ public class Interpreter {
     public void interpret(String scriptText) throws ScriptException {
         Script script = Scripts.parseScript(scriptText);
         interpret(script);
+    }
+
+    public ProofNode getRootNode() {
+        return rootNode;
     }
 }

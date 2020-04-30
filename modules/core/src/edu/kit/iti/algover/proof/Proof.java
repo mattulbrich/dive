@@ -11,10 +11,14 @@ import edu.kit.iti.algover.nuscript.ast.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.references.ReferenceGraph;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.util.ObservableValue;
 import edu.kit.iti.algover.util.ProofTreeUtil;
 import nonnull.NonNull;
 import nonnull.Nullable;
+
+import java.util.Deque;
+import java.util.LinkedList;
 
 /**
  * Proof Object
@@ -91,17 +95,17 @@ public class Proof {
 
     @Deprecated // get rid of this
     public Proof(@NonNull Project project, @NonNull PVC pvc) {
-        this.project = project;
-        this.pvc = pvc;
+        this(project, pvc, null);
     }
 
-
-    public Proof(@NonNull Project project, @NonNull PVC pvc, @NonNull DafnyFile dfyFile ) {
+    public Proof(@NonNull Project project, @NonNull PVC pvc, @NonNull DafnyFile dfyFile) {
         this.project = project;
         this.pvc = pvc;
         this.dfyFile = dfyFile;
         this.graph = new ReferenceGraph();
-        this.graph.addFromReferenceMap(dfyFile, pvc.getReferenceMap());
+        if (dfyFile != null) {
+            this.graph.addFromReferenceMap(dfyFile, pvc.getReferenceMap());
+        }
     }
 
     public @NonNull Project getProject() {
@@ -161,28 +165,46 @@ public class Proof {
     public void interpretScript() {
         assert script != null;
 
-        ProofNode newRoot = ProofNode.createRoot(pvc);
-
+        Interpreter interpreter = new Interpreter(this);
         try {
             // TODO Exception handling
             this.scriptAST = Scripts.parseScript(script);
 
-            Interpreter interpreter = new Interpreter(newRoot);
             interpreter.interpret(scriptAST);
-
+            ProofNode newRoot = interpreter.getRootNode();
             this.proofRoot = newRoot;
+
+            publishReferences();
+
             this.failException = null;
             proofStatus.setValue(newRoot.allLeavesClosed() ?
                     ProofStatus.CLOSED : ProofStatus.OPEN);
         } catch(Exception ex) {
             // publish the proof root even if the proof has (partially) failed.
-            this.proofRoot = newRoot;
+            this.proofRoot = interpreter.getRootNode();
             this.failException = ex;
 
             // TODO proof state handling.
             proofStatus.setValue(ProofStatus.FAILING);
         }
+    }
 
+    private void publishReferences() {
+        Deque<ProofNode> todo = new LinkedList<>();
+        todo.addLast(proofRoot);
+        while (!todo.isEmpty()) {
+            ProofNode node = todo.removeFirst();
+            if (node.getChildren() != null) {
+                try {
+                    graph.addFromRuleApplication(this, node, node.getChildren());
+                    graph.addFromScriptNode(node.getCommand(), node, this);
+                } catch (RuleException e) {
+                    System.err.println("Reference graph is incomplete due to exception:");
+                    e.printStackTrace();
+                }
+                todo.addAll(node.getChildren());
+            }
+        }
 
     }
 

@@ -64,7 +64,7 @@ public class ProofNodeSelector {
         }
     }
 
-    public ProofNode get(Proof proof) throws RuleException {
+    public ProofNode get(@NonNull Proof proof) throws RuleException {
         return getNode(proof.getProofRoot());
     }
 

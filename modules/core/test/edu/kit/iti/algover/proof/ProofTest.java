@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.proof;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.nuscript.ScriptException;
 import edu.kit.iti.algover.project.Project;

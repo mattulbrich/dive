@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.util;
 
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rules.TermSelector;
@@ -46,5 +47,4 @@ public class ProofUtils {
         }
         return selectors;
     }
-
 }

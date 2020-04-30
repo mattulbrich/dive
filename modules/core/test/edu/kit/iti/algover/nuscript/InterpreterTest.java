@@ -6,9 +6,11 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.util.ProofMockUtil;
 import edu.kit.iti.algover.util.TestUtil;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
@@ -42,15 +44,16 @@ public class InterpreterTest {
         symbTable = new MapSymbolTable(new BuiltinSymbols(), map);
     }
 
-
     @Test
     public void testSplit() throws Exception {
 
         Project p = TestUtil.mockProject("method m(b1: bool) ensures b1&&b1 { }");
         PVC pvc = p.getPVCByName("m/Post");
-        ProofNode root = ProofNode.createRoot(pvc);
-        Interpreter interpreter = new Interpreter(root);
+
+        Proof proof = new Proof(p, pvc, null);
+        Interpreter interpreter = new Interpreter(proof);
         interpreter.interpret("skip; andRight;");
+        ProofNode root = interpreter.getRootNode();
 
         assertEquals(1, root.getChildren().size());
 
@@ -68,8 +71,9 @@ public class InterpreterTest {
 
         Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 && b1 { }");
         PVC pvc = p.getPVCByName("m/Post");
-        ProofNode root = ProofNode.createRoot(pvc);
-        Interpreter interpreter = new Interpreter(root);
+        Proof proof = new Proof(p, pvc, null); 
+        Interpreter interpreter = new Interpreter(proof);
+        ProofNode root = interpreter.getRootNode();
         interpreter.interpret("andRight; cases { case \"case 1\": skip; fake close=true; }");
 
         assertEquals(2, root.getChildren().size());
@@ -124,8 +128,9 @@ public class InterpreterTest {
 
         Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 { }");
         PVC pvc = p.getPVCByName("m/Post");
-        ProofNode root = ProofNode.createRoot(pvc);
-        Interpreter interpreter = new Interpreter(root);
+        Proof proof = new Proof(p, pvc, null);
+        Interpreter interpreter = new Interpreter(proof);
+        ProofNode root = interpreter.getRootNode();
         interpreter.interpret("fake close=true;");
 
         assertEquals(1, root.getChildren().size());
@@ -146,8 +151,8 @@ public class InterpreterTest {
     public void testNotMatching() throws Exception {
         Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 == b1 { }");
         PVC pvc = p.getPVCByName("m/Post");
-        ProofNode root = ProofNode.createRoot(pvc);
-        Interpreter interpreter = new Interpreter(root);
+        Proof proof = new Proof(p, pvc, null);
+        Interpreter interpreter = new Interpreter(proof);
 
         thrown.expect(ScriptException.class);
         thrown.expectMessage("Schematic sequent |- (?match: $and(_, _)) does not match.");
@@ -159,8 +164,8 @@ public class InterpreterTest {
     public void testUnknownCommand() throws Exception {
         Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 == b1 { }");
         PVC pvc = p.getPVCByName("m/Post");
-        ProofNode root = ProofNode.createRoot(pvc);
-        Interpreter interpreter = new Interpreter(root);
+        Proof proof = new Proof(p, pvc, null);
+        Interpreter interpreter = new Interpreter(proof);
 
         thrown.expect(ScriptException.class);
         thrown.expectMessage("Unknown script command unknownCommand");
