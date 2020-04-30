@@ -79,12 +79,12 @@ public class ReferenceGraphHistoryTest {
    private Object[][] testCasesProofWithRemoval(){
         return new Object[][]
                 {
-                        new Object[]{"0,0,0", "A.0", 4, "[ProofTermReference{proofNodeSelector=0.0, termSelector=A.0}, ProofTermReference{proofNodeSelector=<root>, termSelector=A.0}, ProofTermReference{proofNodeSelector=0, termSelector=A.0}, ProofTermReference{proofNodeSelector=<root>, termSelector=A.0.0}]"},
-                        new Object[]{"0,0,0", "A.1", 3, "[ProofTermReference{proofNodeSelector=0, termSelector=A.2}, ProofTermReference{proofNodeSelector=0.0, termSelector=A.1}, ProofTermReference{proofNodeSelector=<root>, termSelector=A.0.1}]"},
-                        new Object[]{"0,0,0", "S.0", 3, "[ProofTermReference{proofNodeSelector=0.0, termSelector=S.0}, ProofTermReference{proofNodeSelector=<root>, termSelector=S.0}, ProofTermReference{proofNodeSelector=0, termSelector=S.0}]"},
-                        new Object[]{"0,0,0", "A.0.1", 3, "[ProofTermReference{proofNodeSelector=0, termSelector=A.0.1}, ProofTermReference{proofNodeSelector=<root>, termSelector=A.0.0.1}, ProofTermReference{proofNodeSelector=0.0, termSelector=A.0.1}]"},
-                        new Object[]{"0,0", "A.0", 3, "[ProofTermReference{proofNodeSelector=<root>, termSelector=A.0}, ProofTermReference{proofNodeSelector=0, termSelector=A.0}, ProofTermReference{proofNodeSelector=<root>, termSelector=A.0.0}]"},
-                        new Object[]{"0,0,0", "A.1.0", 3, "[ProofTermReference{proofNodeSelector=0, termSelector=A.2.0}, ProofTermReference{proofNodeSelector=0.0, termSelector=A.1.0}, ProofTermReference{proofNodeSelector=<root>, termSelector=A.0.1.0}]"},
+                        new Object[]{"0,0,0", "A.0", 4, "[ProofTermReferenceTarget{proofNodeSelector=0.0, termSelector=A.0}, ProofTermReferenceTarget{proofNodeSelector=<root>, termSelector=A.0}, ProofTermReferenceTarget{proofNodeSelector=0, termSelector=A.0}, ProofTermReferenceTarget{proofNodeSelector=<root>, termSelector=A.0.0}]"},
+                        new Object[]{"0,0,0", "A.1", 3, "[ProofTermReferenceTarget{proofNodeSelector=0, termSelector=A.2}, ProofTermReferenceTarget{proofNodeSelector=0.0, termSelector=A.1}, ProofTermReferenceTarget{proofNodeSelector=<root>, termSelector=A.0.1}]"},
+                        new Object[]{"0,0,0", "S.0", 3, "[ProofTermReferenceTarget{proofNodeSelector=0.0, termSelector=S.0}, ProofTermReferenceTarget{proofNodeSelector=<root>, termSelector=S.0}, ProofTermReferenceTarget{proofNodeSelector=0, termSelector=S.0}]"},
+                        new Object[]{"0,0,0", "A.0.1", 3, "[ProofTermReferenceTarget{proofNodeSelector=0, termSelector=A.0.1}, ProofTermReferenceTarget{proofNodeSelector=<root>, termSelector=A.0.0.1}, ProofTermReferenceTarget{proofNodeSelector=0.0, termSelector=A.0.1}]"},
+                        new Object[]{"0,0", "A.0", 3, "[ProofTermReferenceTarget{proofNodeSelector=<root>, termSelector=A.0}, ProofTermReferenceTarget{proofNodeSelector=0, termSelector=A.0}, ProofTermReferenceTarget{proofNodeSelector=<root>, termSelector=A.0.0}]"},
+                        new Object[]{"0,0,0", "A.1.0", 3, "[ProofTermReferenceTarget{proofNodeSelector=0, termSelector=A.2.0}, ProofTermReferenceTarget{proofNodeSelector=0.0, termSelector=A.1.0}, ProofTermReferenceTarget{proofNodeSelector=<root>, termSelector=A.0.1.0}]"},
 
 
                 };

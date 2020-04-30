@@ -59,7 +59,7 @@ public class CodeReferenceTarget extends ReferenceTarget {
 
     @Override
     public String toString() {
-        return "CodeReference{" +
+        return "CodeReferenceTarget{" +
                 "file=" + filename +
                 ", startToken=" + startToken +
                 ", endToken=" + endToken +
