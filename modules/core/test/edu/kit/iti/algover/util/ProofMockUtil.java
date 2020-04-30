@@ -212,6 +212,13 @@ public class ProofMockUtil {
         return mockProofNode(parent, s.getAntecedent(), s.getSuccedent());
     }
 
+    @TestInfrastructure
+    public static ProofNode mockProofNode(Sequent s) throws TermBuildException {
+        return mockProofNode(null, s);
+    }
+
+
+    @TestInfrastructure
     public static ProofNode mockProofNode(Sequent seq, PVC pvc) {
         return new ProofNode(null, null, null, null, seq, pvc);
     }

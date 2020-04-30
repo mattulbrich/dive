@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.rules.RuleException;
+import nonnull.NonNull;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -67,12 +68,23 @@ public class ProofNodeSelector {
         return getNode(proof.getProofRoot());
     }
 
-    public ProofNode getNode(ProofNode node) throws RuleException {
+    /**
+     * Follow the path of this selector to select a proof node starting at the given node.
+     * The node is returned in case the path is empty.
+     *
+     * @param node the start node for the navigation
+     * @return the selected node from node on
+     * @throws RuleException if the selection cannot be made for index reasons.
+     */
+    public ProofNode getNode(@NonNull ProofNode node) throws RuleException {
         ProofNode currentNode = node;
         for (int i = 0; i < path.length; i++) {
+            if (currentNode.getChildren() == null) {
+                throw new RuleException("Cannot select proof node. Current node has 'null' children.");
+            }
             if (currentNode.getChildren().size() <= path[i]) {
-                throw new RuleException("Cannot select proof node. Proof node only has "
-                        + currentNode.getChildren().size() + " children, but proof child No. "
+                throw new RuleException("Cannot select proof node. Current node only has "
+                        + currentNode.getChildren().size() + " children, but proof child "
                         + path[i] + " was to be visited. (item " + i + " in path " + toString() + ")");
             }
             currentNode = currentNode.getChildren().get(path[i]);

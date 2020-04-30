@@ -20,6 +20,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -43,6 +44,18 @@ public abstract class ScriptAST {
 
     public Token getEndToken() {
         return end;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        try {
+            print(sb, 0);
+            return sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Objects.toString(this);
+        }
     }
 
     public abstract void print(Appendable writer, int indentation) throws IOException;
@@ -191,6 +204,7 @@ public abstract class ScriptAST {
 
         @Override
         public void print(Appendable writer, int indentation) throws IOException {
+            indentation ++;
             writer.append(Util.duplicate("  ", indentation) + label.getText() + ":\n");
             indentation ++;
             for (Statement statement : statements) {

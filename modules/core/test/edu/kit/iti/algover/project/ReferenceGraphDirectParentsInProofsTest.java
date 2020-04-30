@@ -32,13 +32,13 @@ import java.util.logging.Logger;
 @RunWith(JUnitParamsRunner.class)
 public class ReferenceGraphDirectParentsInProofsTest {
 
-    public Proof proofWithTwoSubstitutionsAndSkips;
+    private Proof proofWithTwoSubstitutionsAndSkips;
 
-    public Proof proofBranched;
+    private Proof proofBranched;
 
-    public Proof proofWithRemoval;
+    private Proof proofWithRemoval;
 
-    public Proof proofWithReplacement;
+    private Proof proofWithReplacement;
 
     private Object[][] unchangedFormulas() {
         return new Object[][]
@@ -50,8 +50,6 @@ public class ReferenceGraphDirectParentsInProofsTest {
                         new Object[]{"0", "S.0"},
                         new Object[]{"0", "S.0.0"},
                         new Object[]{"0", "S.0.1"},
-
-
                 };
     }
 
@@ -81,10 +79,9 @@ public class ReferenceGraphDirectParentsInProofsTest {
      */
 
     @Before
-    public void testProjectLoad(){
+    public void testProjectLoad() throws Exception {
 
         XMLProjectManager pm = null;
-        try {
             URL resource = getClass().getResource("./referenceGraphTest");
 
             pm = new XMLProjectManager(new File(resource.getFile()), "config.xml");
@@ -131,16 +128,6 @@ public class ReferenceGraphDirectParentsInProofsTest {
 
             proofWithReplacement = pm.getProofForPVC("max/else/Post.1");
             proofWithReplacement.setScriptTextAndInterpret(script);
-
-        } catch (FormatException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DafnyParserException e) {
-            e.printStackTrace();
-        } catch (DafnyException e) {
-            e.printStackTrace();
-        }
 
     }
 

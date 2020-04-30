@@ -43,6 +43,7 @@ import java.util.List;
 // REVIEW: Resolve this warning suppression!
 
 @RunWith(Parameterized.class)
+@Ignore
 public class ScriptParserTest {
 
     static final String testDir = ("test-res/edu/kit/iti/algover/script/parser").replace('/', File.separatorChar);

@@ -1,0 +1,10 @@
+/* This is a script test */
+
+testFile on='someTerm' string="someString" boolean=true int=22;
+
+cases {
+   case "case 1":
+      z3;
+   case "case 2":
+      // remains open
+}

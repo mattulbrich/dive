@@ -87,26 +87,6 @@ public class ProofNode {
         this.addedSymbols = new MapSymbolTable(Collections.emptyList());
     }
 
-    public Sequent getSequent() {
-        return sequent;
-    }
-
-    public ProofNode getParent() {
-        return parent;
-    }
-
-    public ProofRuleApplication getProofRuleApplication() {
-        return ruleApplication;
-    }
-
-    public List<ProofNode> getChildren() {
-        return children;
-    }
-
-    public SymbolTable getAddedSymbols() {
-        return addedSymbols;
-    }
-
     public SymbolTable getAllSymbols() {
         if(parent != null) {
             return new MapSymbolTable(parent.getAllSymbols(), addedSymbols.getAllSymbols());
@@ -124,52 +104,25 @@ public class ProofNode {
         this.children = children;
     }
 
-    public PVC getPVC() {
-        return pvc;
-    }
-
+    /**
+     * Is this node closed?
+     *
+     * This is the case if the node has been interpreted and has no children.
+     *
+     * @return true iff the script node is a closed proof leaf.
+     */
     public boolean isClosed() {
         return children != null && children.isEmpty();
     }
 
     /**
-     * Returns true if there is no leaf in the tree beneath that is an open goal
+     * Returns true if there is no open leaf in the tree beneath
      *
      * @return true if the spanned subtree is closed.
      */
     public boolean allLeavesClosed() {
         return children != null && children.stream().allMatch(ProofNode::allLeavesClosed);
     }
-
-//    @Override
-//    public String toString() {
-//        StringBuilder sb = new StringBuilder();
-//     //   sb.append("\n==============================================================\n");
-//        if (this.getParent() == null) {
-//            sb.append("Root Node:\n");
-//        } else {
-//            sb.append("Proof Node:\n");
-//        }
-//
-//        if (!this.variableAssignments.isEmpty()) {
-//            //sb.append("Variable Assignments");
-//            sb.append(variableAssignments.toString());
-//        } else {
-//            sb.append("Empty Assignments\n");
-//        }
-//        sb.append("\nSequent:\n" + this.sequent.toString() + "\n");
-//        sb.append("\nMutator for this Node: ");
-//        if (!mutator.isEmpty()) {
-//            sb.append("\nMutator-Type: " + mutator.get(0).getNodeName()+"\n");
-//
-//            sb.append("\n" + mutator.get(0).getRuleContext().getText()+"\n");
-//            if (mutator.size() != 1)
-//                sb.append("\nNumber of Mutators: " + mutator.size()+"\n");
-//        }
-//       // sb.append("\n==============================================================\n");
-//
-//        return sb.toString();
-//    }
 
     public String getLabel() {
         return label;
@@ -181,5 +134,39 @@ public class ProofNode {
 
     public void setCommand(Command command) {
         this.command = command;
+    }
+
+    public Sequent getSequent() {
+        return sequent;
+    }
+
+    public ProofNode getParent() {
+        return parent;
+    }
+
+    public PVC getPVC() {
+        return pvc;
+    }
+
+    public ProofRuleApplication getProofRuleApplication() {
+        return ruleApplication;
+    }
+
+    /**
+     * Get the list of all children of this proof node.
+     *
+     * Caution! You get the actual list and modification will be reflected in the proof
+     * node!
+     *
+     * This returns null during script interpretation as the proof tree grows
+     *
+     * @return the list of children, null if not yet fully expanded
+     */
+    public List<ProofNode> getChildren() {
+        return children;
+    }
+
+    public SymbolTable getAddedSymbols() {
+        return addedSymbols;
     }
 }

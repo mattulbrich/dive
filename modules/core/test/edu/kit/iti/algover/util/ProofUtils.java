@@ -9,6 +9,7 @@ import edu.kit.iti.algover.term.Term;
 import java.util.*;
 
 public class ProofUtils {
+
     @TestInfrastructure
     public static ProofNodeSelector computeProofNodeSelector(String pathChild){
         String[] pathStringArray = pathChild.split(",");
