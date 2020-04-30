@@ -62,3 +62,5 @@ WS : [ \t\n\r]+ -> channel(HIDDEN) ;
 SINGLE_LINE_COMMENT : '//' ~[\r\n]* -> channel(HIDDEN);
 MULTI_LINE_COMMENT  : '/*' (MULTI_LINE_COMMENT|.)*? '*/' -> channel(HIDDEN);
 MULTI_LINE_COMMENT_BEGIN: '/*' ~('\n')* EOF -> channel(HIDDEN);
+
+UNKNOWN_CHARACTER : . ;
