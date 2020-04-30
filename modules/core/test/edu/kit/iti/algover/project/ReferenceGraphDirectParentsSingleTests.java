@@ -176,9 +176,9 @@ public class ReferenceGraphDirectParentsSingleTests {
         ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0");
         ProofTermReferenceTarget right = new ProofTermReferenceTarget(lastNode, new TermSelector("S.0.1"));
         Set<ProofTermReferenceTarget> directParents = proofDisj.getGraph().findDirectParents(right, proofDisj);
-        Assert.assertTrue(directParents.size()==1);
+        Assert.assertEquals(1, directParents.size());
         ProofTermReferenceTarget directParentTarget = directParents.iterator().next();
-        Assert.assertTrue(directParentTarget.getTermSelector().equals(new TermSelector("S.0.0.1")));
+        Assert.assertEquals(new TermSelector("S.0.0.1"), directParentTarget.getTermSelector());
         Assert.assertTrue(HistoryProofUtils.compareTerms(right, directParentTarget, proofDisj));
 
         //proofDisj.setScriptTextAndInterpret("orRight on= '|- _ || _';\n plus_0 on='|- ... ((?match: a + 0)) ...';");

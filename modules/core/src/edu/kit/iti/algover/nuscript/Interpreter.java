@@ -21,7 +21,9 @@ import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
@@ -49,13 +51,14 @@ import java.util.Map;
 public class Interpreter {
 
     private final Map<String, ProofRule> knownRules;
-
     private final ProofNode rootNode;
+    private final ReferenceGraph referenceGraph;
 
     private List<ProofNode> currentNodes;
 
-    public Interpreter(ProofNode rootNode) {
-        this.rootNode = rootNode;
+    public Interpreter(Proof proof) {
+        this.referenceGraph = proof.getGraph();
+        this.rootNode = proof.getProofRoot();
         this.knownRules = makeKnownRules();
     }
 
@@ -75,7 +78,7 @@ public class Interpreter {
     }
 
     /**
-     * Returns a modifyable singleton list.
+     * Returns a modifiable singleton list.
      *
      * @param e a single value that will be in the list
      * @return a freshly created list that only contains e
@@ -138,9 +141,7 @@ public class Interpreter {
             }
             node.setChildren(newNodes);
             currentNodes = newNodes;
-        } catch (RuleException e) {
-            throw new ScriptException(e, command);
-        } catch (TermBuildException e) {
+        } catch (RuleException | TermBuildException e) {
             throw new ScriptException(e, command);
         }
 
