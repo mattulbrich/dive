@@ -5,6 +5,7 @@ import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
@@ -28,6 +29,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Logger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 @RunWith(JUnitParamsRunner.class)
 public class ReferenceGraphDirectParentsInProofsTest {
@@ -90,6 +94,11 @@ public class ReferenceGraphDirectParentsInProofsTest {
             proofWithTwoSubstitutionsAndSkips.setScriptTextAndInterpret("substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
                     "substitute on='|- ... ((?match: let m := x :: m > 1)) ...';\n"+"skip;\n"+"skip;\n");
 
+            if(proofWithTwoSubstitutionsAndSkips.getFailException() != null) {
+                proofWithTwoSubstitutionsAndSkips.getFailException().printStackTrace();
+            }
+            assertEquals(ProofStatus.OPEN, proofWithTwoSubstitutionsAndSkips.getProofStatus());
+
             proofBranched = pm.getProofForPVC("max/then/Post.1");
             String script2 = "substitute on='... ((?match: let m := x :: m < y)) ... |-';\n" +
                     "skip;\n" +
@@ -107,6 +116,12 @@ public class ReferenceGraphDirectParentsInProofsTest {
                     "\t}\n" +
                     "}";
             proofBranched.setScriptTextAndInterpret(script2);
+            if(proofBranched.getFailException() != null) {
+                proofBranched.getFailException().printStackTrace();
+            }
+            assertEquals(ProofStatus.OPEN, proofBranched.getProofStatus());
+
+
 
             //has addlist+delList
             proofWithRemoval = pm.getProofForPVC("ff/Post");
@@ -128,6 +143,10 @@ public class ReferenceGraphDirectParentsInProofsTest {
 
             proofWithReplacement = pm.getProofForPVC("max/else/Post.1");
             proofWithReplacement.setScriptTextAndInterpret(script);
+            if(proofWithReplacement.getFailException() != null) {
+                proofWithReplacement.getFailException().printStackTrace();
+            }
+            assertEquals(ProofStatus.OPEN, proofWithReplacement.getProofStatus());
 
     }
 

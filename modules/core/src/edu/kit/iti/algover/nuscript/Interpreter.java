@@ -32,6 +32,7 @@ import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.Util;
 import org.antlr.v4.runtime.CharStream;
@@ -139,6 +140,8 @@ public class Interpreter {
             currentNodes = newNodes;
         } catch (RuleException e) {
             throw new ScriptException(e, command);
+        } catch (TermBuildException e) {
+            throw new ScriptException(e, command);
         }
 
         return null;
@@ -172,12 +175,14 @@ public class Interpreter {
                 String string = Util.stripQuotes(value.getText());
 
                 try {
+                    TermParser tp = new TermParser(node.getAllSymbols());
+                    tp.setSchemaMode(true);
                     // TODO this may actually be rather naive ...
                     if (string.contains("|-")) {
-                        Sequent seq = TermParser.parseSequent(node.getAllSymbols(), string);
+                        Sequent seq = tp.parseSequent(string);
                         obj = new TermParameter(seq, node.getSequent());
                     } else {
-                        Term term = TermParser.parse(node.getAllSymbols(), string);
+                        Term term = tp.parse(string);
                         obj = new TermParameter(term, node.getSequent());
                     }
                 } catch (DafnyException | DafnyParserException e) {

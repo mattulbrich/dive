@@ -258,6 +258,15 @@ public class TreeTermTranslatorTest {
         };
     }
 
+    public String[][] parametersForTestSequentTranslation() {
+        return new String[][]{
+                { "b1 ==> b2, b2 ==> b3 |- b1 && b2, b2&&b3",
+                        "$imp(b1, b2), $imp(b2, b3) |- $and(b1, b2), $and(b2, b3)" },
+                { "... ((?match: let m := i1 :: !(m < i2))) ... |-",
+                        "(... (?match: (let m := i1 :: $not($lt(m, i2)))) ...) |-" },
+        };
+    }
+
     @Before
     public void setupTable() throws DafnyParserException, RecognitionException, IOException, DafnyException {
         Collection<FunctionSymbol> map = new ArrayList<>();
@@ -584,17 +593,11 @@ public class TreeTermTranslatorTest {
 
     }
 
-    public String[][] parametersForTestSequentTranslation() {
-        return new String[][]{
-                {"b1 ==> b2, b2 ==> b3 |- b1 && b2, b2&&b3",
-                        "$imp(b1, b2), $imp(b2, b3) |- $and(b1, b2), $and(b2, b3)"}
-        };
-    }
-
     @Test
     @Parameters
     public void testSequentTranslation(String seq, String exp) throws Exception {
         TermParser tp = new TermParser(symbTable);
+        tp.setSchemaMode(true);
         Sequent sequent = tp.parseSequent(seq);
         Assert.assertEquals("First sequent ", exp, sequent.toString());
     }

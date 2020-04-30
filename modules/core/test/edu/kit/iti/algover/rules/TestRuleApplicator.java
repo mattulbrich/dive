@@ -26,6 +26,7 @@ import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.ProofMockUtil;
+import edu.kit.iti.algover.util.TestUtil;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,7 +131,9 @@ public class TestRuleApplicator {
 
         List<ProofFormula> testSemi = testSequent.getAntecedent();
 
-        System.out.println(RuleApplicator.changeSemisequent(add, del, new ArrayList<>(), testSemi));
+        Object s = TestUtil.callStatic(RuleApplicator.class, "changeSemisequent", add, del, new ArrayList<>(), testSemi);
+
+        System.out.println(s);
     }
 
     @Test

@@ -32,9 +32,20 @@ public class ProofNode {
     private final ProofNode parent;
 
     /**
-     * Proof Rule Application responsible for node
+     * Proof Rule Application responsible for node.
+     * Null for the root node.
      */
-    private final ProofRuleApplication ruleApplication;
+    private final @Nullable ProofRuleApplication ruleApplication;
+
+    /**
+     * Pointer to command that produced this node.
+     * Null if root
+     *
+     * Can be set after construction.
+     * TODO Making this final is pretty easy if RuleApplicator takes the command as argument
+     */
+    private @Nullable Command command;
+
 
     /**
      * Pointer to children; mutable
@@ -51,13 +62,6 @@ public class ProofNode {
      */
     private final @NonNull Sequent sequent;
 
-    /**
-     * Pointer to command that produced this node.
-     * Null if root
-     *
-     * Can be set after construction.
-     */
-    private @Nullable Command command;
 
     /**
      * The label a rule application has given this Node on application.
@@ -101,7 +105,7 @@ public class ProofNode {
      * @param children
      */
     public void setChildren(List<ProofNode> children) {
-        this.children = children;
+        this.children = new ArrayList<>(children);
     }
 
     /**
@@ -155,15 +159,12 @@ public class ProofNode {
     /**
      * Get the list of all children of this proof node.
      *
-     * Caution! You get the actual list and modification will be reflected in the proof
-     * node!
-     *
      * This returns null during script interpretation as the proof tree grows
      *
-     * @return the list of children, null if not yet fully expanded
+     * @return an immutable view to the list of children, null if not yet fully expanded
      */
     public List<ProofNode> getChildren() {
-        return children;
+        return children == null ? null : Collections.unmodifiableList(children);
     }
 
     public SymbolTable getAddedSymbols() {

@@ -26,7 +26,10 @@ casesStmt
     ;
 
 singleCase
-    :   CASE? label=STRING_LITERAL ':' statement*
+    :   CASE? ( MATCH { System.err.println("'case match' is deprecated and will be removed. Drop the match. Or both.");} )?
+          label=STRING_LITERAL ':'
+          ( statement* | BEGIN statement* END
+          { System.err.println("'{ ... }' for cases is deprecated and will be removed. Drop the braces.");})
     // | MATCH TERM_LITERAL ':' statement*  // later
     ;
 

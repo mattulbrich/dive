@@ -7,6 +7,7 @@ package edu.kit.iti.algover.rules.impl;
 
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,7 +77,11 @@ public class ExhaustiveRule extends FocusProofRule {
 
         List<ProofNode> nodes;
         if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
-            nodes = RuleApplicator.applyRule(proofRuleApplication, pn);
+            try {
+                nodes = RuleApplicator.applyRule(proofRuleApplication, pn);
+            } catch (TermBuildException e) {
+                throw new RuleException(e);
+            }
         } else {
             return null;
         }
