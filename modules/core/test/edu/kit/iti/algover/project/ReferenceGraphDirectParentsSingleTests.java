@@ -159,15 +159,17 @@ public class ReferenceGraphDirectParentsSingleTests {
     public void testAddedTermWithScriptReference() throws FormatException {
         Proof proofConj = pm.getProofForPVC("simpleConjunction/Post");
         proofConj.setScriptTextAndInterpret("addHypothesis  with='a == b';");
+        TestUtil.assertNoException(proofConj.getFailException());
         ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0");
         ProofTermReferenceTarget b = new ProofTermReferenceTarget(lastNode, new TermSelector("A.1"));
         Set<ProofTermReferenceTarget> directParents = proofConj.getGraph().findDirectParents(b, proofConj);
         Assert.assertTrue(directParents.isEmpty());
+        System.out.println(proofConj.getGraph());
         Set<ScriptReferenceTarget> scriptReferenceTargetSet = proofConj.getGraph().allSuccessorsWithType(b, ScriptReferenceTarget.class);
         Assert.assertFalse(scriptReferenceTargetSet.isEmpty());
         Assert.assertTrue(scriptReferenceTargetSet.size() == 1);
         ScriptReferenceTarget next = scriptReferenceTargetSet.iterator().next();
-        Assert.assertEquals(next.getNode().getBeginToken().getLine(), 1);
+        Assert.assertEquals(1, next.getNode().getBeginToken().getLine());
     }
 
     @Test

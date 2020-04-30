@@ -191,8 +191,6 @@ public class ReferenceGraph {
         ScriptReferenceTarget sct = new ScriptReferenceTarget(pNode.getPVC(), node);
         ScriptReferenceBuilder srb = new ScriptReferenceBuilder(this, sct, pNode, proof);
         srb.buildReferences(pNode.getChildren());
-        this.getGraph();
-
     }
 
 

@@ -191,17 +191,29 @@ public class Proof {
 
     private void publishReferences() {
         Deque<ProofNode> todo = new LinkedList<>();
-        todo.addLast(proofRoot);
+        todo.add(proofRoot);
         while (!todo.isEmpty()) {
             ProofNode node = todo.removeFirst();
             if (node.getChildren() != null) {
                 try {
                     graph.addFromRuleApplication(this, node, node.getChildren());
-                    graph.addFromScriptNode(node.getCommand(), node, this);
                 } catch (RuleException e) {
                     System.err.println("Reference graph is incomplete due to exception:");
                     e.printStackTrace();
                 }
+
+                if (node.getChildren().size() > 0) {
+                    ProofNode child = node.getChildren().get(0);
+                    if(child.getCommand() != null) {
+                        try {
+                            graph.addFromScriptNode(child.getCommand(), node, this);
+                        } catch (RuleException e) {
+                            System.err.println("Reference graph is incomplete due to exception:");
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
                 todo.addAll(node.getChildren());
             }
         }

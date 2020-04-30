@@ -20,6 +20,8 @@ import edu.kit.iti.algover.util.TestUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.List;
+
 import static edu.kit.iti.algover.util.ProofMockUtil.mockProofNode;
 
 public class TermReferencesBuilderTest {
@@ -43,7 +45,7 @@ public class TermReferencesBuilderTest {
         after = mockProofNode(before, new Term[]{yEqX, xEqY}, new Term[0]);
         afterReference = new ProofNodeSelector((byte) 0);
 
-        before.getChildren().add(after);
+        before.setChildren(List.of(after));
         TestUtil.setField(proof, "proofRoot", before);
 
         graph = new ReferenceGraph();

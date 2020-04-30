@@ -187,6 +187,7 @@ public class ProofMockUtil {
         pb.setSequent(sequent);
         pb.setPathIdentifier("test");
         pb.setReferenceMap(Collections.emptyMap());
+        pb.setProject(project);
         PVC pvc = pb.build();
         List<DafnyFile> dfyFiles = project.getDafnyFiles().stream().filter(dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename())).collect(Collectors.toList());
         Proof p;
