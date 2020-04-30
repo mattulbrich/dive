@@ -10,6 +10,7 @@ package edu.kit.iti.algover.nuscript.ast;
 import edu.kit.iti.algover.nuscript.Position;
 import edu.kit.iti.algover.nuscript.ScriptException;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.SingleCaseContext;
+import edu.kit.iti.algover.util.Conditional;
 import edu.kit.iti.algover.util.FunctionWithException;
 import edu.kit.iti.algover.util.Util;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -77,7 +79,9 @@ public abstract class ScriptAST {
         }
 
         public void print(Appendable writer, int indentation) throws IOException {
+            Conditional conditional = Conditional.notAtFirst();
             for (Statement statement : statements) {
+                conditional.run(() -> writer.append("\n"));
                 statement.print(writer, indentation);
             }
         }
@@ -128,7 +132,7 @@ public abstract class ScriptAST {
                 writer.append(" ");
                 p.print(writer, indentation);
             }
-            writer.append(";\n");
+            writer.append(";");
         }
     }
 
@@ -171,11 +175,12 @@ public abstract class ScriptAST {
 
         @Override
         public void print(Appendable writer, int indentation) throws IOException {
-            writer.append(Util.duplicate("  ", indentation) + "cases {\n");
+            writer.append(Util.duplicate("  ", indentation) + "cases {");
             for (Case cas : cases) {
+                writer.append("\n");
                 cas.print(writer, indentation);
             }
-            writer.append(Util.duplicate("  ", indentation) + "}\n");
+            writer.append("\n" + Util.duplicate("  ", indentation) + "}");
         }
     }
 
@@ -205,9 +210,10 @@ public abstract class ScriptAST {
         @Override
         public void print(Appendable writer, int indentation) throws IOException {
             indentation ++;
-            writer.append(Util.duplicate("  ", indentation) + label.getText() + ":\n");
+            writer.append(Util.duplicate("  ", indentation) + label.getText() + ":");
             indentation ++;
             for (Statement statement : statements) {
+                writer.append("\n");
                 statement.print(writer, indentation);
             }
         }
