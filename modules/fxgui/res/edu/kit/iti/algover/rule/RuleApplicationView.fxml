@@ -12,36 +12,38 @@
         orientation="VERTICAL"
         dividerPositions="0.5"
         fx:id="splitPane">
-    <VBox spacing="4">
-        <padding><Insets topRightBottomLeft="10" /></padding>
 
-        <!--
-           Here the RuleApplicationController is going to insert a new VirtualizedScrollPane(new ScriptView(...)),
-           but it can't be done in FXML because of constructor args...
-           -->
+    <!--
+      Here the RuleApplicationController is going to insert a new VirtualizedScrollPane(new ScriptView(...)),
+      but it can't be done in FXML because of constructor args...
+     -->
+
+    <ScrollPane fitToWidth="true">
         <VBox spacing="10">
-            <padding><Insets top="10" bottom="10" right="10" left="10"></Insets></padding>
-            <Label text="Rules" styleClass="display-1" minWidth="-Infinity" minHeight="-Infinity" />
-            <Label fx:id="termToConsider" styleClass="code" alignment="CENTER" style="-fx-border-color:gray; -fx-border-style: solid;">
-                <padding><Insets topRightBottomLeft="4" /></padding>
-            </Label>
-        </VBox>
-        <padding><Insets top="10" bottom="10" right="10" left="10"></Insets></padding>
-        <HBox fx:id="toggleBar" spacing="20">
-            <padding><Insets top="10" bottom="10" right="10" left="10"></Insets></padding>
+            <padding><Insets topRightBottomLeft="10" /></padding>
 
-            <JFXRadioButton fx:id="sortAlpha" visible="true" text="Alphabetical"/>
-            <JFXRadioButton fx:id="sortBranching" visible="true" text="Number of Branches"/>
+            <VBox spacing="4">
+                <padding><Insets top="10" bottom="10" right="10" left="10"></Insets></padding>
+                <Label text="Rules" styleClass="display-1" minWidth="-Infinity" minHeight="-Infinity" />
+                <Label fx:id="termToConsider" styleClass="code" alignment="CENTER" style="-fx-border-color:gray; -fx-border-style: solid;">
+                    <padding><Insets topRightBottomLeft="4" /></padding>
+                </Label>
+            </VBox>
+            <padding><Insets top="10" bottom="10" right="10" left="10"></Insets></padding>
+            <HBox fx:id="toggleBar" spacing="20">
+                <padding><Insets top="10" bottom="10" right="10" left="10"></Insets></padding>
 
-        </HBox>
-        <BorderPane>
-            <center>
-                <ScrollPane fitToWidth="true">
+                <JFXRadioButton fx:id="sortAlpha" visible="true" text="Alphabetical"/>
+                <JFXRadioButton fx:id="sortBranching" visible="true" text="Number of Branches"/>
+
+            </HBox>
+            <BorderPane>
+                <center>
                     <RuleGrid fx:id="ruleGrid"/>
-                </ScrollPane>
-            </center>
-        </BorderPane>
+                </center>
+            </BorderPane>
 
-    </VBox>
+        </VBox>
+    </ScrollPane>
 
 </SplitPane>

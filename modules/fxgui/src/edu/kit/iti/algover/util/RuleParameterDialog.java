@@ -81,7 +81,8 @@ public class RuleParameterDialog extends Dialog<Void> {
             tf.setMinWidth(200.0);
             gridPane.add(tf, 1, row);
             Platform.runLater(() -> {
-                validationSupport.registerValidator(tf, e.getValue().isRequired(), getValidatorForType(e.getValue().getType()));
+                validationSupport.registerValidator(tf, e.getValue().isRequired(),
+                        getValidatorForType(e.getValue().getType()));
             });
             row++;
         }
@@ -113,7 +114,7 @@ public class RuleParameterDialog extends Dialog<Void> {
     }
 
     private Validator<String> getValidatorForType(ParameterType<?> type) {
-        if (type == ParameterType.TERM  || type == ParameterType.MATCH_TERM) {
+        if (type == ParameterType.TERM) {
             return this::termValidator;
         } else if (type == ParameterType.BOOLEAN) {
             return this::booleanValidator;
@@ -130,7 +131,7 @@ public class RuleParameterDialog extends Dialog<Void> {
             String text = tf.getText();
             String label = ((Label) (gridPane.getChildren().get(i * 2))).getText();
             ParameterDescription<?> pd = rule.getAllParameters().get(label);
-            if(tf.getUserData().equals(ParameterType.TERM) || tf.getUserData().equals(ParameterType.MATCH_TERM)) {
+            if(tf.getUserData().equals(ParameterType.TERM)) {
                 try {
                     Term t = termParser.parse(text);
                     parameters.checkAndPutValue(pd, new TermParameter(t, sequent));
@@ -147,6 +148,9 @@ public class RuleParameterDialog extends Dialog<Void> {
             } else if(tf.getUserData().equals(ParameterType.STRING)) {
                 parameters.checkAndPutValue(pd, text);
                 //parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), text);
+            } else if(tf.getUserData().equals(ParameterType.BOOLEAN)) {
+                boolean b = Boolean.parseBoolean(text);
+                parameters.checkAndPutValue(pd, b);
             } else {
                 throw new RuntimeException("ParameterType " + tf.getUserData() + " is unkown.");
             }
@@ -155,7 +159,8 @@ public class RuleParameterDialog extends Dialog<Void> {
     }
 
     private ValidationResult booleanValidator(Control c, String newValue) {
-        if (newValue == "true" || newValue == "True" || newValue == "false" || newValue == "False") {
+        if (newValue.equalsIgnoreCase("true")
+                || newValue.equalsIgnoreCase("false")) {
             return new ValidationResult();
         }
         return ValidationResult.fromError(c, "Boolean values must be true or false.");

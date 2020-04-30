@@ -67,6 +67,10 @@ public class FormulaCell extends BorderPane {
             BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
         this.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
 
+        // set a non-null side object to force repaint on resize.
+        Rectangle rectangle = new Rectangle(0,0);
+        this.setRight(rectangle);
+
         updateItem(formula);
         showLabels(showLabelsInView.get());
         showLabelsInView.addListener((observable, oldValue, newValue) -> {
@@ -77,18 +81,19 @@ public class FormulaCell extends BorderPane {
 
     protected void updateItem(ViewFormula formula) {
        if (formula != null) {
-            //selectors to highlight
-            Set<TermSelector> filterAccToIndexInSeq = highlightSet
-                    .stream()
-                    .filter(termSelector ->
-                            termSelector.getToplevelSelector().getTermNo() == formula.getIndexInSequent())
-                    .collect(Collectors.toSet());
-            BasicFormulaView formulaView = new BasicFormulaView(formula, selectedTerm, selectedReference, allStyles, filterAccToIndexInSeq, fontsize);
-            this.label = formula.getLabels();
-            //VirtualizedScrollPane<BasicFormulaView> sp = new VirtualizedScrollPane<>(formulaView);
-            //setCenter(sp);
-            setCenter(formulaView);
-            createTooltip();
+           //selectors to highlight
+           Set<TermSelector> filterAccToIndexInSeq = highlightSet
+                   .stream()
+                   .filter(termSelector ->
+                          termSelector.getToplevelSelector().getTermNo() == formula.getIndexInSequent())
+                   .collect(Collectors.toSet());
+           BasicFormulaView formulaView = new BasicFormulaView(formula, selectedTerm, selectedReference, allStyles, filterAccToIndexInSeq, fontsize);
+           this.label = formula.getLabels();
+           //VirtualizedScrollPane<BasicFormulaView> sp = new VirtualizedScrollPane<>(formulaView);
+           //setCenter(sp);
+
+           setCenter(formulaView);
+           createTooltip();
 
         } else {
             getChildren().clear();
@@ -126,9 +131,6 @@ public class FormulaCell extends BorderPane {
             //this.setRight(rectangle);
         } else {
             this.setBottom(null);
-            // set a non-null side object to force repaint on resize.
-            Rectangle rectangle = new Rectangle(0,0);
-            this.setRight(rectangle);
         }
     }
 

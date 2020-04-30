@@ -43,7 +43,7 @@ public class ProofTermReferenceTarget extends ReferenceTarget {
 
     @Override
     public String toString() {
-        return "ProofTermReference{" +
+        return "ProofTermReferenceTarget{" +
                 "proofNodeSelector=" + proofNodeSelector +
                 ", termSelector=" + termSelector +
               //  ", termNo="+ termSelector.getTermNo() +

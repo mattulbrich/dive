@@ -54,7 +54,7 @@ public class PropositionalExpansionRule extends NoFocusProofRule {
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         // TODO: Make this a parameter
-        boolean allowSplit = parameters.getValueOrDefault(SPLT_PARAM, false);
+        boolean allowSplit = parameters.getValueOrDefault(SPLT_PARAM, true);
 
         PropositionalExpander pex = new PropositionalExpander();
         List<ProofFormula> deletionsAnte = new ArrayList<ProofFormula>();
@@ -81,10 +81,11 @@ public class PropositionalExpansionRule extends NoFocusProofRule {
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
+        int caseNo = 0;
         for (Sequent sequent : sequents) {
             builder.newBranch().addAdditions(sequent)
                     .addDeletionsAntecedent(deletionsAnte)
-                    .addDeletionsSuccedent(deletionsSucc);
+                    .addDeletionsSuccedent(deletionsSucc).setLabel("case " + ++caseNo);
         }
 
         builder.setApplicability(Applicability.APPLICABLE);
