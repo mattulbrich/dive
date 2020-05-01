@@ -23,6 +23,13 @@ import java.util.List;
  */
 public class FunctionObligationMaker {
 
+    /**
+     * Generate a number of SymbexPaths that correspond to the proof obligations
+     * for the given function.
+     *
+     * @param function object to analyse
+     * @return a fresh list of paths for the obligations
+     */
     public List<SymbexPath> visit(DafnyTree function) {
 
         assert function.getType() == DafnyParser.FUNCTION;
@@ -35,7 +42,8 @@ public class FunctionObligationMaker {
             path.addPathCondition(req.getLastChild(), req, AssumptionType.PRE);
         }
 
-        SymbexExpressionValidator.handleExpression(paths, path, function.getLastChild());
+        SymbexExpressionValidator validator = new SymbexExpressionValidator(paths, path, true);
+        validator.handleExpression(function.getLastChild());
 
         return paths;
     }

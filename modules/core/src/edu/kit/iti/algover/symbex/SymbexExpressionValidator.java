@@ -23,12 +23,18 @@ import java.util.function.Function;
 
 public class SymbexExpressionValidator {
 
-    private Collection<SymbexPath> stack;
-    private SymbexPath state;
+    private final Collection<SymbexPath> stack;
+    private final SymbexPath state;
+    private final boolean checkReads;
 
-    public SymbexExpressionValidator(Collection<SymbexPath> stack, SymbexPath state) {
+    public SymbexExpressionValidator(Collection<SymbexPath> stack, SymbexPath state, boolean checkReads) {
         this.stack = stack;
         this.state = state;
+        this.checkReads = checkReads;
+    }
+
+    public SymbexExpressionValidator(Collection<SymbexPath> stack, SymbexPath state) {
+        this(stack, state, false);
     }
 
     public static void handleExpression(Collection<SymbexPath> paths, SymbexPath path, DafnyTree expression) {
@@ -144,6 +150,7 @@ public class SymbexExpressionValidator {
             child0 = expression.getChild(0);
             handleExpression(child0, wrapper);
             addNonNullCheck(child0, wrapper);
+            addReadsCheck(child0, wrapper);
 
             for (int i = 1; i < expression.getChildCount(); i++) {
                 DafnyTree child = expression.getChild(i);
@@ -167,9 +174,15 @@ public class SymbexExpressionValidator {
             break;
 
         case DafnyParser.LENGTH:
+            child0 = expression.getChild(0);
+            addNonNullCheck(child0, wrapper);
+            handleExpression(child0, wrapper);
+            break;
+
         case DafnyParser.FIELD_ACCESS:
             child0 = expression.getChild(0);
             addNonNullCheck(child0, wrapper);
+            addReadsCheck(child0, wrapper);
             handleExpression(child0, wrapper);
             break;
 
@@ -198,6 +211,12 @@ public class SymbexExpressionValidator {
             }
             handleExpression(expression.getLastChild(),
                     new LetWrapper(expression).andThen(wrapper));
+            break;
+
+        case DafnyParser.ID:
+            if(expression.getDeclarationReference().getType() == DafnyParser.FIELD) {
+                addReadsCheck(ASTUtil._this(), wrapper);
+            }
             break;
 
         default:
@@ -315,6 +334,27 @@ public class SymbexExpressionValidator {
         nonNull.setProofObligation(check, expression, AssertionType.RT_NONNULL);
 
         stack.add(nonNull);
+    }
+
+    private void addReadsCheck(DafnyTree expression, Function<DafnyTree, DafnyTree> wrapper) {
+        if (!checkReads) {
+            // reads checks are optional and only for functions!
+            return;
+        }
+
+        if (expression.getType() != DafnyParser.THIS &&
+                expression.getExpressionType().getText().equals("seq")) {
+            // No check for seq, olny for array.
+            return;
+        }
+
+        SymbexPath path = new SymbexPath(state);
+        DafnyTree check = ASTUtil.inMod(expression);
+        check = wrapper.apply(check);
+        path.setBlockToExecute(Symbex.EMPTY_PROGRAM);
+        path.setProofObligation(check, expression, AssertionType.READS);
+
+        stack.add(path);
     }
 
     private void addNotZeroCheck(DafnyTree size, Function<DafnyTree,DafnyTree> wrapper) {

@@ -170,7 +170,12 @@ public class AssertionElement {
         /**
          * Assigned object is in the "modifies" set.
          */
-        MODIFIES("Modifies");
+        MODIFIES("Modifies"),
+
+        /**
+         * Object from which we read is in the "reads" set.
+         */
+        READS("Reads");
 
         /**
          * The identifier used when constructing a UI-string for a symbex path.
