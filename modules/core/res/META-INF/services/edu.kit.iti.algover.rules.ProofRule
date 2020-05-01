@@ -26,3 +26,4 @@ edu.kit.iti.algover.rules.impl.RemoveAssumptionRule
 # Currently deactivated
 # edu.kit.iti.algover.rules.impl.IntegerSimplification
 edu.kit.iti.algover.rules.impl.AssumeRule
+edu.kit.iti.algover.rules.impl.ForgetRule
