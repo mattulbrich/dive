@@ -20,6 +20,7 @@ import edu.kit.iti.algover.swing.util.Settings;
 import edu.kit.iti.algover.term.Sequent;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
 
 public class SequentController {
@@ -29,23 +30,29 @@ public class SequentController {
     private static final Icon BULLET =
             GUIUtil.makeIcon(SequentController.class.getResource("img/bullet_black.png"));
 
-    private final JPanel componnent;
+    private final JScrollPane component;
     private final JPanel seqComponent;
     private DiveCenter diveCenter;
 
     public SequentController(DiveCenter diveCenter) {
         this.diveCenter = diveCenter;
 
-        componnent = new JPanel(new BorderLayout());
-        // componnent.add(new Breadcrumbs(diveCenter), BorderLayout.NORTH);
-
         seqComponent = new JPanel(new IndentationLayout(SEPARATOR.SEP_LENGTH / 2));
         seqComponent.setBackground(Settings.getInstance().getColor(BACKGROUND, Color.WHITE));
         seqComponent.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-        componnent.add(seqComponent);
+
+        component = new JScrollPane(seqComponent);
+        component.getViewport().addChangeListener(this::changedViewportState);
 
         diveCenter.properties().proofNodeCheckpoint.addObserver(this::setProofNode);
         setProofNode(null);
+    }
+
+    private void changedViewportState(ChangeEvent changeEvent) {
+        Dimension portDim = component.getViewport().getExtentSize();
+        Dimension curDim = seqComponent.getSize();
+
+        seqComponent.setPreferredSize(new Dimension(portDim.width, curDim.height));
     }
 
     private void setProofNode(ProofNodeCheckpoint checkpoint) {
@@ -97,6 +104,6 @@ public class SequentController {
     }
 
     public Component getComponent() {
-        return componnent;
+        return component;
     }
 }

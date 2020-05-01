@@ -84,8 +84,8 @@ public class TermController extends MouseAdapter {
     private static final Border BORDER =
             BorderFactory.createCompoundBorder(
                 BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(BORDER_COLOR),
-                    new TagBorder()),
+                        new TagBorder(), BorderFactory.createLineBorder(BORDER_COLOR)
+                    ),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 

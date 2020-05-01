@@ -30,7 +30,8 @@ public class TagBorder implements Border {
         }
         String[] labels = labelProp.toString().split(",");
         int xpos = x + width;
-        g.setClip(x, y, width, height);
+        // This is wrong if in a scroll pane!
+        // g.setClip(x, y, width, height);
         g.setFont(FONT);
         for (String label : labels) {
             label = label.trim();
