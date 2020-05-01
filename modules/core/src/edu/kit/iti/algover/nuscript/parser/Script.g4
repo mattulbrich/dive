@@ -13,7 +13,7 @@ statement
 expression
     :   STRING_LITERAL
     |   TERM_LITERAL
-    |   POSITION_LITERAL
+    |   SELECTOR_LITERAL
     |   ID
     |   DIGITS
     |   TRUE | FALSE
@@ -54,7 +54,7 @@ DIGITS : [0-9]+;
 ID : [a-zA-Z] ( [_a-zA-Z0-9] )*;
 STRING_LITERAL : '"' ~('"')* '"';
 TERM_LITERAL: '\'' ~('\'')* '\'';
-POSITION_LITERAL: [SA] ( '.' [0-9]+ )+;
+SELECTOR_LITERAL: [SA] ( '.' [0-9]+ )+;
 
 // LEXER Rules
 WS : [ \t\n\r]+ -> channel(HIDDEN) ;
