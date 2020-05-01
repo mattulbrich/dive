@@ -238,7 +238,8 @@ public class SequentController extends FxmlController {
         if (activeNode != null) {
             try {
                 ProofNode nodeBefore = activeNode.get(activeProof);
-                while (nodeBefore.getChildren().size() > 0) {
+                while (nodeBefore.getChildren() != null &&
+                        nodeBefore.getChildren().size() > 0) {
                     ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
                     ProofNode node = newActiveNode.get(activeProof);
                     updateSequent(node.getSequent(), null);
@@ -390,21 +391,14 @@ public class SequentController extends FxmlController {
     private void updateGoalTypeLabel() {
         try {
             ProofNode node = activeNode.get(activeProof);
-            if (node.getChildren().size() == 0) {
-                if (node.isClosed()) {
-                    goalTypeLabel.setText("Closed Goal");
-                    goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK));
-                    goalTypeLabel.setStyle("-fx-text-fill: GREEN");
-                  //  Background b = new Background(new BackgroundFill(Color.rgb(22, 143, 43,0.5), null, null));
-                  //  antecedentBox.setBackground(b);
-                  //  succedentBox.setBackground(b);
-
-
-                } else {
-                    goalTypeLabel.setText("Open Goal");
-                    goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.BULLSEYE));
-                    goalTypeLabel.setStyle("-fx-text-fill: RED");
-                }
+            if (node.getChildren() == null) {
+                goalTypeLabel.setText("Open Goal");
+                goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.BULLSEYE));
+                goalTypeLabel.setStyle("-fx-text-fill: RED");
+            } else if (node.isClosed()) {
+                goalTypeLabel.setText("Closed Goal");
+                goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK));
+                goalTypeLabel.setStyle("-fx-text-fill: GREEN");
             } else {
                 goalTypeLabel.setText("Node");
                 goalTypeLabel.setStyle("-fx-text-fill: GRAY");

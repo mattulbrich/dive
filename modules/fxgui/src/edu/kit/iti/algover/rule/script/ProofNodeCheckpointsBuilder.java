@@ -14,30 +14,35 @@ import edu.kit.iti.algover.proof.ProofNodeSelector;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This computed the proof node checkpoints for a proof.
+ */
 public class ProofNodeCheckpointsBuilder {
 
     public static List<ProofNodeCheckpoint> build(Proof proof) {
-
-
         List<ProofNodeCheckpoint> result = new ArrayList<>();
-//        ProofNode node = proof.getProofRoot();
-//        ProofNodeSelector pns = new ProofNodeSelector();
-//        collect(node, pns, result);
-
+        collect(proof.getProofRoot(), new ProofNodeSelector(), result);
+        if (result.isEmpty()) {
+            result.add(new ProofNodeCheckpoint(new ProofNodeSelector(),
+                    new Position(1, 0),
+                    new Position(1, 0)));
+        }
         return result;
     }
 
     private static void collect(ProofNode node, ProofNodeSelector pns, List<ProofNodeCheckpoint> result) {
-        Command command = node.getCommand();
+        Command command = node.getNextCommand();
         if (command != null) {
             Position pos = command.getPosition();
             result.add(new ProofNodeCheckpoint(pns, pos, pos));
         }
         int number = 0;
-        for (ProofNode child : node.getChildren()) {
-            ProofNodeSelector childPNS = new ProofNodeSelector(pns, number);
-            collect(child, pns, result);
-            number++;
+        if(node.getChildren() != null) {
+            for (ProofNode child : node.getChildren()) {
+                ProofNodeSelector childPNS = new ProofNodeSelector(pns, number);
+                collect(child, childPNS, result);
+                number++;
+            }
         }
     }
 }

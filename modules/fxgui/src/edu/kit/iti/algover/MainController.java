@@ -27,6 +27,7 @@ import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.script.ProofHTML;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
 import edu.kit.iti.algover.settings.SettingsController;
@@ -37,13 +38,14 @@ import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.ExceptionDialog;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
-import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.dialog.ProgressDialog;
@@ -86,6 +88,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final StatusBarLoggingHandler statusBarLoggingHandler;
     private final JFXButton simpleStratButton;
     private final JFXButton settingsButton;
+    private final JFXButton blocklyButton;
     private final JFXButton aboutButton;
     private final JFXButton backButton;
     // REVIEW: Would <String> not be more appropriate?
@@ -107,6 +110,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         JFXButton saveButton = new JFXButton("Save", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
         JFXButton refreshButton = new JFXButton("Refresh", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.REFRESH));
         simpleStratButton = new JFXButton("Try Close All", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.PLAY_CIRCLE));
+        blocklyButton = new JFXButton("Show blocks");
         settingsButton = new JFXButton("Settings", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.COGS));
         aboutButton = new JFXButton("About", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.INFO_CIRCLE));
         backButton = new JFXButton("Project Chooser", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ARROW_LEFT));
@@ -114,6 +118,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         saveButton.setOnAction(this::onClickSaveVisibleContent);
         refreshButton.setOnAction(this::onClickRefresh);
         simpleStratButton.setOnAction(this::trivialStrat);
+        blocklyButton.setOnAction(this::showBlockly);
         settingsButton.setOnAction(this::openSettingsWindow);
         aboutButton.setOnAction(this::openAboutWindow);
         backButton.setOnAction(this::backToWelcome);
@@ -127,7 +132,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         HBox.setHgrow(spacer, Priority.ALWAYS);
         spacer.setMinSize(10, 1);
 
-        this.toolbar = new ToolBar(saveButton, refreshButton, simpleStratButton, settingsButton, spacer, backButton, aboutButton);
+        this.toolbar = new ToolBar(saveButton, refreshButton, simpleStratButton,
+                blocklyButton,
+                settingsButton, spacer, backButton, aboutButton);
 
         this.statusBar = new StatusBar();
         this.statusBar.setOnMouseClicked(this::onStatusBarClicked);
@@ -153,6 +160,23 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         logger.info("Project '" + manager.getName() + "' successfully loaded.");
 
         onClickRefresh(null);
+    }
+
+    private void showBlockly(ActionEvent event) {
+        Stage primaryStage = new Stage();
+        primaryStage.setTitle("JavaFX WebView Example");
+
+        WebView webView = new WebView();
+
+        Proof proof = sequentController.getActiveSequentController().getActiveProof();
+
+        webView.getEngine().loadContent(ProofHTML.toHTML(proof.getProofScript()));
+
+        VBox vBox = new VBox(webView);
+        Scene scene = new Scene(vBox, 500, 600);
+
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
     private void backToWelcome(ActionEvent event) {

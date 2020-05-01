@@ -90,9 +90,9 @@ public abstract class ScriptAST {
     public abstract static class Statement extends ScriptAST {
         // poor man's version of a visitor....
         // should there be more cases in the future consider using a proper visitor.
-        public <R> R visit(
-                FunctionWithException<Command, R, ScriptException> commandFct,
-                FunctionWithException<Cases, R, ScriptException> casesFct) throws ScriptException {
+        public <R, E extends Exception> R visit(
+                FunctionWithException<Command, R, E> commandFct,
+                FunctionWithException<Cases, R, E> casesFct) throws E {
             if (this instanceof Command) {
                 Command command = (Command) this;
                 return commandFct.apply(command);
@@ -198,6 +198,10 @@ public abstract class ScriptAST {
 
         public void addStatement(Statement stmt) {
             statements.add(stmt);
+        }
+
+        public List<Statement> getStatements() {
+            return statements;
         }
 
         public <R> void visit(FunctionWithException<Command, R, ScriptException> commandFct,

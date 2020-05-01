@@ -128,6 +128,19 @@ public class ProofNode {
         return children != null && children.stream().allMatch(ProofNode::allLeavesClosed);
     }
 
+    /**
+     * Get the command applied to this node. This is the command set on all
+     * children (if they are present). Null if no command applied in this proof.
+     *
+     * @return the command applied to this node, null if not existing.
+     */
+    public @Nullable  Command getNextCommand() {
+        if (children != null && children.size() > 0) {
+            return children.get(0).getCommand();
+        }
+        return null;
+    }
+
     public String getLabel() {
         return label;
     }
@@ -170,4 +183,5 @@ public class ProofNode {
     public SymbolTable getAddedSymbols() {
         return addedSymbols;
     }
+
 }

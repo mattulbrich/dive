@@ -24,7 +24,6 @@ dependencies {
 
     compile group: 'org.controlsfx', name: 'controlsfx', version: '11.0.0'
 
-
     compile group: 'com.miglayout', name: 'miglayout-swing', version: '5.2'
     compile group: 'com.miglayout', name: 'miglayout-javafx', version: '5.2'
 
@@ -34,6 +33,8 @@ dependencies {
     /*compile name: 'rsyntaxtextarea-2.6.0-SNAPSHOT'
     compile name: 'swingx-all-1.6.4'*/
     compile group: 'com.jfoenix', name: 'jfoenix', version: '9.0.8'
+
+    compile group: 'com.j2html', name: 'j2html', version: '1.4.0'
 
 }
 
