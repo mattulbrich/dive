@@ -20,6 +20,7 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 
@@ -59,7 +60,9 @@ public class SSASequenter implements PVCSequenter {
 
         try {
             TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
-            SSAInstantiationVisitor visitor = new SSAInstantiationVisitor(ttt.getReferenceMap());
+            // old and fresh need this $oldheap variable
+            ttt.bindVariable(TreeTermTranslator.OLD_HEAP_VAR);
+            SSAInstantiationVisitor visitor = new SSAInstantiationVisitor(ttt.getReferenceMap(), symbolTable);
 
             // JK: REVIEW maybe use set here?
             // MU: No. That would probably not have the right order.
@@ -71,7 +74,6 @@ public class SSASequenter implements PVCSequenter {
 
             // from a bug.
             assert endMapping.size() == pathThroughProgram.getAssignmentHistory().size();
-
 
             for (PathConditionElement element : pathThroughProgram.getPathConditions()) {
                 assert isPrefix(element.getAssignmentHistory(), pathThroughProgram.getAssignmentHistory());
@@ -87,7 +89,6 @@ public class SSASequenter implements PVCSequenter {
             AssertionElement assertion = pathThroughProgram.getProofObligations().getLast();
             ProofFormula succedent = createProofFormula(endMapping, ttt,
                     assertion.getExpression(), "Assertion", visitor);
-//            return new Sequent(antecedent, Collections.singletonList(succedent));
             Sequent sequent = new Sequent(antecedent, Collections.singletonList(succedent));
 
             if(referenceMap != null) {
@@ -96,7 +97,12 @@ public class SSASequenter implements PVCSequenter {
             return sequent;
 
         }  catch(TermBuildException tbe) {
-            throw new DafnyException(tbe.getLocation(), tbe);
+            DafnyTree tree = tbe.getLocation();
+            if (tree == null) {
+                // We have little to go by otherwise. ...
+                tree = pathThroughProgram.getMethod();
+            }
+            throw new DafnyException(tree, tbe);
         }
     }
 
@@ -194,9 +200,11 @@ public class SSASequenter implements PVCSequenter {
 class SSAInstantiationVisitor extends ReplacementVisitor<ImmutableList<Pair<FunctionSymbol, FunctionSymbol>>> {
 
     private Map<Term, DafnyTree> refMap;
+    private SymbolTable symbolTable;
 
-    public SSAInstantiationVisitor(Map<Term, DafnyTree> refMap) {
+    public SSAInstantiationVisitor(Map<Term, DafnyTree> refMap, SymbolTable symbolTable) {
         this.refMap = refMap;
+        this.symbolTable = symbolTable;
     }
 
     @Override
@@ -216,5 +224,13 @@ class SSAInstantiationVisitor extends ReplacementVisitor<ImmutableList<Pair<Func
         }
 
         return result;
+    }
+
+    @Override
+    public Term visit(VariableTerm variableTerm, ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> arg) throws TermBuildException {
+        if(variableTerm.equals(TreeTermTranslator.OLD_HEAP_VAR)) {
+            return new ApplTerm(symbolTable.getFunctionSymbol("$heap"));
+        }
+        return null;
     }
 }
