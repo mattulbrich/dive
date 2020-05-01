@@ -17,10 +17,13 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
 import org.fxmisc.richtext.LineNumberFactory;
@@ -51,6 +54,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
     private BooleanProperty textChangedProperty;
     private String currentProofText;
     private DafnyCodeAreaListener listener;
+    private int tabWidth = 2;
 
 
     /**
@@ -81,6 +85,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
                 }));
 
         textChangedProperty = new SimpleBooleanProperty(true);
+        tabWidth = MainController.systemprefs.getInt("TABWIDTH_EDITOR", 2);
 
         currentProofText = text;
         int fontSizeEditor = MainController.systemprefs.getInt("FONT_SIZE_EDITOR", 12);
@@ -100,7 +105,26 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         replaceText(text);
         getUndoManager().forgetHistory();
 
+        this.addEventFilter(KeyEvent.KEY_PRESSED, this::handleTabPress);
+        this.addEventFilter(KeyEvent.KEY_PRESSED, this::handleEnterKey);
+
         initContextMenu();
+    }
+
+    private void handleEnterKey(KeyEvent t) {
+        if(t.getCode() == KeyCode.ENTER) {
+            long openBraces = this.getText(0, this.getCaretPosition()).chars().filter(ch -> ch == '{').count();
+            long closeBraces = this.getText(0, this.getCaretPosition()).chars().filter(ch -> ch == '}').count();
+            this.insertText(this.getCaretPosition(), "\n" + " ".repeat((int) (tabWidth * (openBraces - closeBraces))));
+            t.consume();
+        }
+    }
+
+    private void handleTabPress(KeyEvent t) {
+        if(t.getCode() == KeyCode.TAB) {
+            this.insertText(this.getCaretPosition(), " ".repeat(tabWidth));
+            t.consume();
+        }
     }
 
     private void updateFontSize(int font_size_editor) {
@@ -112,15 +136,39 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
     private void initContextMenu() {
         MenuItem save = new MenuItem("Save dafny file", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
         MenuItem saveAll = new MenuItem("Save all dafny files", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
+        MenuItem autoFormat = new MenuItem("Autoformat file", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ALIGN_LEFT));
 
         save.setOnAction(event -> listener.saveSelectedFile());
         saveAll.setOnAction(event -> listener.saveAllFiles());
+        autoFormat.setOnAction(this::autoformat);
 
         ContextMenu menu = new ContextMenu(
                 save,
-                saveAll
+                saveAll,
+                autoFormat
         );
         setContextMenu(menu);
+    }
+
+    public void autoformat(ActionEvent actionEvent) {
+        StringBuilder sb = new StringBuilder();
+        int currentIdentation = 0;
+        String currentText = this.getText();
+        String[] paragraphs = currentText.split("(?<=[{}])");
+        for(String p : paragraphs) {
+            String formattedP = p.replaceAll("\n[\t ]*", "\n" + " ".repeat(tabWidth * currentIdentation));
+            //This hardcoded formatting is ugly but works for now
+            formattedP = formattedP.replaceAll("(modifies|requires|ensures|invariant|decreases)", " ".repeat(tabWidth) + "$1");
+            formattedP = formattedP.replaceAll("  }", "}");
+            sb.append(formattedP);
+            if(p.charAt(p.length() - 1) == '{') {
+                currentIdentation++;
+            } else {
+                currentIdentation--;
+            }
+        }
+        this.replaceText(sb.toString());
+        this.rerenderHighlighting();
     }
 
     public void updateProofText() {
@@ -128,6 +176,15 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         textChangedProperty.setValue(false);
     }
 
+    /**
+     * Please review this.
+     * I think this method checks if s1 and s2 only differ in the amount of space characters
+     * at positions where there are space characters in the first place.
+     * @param s1 Text 1
+     * @param s2 Text 2
+     * @return true if s1 is semantically the same text, i.e. uses the same characters and if
+     * there is a space character in one string, there need to be one ore more in the other at that position.
+     */
     private boolean textIsSimilar(String s1, String s2) {
         s1 = s1.replaceAll("\\s*", " ");
         s2 = s2.replaceAll("\\s*", " ");

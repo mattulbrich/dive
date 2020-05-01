@@ -16,7 +16,7 @@ public abstract class NoFocusProofRule extends AbstractProofRule {
      * the mandatory version of the "on" parameter
      */
     public static final ParameterDescription<TermParameter> ON_PARAM =
-            new ParameterDescription<>("on", ParameterType.MATCH_TERM, true);
+            new ParameterDescription<>("on", ParameterType.TERM, true);
 
     public NoFocusProofRule(ParameterDescription<?>... parameters) {
         super(parameters);

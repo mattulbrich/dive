@@ -45,7 +45,7 @@ public class QuantifierInstantiation extends NoFocusProofRule {
             new ParameterDescription<>("var", ParameterType.STRING, false);
 
     public QuantifierInstantiation() {
-        super(DefaultFocusProofRule.ON_PARAM, WITH_PARAM);
+        super(DefaultFocusProofRule.ON_PARAM_OPT, WITH_PARAM);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class QuantifierInstantiation extends NoFocusProofRule {
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
 
-        TermParameter onParam = parameters.getValue(DefaultFocusProofRule.ON_PARAM);
+        TermParameter onParam = parameters.getValue(DefaultFocusProofRule.ON_PARAM_OPT);
         TermParameter withParam = parameters.getValue(WITH_PARAM);
 
         if(onParam == null) {

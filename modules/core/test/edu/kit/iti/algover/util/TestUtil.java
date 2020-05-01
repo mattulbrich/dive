@@ -22,6 +22,7 @@ import java.lang.reflect.Parameter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Function;
 
@@ -328,12 +329,17 @@ public class TestUtil {
     }
 
     @TestInfrastructure
-    public static List<URL> getResourcesIn(URL resource, String suffix, boolean deep) throws MalformedURLException {
-        assert resource != null : "Null resource received!";
-        assert resource.getProtocol().equals("file") :
-                "This is only implemented for file systems.";
-        File f = new File(resource.getFile());
-        return getResourcesIn(f, suffix, deep);
+    public static List<URL> getResourcesIn(String path, String suffix, boolean deep) throws IOException {
+        assert path != null : "Null resource received!";
+        Enumeration<URL> urls = ClassLoader.getSystemResources(path);
+        List<URL> result = new ArrayList<>();
+        while (urls.hasMoreElements()) {
+            URL url = urls.nextElement();
+            if(url.getProtocol().equals("file")) {
+                result.addAll(getResourcesIn(new File(url.getFile()), suffix, deep));
+            }
+        }
+        return result;
     }
 
     private static List<URL> getResourcesIn(File resource, String suffix, boolean deep) throws MalformedURLException {

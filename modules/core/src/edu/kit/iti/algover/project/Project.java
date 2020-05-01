@@ -110,6 +110,7 @@ public final class Project {
     /**
      * A collection of all proof rules available in this project.
      *
+     * This reference is initially null and only set once it is needed.
      */
     private @Nullable Collection<ProofRule> allProofRules;
 

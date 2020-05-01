@@ -52,15 +52,15 @@ public class AbstractRuleTest {
         TermParser tp = new TermParser(symbolTable);
         Sequent sequent = tp.parseSequent("i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2");
         Parameters params = new Parameters();
-        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(selector, sequent));
+        params.putValue(DefaultFocusProofRule.ON_PARAM_OPT, new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("|- (... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...)", ((TermParameter)params.getValue(AbstractProofRule.ON_PARAM)).getSchematicSequent().toString());
+        assertEquals("|- (... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...)", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
         ProofRuleApplication app = rule.makeApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
         );
         assertEquals(1, params.entrySet().size());
-        assertEquals("|- (... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...)", ((TermParameter)params.getValue(AbstractProofRule.ON_PARAM)).getSchematicSequent().toString());
+        assertEquals("|- (... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...)", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
     }
 
     @Test(expected = RuleException.class)
@@ -81,7 +81,7 @@ public class AbstractRuleTest {
         t = new SchemaOccurTerm(t);
         Sequent schemaSeq = new Sequent(Collections.singletonList(new ProofFormula(t)), Collections.emptyList());
 
-        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(schemaSeq, sequent));
+        params.putValue(DefaultFocusProofRule.ON_PARAM_OPT, new TermParameter(schemaSeq, sequent));
         rule.makeApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
@@ -126,9 +126,9 @@ public class AbstractRuleTest {
         TermParser tp = new TermParser(symbolTable);
         Sequent sequent = tp.parseSequent("i1 < i2 && i3 < i4 |- i1 < i2");
         Parameters params = new Parameters();
-        params.putValue(AbstractProofRule.ON_PARAM, new TermParameter(selector, sequent));
+        params.putValue(DefaultFocusProofRule.ON_PARAM_OPT, new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", ((TermParameter)params.getValue(AbstractProofRule.ON_PARAM)).getSchematicSequent().toString());
+        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
         rule.makeApplication(ProofMockUtil.mockProofNode(null, sequent), params);
     }
 }

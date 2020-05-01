@@ -48,7 +48,7 @@ public class ImpLeftRule extends DefaultFocusProofRule {
 
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+        TermSelector selector = parameters.getValue(ON_PARAM_OPT).getTermSelector();
 
         ProofFormula formula = selector.selectTopterm(target.getSequent());
         Term term = formula.getTerm();

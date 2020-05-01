@@ -35,7 +35,7 @@ public class UserInputReferenceTarget extends ReferenceTarget {
 
     @Override
     public String toString() {
-        return "UserInputReference{" +
+        return "UserInputReferenceTarget{" +
                 "description='" + description + '\'' +
                 '}';
     }

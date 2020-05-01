@@ -51,11 +51,11 @@ public class ReplaceCutRule extends FocusProofRule {
             return pra.build();
         }
 
-        TermParameter onParam = parameters.getValue(ON_PARAM);
+        TermParameter onParam = parameters.getValue(ON_PARAM_REQ);
         Term on = onParam.getTerm();
         Term with = withParam.getTerm();
 
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+        TermSelector selector = parameters.getValue(ON_PARAM_REQ).getTermSelector();
 
         if(!on.getSort().equals(with.getSort())) {
             throw new NotApplicableException("Found type " + with.getSort().toString() + " as replacement but original term has type "

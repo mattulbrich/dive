@@ -20,11 +20,20 @@ import edu.kit.iti.algover.term.Sequent;
  * {@link ProofRuleApplication} with {@link edu.kit.iti.algover.rules.ProofRuleApplication.Applicability#INSTANTIATION_REQUIRED}.
  *
  * @author Mattias Ulbrich
+ *
+ * TODO MERGE THIS WITH DefaultFocusProofRule
+ *
  */
 public abstract class FocusProofRule extends AbstractProofRule {
 
+    /**
+     * The on-parameter is a required parameter in focus rules
+     */
+    public static final ParameterDescription<TermParameter> ON_PARAM_REQ =
+            new ParameterDescription<>("on", ParameterType.TERM, true);
+
     public FocusProofRule(ParameterDescription<?>... parameters) {
-        super(ON_PARAM, parameters);
+        super(ON_PARAM_REQ, parameters);
     }
 
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
@@ -34,7 +43,7 @@ public abstract class FocusProofRule extends AbstractProofRule {
 
         try {
             Parameters params = new Parameters();
-            params.putValue(ON_PARAM, new TermParameter(selector, target.getSequent()));
+            params.putValue(ON_PARAM_REQ, new TermParameter(selector, target.getSequent()));
             ProofRuleApplication result = makeApplication(target, params);
             return result;
         } catch (NotApplicableException e) {
@@ -44,7 +53,7 @@ public abstract class FocusProofRule extends AbstractProofRule {
 
     @Override
     public ProofRuleApplication makeApplication(ProofNode target, Parameters parameters) throws RuleException {
-        if (!parameters.hasValue(ON_PARAM)) {
+        if (!parameters.hasValue(ON_PARAM_REQ)) {
             throw new NotApplicableException("Missing parameter: on");
         }
         return super.makeApplication(target, parameters);

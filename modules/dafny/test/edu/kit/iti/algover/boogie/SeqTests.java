@@ -15,7 +15,7 @@ import java.util.List;
 public class SeqTests extends BoogieProcessTest {
 
     @Parameters(name = "{1}")
-    public static List<Object[]> parameters() throws MalformedURLException {
+    public static List<Object[]> parameters() throws Exception {
         return parametersFor("seq/");
     }
 

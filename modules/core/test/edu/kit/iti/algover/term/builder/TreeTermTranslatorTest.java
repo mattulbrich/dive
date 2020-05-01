@@ -596,8 +596,15 @@ public class TreeTermTranslatorTest {
     public void testSequentTranslation(String seq, String exp) throws Exception {
         TermParser tp = new TermParser(symbTable);
         Sequent sequent = tp.parseSequent(seq);
-        System.out.println("tp = " + sequent);
         Assert.assertEquals("First sequent ", exp, sequent.toString());
+    }
+
+    @Test(expected = DafnyParserException.class)
+    public void testSequentWithTrailingChars() throws DafnyParserException, DafnyException {
+        TermParser tp = new TermParser(symbTable);
+        Sequent sequent = tp.parseSequent(" b1 |- b1 ,");
+        // This should throw an exception because of the trailing semicolon
+        System.out.println("seq = " + sequent);
     }
 
     @Test

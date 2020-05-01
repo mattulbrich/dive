@@ -4,6 +4,7 @@ plugins{
     id 'org.openjfx.javafxplugin' version '0.0.5'
     //can be upgraded to 0.0.7 later
 }
+
 javafx {
     //can be upgraded to 12
     version = "11"
@@ -11,10 +12,6 @@ javafx {
 }
 
 mainClassName = 'edu.kit.iti.algover.DIVEApplication'
-
-/*repositories{
-    jcenter()
-}*/
 
 dependencies {
     compile project(":core")
@@ -41,15 +38,11 @@ dependencies {
 }
 
 run {
-     environment 'PATH', "${environment.PATH}"
-
+    environment 'PATH', "${environment.PATH}"
 }
 
-runShadow{
-
-        environment 'PATH', "${environment.PATH}"
-
-
+runShadow {
+    environment 'PATH', "${environment.PATH}"
 }
 
 application {

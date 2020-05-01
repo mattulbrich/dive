@@ -99,10 +99,8 @@ public class Parameters {
                 "This should have been checked way earlier! (see AbstractProofRule#checkParameters)";
             return param.castValue(value);
         }
-        if (param.getDefaultValue().isPresent()) {
-            return param.getDefaultValue().get();
-        }
-        return null;
+
+        return param.getDefaultValue().orElse(null);
     }
 
     /**

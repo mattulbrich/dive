@@ -40,7 +40,7 @@ public class NotLeftRule extends DefaultFocusProofRule {
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
-        TermParameter onParam = parameters.getValue(ON_PARAM);
+        TermParameter onParam = parameters.getValue(ON_PARAM_OPT);
         TermSelector selector = onParam.getTermSelector();
 
         if(!selector.isToplevel()) {

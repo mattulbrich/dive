@@ -45,7 +45,7 @@ public class SkolemizationRule extends FocusProofRule {
 
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermParameter onParam = parameters.getValue(ON_PARAM);
+        TermParameter onParam = parameters.getValue(ON_PARAM_REQ);
         TermSelector onTs = onParam.getTermSelector();
 
         if(!onTs.isToplevel()) {

@@ -7,6 +7,8 @@ package edu.kit.iti.algover.boogie;
 
 import de.uka.ilkd.pp.NoExceptions;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
+import edu.kit.iti.algover.dafnystructures.DafnyFunctionSymbol;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
@@ -19,6 +21,7 @@ import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.Util;
+import nonnull.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 
 import static edu.kit.iti.algover.data.BuiltinSymbols.*;
 
@@ -46,6 +50,8 @@ import static edu.kit.iti.algover.data.BuiltinSymbols.*;
  * @author mulbrich
  */
 public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions> {
+
+    private static final Function<Term, Term> EMPTY_TRIGGER = t -> null;
 
     /**
      * The functional interface for the routines which translate individual
@@ -85,6 +91,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(IMP.getName(), binary("==>"));
         result.put(OR.getName(), binary("||"));
         result.put(NOT.getName(), (t,v) -> "!("+t.getTerm(0).accept(v,null)+")");
+        result.put(ITE.getBaseName(), format("(if %s then %s else %s)"));
         // --- Sets
         result.put(SUBSET.getBaseName(), function("Set#Subset"));
         result.put(UNION.getBaseName(), function("Set#Union"));
@@ -258,6 +265,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
 
     private List<String> axioms = new ArrayList<>();
 
+    private @NonNull Function<Term, Term> triggerFunction = EMPTY_TRIGGER;
 
     /*
      * Check for an entry in the map, otherwise declare the constant.
@@ -315,6 +323,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
                         type, name, args,
                         visitSort(fs.getResultSort())));
 
+        // is indeed a new symbol
         if (added) {
             if(fs.getArity() == 0) {
                 axioms.add(String.format("axiom $Is(%s, %s);",
@@ -362,13 +371,33 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
      */
 
     @Override
-    public String visit(QuantTerm term, Void arg) throws NoExceptions {
-        String quantifier = term.getQuantifier() == Quantifier.FORALL ?
+    public String visit(QuantTerm quantTerm, Void arg) throws NoExceptions {
+        String quantifier = quantTerm.getQuantifier() == Quantifier.FORALL ?
                 "forall" : "exists";
 
-        return "(" + quantifier + " var_" + term.getBoundVar().getName() + " : " +
-        visitSort(term.getBoundVar().getSort()) + " :: " +
-        term.getTerm(0).accept(this, null) + ")";
+        StringBuilder sb = new StringBuilder("(" + quantifier);
+        Term term = quantTerm;
+        while (term instanceof QuantTerm) {
+            QuantTerm innerQuant = (QuantTerm) term;
+            if (innerQuant.getQuantifier() != quantTerm.getQuantifier()) {
+                break;
+            }
+            if (term != quantTerm) {
+                sb.append(",");
+            }
+            sb.append(" var_" + innerQuant.getBoundVar().getName() + ":" +
+                    visitSort(innerQuant.getBoundVar().getSort()));
+            term = term.getTerm(0);
+        }
+
+        sb.append(" :: ");
+        Term trigger = triggerFunction.apply(term);
+        if (trigger != null) {
+            sb.append("{").append(trigger.accept(this, null)).append("} ");
+        }
+
+        sb.append(term.accept(this, null)).append(")");
+        return sb.toString();
     }
 
     public void addClassDeclarations(Project project) {
@@ -427,7 +456,20 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         return declarations;
     }
 
+    // may even be added to outside!
     public List<String> getAxioms() {
         return axioms;
+    }
+
+    public Function<Term, Term> getTriggerFunction() {
+        return triggerFunction;
+    }
+
+    public void setTriggerFunction(Function<Term, Term> triggerFunction) {
+        if(triggerFunction == null) {
+            this.triggerFunction = EMPTY_TRIGGER;
+        } else {
+            this.triggerFunction = triggerFunction;
+        }
     }
 }

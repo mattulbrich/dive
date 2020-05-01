@@ -33,11 +33,6 @@ import java.util.Optional;
 public class OrLeftRule extends DefaultFocusProofRule {
 
     @Override
-    public boolean mayBeExhaustive() {
-        return true;
-    }
-
-    @Override
     public String getName() {
         return "orLeft";
     }
@@ -50,8 +45,8 @@ public class OrLeftRule extends DefaultFocusProofRule {
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
 
-        Term on = parameters.getValue(ON_PARAM).getTerm();
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+        Term on = parameters.getValue(ON_PARAM_OPT).getTerm();
+        TermSelector selector = parameters.getValue(ON_PARAM_OPT).getTermSelector();
 
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 

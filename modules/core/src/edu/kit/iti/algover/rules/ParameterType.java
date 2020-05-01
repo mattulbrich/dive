@@ -1,4 +1,4 @@
-/**
+/*
  * This file is part of DIVE.
  *
  * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
@@ -26,17 +26,6 @@ import edu.kit.iti.algover.util.Util;
  * @author Mattias Ulbrich
  */
 public abstract class ParameterType<T> {
-
-    /**
-     * The type to capture match-terms in parameters in scripts
-     */
-    public static final ParameterType<TermParameter> MATCH_TERM =
-            new ParameterType<>("MatchTerm", TermParameter.class) {
-                @Override
-                public String prettyPrint(PrettyPrint prettyPrint, TermParameter value) {
-                    return prettyPrintTerm(prettyPrint, value);
-                }
-            };
 
     /**
      * The type to capture terms in parameters in scripts
@@ -116,8 +105,19 @@ public abstract class ParameterType<T> {
         return getName();
     }
 
+    /**
+     * Print this the parameter value provided in a nice form, possibly using the provided term
+     * prettyprinter.
+     *
+     * Delimiters are added to the string (e.g. "..." for Strings).
+     *
+     * @param prettyPrint the pretty-printer for terms and sequents
+     * @param value the value to print
+     * @return a String representing the value
+     */
     public abstract String prettyPrint(PrettyPrint prettyPrint, T value);
 
+    // used from TermParameter#prettyPrint.
     private static String prettyPrintTerm(PrettyPrint prettyPrint, TermParameter parameter) {
         String pp;
         // TODO This case distinction is ugly.

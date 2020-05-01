@@ -82,9 +82,9 @@ public class GenericRuleTest {
                  new ArrayList<>(Arrays.asList("b1, $or(b2, b3) |- b3", "b1, $not(b1) |- b3")), null},
                 {new AndLeftRule(), "b1 && b2 |- ", new TermSelector(TermSelector.SequentPolarity.ANTECEDENT, 0),
                         new ArrayList<>(Arrays.asList("b1, b2 |-")), null},
-                {new OrRightRule(), "b1 |- b1 || b2)", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
+                {new OrRightRule(), "b1 |- b1 || b2", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
                         new ArrayList<>(Arrays.asList("b1 |- b1, b2")), null},
-                {new ModusTollensRule(), "!b2 |- b1 ==> b2)", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
+                {new ModusTollensRule(), "!b2 |- b1 ==> b2", new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 0),
                         new ArrayList<>(Arrays.asList("$not(b2) |- $not(b1)", "$not(b2) |- $not(b2)")), null},
 
         };
@@ -167,7 +167,7 @@ public class GenericRuleTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent());
 
         Parameters params = new Parameters();
-        params.putValue(ProofRule.ON_PARAM, new TermParameter(ts.selectSubterm(s), s));
+        params.putValue(pr.getOnParameter(), new TermParameter(ts.selectSubterm(s), s));
 
         ProofRuleApplication pra = pr.considerApplication(pn, s, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
@@ -240,7 +240,7 @@ public class GenericRuleTest {
         ProofNode pn = ProofMockUtil.mockProofNode(null, s.getAntecedent(), s.getSuccedent());
 
         Parameters params = new Parameters();
-        params.putValue(ProofRule.ON_PARAM, new TermParameter(ts.selectSubterm(s), s));
+        params.putValue(pr.getOnParameter(), new TermParameter(ts.selectSubterm(s), s));
 
         ProofRuleApplication pra = pr.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);

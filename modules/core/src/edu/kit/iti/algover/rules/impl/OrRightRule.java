@@ -26,11 +26,6 @@ public class OrRightRule extends DefaultFocusProofRule {
     }
 
     @Override
-    public boolean mayBeExhaustive() {
-        return true;
-    }
-
-    @Override
     public String getName() {
         return "orRight";
     }
@@ -47,7 +42,7 @@ public class OrRightRule extends DefaultFocusProofRule {
 
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
-        TermSelector selector = parameters.getValue(ON_PARAM).getTermSelector();
+        TermSelector selector = parameters.getValue(ON_PARAM_OPT).getTermSelector();
 
         if(!selector.isToplevel()) {
             throw NotApplicableException.onlyToplevel(this);
