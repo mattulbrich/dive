@@ -182,7 +182,8 @@ public class PVCBrowserController {
 
     public PVCBrowserController(DiveCenter diveCenter) {
         this.diveCenter = diveCenter;
-        tree = new JTree();
+        Object[] noData = {};
+        tree = new JTree(noData);
         tree.setCellRenderer(new PVCTreeRenderer(diveCenter));
         theComponent = new JScrollPane(tree);
 
