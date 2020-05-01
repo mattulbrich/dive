@@ -270,6 +270,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             case DafnyLexer.TRUE:
             case DafnyLexer.FALSE:
             case DafnyLexer.STRING_LIT:
+            case DafnyLexer.NULL:
                 return Collections.singleton("value-literal");
             default:
                 return Collections.emptyList();
