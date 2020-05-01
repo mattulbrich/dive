@@ -63,7 +63,7 @@ public class TreeTermTranslator {
     /**
      * This constant is used by old and fresh expressions.
      */
-    private static final VariableTerm OLD_HEAP_VAR =
+    public static final VariableTerm OLD_HEAP_VAR =
             new VariableTerm("$oldheap", Sort.HEAP);
 
     /**
