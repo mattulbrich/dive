@@ -7,6 +7,7 @@ package edu.kit.iti.algover.symbex;
 
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
+import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -858,7 +859,10 @@ public class Symbex {
 
         try {
             result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
-                    ModifiesListResolver.resolve(modifies)));
+                  ASTUtil.plus(
+                    ModifiesListResolver.resolve(modifies),
+                    ASTUtil.call(BuiltinSymbols.FRESH_OBJECTS.getName(),
+                            ASTUtil.id(BuiltinSymbols.HEAP.getName())))));
         } catch (DafnyException e) {
             // Thanks to TypeResolver, this should never occur.
             throw new RuntimeException(e);

@@ -1,0 +1,36 @@
+### decls:
+mod : set<object>
+o : C
+
+### project:
+
+class C {}
+
+### sequent:
+$mod == mod + $freshObjects($heap), !$isCreated($heap, o) |- {o} <= $mod
+
+### result:
+
+prove
+
+### translation:
+
+const _$heap : Heap;
+const _$mod : Set (ref);
+const _mod : Set (ref);
+const _o : ref;
+const unique TClass_C : Ty;
+
+axiom (forall x:ref :: $Is(x, TClass_C) <==> dtype(x) == TClass_C || x == null);
+axiom $Is(_$mod, TSet(TObject));
+axiom $Is(_mod, TSet(TObject));
+axiom $Is(_$heap, THeap);
+axiom $Is(_o, TClass_C);
+
+procedure Sequent()
+  ensures false;
+{
+  assume Set#Equal(_$mod, Set#Union(_mod, $FreshObjects(_$heap)));
+  assume !($IsCreated(_$heap, _o));
+  assume !(Set#Subset(Set#UnionOne(Set#Empty(), _o), _$mod));
+}
