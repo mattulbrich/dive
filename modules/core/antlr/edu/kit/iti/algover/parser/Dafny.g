@@ -91,6 +91,7 @@ FALSE: 'false';
 FREE: 'free';
 FRESH: 'fresh';
 FUNCTION: 'function';
+GHOST: 'ghost';
 IF: 'if';
 IN : 'in';
 INCLUDE : 'include';
@@ -231,7 +232,7 @@ clazz:
   ;
 
 method:
-  ( 'ghost' )?
+  ( GHOST )?
   tok = ('method' | 'lemma')
   ID '(' vars? ')'
   ( returns_ )?
@@ -259,7 +260,7 @@ function:
   ;
 
 field:
-  ( 'ghost' )? 'var' ID ':' typeRef (';')?
+  ( GHOST )? 'var' ID ':' typeRef (';')?
     -> ^(FIELD ID typeRef)
   ;
 
@@ -326,9 +327,9 @@ block:
     decl : 'int' ID (',' ID)* -> ^('int' ID)+ ;
 */
 varDecl:
-    VAR ID ( ',' ID )+ ':' typeRef ';' -> ^(VAR ID typeRef)+
-  | VAR^ ID ( ':'! typeRef (':='! (expression | new_expression))?
-           | ':='! (expression | new_expression) ) ';'!
+    ( GHOST )? VAR ID ( ',' ID )+ ':' typeRef ';' -> ^(VAR ID typeRef)+
+  | ( GHOST! )? VAR^ ID ( ':'! typeRef (':='! (expression | new_expression))?
+                       | ':='! (expression | new_expression) ) ';'!
   ;
 
 statements:

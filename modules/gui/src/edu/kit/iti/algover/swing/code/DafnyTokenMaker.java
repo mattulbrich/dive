@@ -86,6 +86,7 @@ public class DafnyTokenMaker extends TokenMakerBase {
         case DafnyLexer.ASSIGN:
         case DafnyLexer.RETURN:
         case DafnyLexer.INCLUDE:
+        case DafnyLexer.GHOST:
             return Token.RESERVED_WORD;
 
         case DafnyLexer.REQUIRES:
