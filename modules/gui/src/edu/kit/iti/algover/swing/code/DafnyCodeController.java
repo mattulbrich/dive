@@ -132,6 +132,7 @@ public class DafnyCodeController {
         rsta.getDocument().addDocumentListener(new UnifyingDocumentListener(this::codeChanged));
         scroll.putClientProperty(FILENAME, file.toString());
         tabs.addTab(file.getName(), scroll);
+        tabs.setToolTipTextAt(tabs.getTabCount()-1, file.getAbsolutePath());
     }
 
     private void codeChanged(DocumentEvent e) {

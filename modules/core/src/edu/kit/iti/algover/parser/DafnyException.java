@@ -6,7 +6,7 @@
 package edu.kit.iti.algover.parser;
 
 
-import java.io.File;
+import nonnull.NonNull;
 
 /**
  * The Class DafnyException is thrown by all routines that have a
@@ -24,22 +24,22 @@ public class DafnyException extends Exception {
 
     // Checkstyle: OFF JavadocMethodCheck
 
-    public DafnyException(DafnyTree tree) {
+    public DafnyException(@NonNull DafnyTree tree) {
         super();
         this.tree = tree;
     }
 
-    public DafnyException(String message, DafnyTree tree, Throwable cause) {
+    public DafnyException(String message, @NonNull DafnyTree tree, Throwable cause) {
         super(message, cause);
         this.tree = tree;
     }
 
-    public DafnyException(String message, DafnyTree tree) {
+    public DafnyException(String message, @NonNull DafnyTree tree) {
         super(message);
         this.tree = tree;
     }
 
-    public DafnyException(DafnyTree tree, Throwable cause) {
+    public DafnyException(@NonNull DafnyTree tree, Throwable cause) {
         super(cause.getMessage(), cause);
         this.tree = tree;
     }

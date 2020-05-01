@@ -15,11 +15,14 @@ import javax.swing.*;
 
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.project.DafnyProjectManager;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.swing.actions.BarManager;
 import edu.kit.iti.algover.swing.code.DafnyCodeController;
 import edu.kit.iti.algover.swing.util.ExceptionDialog;
 import edu.kit.iti.algover.swing.util.Log;
+import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.ExceptionDetails.ExceptionReportInfo;
 import edu.kit.iti.algover.util.FormatException;
 import nonnull.NonNull;
 
@@ -53,6 +56,9 @@ public class DiveCenter {
      */
     private final ProjectManager projectManager;
 
+    /**
+     * This is used for concurrent proofs.
+     */
     private ExecutorService executerService = Executors.newCachedThreadPool();
 
     /**
@@ -72,6 +78,11 @@ public class DiveCenter {
         return properties;
     }
 
+    /**
+     * Activate this MainWindow.
+     *
+     * This is only called during startup.
+     */
     public void activate() {
         properties().viewPort.setValue(Viewport.PVC_VIEW);
         reloadProject();
@@ -81,24 +92,32 @@ public class DiveCenter {
     public void reloadProject() {
         DafnyCodeController codeCtrl = mainController.getDafnyCodeController();
         try {
+
             projectManager.reload();
             properties().project.setValue(projectManager.getProject());
             properties().noProjectMode.setValue(false);
             codeCtrl.setException(null);
             properties().noProjectMode.setValue(false);
             mainController.setStatus("Project successfully loaded.");
-        } catch(DafnyException| DafnyParserException| FormatException e) {
-            Log.stacktrace(Log.DEBUG, e);
-            codeCtrl.setException(e);
-            properties().noProjectMode.setValue(true);
-            mainController.setStatus(e);
-        } catch (Exception e) {
-            Log.log(Log.DEBUG, "Error while reloading");
-            Log.stacktrace(e);
-            ExceptionDialog.showExceptionDialog(getMainWindow(),
-                    "An exception occurred while reading the project. " +
-                            "You can continue, but your data may be corrupted.",
-                    e);
+
+        } catch(Exception ex) {
+
+            ExceptionReportInfo info = ExceptionDetails.extractReportInfo(ex);
+
+            if(info.getFilename() != null) {
+                Log.log(Log.VERBOSE, ExceptionDetails.getNiceErrorMessage(ex));
+                Log.stacktrace(Log.VERBOSE, ex);
+                codeCtrl.setException(ex);
+                properties().noProjectMode.setValue(true);
+                mainController.setStatus(ex);
+            } else {
+                Log.log(Log.DEBUG, "Unlocalised error while reloading. Should not be.");
+                Log.stacktrace(ex);
+                ExceptionDialog.showExceptionDialog(getMainWindow(),
+                        "An exception occurred while reading the project. " +
+                                "You can continue, but your data may be corrupted.",
+                        ex);
+            }
         }
     }
 

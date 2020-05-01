@@ -118,7 +118,8 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
         DafnyTree masterAST = DafnyFileParser.parse(masterFile);
 
-        pb.addInputFile(masterFile.getName());
+        // Pretty unclear ... pb.addInputFile(masterFile.getName());
+        pb.addInputFile(masterFile.getAbsolutePath());
 
         for (DafnyTree include :
                 masterAST.getChildrenWithType(DafnyParser.INCLUDE)) {
