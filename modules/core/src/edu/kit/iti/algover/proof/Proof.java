@@ -21,23 +21,16 @@ import java.util.Deque;
 import java.util.LinkedList;
 
 /**
- * Proof Object
+ * Proof Object.
+ *
  * This object contains the proof root as well as the script root
- * It has to be build by the ProjectManager in order to contain a valid interpreter.
+ *
+ * It is a mutable object. The proof script can be modified and interpretation be triggered.
  *
  * @author Sarah Grebing
  * @author M. Ulbrich, refactoring Jan 2018
  */
 public class Proof {
-
-    public ReferenceGraph getGraph() {
-        return graph;
-    }
-
-    /**
-     * The reference graph for the current proof
-     */
-    private ReferenceGraph graph;
 
     /**
      * Status of proof.
@@ -52,19 +45,23 @@ public class Proof {
      * (Even the empty script produces a one-node prooftree.)
      *
      * if proof state is ProofState#CHANGED_SCRIPT or ProofState#NON_EXISTING, then this ought to be null.
+     *
+     * mutable.
      */
     private @Nullable ProofNode proofRoot;
 
     /**
      * The script text.
      *
-     * mutable, can be null if no script set so far.
+     * mutable, should never be null.
      * If a proofRoot is present, it results from this very script object.
      */
-    private @Nullable String script;
+    private @NonNull String script = "";
 
     /**
-     * The AST of the script
+     * The AST of the script.
+     *
+     * mutable, can be null if not yet parsed (in the beginning or after setting a script)
      */
     private @Nullable Script scriptAST;
 
@@ -79,34 +76,42 @@ public class Proof {
     private final PVC pvc;
 
     /**
+     * The reference graph for the current proof
+     */
+    private final ReferenceGraph graph;
+
+    /**
      * The exception with which interpretation has failed.
      */
     /*@ invariant failException != null <==> poofStatus.getValue() == FAIL; */
-    private Exception failException;
+    private @Nullable Exception failException;
 
-    public DafnyFile getDfyFile() {
-        return dfyFile;
+    /**
+     * Create a new proof for a PVC.
+     *
+     * The project parameter is not necessary.
+     *
+     * @param project project to which the PVC belongs
+     * @param pvc a PVC
+     */
+    @Deprecated
+    public Proof(@NonNull Project project, @NonNull PVC pvc) {
+        this(pvc);
+        assert project == pvc.getProject();
     }
 
     /**
-     * DafnyFile for this proof. Needed for ReferenceGraph. Is allowed to be null for downwards compatibility
+     * Create a new proof for a PVC.
+     *
+     * @param pvc a PVC
      */
-    private @Nullable DafnyFile dfyFile;
-
-    @Deprecated // get rid of this
-    public Proof(@NonNull Project project, @NonNull PVC pvc) {
-        this(project, pvc, null);
-    }
-
-    public Proof(@NonNull Project project, @NonNull PVC pvc, @NonNull DafnyFile dfyFile) {
-        this.project = project;
+    public Proof(@NonNull PVC pvc) {
+        this.project = pvc.getProject();
         this.pvc = pvc;
-        this.dfyFile = dfyFile;
         this.graph = new ReferenceGraph();
-        if (dfyFile != null) {
-            this.graph.addFromReferenceMap(dfyFile, pvc.getReferenceMap());
-        }
     }
+
+    // --------- Getters
 
     public @NonNull Project getProject() {
         return project;
@@ -120,32 +125,59 @@ public class Proof {
         return proofRoot;
     }
 
-    public String getPVCName() {
+    public @NonNull String getPVCName() {
         return pvc.getIdentifier();
     }
 
-    public ProofStatus getProofStatus() {
+    public @NonNull ProofStatus getProofStatus() {
         return proofStatus.getValue();
     }
 
-    public Exception getFailException() {
+    public @Nullable Exception getFailException() {
         return failException;
     }
+
+    public @NonNull ReferenceGraph getReferenceGraph() {
+        return graph;
+    }
+
+    public @Nullable String getScriptText() {
+        return script;
+    }
+
+    /**
+     * Get the proof script or null.
+     *
+     * Null if the script has not been parsed yet.
+     *
+     * @return null or the parser result of the script text.
+     */
+    public @Nullable Script getProofScript() {
+        return scriptAST;
+    }
+
+    // --------- Modifiers
 
     public void addProofStatusListener(ObservableValue.ChangeListener<ProofStatus> listener) {
         proofStatus.addObserver(listener);
     }
 
-    public String getScriptText() {
-        return script;
+    /**
+     * Add all code references from a Dafny file to the refrence graph.
+     *
+     * @param dfyFile the file to use for analysis
+     */
+    public void addDafnyFileReferences(@NonNull DafnyFile dfyFile) {
+        getReferenceGraph().addFromReferenceMap(dfyFile, pvc.getReferenceMap());
     }
 
     /**
      * Parses a script as string representation and sets the parsed AST to null.
+     * Set the state to {@link ProofStatus#CHANGED_SCRIPT}.
      *
      * @param script string representation of script
      */
-    public void setScriptText(String script) {
+    public void setScriptText(@NonNull String script) {
         if (this.getScriptText() != null) {
             saveOldDataStructures();
         }
@@ -160,16 +192,28 @@ public class Proof {
      * Interpret Script. A script must have been set previously.
      *
      * This will also parse the previously set script text. After this
-     * getProofScript()} will return a valid script, if parsing is successful.
+     * {@link #getProofScript()} will return a valid script, if parsing is successful.
      */
     public void interpretScript() {
         assert script != null;
 
         Interpreter interpreter = new Interpreter(this);
-        try {
-            // TODO Exception handling
-            this.scriptAST = Scripts.parseScript(script);
 
+        // Set the new root upfront to keep partial proofs even in case of failure.
+        // (Also a syntax error deserves a proof root.)
+        this.proofRoot = interpreter.getRootNode();
+
+        try {
+            this.scriptAST = Scripts.parseScript(script);
+        } catch(Exception ex) {
+            this.failException = ex;
+            this.scriptAST = null;
+
+            proofStatus.setValue(ProofStatus.FAILING);
+            return;
+        }
+
+        try {
             interpreter.interpret(scriptAST);
             ProofNode newRoot = interpreter.getRootNode();
             this.proofRoot = newRoot;
@@ -180,14 +224,12 @@ public class Proof {
             proofStatus.setValue(newRoot.allLeavesClosed() ?
                     ProofStatus.CLOSED : ProofStatus.OPEN);
         } catch(Exception ex) {
-            // publish the proof root even if the proof has (partially) failed.
-            this.proofRoot = interpreter.getRootNode();
             this.failException = ex;
 
-            // TODO proof state handling.
             proofStatus.setValue(ProofStatus.FAILING);
         }
     }
+
 
     private void publishReferences() {
         Deque<ProofNode> todo = new LinkedList<>();
@@ -254,13 +296,7 @@ public class Proof {
         return sb.toString();
     }
 
-    /**
-     * @return an instance encapsulating the script AST.
-     *         Is null as long as {@link #interpretScript()} has not yet been called validly.
-     */
-    public Script getProofScript() {
-        return scriptAST;
-    }
+
 
     /**
      * This method invalidates this proof object, sets the status to dirty

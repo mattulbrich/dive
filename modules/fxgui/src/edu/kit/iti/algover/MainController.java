@@ -538,7 +538,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         editorController.viewPVCSelection(pvc);
         Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
         // MU: currently proofs are not automatically interpreted and/or uptodate. Make sure they are.
-        if (proof.getProofStatus() == ProofStatus.NON_EXISTING || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
+        if (proof.getProofStatus() == ProofStatus.DIRTY || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
             proof.interpretScript();
         sequentController.viewSequentForPVC(entity, proof);
         sequentController.getActiveSequentController().tryMovingOnEx();

@@ -91,22 +91,25 @@ public class DafnyProjectManager extends AbstractProjectManager {
             List<DafnyFile> dfyFiles = project.getDafnyFiles().stream().filter(
                     dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename()))
                     .collect(Collectors.toList());
-            if(dfyFiles.size()>0) {
 
-                Proof p = new Proof(project, pvc, dfyFiles.get(0));
-                String script;
-                try {
-                    script = loadScriptForPVC(pvc.getIdentifier());
-                } catch (FileNotFoundException ex) {
-                    script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
-                }
-                p.setScriptText(script);
+            assert dfyFiles.size() <= 1;
 
-                proofs.put(pvc.getIdentifier(), p);
+            if(dfyFiles.isEmpty()) {
+                throw new IOException("Could not find Dafny file for pvc: " + pvc.toString());
             }
-            else {
-                throw new IOException("Could not find Dafny file for pvc: "+pvc.toString());
+
+            Proof p = new Proof(project, pvc);
+            p.addDafnyFileReferences(dfyFiles.get(0));
+
+            String script;
+            try {
+                script = loadScriptForPVC(pvc.getIdentifier());
+            } catch (FileNotFoundException ex) {
+                script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
             }
+            p.setScriptText(script);
+
+            proofs.put(pvc.getIdentifier(), p);
         }
     }
 

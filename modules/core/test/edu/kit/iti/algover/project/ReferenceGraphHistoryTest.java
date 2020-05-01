@@ -106,7 +106,7 @@ public class ReferenceGraphHistoryTest {
     public void testHistory() throws FormatException {
         ProofNodeSelector pns = ProofUtils.computeProofNodeSelector("0,0,0");
         TermSelector childTerm =  new TermSelector("A.0");
-        Set<ProofTermReferenceTarget> directParents = proofWithRemoval.getGraph().computeHistory(new ProofTermReferenceTarget(pns, childTerm), proofWithRemoval);
+        Set<ProofTermReferenceTarget> directParents = proofWithRemoval.getReferenceGraph().computeHistory(new ProofTermReferenceTarget(pns, childTerm), proofWithRemoval);
         System.out.println("directParents = " + directParents);
     }
 
@@ -114,7 +114,7 @@ public class ReferenceGraphHistoryTest {
         Set<ProofTermReferenceTarget> directParents = Collections.emptySet();
         try {
             Term term1 = childTerm.selectSubterm(pns.get(proof).getSequent());
-            directParents = proof.getGraph().computeHistory(new ProofTermReferenceTarget(pns, childTerm), proof);
+            directParents = proof.getReferenceGraph().computeHistory(new ProofTermReferenceTarget(pns, childTerm), proof);
             System.out.println("\nHistory for term '"+term1+"' in Proof Node = " + pns);
 
             //System.out.println("proofFormula = " + proofFormula);

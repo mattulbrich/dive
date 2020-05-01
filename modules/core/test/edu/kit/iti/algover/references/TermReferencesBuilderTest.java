@@ -8,6 +8,9 @@ package edu.kit.iti.algover.references;
 import com.google.common.graph.EndpointPair;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.MockPVCBuilder;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
@@ -16,8 +19,10 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.FormatException;
+import edu.kit.iti.algover.util.ProofMockUtil;
 import edu.kit.iti.algover.util.TestUtil;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -26,21 +31,25 @@ import static edu.kit.iti.algover.util.ProofMockUtil.mockProofNode;
 
 public class TermReferencesBuilderTest {
 
-    private final Proof proof;
-    private final ProofNode before;
-    private final ProofNode after;
-    private final ProofNodeSelector afterReference;
-    private final ReferenceGraph graph;
-    private final TermReferencesBuilder builder;
+    private Proof proof;
+    private ProofNode before;
+    private ProofNode after;
+    private ProofNodeSelector afterReference;
+    private ReferenceGraph graph;
+    private TermReferencesBuilder builder;
 
 
-    public TermReferencesBuilderTest() throws TermBuildException, DafnyParserException, RuleException, FormatException {
+    @Before
+    public void setUp() throws Exception {
         Term x = new VariableTerm("x", Sort.INT);
         Term y = new VariableTerm("y", Sort.INT);
         Term xEqY = new ApplTerm(BuiltinSymbols.EQ.instantiate(Sort.INT), x, y);
         Term yEqX = new ApplTerm(BuiltinSymbols.EQ.instantiate(Sort.INT), y, x);
 
-        proof = new Proof(null, null);
+        Project p = TestUtil.mockProject("method m() ensures true {}");
+        PVC pvc = p.getPVCByName("m/Post");
+
+        proof = new Proof(pvc);
         before = mockProofNode(null, new Term[]{xEqY}, new Term[0]);
         after = mockProofNode(before, new Term[]{yEqX, xEqY}, new Term[0]);
         afterReference = new ProofNodeSelector((byte) 0);

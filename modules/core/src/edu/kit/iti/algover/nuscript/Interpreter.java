@@ -51,7 +51,7 @@ public class Interpreter {
     private List<ProofNode> currentNodes;
 
     public Interpreter(Proof proof) {
-        this.referenceGraph = proof.getGraph();
+        this.referenceGraph = proof.getReferenceGraph();
         this.rootNode = ProofNode.createRoot(proof.getPVC());
         this.proof = proof;
         this.knownRules = makeKnownRules();

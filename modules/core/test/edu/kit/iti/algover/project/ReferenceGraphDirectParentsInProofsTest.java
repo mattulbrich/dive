@@ -1,9 +1,6 @@
 package edu.kit.iti.algover.project;
 
-import edu.kit.iti.algover.parser.DafnyException;
-import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.Proof;
-import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
@@ -16,7 +13,6 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.HistoryProofUtils;
 import edu.kit.iti.algover.util.ProofUtils;
-import edu.kit.iti.algover.util.TestInfrastructure;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Assert;
@@ -25,7 +21,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Logger;
@@ -189,7 +184,7 @@ public class ReferenceGraphDirectParentsInProofsTest {
 
 
         ProofTermReferenceTarget childTarget = new ProofTermReferenceTarget(justNode, sy);
-        ReferenceGraph graph = proofBranched.getGraph();
+        ReferenceGraph graph = proofBranched.getReferenceGraph();
         ProofTermReferenceTarget proofTermReferenceTarget = graph.computeTargetBeforeChange(proofBranched, childTarget);
 
 
@@ -198,7 +193,7 @@ public class ReferenceGraphDirectParentsInProofsTest {
         scriptReferenceTargetSet.forEach(scriptReferenceTarget -> System.out.println("scriptReferenceTarget = " + scriptReferenceTarget));
 
 
-        // Set<ScriptReferenceTarget> scriptReferenceTargetSet = proofBranched.getGraph().allSuccessorsWithType(childTarget, ScriptReferenceTarget.class);
+        // Set<ScriptReferenceTarget> scriptReferenceTargetSet = proofBranched.getReferenceGraph().allSuccessorsWithType(childTarget, ScriptReferenceTarget.class);
        // scriptReferenceTargetSet.forEach(scriptReferenceTarget -> System.out.println("scriptReferenceTarget = " + scriptReferenceTarget));
 
     }
@@ -280,7 +275,7 @@ public class ReferenceGraphDirectParentsInProofsTest {
     private Set<ProofTermReferenceTarget> computeDirectParents(String pathChild, String termSelectorString, Proof currentProof) throws FormatException {
         ProofNodeSelector pns = ProofUtils.computeProofNodeSelector(pathChild);
         TermSelector termSelector = new TermSelector(termSelectorString);
-        Set<ProofTermReferenceTarget> directParents = currentProof.getGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), currentProof);
+        Set<ProofTermReferenceTarget> directParents = currentProof.getReferenceGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), currentProof);
         return directParents;
     }
 
@@ -299,7 +294,7 @@ public class ReferenceGraphDirectParentsInProofsTest {
 
         try {
             TermSelector termSelector = new TermSelector(termSelectorString);
-            Set<ProofTermReferenceTarget> directParents = currentProof.getGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), currentProof);
+            Set<ProofTermReferenceTarget> directParents = currentProof.getReferenceGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), currentProof);
             Term proofFormula = termSelector.selectSubterm(pns.get(currentProof).getSequent());
             Logger.getGlobal().info("Test for proof node " + pns + " term " + proofFormula);
 

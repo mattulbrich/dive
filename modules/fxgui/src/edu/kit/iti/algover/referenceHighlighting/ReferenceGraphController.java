@@ -1,14 +1,11 @@
 package edu.kit.iti.algover.referenceHighlighting;
 
 import edu.kit.iti.algover.Lookup;
-import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
-import edu.kit.iti.algover.rule.RuleApplicationController;
-import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
 import org.controlsfx.dialog.ExceptionDialog;
@@ -18,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Controls computing the referenceTargets and creating the
@@ -102,14 +98,14 @@ public class ReferenceGraphController {
      */
     private Set<ProofTermReferenceTarget> computeProofTermRefTargets(ProofTermReferenceTarget selectedTarget, Proof proof){
         Set<ProofTermReferenceTarget> targetsToHighlight = new HashSet<>();
-        Set<ProofTermReferenceTarget> history = proof.getGraph().computeHistory(selectedTarget, proof);
+        Set<ProofTermReferenceTarget> history = proof.getReferenceGraph().computeHistory(selectedTarget, proof);
         return history;
     }
 
 
     private Set<CodeReferenceTarget> computeCodeRefTargets(ProofTermReferenceTarget selectedTarget, Proof proof){
         Set<CodeReferenceTarget> targetsToHighlight = new HashSet<>();
-        ReferenceGraph referenceGraph = proof.getGraph();
+        ReferenceGraph referenceGraph = proof.getReferenceGraph();
         if(referenceGraph != null) {
             targetsToHighlight = referenceGraph.allPredecessorsWithType(selectedTarget, CodeReferenceTarget.class);
             //we haven't found a direct reference yet and we are not in the root node
@@ -128,7 +124,7 @@ public class ReferenceGraphController {
 
     private Set<ScriptReferenceTarget> computeScriptRefTargets(ProofTermReferenceTarget selectedTarget, Proof proof){
         Set<ScriptReferenceTarget> targetsToHighlight = new HashSet<>();
-        ReferenceGraph referenceGraph = proof.getGraph();
+        ReferenceGraph referenceGraph = proof.getReferenceGraph();
         if(referenceGraph != null) {
             //TODO
             //First: find nodes that contain selectedTarget and a scriptReferenceTarget

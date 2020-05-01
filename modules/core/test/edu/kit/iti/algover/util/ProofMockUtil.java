@@ -161,12 +161,12 @@ public class ProofMockUtil {
         pb.setPathIdentifier("test");
         pb.setReferenceMap(Collections.emptyMap());
         PVC pvc = pb.build();
-         List<DafnyFile> dfyFiles = project.getDafnyFiles().stream().filter(dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename())).collect(Collectors.toList());
-            if(dfyFiles.size()>0) {
-                return new Proof(project, pvc, dfyFiles.get(0));
-            } else {
-                return new Proof(project, pvc, null);
-            }
+        List<DafnyFile> dfyFiles = project.getDafnyFiles().stream().filter(dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename())).collect(Collectors.toList());
+        Proof proof = new Proof(project, pvc);
+        if(dfyFiles.size() > 0) {
+            proof.addDafnyFileReferences(dfyFiles.get(0));
+        }
+        return proof;
     }
 
     /**
@@ -190,14 +190,12 @@ public class ProofMockUtil {
         pb.setProject(project);
         PVC pvc = pb.build();
         List<DafnyFile> dfyFiles = project.getDafnyFiles().stream().filter(dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename())).collect(Collectors.toList());
-        Proof p;
-        if(dfyFiles.size()>0) {
-            p =  new Proof(project, pvc, dfyFiles.get(0));
-        } else {
-            p = new Proof(project, pvc, null);
+        Proof proof = new Proof(project, pvc);
+        if(dfyFiles.size() > 0) {
+            proof.addDafnyFileReferences(dfyFiles.get(0));
         }
-        p.setScriptTextAndInterpret("");
-        return p;
+        proof.setScriptTextAndInterpret("");
+        return proof;
     }
     
     /**

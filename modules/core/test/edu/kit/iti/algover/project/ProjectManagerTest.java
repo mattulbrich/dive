@@ -96,7 +96,6 @@ public class ProjectManagerTest {
        // Assert.assertTrue();
         Assert.assertEquals("Proofscript is parsed", ProofStatus.CHANGED_SCRIPT, proof.getProofStatus());
         Assert.assertNull(proof.getFailException());
-        Assert.assertTrue(proof.getDfyFile() != null);
 
         proof.interpretScript();
 
@@ -135,7 +134,7 @@ public class ProjectManagerTest {
         //interpret new Script
         proof2.interpretScript();
         TestUtil.assertNoException(proof.getFailException());
-        System.out.println(proof2.getDfyFile().getFilename() + proof2.getGraph().toString());
+        System.out.println(proof2.getPVCName() + ": " + proof2.getReferenceGraph());
         pm.getAllProofs().forEach((s1, proof1) -> {
             proof1.invalidate();
         });
