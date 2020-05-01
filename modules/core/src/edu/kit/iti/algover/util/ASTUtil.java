@@ -101,6 +101,21 @@ public final class ASTUtil {
         return new DafnyTree(DafnyParser.THIS, "this");
     }
 
+    /**
+     * Returns a tree for the sum of two ASTs.
+     *
+     * Sum may be used for arithmetic sum, but also for concatentation or union,
+     *
+     * @param summ1 summand 1
+     * @param summ2 summand 2
+     * @return a freshly created tree
+     */
+    public static DafnyTree plus(DafnyTree summ1, DafnyTree summ2) {
+        DafnyTree result = new DafnyTree(DafnyParser.PLUS, "+");
+        result.addChild(summ1);
+        result.addChild(summ2);
+        return result;
+    }
 
     /**
      * Returns a tree for an equality on asts.
@@ -141,6 +156,20 @@ public final class ASTUtil {
         DafnyTree result = new DafnyTree(DafnyParser.AND, "&&");
         result.addChild(conj1);
         result.addChild(conj2);
+        return result;
+    }
+
+    /**
+     * Returns a tree for a disjunction on ast trees.
+     *
+     * @param disj1 the first conjunct, not <code>null</code>
+     * @param disj2 the second conjunct, not <code>null</code>s
+     * @return a freshly created dafny tree
+     */
+    public static DafnyTree or(DafnyTree disj1, DafnyTree disj2) {
+        DafnyTree result = new DafnyTree(DafnyParser.OR, "||");
+        result.addChild(disj1);
+        result.addChild(disj2);
         return result;
     }
 
@@ -532,4 +561,5 @@ public final class ASTUtil {
         result.addChild(fromSort(sort.getArgument(0)));
         return result;
     }
+
 }

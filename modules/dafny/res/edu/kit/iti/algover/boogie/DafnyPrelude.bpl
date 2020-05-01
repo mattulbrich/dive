@@ -559,6 +559,10 @@ axiom (forall<alpha> heap, aheap: Heap, s: Set ref, o: ref, f: Field alpha :: { 
 axiom (forall heap, aheap: Heap, r: ref, s: Set ref :: { $IsCreated(anon(heap, s, aheap), r) }
   $IsCreated(heap, r) ==> $IsCreated(anon(heap,s,aheap), r));
 
+function $FreshObjects(Heap): Set ref;
+axiom (forall heap: Heap, o: ref :: { $FreshObjects(heap)[o] }
+  $FreshObjects(heap)[o] == (!$IsCreated(heap, o)));
+
 //D function $IsHeapAnchor(Heap): bool;
 //D var $Heap: Heap where $IsGoodHeap($Heap) && $IsHeapAnchor($Heap);
 

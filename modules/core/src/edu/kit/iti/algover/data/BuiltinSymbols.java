@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.kit.iti.algover.symbex.PathConditionElement;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.FunctionSymbolFamily;
 import edu.kit.iti.algover.term.Sort;
@@ -257,6 +258,9 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbol IS_CREATED =
             new FunctionSymbol("$isCreated", Sort.BOOL, Sort.HEAP, Sort.OBJECT);
+
+    public static final FunctionSymbol FRESH_OBJECTS =
+            new FunctionSymbol("$freshObjects", SET_OBJECTS, Sort.HEAP);
 
 
     // Checkstyle: ON JavadocVariableCheck
