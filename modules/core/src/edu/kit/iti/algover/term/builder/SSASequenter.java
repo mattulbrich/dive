@@ -172,18 +172,13 @@ public class SSASequenter implements PVCSequenter {
             ApplTerm assignmentGoal = new ApplTerm(fsymbNew);
             tat.getReferenceMap().put(assignmentGoal, assignmentTree.getChild(0));
 
-            ApplTerm ssa_eq = tb.eq(assignmentGoal, replaced);
-            tat.getReferenceMap().put(ssa_eq, assignmentTree);
-            antecedent.add(new ProofFormula(ssa_eq,
+            ApplTerm ssaEq = tb.eq(assignmentGoal, replaced);
+            tat.getReferenceMap().put(ssaEq, assignmentTree);
+            antecedent.add(new ProofFormula(ssaEq,
                     SequenterUtil.PATH_LABEL));
         }
 
         return mapping;
-    }
-
-    private void addOldHeap(SymbolTable symbolTable) {
-        FunctionSymbol oldHeap = new FunctionSymbol("$oldheap", Sort.HEAP);
-        symbolTable.addFunctionSymbol(oldHeap);
     }
 
     private FunctionSymbol createNextFunctionSymbol(FunctionSymbol fsymb, SymbolTable symbolTable) {
@@ -197,8 +192,16 @@ public class SSASequenter implements PVCSequenter {
     }
 }
 
+/**
+ * This replaces references to program variables by their instance according to SSA progress.
+ *
+ * x may be replaces by x_3 if x_3 was the most recently assignment to x.
+ */
 class SSAInstantiationVisitor extends ReplacementVisitor<ImmutableList<Pair<FunctionSymbol, FunctionSymbol>>> {
 
+    /**
+     * References are tracked into this map.
+     */
     private Map<Term, DafnyTree> refMap;
 
     public SSAInstantiationVisitor(Map<Term, DafnyTree> refMap) {
