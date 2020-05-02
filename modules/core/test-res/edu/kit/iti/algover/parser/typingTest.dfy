@@ -206,7 +206,9 @@ class C
      modifies { this, a }
    {
      var s2 := { 1, 2, 3 };
-    // var s3 := { 1 } + { 2 };
+     var s3 := { 1 } + { 2 };
+     var s4 := 1 in {  };
+     var s5 := 2 !in {2};
    }
 
    method arrays2() {

@@ -295,9 +295,33 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         return t.getLastChild().getExpressionType();
     }
 
+    @Override
+    public DafnyTree visitIN(DafnyTree tree, Void a) {
+        DafnyTree type1 = tree.getChild(0).accept(this, a);
+        DafnyTree type2 = tree.getChild(1).accept(this, a);
+
+        Sort sort1 = ASTUtil.toSort(type1);
+        Sort sort2 = ASTUtil.toSort(type2);
+
+        try {
+            Sort.supremum(Sort.get("set", sort1), sort2);
+        } catch (TermBuildException e) {
+            exceptions.add(new DafnyException("The in predicate needs a value and a compatible set", tree, e));
+        }
+
+        tree.setExpressionType(BOOL_TYPE);
+        return BOOL_TYPE;
+    }
+
+    @Override
+    public DafnyTree visitNOTIN(DafnyTree t, Void aVoid) {
+        return visitIN(t, aVoid);
+    }
 
     @Override
     public DafnyTree visitEQ(DafnyTree t, Void a) {
+
+        // TODO Is that really well-chosen? see visitIN.
         operation(t, BOOL_TYPE);
 
         Sort sort1 = ASTUtil.toSort(t.getChild(0).getExpressionType());
