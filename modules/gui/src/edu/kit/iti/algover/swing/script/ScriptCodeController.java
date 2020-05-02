@@ -16,6 +16,7 @@ import edu.kit.iti.algover.swing.code.DafnyTokenMaker;
 import edu.kit.iti.algover.swing.script.ProofNodeCheckpoint.Type;
 import edu.kit.iti.algover.swing.util.GUIUtil;
 import edu.kit.iti.algover.swing.util.Log;
+import edu.kit.iti.algover.swing.util.Property;
 import edu.kit.iti.algover.swing.util.Settings;
 import edu.kit.iti.algover.swing.util.UnifyingDocumentListener;
 import edu.kit.iti.algover.util.ExceptionDetails;
@@ -84,6 +85,8 @@ public class ScriptCodeController {
         this.diveCenter = diveCenter;
         diveCenter.properties().activePVC.addObserver(this::setPVC);
         diveCenter.properties().insertIntoScriptCaret.addObserver(this::insertAtCaret);
+        // not supported yet
+        // diveCenter.properties().insertIntoScriptCommand.addObserver(this::insertAtCommand);
 
         this.component = new JPanel(new BorderLayout());
         {
@@ -124,6 +127,19 @@ public class ScriptCodeController {
 
     private void insertAtCaret(String text) {
         textArea.insert(text, textArea.getCaretPosition());
+    }
+
+    private void insertAtCommand(String text) {
+        ProofNodeCheckpoint checkPt = diveCenter.properties().proofNodeCheckpoint.getValue();
+        int line = checkPt.getLine();
+        int col = checkPt.getColumn();
+        try {
+            int pos = textArea.getLineStartOffset(line) + col;
+            textArea.insert(text, pos);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+            insertAtCaret(text);
+        }
     }
 
     private void caretUpdated(CaretEvent ev) {

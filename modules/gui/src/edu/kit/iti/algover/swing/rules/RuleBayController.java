@@ -59,10 +59,9 @@ public class RuleBayController {
             List<ProofRule> rules = ruleMap.get(header);
             Collections.sort(rules, (r1,r2) -> r1.getName().compareToIgnoreCase(r2.getName()));
             for (ProofRule proofRule : rules) {
-                thePanel.add(new RuleController(proofRule).getComponent());
+                thePanel.add(new RuleController(diveCenter, proofRule).getComponent());
             }
         }
-
     }
 
     private JLabel newHeader(String s) {

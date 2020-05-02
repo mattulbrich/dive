@@ -73,11 +73,14 @@ public class DiveProperties {
     public final Signal<String> insertIntoScriptCaret =
             Signal.newSignal("insertIntoScriptCaret", String.class);
 
-    /**
-     * Write some text at the command position into the script window.
-     */
-    public final Signal<String> insertIntoScriptCommand =
-            Signal.newSignal("insertIntoScriptCommand", String.class);
+    // Currently not used. Perhaps later.
+    // /**
+    //  * Write some text at the command position into the script window.
+    //  * The position is determined by the current node checkpoint. Directly
+    //  * behind that will the text be added.
+    //  */
+    // public final Signal<String> insertIntoScriptCommand =
+    //        Signal.newSignal("insertIntoScriptCommand", String.class);
 
     /**
      * The current selection proof node within a pvc.

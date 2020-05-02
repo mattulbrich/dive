@@ -217,8 +217,7 @@ public class TermController extends MouseAdapter {
 
     private void reprint() {
         int newLineWidth = computeLineWidth();
-        System.out.println("newLineWidth = " + newLineWidth);
-        if(newLineWidth != lineWidth) {
+        if (newLineWidth != lineWidth) {
             this.annotatedString = prettyPrinter.print(proofFormula.getTerm(), newLineWidth);
             component.setText("");
             annotatedString.appendToDocument(component.getDocument(), attributeFactory);
