@@ -801,6 +801,20 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
     @Override
+    public DafnyTree visitREADS(DafnyTree t, Void a) {
+        DafnyTree result = visitDepth(t);
+        for (DafnyTree child : t.getChildren()) {
+            DafnyTree ty = child.getExpressionType();
+            Sort sort = ASTUtil.toSort(ty);
+            if(!sort.isSubtypeOf(Sort.OBJECT) &&
+                    !sort.isSubtypeOf(Sort.get("set", Sort.OBJECT))) {
+                exceptions.add(new DafnyException("Unsupported expression in reads clause", t));
+            }
+        }
+        return result;
+    }
+
+    @Override
     public DafnyTree visitINVARIANT(DafnyTree t, Void a) {
         return operation(t, null, "bool");
     }

@@ -5,9 +5,12 @@
  */
 package edu.kit.iti.algover.symbex;
 
+import antlr.collections.AST;
 import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
+import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.parser.ModifiesListResolver;
 import edu.kit.iti.algover.symbex.AssertionElement.AssertionType;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.Pair;
@@ -248,6 +251,8 @@ public class SymbexExpressionValidator {
         }
         subs.addAll(ASTUtil.methodParameterSubs(callee, args));
 
+        // TDODO break down into several methods
+
         // ------------------
         // preconditions
         List<DafnyTree> preconds = callee.getChildrenWithType(DafnyParser.REQUIRES);
@@ -261,6 +266,24 @@ public class SymbexExpressionValidator {
             condition = wrapper.apply(condition);
             reqState.setProofObligation(condition, expression, AssertionType.CALL_PRE);
             stack.add(reqState);
+        }
+
+        // ------------------
+        // reads clause checking
+        if (checkReads) {
+            DafnyTree reads = callee.getChildrenWithType(DafnyParser.READS).stream().
+                    map(Util.runtimeException(ModifiesListResolver::resolve)).
+                    reduce(ASTUtil::setUnion).orElse(ASTUtil.setExt(List.of()));
+
+            SymbexPath readsState = new SymbexPath(state);
+            readsState.setBlockToExecute(Symbex.EMPTY_PROGRAM);
+            // wrap that into a substitution
+            DafnyTree condition = ASTUtil.lessEqual(reads, ASTUtil.id("$mod"));
+            condition = ASTUtil.letCascade(subs, condition);
+            // and use the wrapper from outside ...
+            condition = wrapper.apply(condition);
+            readsState.setProofObligation(condition, expression, AssertionType.READS);
+            stack.add(readsState);
         }
 
         // ------------------

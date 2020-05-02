@@ -313,4 +313,13 @@ class C
       r := a > b;
    }
 
+   function functionWithContract(c: C) : int
+      reads c, {c}
+      reads c
+      decreases c.intfield
+      requires true
+   {
+      0
+   }
+
 }

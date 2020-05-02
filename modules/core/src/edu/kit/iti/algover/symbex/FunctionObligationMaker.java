@@ -7,7 +7,10 @@ package edu.kit.iti.algover.symbex;
 
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.parser.ModifiesListResolver;
 import edu.kit.iti.algover.symbex.PathConditionElement.AssumptionType;
+import edu.kit.iti.algover.util.ASTUtil;
+import edu.kit.iti.algover.util.Util;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -41,6 +44,14 @@ public class FunctionObligationMaker {
         for (DafnyTree req : function.getChildrenWithType(DafnyParser.REQUIRES)) {
             path.addPathCondition(req.getLastChild(), req, AssumptionType.PRE);
         }
+
+        //
+        // Add assumption $mod = <readsclauses>
+        DafnyTree reads = function.getChildrenWithType(DafnyParser.READS).stream().
+                map(Util.runtimeException(ModifiesListResolver::resolve)).
+                reduce(ASTUtil::setUnion).orElse(ASTUtil.setExt(List.of()));
+        DafnyTree equality = ASTUtil.equals(ASTUtil.id("$mod"), reads);
+        path.addPathCondition(equality, reads, AssumptionType.PRE);
 
         SymbexExpressionValidator validator = new SymbexExpressionValidator(paths, path, true);
         validator.handleExpression(function.getLastChild());

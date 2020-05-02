@@ -396,6 +396,18 @@ public final class Util {
         return "\"" + string + "\"";
     }
 
+    public static <A, B, E extends Exception> Function<A, B> runtimeException(FunctionWithException<A,B,E> f) {
+        return a -> {
+            try {
+                return f.apply(a);
+            } catch (RuntimeException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        };
+    }
+
     /**
      * A wrapper class for the collection framework. It renders an array into an
      * immutable list.

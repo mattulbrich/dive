@@ -9,6 +9,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.parser.ParserTest;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.util.SymbexUtil;
 import edu.kit.iti.algover.util.TestUtil;
 import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
@@ -68,4 +69,200 @@ public class FunctionObligationMakerTest {
         assertEquals(i, paths.size());
     }
 
+    /*
+    class Node
+{
+  var next : Node?;
+  var value : int;
+  ghost var depth : int;
+  ghost var footprint : set<object>;
+
+  function Valid() : bool
+    reads this, footprint
+    decreases depth
+  {
+ 1.   this in footprint &&
+ 2.     this.depth >= 0 &&
+ 3.     (this.next != null ==>
+ 4.       next in footprint &&
+ 5.       next.footprint <= footprint &&
+ 6.       next.depth < depth &&
+ 7.       next.Valid())
+  }
+}
+
+0 - reads this in 1
+1 - reads this in 2
+2 - reads this in 3
+3 - reads this in 4
+4 - reads this in 4 (same)
+5 - nonnull next.footprint in 5
+6 - reads next in 5 next.footprint
+7 - reads this in 5 this.next
+8 - reads this in 5 this.footprint
+9 - reads next in 6 next.depth
+10 - reads this in 6 this.next
+11 - reads this in 6 this.depth
+12 - nonnull next.depth in 6
+13 - reads this in 7 this.next
+14 - nonnull next.Valid() in 7
+15 - reads for recursive call
+16 - termination next.Valid()
+     */
+
+    @Test
+    public void testRecursiveValid() throws Exception {
+        InputStream stream = getClass().getResourceAsStream("functions.dfy");
+        DafnyTree parseTree = ParserTest.parseFile(stream);
+        Project p = TestUtil.mockProject(parseTree);
+
+        DafnyFunction valid = p.getClass("Node").getFunction("Valid");
+        FunctionObligationMaker fom = new FunctionObligationMaker();
+
+        List<SymbexPath> paths = fom.visit(valid.getRepresentation());
+
+        for (SymbexPath path : paths) {
+            assertEquals("[PRE[null]:(== $mod (PLUS (SETEX this) footprint))]", path.getPathConditions().toString());
+        }
+
+        int i = 0;
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[READS:(IN this $mod)]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[READS:(==> (in this footprint) (IN this $mod))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[READS:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) (IN this $mod))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[READS:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) (==> (!= (FIELD_ACCESS this next) null) (IN this $mod)))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[READS:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) (==> (!= (FIELD_ACCESS this next) null) (IN this $mod)))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[RT_NONNULL:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) (==> (!= (FIELD_ACCESS this next) null) " +
+                            "(==> (in next footprint) (!= next null))))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[READS:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) (==> (!= (FIELD_ACCESS this next) null) " +
+                            "(==> (in next footprint) (IN next $mod))))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[READS:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) (==> (!= (FIELD_ACCESS this next) null) " +
+                            "(==> (in next footprint) (IN this $mod))))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[READS:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) (==> (!= (FIELD_ACCESS this next) null) " +
+                            "(==> (in next footprint) (IN this $mod))))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[RT_NONNULL:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) " +
+                            "(==> (!= (FIELD_ACCESS this next) null) (==> (&& (in next footprint) " +
+                            "(<= (FIELD_ACCESS next footprint) footprint)) " +
+                            "(!= next null))))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[READS:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) " +
+                            "(==> (!= (FIELD_ACCESS this next) null) (==> (&& (in next footprint) " +
+                            "(<= (FIELD_ACCESS next footprint) footprint)) " +
+                            "(IN next $mod))))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[READS:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) " +
+                            "(==> (!= (FIELD_ACCESS this next) null) (==> (&& (in next footprint) " +
+                            "(<= (FIELD_ACCESS next footprint) footprint)) " +
+                            "(IN this $mod))))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[READS:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) " +
+                            "(==> (!= (FIELD_ACCESS this next) null) (==> (&& (in next footprint) " +
+                            "(<= (FIELD_ACCESS next footprint) footprint)) " +
+                            "(IN this $mod))))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[READS:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) " +
+                            "(==> (!= (FIELD_ACCESS this next) null) (==> (&& (&& (in next footprint) " +
+                            "(<= (FIELD_ACCESS next footprint) footprint)) " +
+                            "(< (FIELD_ACCESS next depth) depth)) " +
+                            "(IN this $mod))))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[RT_NONNULL:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) " +
+                            "(==> (!= (FIELD_ACCESS this next) null) (==> (&& (&& (in next footprint) " +
+                            "(<= (FIELD_ACCESS next footprint) footprint)) " +
+                            "(< (FIELD_ACCESS next depth) depth)) " +
+                            "(!= next null))))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[READS[Valid]:(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) " +
+                            "(==> (!= (FIELD_ACCESS this next) null) (==> (&& (&& (in next footprint) " +
+                            "(<= (FIELD_ACCESS next footprint) footprint)) " +
+                            "(< (FIELD_ACCESS next depth) depth)) " +
+                            "(LET (VAR this) next (<= (PLUS (SETEX this) footprint) $mod)))))]",
+                    path.getProofObligations().toString());
+        }
+        {
+            SymbexPath path = paths.get(i++);
+            // System.out.println(SymbexUtil.toString(path));
+            assertEquals("[VARIANT_DECREASED[Valid]:" +
+                            "(==> (&& (in this footprint) (>= (FIELD_ACCESS this depth) 0)) " +
+                            "(==> (!= (FIELD_ACCESS this next) null) " +
+                            "(==> (&& (&& (in next footprint) (<= (FIELD_ACCESS next footprint) footprint)) " +
+                            "(< (FIELD_ACCESS next depth) depth)) " +
+                            // Is this right?
+                            "(NOETHER_LESS (LISTEX (LET (VAR this) next depth)) (LISTEX depth)))))]",
+                    path.getProofObligations().toString());
+        }
+
+        assertEquals("Number of paths", i, paths.size());
+    }
 }

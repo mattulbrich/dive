@@ -22,6 +22,7 @@ import java.lang.reflect.Parameter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Function;
@@ -304,7 +305,7 @@ public class TestUtil {
     }
 
 
-    public static Matcher<Object> isContainedIn(List<?> list) {
+    public static Matcher<Object> isContainedIn(Collection<?> list) {
         return new BaseMatcher<Object>() {
             @Override
             public boolean matches(Object o) {
@@ -314,6 +315,20 @@ public class TestUtil {
             @Override
             public void describeTo(Description description) {
                 description.appendText("contained in " + list);
+            }
+        };
+    }
+
+    public static Matcher<Collection<?>> isEmpty() {
+        return new BaseMatcher<Collection<?>>() {
+            @Override
+            public boolean matches(Object o) {
+                return ((Collection)o).isEmpty();
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("is empty");
             }
         };
     }
