@@ -91,7 +91,8 @@ public class UpdateSequenterTest extends SequenterTest {
             { "A.0.0.0.0.1", "$plus(x, 3)", "(+ x 3)" },
             { "A.0.0.0.1", "$heap", "$heap" }, // artificial
             { "A.0.0.1", "0", "0" }, // artificial
-            { "A.0.1", "$empty", "SETEX" }, // artificial
+            { "A.0.1", "$freshObjects($heap)", "(CALL $freshObjects (ARGS $heap))" }, // artificial
+            { "A.0.1.0", "$heap", "$heap" }, // artificial
 
             { "S.0", null, null },
             { "S.0.0", null, null },
@@ -116,7 +117,8 @@ public class UpdateSequenterTest extends SequenterTest {
             { "S.0.0.0.0.1.1", "3", "3" },
             { "S.0.0.0.1", "$heap", "$heap" },
             { "S.0.0.1", "0", "0" },
-            { "S.0.1", "$empty", "SETEX" } // artificial
+            { "S.0.1", "$freshObjects($heap)", "(CALL $freshObjects (ARGS $heap))" }, // artificial
+            { "S.0.1.0", "$heap", "$heap" }, // artificial
         };
     }
 
@@ -183,12 +185,14 @@ public class UpdateSequenterTest extends SequenterTest {
 
     protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {
 
-        assertEquals("|- [Assertion]: (let $mod := $freshObjects($heap) :: (let $decr := 0 :: " +
-                "(let $oldheap := $heap :: (let $heap := $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)) :: " +
-                "$eq<int>($select<C,int>($heap, c, C$$i), " +
-                "$plus((let $heap := $oldheap :: $select<C,int>($heap, c, C$$i)), 1))))))", sequent.toString());
+        assertEquals("|- [Assertion]: (let $mod := $freshObjects($heap) :: " +
+                "(let $decr := 0 :: (let $oldheap := $heap :: " +
+                "(let $heap := $store<C,int>($heap, c, C$$i, 0) :: " +
+                "(let $heap := $store<C,int>($heap, c, C$$i, $plus((let $heap := $oldheap :: " +
+                "$select<C,int>($heap, c, C$$i)), 1)) :: $eq<int>($select<C,int>($heap, c, C$$i), $plus((let $heap := $oldheap :: " +
+                "$select<C,int>($heap, c, C$$i)), 1)))))))", sequent.toString());
 
         Term inlined = LetInlineVisitor.inline(sequent.getSuccedent().get(0).getTerm());
-        assertEquals(TermParser.parse(table, "c.i@$heap[c.i:=c.i+1] == c.i + 1"), inlined);
+        assertEquals(TermParser.parse(table, "c.i@$heap[c.i := 0][c.i:=c.i@$heap+1] == c.i + 1"), inlined);
     }
 }

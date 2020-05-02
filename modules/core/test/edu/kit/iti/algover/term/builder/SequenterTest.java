@@ -91,12 +91,12 @@ public abstract class SequenterTest {
 
     @Test
     public void testOld() throws Exception {
-        Project p = TestUtil.mockProject("class C { var i:int; } " +
-                "method m(c:C) ensures c.i == old(c.i)+1 { c.i := c.i+1; }");
+        Project p = TestUtil.mockProject("class C { ghost var i:int; } " +
+                "method m(c:C) ensures c.i == old(c.i)+1 { c.i := 0; c.i := old(c.i)+1; }");
         Symbex symbex = new Symbex();
         DafnyMethod method = p.getMethod("m");
         List<SymbexPath> results = symbex.symbolicExecution(method.getRepresentation());
-        assertEquals(4, results.size());
+        assertEquals(6, results.size());
         SymbexPath path = results.get(0);
         assertEquals("Post", path.getPathIdentifier());
 
