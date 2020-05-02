@@ -305,4 +305,21 @@ class C
       setC := { null };
    }
 
+   method subset(a: set<object>, b: set<C>)  returns (r: bool)
+   {
+      r := b <= a;
+      r := b < a;
+      r := a >= b;
+      r := a > b;
+   }
+
+   function functionWithContract(c: C) : int
+      reads c, {c}
+      reads c
+      decreases c.intfield
+      requires true
+   {
+      0
+   }
+
 }

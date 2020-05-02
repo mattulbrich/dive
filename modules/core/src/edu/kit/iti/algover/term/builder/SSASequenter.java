@@ -61,8 +61,8 @@ public class SSASequenter implements PVCSequenter {
         try {
             TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
             // old and fresh need this $oldheap variable
-            ttt.bindVariable(TreeTermTranslator.OLD_HEAP_VAR);
-            SSAInstantiationVisitor visitor = new SSAInstantiationVisitor(ttt.getReferenceMap(), symbolTable);
+            // ttt.bindVariable(TreeTermTranslator.OLD_HEAP_VAR);
+            SSAInstantiationVisitor visitor = new SSAInstantiationVisitor(ttt.getReferenceMap());
 
             // JK: REVIEW maybe use set here?
             // MU: No. That would probably not have the right order.
@@ -139,7 +139,7 @@ public class SSASequenter implements PVCSequenter {
         TreeAssignmentTranslator tat = new TreeAssignmentTranslator(ttt);
 
         ImmutableList<Pair<FunctionSymbol, Term>> assignments =
-                tat.translateToLinear(assignmentHistory).reverse();
+                tat.translateToLinear(assignmentHistory);
         ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> mapping =
                 ImmutableList.nil();
 
@@ -172,18 +172,13 @@ public class SSASequenter implements PVCSequenter {
             ApplTerm assignmentGoal = new ApplTerm(fsymbNew);
             tat.getReferenceMap().put(assignmentGoal, assignmentTree.getChild(0));
 
-            ApplTerm ssa_eq = tb.eq(assignmentGoal, replaced);
-            tat.getReferenceMap().put(ssa_eq, assignmentTree);
-            antecedent.add(new ProofFormula(ssa_eq,
+            ApplTerm ssaEq = tb.eq(assignmentGoal, replaced);
+            tat.getReferenceMap().put(ssaEq, assignmentTree);
+            antecedent.add(new ProofFormula(ssaEq,
                     SequenterUtil.PATH_LABEL));
         }
 
         return mapping;
-    }
-
-    private void addOldHeap(SymbolTable symbolTable) {
-        FunctionSymbol oldHeap = new FunctionSymbol("$oldheap", Sort.HEAP);
-        symbolTable.addFunctionSymbol(oldHeap);
     }
 
     private FunctionSymbol createNextFunctionSymbol(FunctionSymbol fsymb, SymbolTable symbolTable) {
@@ -197,14 +192,20 @@ public class SSASequenter implements PVCSequenter {
     }
 }
 
+/**
+ * This replaces references to program variables by their instance according to SSA progress.
+ *
+ * x may be replaces by x_3 if x_3 was the most recently assignment to x.
+ */
 class SSAInstantiationVisitor extends ReplacementVisitor<ImmutableList<Pair<FunctionSymbol, FunctionSymbol>>> {
 
+    /**
+     * References are tracked into this map.
+     */
     private Map<Term, DafnyTree> refMap;
-    private SymbolTable symbolTable;
 
-    public SSAInstantiationVisitor(Map<Term, DafnyTree> refMap, SymbolTable symbolTable) {
+    public SSAInstantiationVisitor(Map<Term, DafnyTree> refMap) {
         this.refMap = refMap;
-        this.symbolTable = symbolTable;
     }
 
     @Override
@@ -224,13 +225,5 @@ class SSAInstantiationVisitor extends ReplacementVisitor<ImmutableList<Pair<Func
         }
 
         return result;
-    }
-
-    @Override
-    public Term visit(VariableTerm variableTerm, ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> arg) throws TermBuildException {
-        if(variableTerm.equals(TreeTermTranslator.OLD_HEAP_VAR)) {
-            return new ApplTerm(symbolTable.getFunctionSymbol("$heap"));
-        }
-        return null;
     }
 }

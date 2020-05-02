@@ -8,6 +8,7 @@ package edu.kit.iti.algover.term.builder;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.LetTerm;
+import edu.kit.iti.algover.term.QuantTerm;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.Pair;
@@ -77,5 +78,29 @@ class InstantiationVisitor extends ReplacementVisitor<Map<VariableTerm, Term>> {
     @Override
     public Term visit(VariableTerm variableTerm, Map<VariableTerm, Term> substitution) throws TermBuildException {
         return substitution.get(variableTerm);
+    }
+
+    /*
+     * Do not update variables under the let binder
+     * // see testConflictSmall* in test cases why this is needed.
+     */
+    @Override
+    public Term visit(LetTerm letTerm, Map<VariableTerm, Term> arg) throws TermBuildException {
+        LinkedHashMap<VariableTerm, Term> newMap = new LinkedHashMap<>(arg);
+        letTerm.getSubstitutions().forEach(pair -> newMap.remove(pair.fst));
+
+        return super.visit(letTerm, newMap);
+    }
+
+    /*
+     * Do not update variables under the let binder
+     * // see testConflictSmall* in test cases why this is needed.
+     */
+    @Override
+    public Term visit(QuantTerm quantTerm, Map<VariableTerm, Term> arg) throws TermBuildException {
+        LinkedHashMap<VariableTerm, Term> newMap = new LinkedHashMap<>(arg);
+        newMap.remove(quantTerm.getBoundVar());
+
+        return super.visit(quantTerm, newMap);
     }
 }

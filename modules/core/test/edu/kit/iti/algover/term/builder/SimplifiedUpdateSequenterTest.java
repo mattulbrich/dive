@@ -140,12 +140,14 @@ public class SimplifiedUpdateSequenterTest extends SequenterTest {
     protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {
 
         assertEquals("|- [Assertion]: (let $oldheap := $heap :: " +
-                "(let $heap := $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)) :: " +
-                "$eq<int>($select<C,int>($heap, c, C$$i), " +
-                "$plus((let $heap := $oldheap :: $select<C,int>($heap, c, C$$i)), 1))))", sequent.toString());
+                "(let $heap := $store<C,int>($heap, c, C$$i, 0) :: " +
+                "(let $heap := $store<C,int>($heap, c, C$$i, " +
+                "$plus((let $heap := $oldheap :: $select<C,int>($heap, c, C$$i)), 1)) :: " +
+                "$eq<int>($select<C,int>($heap, c, C$$i), $plus((let $heap := $oldheap :: " +
+                "$select<C,int>($heap, c, C$$i)), 1)))))", sequent.toString());
 
         Term inlined = LetInlineVisitor.inline(sequent.getSuccedent().get(0).getTerm());
-        assertEquals(TermParser.parse(table, "c.i@$heap[c.i:=c.i+1] == c.i + 1"), inlined);
+        assertEquals(TermParser.parse(table, "c.i@$heap[c.i:=0][c.i:=c.i@$heap+1] == c.i + 1"), inlined);
     }
 
 }

@@ -114,7 +114,7 @@ public class InlineSequenterTest extends SequenterTest {
 
     protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {
 
-        Term expected = TermParser.parse(table, "c.i@$heap[c.i := c.i+1] == c.i + 1");
+        Term expected = TermParser.parse(table, "c.i@$heap[c.i := 0][c.i := c.i@$heap+1] == c.i + 1");
 
         assertEquals(expected, sequent.getSuccedent().get(0).getTerm());
     }

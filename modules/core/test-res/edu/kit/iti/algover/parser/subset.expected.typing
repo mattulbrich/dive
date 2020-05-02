@@ -1,0 +1,6 @@
+(method subset (ARGS (VAR a (TYPE (set object)))
+    (VAR b (TYPE (set C)))) (returns (VAR r (TYPE bool)))
+    (BLOCK (:= r[bool] (<= b[set<C>] a[set<object>])[bool])
+           (:= r[bool] (< b[set<C>] a[set<object>])[bool])
+           (:= r[bool] (>= a[set<object>] b[set<C>])[bool])
+           (:= r[bool] (> a[set<object>] b[set<C>])[bool])))[scc_26]

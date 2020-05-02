@@ -36,19 +36,18 @@ public class ModifiesListResolver {
     }
 
     /**
-     * Resolves the arguments of a modifies clause.
+     * Resolves the arguments of a modifies or reads clause.
      *
-     * The resulting tree is the translation of the arguments.
+     * The resulting tree is the translation of the arguments as set expression
      *
      * @param tree the modifies clause to resolve. Its type must be {@link
      *             DafnyParser#MODIFIES}.
      * @return a freshly created tree
      * @throws DafnyException if the typing is not correct.
      */
-    public static @NonNull
-    DafnyTree resolve(@NonNull DafnyTree tree) throws DafnyException {
+    public static @NonNull DafnyTree resolve(@NonNull DafnyTree tree) throws DafnyException {
 
-        assert tree.getType() == DafnyParser.MODIFIES;
+        assert List.of(DafnyParser.MODIFIES, DafnyParser.READS).contains(tree.getType());
 
         List<DafnyTree> sets = new ArrayList<>();
         List<DafnyTree> expressions = new ArrayList<>();

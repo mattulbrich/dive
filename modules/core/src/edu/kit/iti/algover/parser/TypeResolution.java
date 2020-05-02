@@ -321,22 +321,30 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitLE(DafnyTree t, Void a) {
-        return operation(t, BOOL_TYPE, "int", "int");
+        operationOverloaded(t, INT_SET);
+        t.setExpressionType(BOOL_TYPE);
+        return BOOL_TYPE;
     }
 
     @Override
     public DafnyTree visitLT(DafnyTree t, Void a) {
-        return operation(t, BOOL_TYPE, "int", "int");
+        operationOverloaded(t, INT_SET);
+        t.setExpressionType(BOOL_TYPE);
+        return BOOL_TYPE;
     }
 
     @Override
     public DafnyTree visitGE(DafnyTree t, Void a) {
-        return operation(t, BOOL_TYPE, "int", "int");
+        operationOverloaded(t, INT_SET);
+        t.setExpressionType(BOOL_TYPE);
+        return BOOL_TYPE;
     }
 
     @Override
     public DafnyTree visitGT(DafnyTree t, Void a) {
-        return operation(t, BOOL_TYPE, "int", "int");
+        operationOverloaded(t, INT_SET);
+        t.setExpressionType(BOOL_TYPE);
+        return BOOL_TYPE;
     }
 
     @Override
@@ -787,6 +795,20 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             if(!sort.isSubtypeOf(Sort.OBJECT) &&
                     !sort.isSubtypeOf(Sort.get("set", Sort.OBJECT))) {
                 exceptions.add(new DafnyException("Unsupported expression in modifies clause", t));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public DafnyTree visitREADS(DafnyTree t, Void a) {
+        DafnyTree result = visitDepth(t);
+        for (DafnyTree child : t.getChildren()) {
+            DafnyTree ty = child.getExpressionType();
+            Sort sort = ASTUtil.toSort(ty);
+            if(!sort.isSubtypeOf(Sort.OBJECT) &&
+                    !sort.isSubtypeOf(Sort.get("set", Sort.OBJECT))) {
+                exceptions.add(new DafnyException("Unsupported expression in reads clause", t));
             }
         }
         return result;

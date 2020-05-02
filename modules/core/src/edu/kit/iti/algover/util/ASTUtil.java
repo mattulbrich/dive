@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -521,6 +522,10 @@ public final class ASTUtil {
         DafnyTree result = new DafnyTree(DafnyParser.SETEX);
         result.addChildren(expressions);
         return result;
+    }
+
+    public static DafnyTree setUnion(DafnyTree... exps) {
+        return setUnion(Arrays.asList(exps));
     }
 
     public static DafnyTree setUnion(List<DafnyTree> exps) {
