@@ -83,6 +83,7 @@ public class ScriptCodeController {
     public ScriptCodeController(DiveCenter diveCenter) throws IOException {
         this.diveCenter = diveCenter;
         diveCenter.properties().activePVC.addObserver(this::setPVC);
+        diveCenter.properties().insertIntoScriptCaret.addObserver(this::insertAtCaret);
 
         this.component = new JPanel(new BorderLayout());
         {
@@ -119,6 +120,10 @@ public class ScriptCodeController {
             component.add(new RTextScrollPane(textArea));
         }
         setPVC(null);
+    }
+
+    private void insertAtCaret(String text) {
+        textArea.insert(text, textArea.getCaretPosition());
     }
 
     private void caretUpdated(CaretEvent ev) {

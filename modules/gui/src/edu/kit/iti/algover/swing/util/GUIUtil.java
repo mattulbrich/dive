@@ -7,6 +7,8 @@
 package edu.kit.iti.algover.swing.util;
 
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -180,5 +182,11 @@ public class GUIUtil {
             Log.stacktrace(Log.WARNING, e);
             return 0;
         }
+    }
+
+    public static void copyToClipboard(String string) {
+        StringSelection stringSelection = new StringSelection(string);
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, null);
     }
 }

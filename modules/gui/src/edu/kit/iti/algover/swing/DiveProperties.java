@@ -13,6 +13,7 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.swing.script.ProofNodeCheckpoint;
 import edu.kit.iti.algover.swing.util.Property;
+import edu.kit.iti.algover.swing.util.Signal;
 
 public class DiveProperties {
 
@@ -63,10 +64,20 @@ public class DiveProperties {
      * A signal to indicate that this dive center has been shut down.
      * Goes from false to true at most once.
      */
-
     public final Property<Boolean> terminated =
             new Property<>("terminated", Boolean.class, false);
 
+    /**
+     * Write some text at the current position into the script window.
+     */
+    public final Signal<String> insertIntoScriptCaret =
+            Signal.newSignal("insertIntoScriptCaret", String.class);
+
+    /**
+     * Write some text at the command position into the script window.
+     */
+    public final Signal<String> insertIntoScriptCommand =
+            Signal.newSignal("insertIntoScriptCommand", String.class);
 
     /**
      * The current selection proof node within a pvc.

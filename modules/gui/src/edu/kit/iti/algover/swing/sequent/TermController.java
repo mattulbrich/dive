@@ -11,9 +11,11 @@ import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.SubtermSelector;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.swing.DiveCenter;
+import edu.kit.iti.algover.swing.util.GUIUtil;
 import edu.kit.iti.algover.swing.util.Log;
 import edu.kit.iti.algover.swing.util.NotScrollingCaret;
 import edu.kit.iti.algover.swing.util.Settings;
+import edu.kit.iti.algover.swing.util.Signal;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString.TermElement;
@@ -302,10 +304,58 @@ public class TermController extends MouseAdapter {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() > 1 || !SwingUtilities.isLeftMouseButton(e)) {
-            return;
+
+        if (e.getClickCount() == 1) {
+            if (SwingUtilities.isRightMouseButton(e)) {
+                showPopup(e);
+            } else if (SwingUtilities.isLeftMouseButton(e)) {
+                selectTerm(e);
+            }
+        }
+        // TODO Double click
+    }
+
+    private void showPopup(MouseEvent e) {
+        Point p = e.getPoint();
+        Log.enter(p);
+        int index = viewToModel(p);
+        TermSelector selector;
+        String text;
+        if (index >= 0 && index < annotatedString.length()) {
+            TermElement element = annotatedString.getTermElementAt(index);
+            selector = new TermSelector(termSelector, element.getSubtermSelector());
+            text = annotatedString.toString().substring(element.getBegin(), element.getEnd());
+        } else {
+            selector = termSelector;
+            text = annotatedString.toString();
         }
 
+        Signal<String> insert = diveCenter.properties().insertIntoScriptCaret;
+
+        JPopupMenu popup = new JPopupMenu();
+        popup.add(mkPopupItem("Copy full term",
+                () -> GUIUtil.copyToClipboard(text)));
+        popup.add(mkPopupItem("Copy unique term",
+                () -> GUIUtil.copyToClipboard(text)));
+        popup.add(mkPopupItem("Copy term selector",
+                () -> GUIUtil.copyToClipboard(selector.toString())));
+        popup.add(new JSeparator());
+        popup.add(mkPopupItem("Insert full term",
+                () -> insert.fire(text)));
+        popup.add(mkPopupItem("Insert unique term",
+                () -> insert.fire(text)));
+        popup.add(mkPopupItem("Insert term selector",
+                () -> insert.fire(selector.toString())));
+        popup.show(component, e.getX(), e.getY());
+    }
+
+    private JMenuItem mkPopupItem(String title, Runnable action) {
+        JMenuItem menuItem = new JMenuItem(title);
+        menuItem.addActionListener(e -> action.run());
+        return menuItem;
+    }
+
+    private void selectTerm(MouseEvent e) {
         Point p = e.getPoint();
         Log.enter(p);
         int index = viewToModel(p);
@@ -313,7 +363,6 @@ public class TermController extends MouseAdapter {
             TermElement element = annotatedString.getTermElementAt(index);
             diveCenter.properties().termSelector.setValue(new TermSelector(termSelector, element.getSubtermSelector()));
         }
-
     }
 
     // stolen from KeY

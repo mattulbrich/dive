@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class Property<T> {
+public class Property<T> implements Signal<T> {
 
     private final String name;
     private final Class<T> type;
@@ -32,10 +32,12 @@ public class Property<T> {
         this(name, type, null);
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public Class<T> getType() {
         return type;
     }
@@ -70,6 +72,7 @@ public class Property<T> {
         }
     }
 
+    @Override
     public void fire(T value) {
         T oldValue = this.value;
         this.value = value;
@@ -84,10 +87,12 @@ public class Property<T> {
         }
     }
 
+    @Override
     public void addObserver(Runnable observer) {
         addObserver((_old, _new) -> observer.run());
     }
 
+    @Override
     public void addObserver(Consumer<? super T> observer) {
         addObserver((_old, _new) -> observer.accept(_new));
     }
@@ -101,6 +106,7 @@ public class Property<T> {
         }
     }
 
+    @Override
     public void removeObserver(Object observer) {
         synchronized (listLock) {
             if(observers != null) {
