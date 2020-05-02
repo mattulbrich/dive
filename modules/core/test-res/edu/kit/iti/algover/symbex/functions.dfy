@@ -13,6 +13,6 @@ class Node
       this.depth >= 0 &&
       (this.next != null ==>
         next in footprint && next.footprint <= footprint &&
-        next.depth < depth && next.Valid())
+        0 <= next.depth < depth && next.Valid())
   }
 }

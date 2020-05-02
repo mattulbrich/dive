@@ -217,7 +217,8 @@ public class SymbexExpressionValidator {
             break;
 
         case DafnyParser.ID:
-            if(expression.getDeclarationReference().getType() == DafnyParser.FIELD) {
+            if(expression.getDeclarationReference() != null &&
+                    expression.getDeclarationReference().getType() == DafnyParser.FIELD) {
                 addReadsCheck(ASTUtil._this(), wrapper);
             }
             break;
@@ -275,15 +276,19 @@ public class SymbexExpressionValidator {
                     map(Util.runtimeException(ModifiesListResolver::resolve)).
                     reduce(ASTUtil::setUnion).orElse(ASTUtil.setExt(List.of()));
 
-            SymbexPath readsState = new SymbexPath(state);
-            readsState.setBlockToExecute(Symbex.EMPTY_PROGRAM);
-            // wrap that into a substitution
-            DafnyTree condition = ASTUtil.lessEqual(reads, ASTUtil.id("$mod"));
-            condition = ASTUtil.letCascade(subs, condition);
-            // and use the wrapper from outside ...
-            condition = wrapper.apply(condition);
-            readsState.setProofObligation(condition, expression, AssertionType.READS);
-            stack.add(readsState);
+            if (reads.getType() == DafnyParser.SETEX && reads.getChildCount() == 0) {
+                // empty set and do not add a check ...
+            } else {
+                SymbexPath readsState = new SymbexPath(state);
+                readsState.setBlockToExecute(Symbex.EMPTY_PROGRAM);
+                // wrap that into a substitution
+                DafnyTree condition = ASTUtil.lessEqual(reads, ASTUtil.id("$mod"));
+                condition = ASTUtil.letCascade(subs, condition);
+                // and use the wrapper from outside ...
+                condition = wrapper.apply(condition);
+                readsState.setProofObligation(condition, expression, AssertionType.READS);
+                stack.add(readsState);
+            }
         }
 
         // ------------------
