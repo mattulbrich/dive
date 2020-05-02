@@ -35,6 +35,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class TermController extends MouseAdapter {
 
@@ -125,8 +126,6 @@ public class TermController extends MouseAdapter {
 
             };
 
-
-
     private final JTextPane component;
     private final PrettyPrint prettyPrinter;
     private final Object mouseHighlight;
@@ -178,16 +177,14 @@ public class TermController extends MouseAdapter {
 
         this.prettyPrinter = new PrettyPrint();
         reprint();
-
-        diveCenter.properties().noProjectMode.addObserver(this::sourcesModified);
-        diveCenter.properties().termSelector.addObserver(this::updateTermSelector);
     }
 
-    private void updateTermSelector(TermSelector ts) {
-
+    public void updateTermSelector(TermSelector ts) {
         try {
             if (ts == null || !ts.getToplevelSelector().equals(this.termSelector)) {
                 component.getHighlighter().changeHighlight(selectionHighlight, 0, 0);
+            } else if (ts.isToplevel()) {
+                component.getHighlighter().changeHighlight(selectionHighlight, 0, annotatedString.length());
             } else {
                 for (TermElement element : annotatedString.getAllTermElements()) {
                     if (element.getSubtermSelector().equals(ts.getSubtermSelector())) {
@@ -207,7 +204,7 @@ public class TermController extends MouseAdapter {
 
     }
 
-    private void sourcesModified(boolean modified) {
+    public void sourcesModified(boolean modified) {
         if (modified) {
             component.setEnabled(false);
             mouseExited(null);

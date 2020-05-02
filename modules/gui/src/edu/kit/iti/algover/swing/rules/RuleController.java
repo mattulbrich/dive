@@ -7,12 +7,16 @@
 
 package edu.kit.iti.algover.swing.rules;
 
+import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.swing.util.IndentationLayout;
+import edu.kit.iti.algover.util.Util;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.util.List;
+import java.util.Map.Entry;
 
 public class RuleController {
     private ProofRule proofRule;
@@ -31,11 +35,20 @@ public class RuleController {
         JLabel branches = new JLabel("\u27bd2");
         branches.setToolTipText("Click to refine");
         result.add(branches);
-        JTextArea descr = new JTextArea("Split the proof obligation into 2 or more subgoals");
-        descr.setForeground(Color.GRAY);
-        descr.setEditable(false);
-        result.add(descr);
+        JTextArea params = new JTextArea(makeParamString());
+        params.setForeground(Color.GRAY);
+        params.setEditable(false);
+        result.add(params);
         result.putClientProperty(IndentationLayout.INDENTED_PROPERTY, true);
         return result;
+    }
+
+    private String makeParamString() {
+
+        List<String> paraList = Util.map(proofRule.getAllParameters().entrySet(), entry ->
+                entry.getKey() + ":" + entry.getValue().getType().getName()
+        );
+
+        return Util.join(paraList, " ");
     }
 }

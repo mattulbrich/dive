@@ -114,7 +114,12 @@ public class Property<T> {
             try {
                 isActive = true;
                 for (BiConsumer<? super T, ? super T> observer : observers) {
-                    observer.accept(oldValue, this.value);
+                    try {
+                        observer.accept(oldValue, this.value);
+                    } catch (Exception e) {
+                        System.err.println("Exception during notification for " + getName());
+                        e.printStackTrace();
+                    }
                 }
             } finally {
                 isActive = false;

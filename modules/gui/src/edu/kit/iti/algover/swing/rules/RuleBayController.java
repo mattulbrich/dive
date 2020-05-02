@@ -29,15 +29,6 @@ import java.util.concurrent.Flow;
 public class RuleBayController {
 
 
-    private static Map<String, String> CATEGORY_MAP = new LinkedHashMap<>();
-    static {
-        CATEGORY_MAP.put("Solver", "Strategies and solvers");
-        CATEGORY_MAP.put("Strategy", "Strategies and solvers");
-        CATEGORY_MAP.put("Global", "Global rules");
-        CATEGORY_MAP.put("Local", "Focus rules");
-        CATEGORY_MAP.put("Rewrite", "Rewrite rules");
-        CATEGORY_MAP.put("XXX", "Other");
-    }
     private final JPanel thePanel;
     private final JScrollPane theComponent;
     private DiveCenter diveCenter;
@@ -50,6 +41,7 @@ public class RuleBayController {
         thePanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
         theComponent = new JScrollPane(thePanel);
+        theComponent.getVerticalScrollBar().setUnitIncrement(16);
 
         diveCenter.properties().termSelector.addObserver(this::updatePanel);
         diveCenter.properties().activePVC.addObserver(this::pvcChanged);
@@ -62,11 +54,12 @@ public class RuleBayController {
         Project proj = diveCenter.properties().project.getValue();
 
         // Fake content
-        for (String header : CATEGORY_MAP.values()) {
+        for (String header : ruleMap.keySet()) {
             thePanel.add(newHeader(header));
-            for (ProofRule proofRule : ruleMap.getOrDefault(header, Collections.emptyList())) {
+            List<ProofRule> rules = ruleMap.get(header);
+            Collections.sort(rules, (r1,r2) -> r1.getName().compareToIgnoreCase(r2.getName()));
+            for (ProofRule proofRule : rules) {
                 thePanel.add(new RuleController(proofRule).getComponent());
-
             }
         }
 
@@ -93,7 +86,7 @@ public class RuleBayController {
         Collection<ProofRule> allRules = proj.getProofRules(pvc);
 
         for (ProofRule rule : allRules) {
-            String cat = CATEGORY_MAP.getOrDefault(rule.getCategory(), "Other");
+            String cat = rule.getCategory();
             List<ProofRule> list = ruleMap.get(cat);
             if (list == null) {
                 list = new LinkedList<>();

@@ -21,7 +21,9 @@ import edu.kit.iti.algover.term.Sequent;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
+import java.util.List;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class SequentController {
 
@@ -32,7 +34,9 @@ public class SequentController {
 
     private final JScrollPane component;
     private final JPanel seqComponent;
-    private DiveCenter diveCenter;
+    private final DiveCenter diveCenter;
+
+    private final List<TermController> controllerList = new ArrayList<>();
 
     public SequentController(DiveCenter diveCenter) {
         this.diveCenter = diveCenter;
@@ -46,6 +50,21 @@ public class SequentController {
 
         diveCenter.properties().proofNodeCheckpoint.addObserver(this::setProofNode);
         setProofNode(null);
+
+        diveCenter.properties().noProjectMode.addObserver(this::sourcesModified);
+        diveCenter.properties().termSelector.addObserver(this::updateTermSelector);
+    }
+
+    private void updateTermSelector(TermSelector termSelector) {
+        for (TermController termController : controllerList) {
+            termController.updateTermSelector(termSelector);
+        }
+    }
+
+    private void sourcesModified(boolean modified) {
+        for (TermController termController : controllerList) {
+            termController.sourcesModified(modified);
+        }
     }
 
     private void changedViewportState(ChangeEvent changeEvent) {
@@ -58,6 +77,7 @@ public class SequentController {
     private void setProofNode(ProofNodeCheckpoint checkpoint) {
 
         seqComponent.removeAll();
+        controllerList.clear();
 
         if (checkpoint == null) {
             seqComponent.add(new JLabel("No sequent to display."));
@@ -85,6 +105,7 @@ public class SequentController {
             TermSelector termSelector = new TermSelector(SequentPolarity.ANTECEDENT, i);
             TermController ctrl = new TermController(diveCenter, pf, termSelector);
             seqComponent.add(ctrl.getComponent());
+            controllerList.add(ctrl);
             i++;
         }
 
@@ -95,6 +116,7 @@ public class SequentController {
             TermSelector termSelector = new TermSelector(SequentPolarity.SUCCEDENT, i);
             TermController ctrl = new TermController(diveCenter, pf, termSelector);
             seqComponent.add(ctrl.getComponent());
+            controllerList.add(ctrl);
             i++;
         }
 
