@@ -108,5 +108,4 @@ public abstract class SequenterTest {
     }
 
     protected abstract void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception;
-
 }

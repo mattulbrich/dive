@@ -61,8 +61,8 @@ public class SSASequenter implements PVCSequenter {
         try {
             TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
             // old and fresh need this $oldheap variable
-            ttt.bindVariable(TreeTermTranslator.OLD_HEAP_VAR);
-            SSAInstantiationVisitor visitor = new SSAInstantiationVisitor(ttt.getReferenceMap(), symbolTable);
+            // ttt.bindVariable(TreeTermTranslator.OLD_HEAP_VAR);
+            SSAInstantiationVisitor visitor = new SSAInstantiationVisitor(ttt.getReferenceMap());
 
             // JK: REVIEW maybe use set here?
             // MU: No. That would probably not have the right order.
@@ -139,7 +139,7 @@ public class SSASequenter implements PVCSequenter {
         TreeAssignmentTranslator tat = new TreeAssignmentTranslator(ttt);
 
         ImmutableList<Pair<FunctionSymbol, Term>> assignments =
-                tat.translateToLinear(assignmentHistory).reverse();
+                tat.translateToLinear(assignmentHistory);
         ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> mapping =
                 ImmutableList.nil();
 
@@ -200,11 +200,9 @@ public class SSASequenter implements PVCSequenter {
 class SSAInstantiationVisitor extends ReplacementVisitor<ImmutableList<Pair<FunctionSymbol, FunctionSymbol>>> {
 
     private Map<Term, DafnyTree> refMap;
-    private SymbolTable symbolTable;
 
-    public SSAInstantiationVisitor(Map<Term, DafnyTree> refMap, SymbolTable symbolTable) {
+    public SSAInstantiationVisitor(Map<Term, DafnyTree> refMap) {
         this.refMap = refMap;
-        this.symbolTable = symbolTable;
     }
 
     @Override
@@ -224,13 +222,5 @@ class SSAInstantiationVisitor extends ReplacementVisitor<ImmutableList<Pair<Func
         }
 
         return result;
-    }
-
-    @Override
-    public Term visit(VariableTerm variableTerm, ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> arg) throws TermBuildException {
-        if(variableTerm.equals(TreeTermTranslator.OLD_HEAP_VAR)) {
-            return new ApplTerm(symbolTable.getFunctionSymbol("$heap"));
-        }
-        return null;
     }
 }

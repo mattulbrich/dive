@@ -218,8 +218,10 @@ public class SSASequenterTest extends SequenterTest {
         assertEquals("[Path]: $eq<set<object>>($mod_1, $freshObjects($heap)), " +
                 "[Path]: $eq<int>($decr_1, 0), " +
                 "[Path]: $eq<heap>($oldheap_1, $heap), " +
-                "[Path]: $eq<heap>($heap_1, $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)))" +
-                " |- [Assertion]: $eq<int>($select<C,int>($heap_1, c, C$$i), " +
+                "[Path]: $eq<heap>($heap_1, $store<C,int>($heap, c, C$$i, 0)), " +
+                "[Path]: $eq<heap>($heap_2, $store<C,int>($heap_1, c, C$$i, " +
+                   "$plus((let $heap := $oldheap_1 :: $select<C,int>($heap, c, C$$i)), 1)))" +
+                " |- [Assertion]: $eq<int>($select<C,int>($heap_2, c, C$$i), " +
                 "$plus((let $heap := $oldheap_1 :: $select<C,int>($heap, c, C$$i)), 1))", sequent.toString());
     }
 
