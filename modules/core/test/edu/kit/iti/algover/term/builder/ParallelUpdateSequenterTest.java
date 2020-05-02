@@ -54,12 +54,12 @@ public class ParallelUpdateSequenterTest extends SequenterTest {
 
     // for the normal upd-sequenter "[$gt(p, 0), (let $mod := m :: (let local := p :: $gt(local, 0)))]";
     protected String expectedAntecedent(String string) {
-        return "[$gt(p, 0), (let $mod, $decr, $oldheap, local := m, $plus(p, 1), $heap, p :: $gt(local, 0))]";
+        return "[$gt(p, 0), (let $mod, $decr, $oldheap, local := $union<object>(m, $freshObjects($heap)), $plus(p, 1), $heap, p :: $gt(local, 0))]";
     }
 
     // for the normal upd-sequenter "[(let $mod := m :: (let local := p :: (let r := local :: $gt(r, 0))))]";
     protected String expectedSuccedent(String string) {
-        return "[(let $mod, $decr, $oldheap, local, r, $heap := m, $plus(p, 1), $heap, p, p, $heap :: $gt(r, 0))]";
+        return "[(let $mod, $decr, $oldheap, local, r, $heap := $union<object>(m, $freshObjects($heap)), $plus(p, 1), $heap, p, p, $heap :: $gt(r, 0))]";
     }
 
     @Override
@@ -70,7 +70,7 @@ public class ParallelUpdateSequenterTest extends SequenterTest {
     protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {
 
         assertEquals("|- [Assertion]: (let $mod, $decr, $oldheap, $heap := " +
-                "$empty, 0, $heap, $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)) :: " +
+                "$freshObjects($heap), 0, $heap, $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)) :: " +
                 "$eq<int>($select<C,int>($heap, c, C$$i), " +
                 "$plus((let $heap := $oldheap :: $select<C,int>($heap, c, C$$i)), 1)))", sequent.toString());
 

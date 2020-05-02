@@ -38,7 +38,7 @@ public class SSASequenterTest extends SequenterTest {
 
     @Override
     protected String expectedAntecedent(String pathIdentifier) {
-        return "[$eq<set<object>>($mod_1, m), $eq<int>($decr_1, $plus(p, 1)), " +
+        return "[$eq<set<object>>($mod_1, $union<object>(m, $freshObjects($heap))), $eq<int>($decr_1, $plus(p, 1)), " +
                 "$eq<heap>($oldheap_1, $heap), $eq<int>(local_1, p), " +
                 "$eq<int>(r_1, local_1), $gt(p, 0), $gt(local_1, 0)]";
     }
@@ -66,7 +66,7 @@ public class SSASequenterTest extends SequenterTest {
                     "  }}";
 
     private static String SSA_EXPECTED[] = {
-            "[Path]: $eq<set<object>>($mod_1, $empty), " +
+            "[Path]: $eq<set<object>>($mod_1, $freshObjects($heap)), " +
                     "[Path]: $eq<int>($decr_1, 0), " +
                     "[Path]: $eq<heap>($oldheap_1, $heap), " +
                     "[Path]: $eq<int>(la_1, a), " +
@@ -74,7 +74,7 @@ public class SSASequenterTest extends SequenterTest {
                     "[Path]: $eq<int>(r_1, 0), " +
                     "[PreCond]: $eq<int>(a, 42) " +
                     "|- [Assertion]: $eq<int>($plus(la_1, r_1), 0)",
-            "[Path]: $eq<set<object>>($mod_1, $empty), " +
+            "[Path]: $eq<set<object>>($mod_1, $freshObjects($heap)), " +
                     "[Path]: $eq<int>($decr_2, 0), " +
                     "[Path]: $eq<heap>($oldheap_1, $heap), " +
                     "[Path]: $eq<int>(la_1, a), " +
@@ -89,7 +89,7 @@ public class SSASequenterTest extends SequenterTest {
                     "[Assumption]: $eq<int>($plus(la_2, r_2), 0), " +
                     "[PathCond]: $gt(la_2, 0) " +
                     "|- [Assertion]: $eq<int>($plus(la_3, r_3), 0)",
-            "[Path]: $eq<set<object>>($mod_1, $empty), " +
+            "[Path]: $eq<set<object>>($mod_1, $freshObjects($heap)), " +
                     "[Path]: $eq<int>($decr_1, 0), " +
                     "[Path]: $eq<heap>($oldheap_1, $heap), " +
                     "[Path]: $eq<int>(la_1, a), " +
@@ -134,7 +134,7 @@ public class SSASequenterTest extends SequenterTest {
 
 
     private static final String SSA_LINEAR_EXPECTED =
-            "[Path]: $eq<set<object>>($mod_1, $empty), " +
+            "[Path]: $eq<set<object>>($mod_1, $freshObjects($heap)), " +
                     "[Path]: $eq<int>($decr_1, 0), " +
                     "[Path]: $eq<heap>($oldheap_1, $heap), " +
                     "[Path]: $eq<int>(local_1, 0), " +
@@ -146,7 +146,7 @@ public class SSASequenterTest extends SequenterTest {
                     " |- [Assertion]: $gt(r_3, 0)";
 
     private static final String HEAP_EXPECTED =
-            "[Path]: $eq<set<object>>($mod_1, $empty), " +
+            "[Path]: $eq<set<object>>($mod_1, $freshObjects($heap)), " +
                     "[Path]: $eq<int>($decr_1, 0), " +
                     "[Path]: $eq<heap>($oldheap_1, $heap), " +
                     "[Path]: $eq<heap>($heap_1, $array_store<int>($heap, a, 0, 1)), " +
@@ -190,7 +190,7 @@ public class SSASequenterTest extends SequenterTest {
         SymbexPath path = results.get(0).split().get(0);
         PVCSequenter sequenter = makeSequenter();
         Sequent sequent = sequenter.translate(path, makeTable(method), null);
-        assertEquals("[Path]: $eq<set<object>>($mod_1, $empty), " +
+        assertEquals("[Path]: $eq<set<object>>($mod_1, $freshObjects($heap)), " +
                 "[Path]: $eq<int>($decr_1, 0), " +
                 "[Path]: $eq<heap>($oldheap_1, $heap), " +
                 "[PreCond, Assumption]: $eq<int>(1, 1) " +
@@ -215,7 +215,7 @@ public class SSASequenterTest extends SequenterTest {
     }
 
     protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {
-        assertEquals("[Path]: $eq<set<object>>($mod_1, $empty), " +
+        assertEquals("[Path]: $eq<set<object>>($mod_1, $freshObjects($heap)), " +
                 "[Path]: $eq<int>($decr_1, 0), " +
                 "[Path]: $eq<heap>($oldheap_1, $heap), " +
                 "[Path]: $eq<heap>($heap_1, $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)))" +

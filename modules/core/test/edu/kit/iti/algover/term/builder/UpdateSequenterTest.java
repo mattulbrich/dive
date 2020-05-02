@@ -34,13 +34,13 @@ import junitparams.Parameters;
 public class UpdateSequenterTest extends SequenterTest {
 
     protected String expectedSuccedent(String string) {
-        return "[(let $mod := m :: (let $decr := $plus(p, 1) :: " +
+        return "[(let $mod := $union<object>(m, $freshObjects($heap)) :: (let $decr := $plus(p, 1) :: " +
                 "(let $oldheap := $heap :: (let local := p :: (let r := local :: " +
                 "(let $heap := $oldheap :: $gt(r, 0)))))))]";
     }
 
     protected String expectedAntecedent(String string) {
-        return "[$gt(p, 0), (let $mod := m :: (let $decr := $plus(p, 1) :: " +
+        return "[$gt(p, 0), (let $mod := $union<object>(m, $freshObjects($heap)) :: (let $decr := $plus(p, 1) :: " +
                 "(let $oldheap := $heap :: (let local := p :: $gt(local, 0)))))]";
     }
 
@@ -174,7 +174,7 @@ public class UpdateSequenterTest extends SequenterTest {
         SymbolTable table = makeTable(method, p);
         Sequent sequent = sequenter.translate(path, table, null);
 
-        assertEquals("|- [Assertion]: (let $mod := $empty :: " +
+        assertEquals("|- [Assertion]: (let $mod := $freshObjects($heap) :: " +
                 "(let $decr := 0 :: " +
                 "(let $oldheap := $heap :: " +
                 "(let $heap := $store<C,C>($heap, this, C$$fld, this) :: " +
@@ -183,7 +183,7 @@ public class UpdateSequenterTest extends SequenterTest {
 
     protected void checkSequentWithOld(SymbolTable table, Sequent sequent) throws Exception {
 
-        assertEquals("|- [Assertion]: (let $mod := $empty :: (let $decr := 0 :: " +
+        assertEquals("|- [Assertion]: (let $mod := $freshObjects($heap) :: (let $decr := 0 :: " +
                 "(let $oldheap := $heap :: (let $heap := $store<C,int>($heap, c, C$$i, $plus($select<C,int>($heap, c, C$$i), 1)) :: " +
                 "$eq<int>($select<C,int>($heap, c, C$$i), " +
                 "$plus((let $heap := $oldheap :: $select<C,int>($heap, c, C$$i)), 1))))))", sequent.toString());

@@ -858,11 +858,16 @@ public class Symbex {
         }
 
         try {
-            result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
-                  ASTUtil.plus(
-                    ModifiesListResolver.resolve(modifies),
-                    ASTUtil.call(BuiltinSymbols.FRESH_OBJECTS.getName(),
-                            ASTUtil.id(BuiltinSymbols.HEAP.getName())))));
+            DafnyTree mod = ModifiesListResolver.resolve(modifies);
+            DafnyTree freshObj = ASTUtil.call(BuiltinSymbols.FRESH_OBJECTS.getName(),
+                    ASTUtil.id(BuiltinSymbols.HEAP.getName()));
+            if (mod.getType() == DafnyParser.SETEX && mod.getChildCount() == 0) {
+                mod = freshObj;
+            } else {
+                mod = ASTUtil.plus(mod, freshObj);
+            }
+
+            result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"), mod));
         } catch (DafnyException e) {
             // Thanks to TypeResolver, this should never occur.
             throw new RuntimeException(e);
