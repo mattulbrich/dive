@@ -3,4 +3,10 @@
               (VAR a (TYPE (array int))))
         (modifies ({ this[C] a[array<int>])[set<object>])
         (BLOCK (var s2 (TYPE (set int))
-                    ({ 1[int] 2[int] 3[int])[set<int>])))[scc_13]
+                    ({ 1[int] 2[int] 3[int])[set<int>])
+               (var s3 (TYPE (set int))
+                    (+ ({ 1[int])[set<int>] ({ 2[int])[set<int>])[set<int>])
+               (var s4 (TYPE bool)
+                    (in 1[int] {[set<$nothing>])[bool])
+               (var s5 (TYPE bool)
+                    (!in 2[int] ({ 2[int])[set<int>])[bool])))[scc_13]

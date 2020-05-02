@@ -573,7 +573,11 @@ public class TreeTermTranslator {
                 Tree parent = ref.getParent();
                 if(parent.getType() == DafnyParser.CLASS) {
                     fct = symbolTable.getFunctionSymbol(parent.getChild(0).getText() + "$$" + id);
-                    argTerms.add(tb.cons("this"));
+                    Term self = boundVars.get("this");
+                    if (self == null) {
+                        self = tb.self();
+                    }
+                    argTerms.add(self);
                 }
             }
         }

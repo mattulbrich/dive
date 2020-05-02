@@ -1,0 +1,50 @@
+### project:
+
+/*
+ * That comes from a real bug.
+ *
+ * Not really automatic I am afraid.
+ */
+
+class A {
+
+  function asSet(l: seq<A>) : set<A>
+  {
+    if l == [] then {}
+    else {l[0]} + asSet(l[1..])
+  }
+
+}
+
+### decls:
+
+a: A
+
+### sequent:
+
+ |- a.asSet([a,a]) == {a}
+
+### result:
+
+irrelevant
+
+### translation
+const _$heap : Heap;
+const _a : ref;
+const unique TClass_A : Ty;
+function f_A$$asSet$limited(Heap, ref, Seq (ref)) : Set (ref);
+function f_A$$asSet(Heap, ref, Seq (ref)) : Set (ref);
+
+axiom (forall x:ref :: $Is(x, TClass_A) <==> dtype(x) == TClass_A || x == null);
+axiom (forall v0: Heap :: (forall v1: ref :: (forall v2: Seq (ref) ::  $Is(f_A$$asSet(v0, v1, v2), TSet(TClass_A)) )));
+axiom $Is(_$heap, THeap);
+axiom $Is(_a, TClass_A);
+axiom (forall v0: Heap :: (forall v1: ref :: (forall v2: Seq (ref) ::  $Is(f_A$$asSet$limited(v0, v1, v2), TSet(TClass_A)) )));
+axiom (forall var_l:Seq (ref), var_this:ref, var_heap:Heap :: {f_A$$asSet(var_heap, var_this, var_l)} Set#Equal(f_A$$asSet(var_heap, var_this, var_l), (if Seq#Equal(var_l, Seq#Empty()) then Set#Empty() else Set#Union(Set#UnionOne(Set#Empty(), Seq#Index(var_l, 0)), f_A$$asSet$limited(_$heap, var_this, Seq#Drop(Seq#Take(var_l, Seq#Length(var_l)), 1))))));
+axiom (forall var_v2:Seq (ref), var_v1:ref, var_v0:Heap :: {f_A$$asSet(var_v0, var_v1, var_v2)} Set#Equal(f_A$$asSet(var_v0, var_v1, var_v2), f_A$$asSet$limited(var_v0, var_v1, var_v2)));
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(f_A$$asSet(_$heap, _a, Seq#Build(Seq#Build(Seq#Empty(), _a), _a)), Set#UnionOne(Set#Empty(), _a)));
+}

@@ -217,16 +217,19 @@ public class BoogieFunctionDefinitionVisitor extends ReplacementVisitor<Void> {
         VariableTerm heapVar = new VariableTerm("heap", Sort.HEAP);
         boundVars.add(heapVar);
 
+        int paramPos = 1;
         if(function.isDeclaredInClass()) {
-            VariableTerm recVar = new VariableTerm("this", dfs.getArgumentSorts().get(1));
+            VariableTerm recVar = new VariableTerm("this", dfs.getArgumentSorts().get(paramPos));
             boundVars.add(recVar);
+            paramPos ++;
         }
 
         for (int i = 0; i < formalParams.size(); i++) {
             DafnyTree formalParam = formalParams.get(i);
             String name = formalParam.getFirstChildWithType(DafnyParser.ID).getText();
-            VariableTerm var = new VariableTerm(name, dfs.getArgumentSorts().get(1));
+            VariableTerm var = new VariableTerm(name, dfs.getArgumentSorts().get(paramPos));
             boundVars.add(var);
+            paramPos ++;
         }
 
         boundVars.forEach(ttt::bindVariable);
