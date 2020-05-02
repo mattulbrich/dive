@@ -321,22 +321,30 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitLE(DafnyTree t, Void a) {
-        return operation(t, BOOL_TYPE, "int", "int");
+        operationOverloaded(t, INT_SET);
+        t.setExpressionType(BOOL_TYPE);
+        return BOOL_TYPE;
     }
 
     @Override
     public DafnyTree visitLT(DafnyTree t, Void a) {
-        return operation(t, BOOL_TYPE, "int", "int");
+        operationOverloaded(t, INT_SET);
+        t.setExpressionType(BOOL_TYPE);
+        return BOOL_TYPE;
     }
 
     @Override
     public DafnyTree visitGE(DafnyTree t, Void a) {
-        return operation(t, BOOL_TYPE, "int", "int");
+        operationOverloaded(t, INT_SET);
+        t.setExpressionType(BOOL_TYPE);
+        return BOOL_TYPE;
     }
 
     @Override
     public DafnyTree visitGT(DafnyTree t, Void a) {
-        return operation(t, BOOL_TYPE, "int", "int");
+        operationOverloaded(t, INT_SET);
+        t.setExpressionType(BOOL_TYPE);
+        return BOOL_TYPE;
     }
 
     @Override
