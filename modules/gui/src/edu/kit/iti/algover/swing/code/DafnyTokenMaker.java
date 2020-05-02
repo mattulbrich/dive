@@ -78,6 +78,7 @@ public class DafnyTokenMaker extends TokenMakerBase {
         case DafnyLexer.CLASS:
         case DafnyLexer.VAR:
         case DafnyLexer.IF:
+        case DafnyLexer.IN:
         case DafnyLexer.THEN:
         case DafnyLexer.ELSE:
         case DafnyLexer.RETURNS:
@@ -94,6 +95,7 @@ public class DafnyTokenMaker extends TokenMakerBase {
         case DafnyLexer.INVARIANT:
         case DafnyLexer.DECREASES:
         case DafnyLexer.ASSERT:
+        case DafnyLexer.ASSUME:
         case DafnyLexer.MODIFIES:
         case DafnyLexer.LEMMA:
         case DafnyLexer.SETTINGS:
