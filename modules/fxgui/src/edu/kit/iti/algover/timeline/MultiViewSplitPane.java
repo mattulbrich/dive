@@ -97,17 +97,6 @@ public class MultiViewSplitPane extends Pane {
         this.dividerLinking = createDividerLinking();
 
         dividerScreenMultiple();
-
-        linkAndBindItems();
-    }
-
-    private void linkAndBindItems() {
-        for (Node n: splitPane.getItems()) {
-            if (n instanceof Region) {
-                Region r = (Region) n;
-                r.setMinWidth(200);
-            }
-        }
     }
 
     /**
@@ -249,7 +238,7 @@ public class MultiViewSplitPane extends Pane {
             // Very hacky: not resetting it seems to prevent a repaint bug in FormulaCell.
             // That is why it is shifted in different directions in each call.
             dividers.get(oldPos).setPosition(dividers.get(oldPos).getPosition()
-                    +0.0005 * alternateDividerShiftFactor);
+                    +0.001 * alternateDividerShiftFactor);
             alternateDividerShiftFactor *= (-1);
         } else { // if the odd indexed, fixed dividers are reset
             double desired = this.screenDividers[oldPos / 2];
@@ -260,17 +249,14 @@ public class MultiViewSplitPane extends Pane {
         unlinkDividerPositions();
     }
 
-    public void resetDividerPositionLocally(int framePosition) {
-        if (framePosition % 2 != 0) {
-            return;
+    public boolean isScreenDividerOff() {
+        for (int i = 0; 2 * i + 1 < this.splitPane.getDividers().size(); i++){
+            if (this.splitPane.getDividers().get(2 * i + 1).getPosition() != this.screenDividers[i]) {
+                System.out.println("AHA!!");
+                return true;
+            } // else continue;
         }
-
-        ObservableList<SplitPane.Divider> dividers = this.splitPane.getDividers();
-
-        double desired = this.screenDividers[framePosition / 2];
-        double delta = dividers.get(framePosition).getPosition() - desired;
-        dividers.get(framePosition).setPosition(desired);
-        dividers.get(framePosition + 1).setPosition(dividers.get(framePosition + 1).getPosition() + delta);
+        return false;
     }
 
     /**

@@ -110,6 +110,12 @@ public class TimelineLayout extends HiddenSidesPane {
         this.setAnimationDuration(Duration.millis(100));
         this.setTriggerDistance(HOVER_AREA);
 
+        this.widthProperty().addListener(newWidth -> {
+            if (framePosition.get() % 2 == 1 && viewPane.isScreenDividerOff()) {
+                viewPane.resetDividerPositions(framePosition.get(), framePosition.get() - 1);
+                viewPane.resetDividerPositions(framePosition.get() - 1, framePosition.get());
+            }
+        });
     }
 
     /**
