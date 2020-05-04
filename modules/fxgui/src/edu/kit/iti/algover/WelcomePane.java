@@ -205,7 +205,7 @@ public class WelcomePane {
     }
 
     private void loadExample(ActionEvent event){
-        File exampleFile = new File("ListExample" + File.separator + "AlgoVerList.dfy");
+        File exampleFile = new File( "ListExample" + File.separator + "AlgoVerList.dfy").getAbsoluteFile();
         if(!exampleFile.exists()) {
             try {
                 InputStream is = getClass().getResourceAsStream("AlgoVerList.dfy");
