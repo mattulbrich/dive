@@ -61,11 +61,13 @@
     <name>$and</name>
     <op>&amp;&amp;</op>
     <precedence>15</precedence>
+    <chaining>true</chaining>
   </operator>
   <operator>
     <name>$or</name>
     <op>||</op>
     <precedence>10</precedence>
+    <chaining>true</chaining>
   </operator>
   <operator>
     <name>$imp</name>
