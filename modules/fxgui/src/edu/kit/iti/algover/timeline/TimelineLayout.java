@@ -109,6 +109,7 @@ public class TimelineLayout extends HiddenSidesPane {
         this.setAnimationDelay(Duration.ZERO);
         this.setAnimationDuration(Duration.millis(100));
         this.setTriggerDistance(HOVER_AREA);
+
     }
 
     /**

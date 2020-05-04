@@ -19,6 +19,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 
 /**
  * Created by Valentin on 03.03.2020
@@ -74,26 +75,39 @@ public class MultiViewSplitPane extends Pane {
      */
     public MultiViewSplitPane(final Node... nodes) {
         this.splitPane = new SplitPane();
-        this.splitPane.prefHeightProperty().bind(this.heightProperty());
+        this.getChildren().setAll(this.splitPane);
 
         this.splitPane.getItems().setAll(nodes);
         // pad to even number
         if (nodes.length % 2 != 0) {
             this.splitPane.getItems().add(new Pane());
         }
-        this.getChildren().setAll(this.splitPane);
 
         this.positionOfNode = new ReadOnlyDoubleWrapper[this.splitPane.getItems().size()];
 
         this.windowSizeMultiple = (this.splitPane.getItems().size() / 2);
         this.screenDividers = new double[this.windowSizeMultiple];
+
+        this.splitPane.prefHeightProperty().bind(this.heightProperty());
         this.splitPane.prefWidthProperty().bind(this.widthProperty().multiply(this.windowSizeMultiple));
 
+        this.positionOfNode = new ReadOnlyDoubleWrapper[this.splitPane.getItems().size()];
         this.bindNodePositions();
-        dividerLinking = createDividerLinking();
 
-        this.dividerScreenMultiple();
+        this.dividerLinking = createDividerLinking();
 
+        dividerScreenMultiple();
+
+        linkAndBindItems();
+    }
+
+    private void linkAndBindItems() {
+        for (Node n: splitPane.getItems()) {
+            if (n instanceof Region) {
+                Region r = (Region) n;
+                r.setMinWidth(200);
+            }
+        }
     }
 
     /**
@@ -162,7 +176,7 @@ public class MultiViewSplitPane extends Pane {
      * Link dividers. Add specified ChangeListeners to position property of SplitPane.Divider objects
      * specified in {@link MultiViewSplitPane#dividerLinking}.
      */
-    private void linkDividerPositions() {
+    public void linkDividerPositions() {
         if (dividersLinked) {
             return;
         }
@@ -244,6 +258,19 @@ public class MultiViewSplitPane extends Pane {
             dividers.get(newPos).setPosition(dividers.get(newPos).getPosition() - delta);
         }
         unlinkDividerPositions();
+    }
+
+    public void resetDividerPositionLocally(int framePosition) {
+        if (framePosition % 2 != 0) {
+            return;
+        }
+
+        ObservableList<SplitPane.Divider> dividers = this.splitPane.getDividers();
+
+        double desired = this.screenDividers[framePosition / 2];
+        double delta = dividers.get(framePosition).getPosition() - desired;
+        dividers.get(framePosition).setPosition(desired);
+        dividers.get(framePosition + 1).setPosition(dividers.get(framePosition + 1).getPosition() + delta);
     }
 
     /**
