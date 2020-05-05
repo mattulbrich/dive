@@ -72,12 +72,9 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         this.fontSizeProperty.setValue(MainController.systemprefs.getInt("FONT_SIZE_SCRIPT_EDITOR", 12));
 
-        MainController.systemprefs.addPreferenceChangeListener(new PreferenceChangeListener() {
-            @Override
-            public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
-                int font_size_seq_view1 = preferenceChangeEvent.getNode().getInt("FONT_SIZE_SCRIPT_EDITOR", 12);
-                fontSizeProperty.set(font_size_seq_view1);
-            }
+        MainController.systemprefs.addPreferenceChangeListener(preferenceChangeEvent -> {
+            int font_size_seq_view1 = preferenceChangeEvent.getNode().getInt("FONT_SIZE_SCRIPT_EDITOR", 12);
+            fontSizeProperty.set(font_size_seq_view1);
         });
 
         view.fontsizeProperty().bind(fontSizeProperty);
@@ -88,35 +85,33 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         view.caretPositionProperty().addListener(this::onCaretPositionChanged);
 
         observableInsertPosition.set(new Position(1,0));
-        observableInsertPosition.addListener((o, old, nv) -> {
-            onInsertPositionChanged(old, nv);
-        });
+        observableInsertPosition.addListener((o, old, nv) -> onInsertPositionChanged(old, nv));
 
-        view.getGutterAnnotations().get(0).setInsertMarker(true);
-        view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector());
-        view.getGutterAnnotations().get(0).setProofNodeIsSelected(true);
-        view.getGutterAnnotations().get(0).setProofNodeIsReferenced(true);
+        //view.getGutterAnnotations().get(0).setInsertMarker(true);
+        //view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector());
+        //view.getGutterAnnotations().get(0).setProofNodeIsSelected(true);
+        //view.getGutterAnnotations().get(0).setProofNodeIsReferenced(true);
 
         view.requestLayout();
 
     }
 
     private void onInsertPositionChanged(Position old, Position nv) {
-        if(old != null) {
-            view.getGutterAnnotations().get(old.getLineNumber() - 1).setInsertMarker(false);
-            view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
+        //if(old != null) {
+            //view.getGutterAnnotations().get(old.getLineNumber() - 1).setInsertMarker(false);
+            //view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
             //view.getGutterAnnotations().get(old.getLineNumber() - 1).setProofNodeIsSelected(false);
 
-        }
-            if(view.getGutterAnnotations().size() > nv.getLineNumber()){
-                view.getGutterAnnotations().get(nv.getLineNumber()-1).setInsertMarker(true);
-                view.getGutterAnnotations().get(nv.getLineNumber()-1).setProofNodeIsSelected(true);
+        //}
+            //if(view.getGutterAnnotations().size() > nv.getLineNumber()){
+            //    view.getGutterAnnotations().get(nv.getLineNumber()-1).setInsertMarker(true);
+            //    view.getGutterAnnotations().get(nv.getLineNumber()-1).setProofNodeIsSelected(true);
 
-            } else {
-                GutterAnnotation newlineAnnotation = view.getGutter().getLineAnnotation(nv.getLineNumber() - 1);
-                newlineAnnotation.setInsertMarker(true);
-                newlineAnnotation.setProofNodeIsSelected(true);
-            }
+            //} else {
+            //    GutterAnnotation newlineAnnotation = view.getGutter().getLineAnnotation(nv.getLineNumber() - 1);
+            //    newlineAnnotation.setInsertMarker(true);
+            //    newlineAnnotation.setProofNodeIsSelected(true);
+            //}
         view.requestLayout();
     }
 
@@ -160,8 +155,8 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     }
 
     private void showSelectedSelector(ProofNodeCheckpoint checkpoint) {
-        view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
-        view.getGutter().getLineAnnotation(checkpoint.caretPosition.getLineNumber()-1).setProofNodeIsSelected(true);
+        //view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsSelected(false));
+        //view.getGutter().getLineAnnotation(checkpoint.caretPosition.getLineNumber()-1).setProofNodeIsSelected(true);
     }
 
 
@@ -173,7 +168,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         // If the selector points to nowhere, its probably because the rule closed the proof and didn't generate
         // another child...
         // REVIEW This is kind of ugly. In the future this off-by-one fix has to be removed
-        if (!checkpoint.selector.optionalGet(proof).isPresent()) {
+        if (checkpoint.selector.optionalGet(proof).isEmpty()) {
             if(checkpoint.selector.getParentSelector() != null) {
                 this.listener.onSwitchViewedNode(checkpoint.selector.getParentSelector());
             } else {
@@ -218,7 +213,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     private int computeCharIdxFromPosition(Position position, String text) {
         int charIdx = 0;
-        if(text == "") return 0;
+        if(text.equals("")) return 0;
         if(!text.contains("\n")) return text.length() - 1;
         for (int i = 0; i < position.getLineNumber() - 1; ++i) {
             charIdx += text.substring(0, text.indexOf('\n')).length() + 1;
@@ -258,7 +253,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         //onCaretPositionChanged(null);
 
           view.setStyle("-fx-background-color: #c4c1c9; -fx-font-size: "+fontSizeProperty.get()+"pt;");
-          view.resetGutter();
+          //view.resetGutter();
           view.requestLayout();
 
     }
@@ -268,7 +263,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
      */
     @Override
     public void runScript() {
-        view.resetGutter();
+        //view.resetGutter();
         view.requestLayout();
 
         Position oldInsertPos = getObservableInsertPosition();
@@ -289,10 +284,8 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
             }
 
             proof.setScriptTextAndInterpret(text);
-        } catch (ParseCancellationException pce) {
+        } catch (ParseCancellationException | RecognitionException pce) {
             failException = pce;
-        } catch (RecognitionException re) {
-            failException = re;
         }
         if(failException == null) {
             failException = proof.getFailException();
@@ -336,15 +329,15 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         for (ProofNodeCheckpoint checkpoint : this.checkpoints) {
             int checkpointline = checkpoint.position.getLineNumber();
 
-            if(checkpointline < view.getGutterAnnotations().size()) {
-                view.getGutterAnnotations().get(checkpointline).setProofNode(checkpoint.selector);
-                view.getGutterAnnotations().get(checkpointline).setProofNodeIsSelected(false);
-            } else {
-                GutterFactory gutterFactory = view.getGutter();
-                GutterAnnotation lineAnnotation = gutterFactory.getLineAnnotation(checkpointline);
-                lineAnnotation.setProofNode(checkpoint.selector);
-                lineAnnotation.setProofNodeIsSelected(false);
-            }
+            //if(checkpointline < view.getGutterAnnotations().size()) {
+                //view.getGutterAnnotations().get(checkpointline).setProofNode(checkpoint.selector);
+                //view.getGutterAnnotations().get(checkpointline).setProofNodeIsSelected(false);
+            //} else {
+                //GutterFactory gutterFactory = view.getGutter();
+                //GutterAnnotation lineAnnotation = gutterFactory.getLineAnnotation(checkpointline);
+                //lineAnnotation.setProofNode(checkpoint.selector);
+                //lineAnnotation.setProofNodeIsSelected(false);
+            //}
 
         }
 //        view.requestLayout();
@@ -430,7 +423,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     public void viewReferences(Set<ScriptReferenceTarget> scriptReferenceTargetSet) {
         scriptReferenceTargetSet.stream().forEach(s -> {
             int linenumber = s.getLinenumber();
-            view.getGutterAnnotations().get(linenumber-1).setProofNodeIsReferenced(true);
+            //view.getGutterAnnotations().get(linenumber-1).setProofNodeIsReferenced(true);
         });
 
     }
@@ -444,6 +437,6 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     @Override
     public void removeReferenceHighlighting() {
-        view.getGutterAnnotations().forEach(gutterAnnotation -> {gutterAnnotation.setProofNodeIsReferenced(false);});
+        //view.getGutterAnnotations().forEach(gutterAnnotation -> {gutterAnnotation.setProofNodeIsReferenced(false);});
     }
 }

@@ -42,44 +42,46 @@ public class ScriptReferenceBuilder {
 
 
     public void buildReferences(List<ProofNode> children) throws RuleException {
-        for (ProofNode afterNode : children) {
-            //get ProofRuleApplication from node
-            ProofNodeSelector pns = new ProofNodeSelector(afterNode);
-            ProofRuleApplication pra = afterNode.getProofRuleApplication();
+        if(children != null) {
+            for (ProofNode afterNode : children) {
+                //get ProofRuleApplication from node
+                ProofNodeSelector pns = new ProofNodeSelector(afterNode);
+                ProofRuleApplication pra = afterNode.getProofRuleApplication();
 
 
-            ImmutableList<BranchInfo> branchInfos = pra.getBranchInfo();
-            for (BranchInfo bi : branchInfos) {
-                //handle replacements
-                ImmutableList<Pair<TermSelector, Term>> replacements = bi.getReplacements();
-                for (Pair<TermSelector, Term> repl : replacements) {
-                    this.buildReferencesForTerm(pns, repl.getFst());
-                }
+                ImmutableList<BranchInfo> branchInfos = pra.getBranchInfo();
+                for (BranchInfo bi : branchInfos) {
+                    //handle replacements
+                    ImmutableList<Pair<TermSelector, Term>> replacements = bi.getReplacements();
+                    for (Pair<TermSelector, Term> repl : replacements) {
+                        this.buildReferencesForTerm(pns, repl.getFst());
+                    }
 
-                Sequent additions = bi.getAdditions();
-                //todo add references for each term and subterm  in additions
-                List<ProofFormula> antecedent = additions.getAntecedent();
-                List<ProofFormula> antecedentInNode= afterNode.getSequent().getAntecedent();
-                for (ProofFormula toplevel: antecedent) {
-                    //TermSelektoren für jeden Toplevel Term in Sequent finden
-                    TermSelector sel = findSelector(toplevel, antecedentInNode, TermSelector.SequentPolarity.ANTECEDENT);
-                    //Referenz für jeden Subterm hinzufügen
-                    if(sel != null)
-                        buildReferencesForTerm(pns, sel);
-                }
-                List<ProofFormula> succedent = additions.getSuccedent();
-                //Sequent deletions = bi.getDeletions();
-                List<ProofFormula> succedentInNode= afterNode.getSequent().getSuccedent();
-                for (ProofFormula toplevel: succedent) {
-                    //TermSelektoren für jeden Toplevel Term in Sequent finden
-                    TermSelector sel = findSelector(toplevel, succedentInNode, TermSelector.SequentPolarity.SUCCEDENT);
-                    //Referenz für jeden Subterm hinzufügen
-                    if(sel != null)
-                        buildReferencesForTerm(pns, sel);
+                    Sequent additions = bi.getAdditions();
+                    //todo add references for each term and subterm  in additions
+                    List<ProofFormula> antecedent = additions.getAntecedent();
+                    List<ProofFormula> antecedentInNode = afterNode.getSequent().getAntecedent();
+                    for (ProofFormula toplevel : antecedent) {
+                        //TermSelektoren für jeden Toplevel Term in Sequent finden
+                        TermSelector sel = findSelector(toplevel, antecedentInNode, TermSelector.SequentPolarity.ANTECEDENT);
+                        //Referenz für jeden Subterm hinzufügen
+                        if (sel != null)
+                            buildReferencesForTerm(pns, sel);
+                    }
+                    List<ProofFormula> succedent = additions.getSuccedent();
+                    //Sequent deletions = bi.getDeletions();
+                    List<ProofFormula> succedentInNode = afterNode.getSequent().getSuccedent();
+                    for (ProofFormula toplevel : succedent) {
+                        //TermSelektoren für jeden Toplevel Term in Sequent finden
+                        TermSelector sel = findSelector(toplevel, succedentInNode, TermSelector.SequentPolarity.SUCCEDENT);
+                        //Referenz für jeden Subterm hinzufügen
+                        if (sel != null)
+                            buildReferencesForTerm(pns, sel);
+                    }
+
                 }
 
             }
-
         }
 
     }

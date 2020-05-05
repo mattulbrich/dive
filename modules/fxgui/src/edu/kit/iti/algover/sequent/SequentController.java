@@ -238,7 +238,7 @@ public class SequentController extends FxmlController {
         if (activeNode != null) {
             try {
                 ProofNode nodeBefore = activeNode.get(activeProof);
-                while (nodeBefore.getChildren().size() > 0) {
+                while (nodeBefore.getChildren() != null && nodeBefore.getChildren().size() > 0) {
                     ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
                     ProofNode node = newActiveNode.get(activeProof);
                     updateSequent(node.getSequent(), null);
@@ -303,7 +303,7 @@ public class SequentController extends FxmlController {
             activeNode = proofNodeSelector;
             BranchInfo branchInfo = null;
             ProofRuleApplication application = proofNode.getProofRuleApplication();
-            if (application != null) {
+            if (application != null && application.getBranchInfo().size() > 0) {
                 branchInfo = application.getBranchInfo().get(
                         proofNodeSelector.getPath()[proofNodeSelector.getPath().length - 1]
                 );
@@ -390,7 +390,7 @@ public class SequentController extends FxmlController {
     private void updateGoalTypeLabel() {
         try {
             ProofNode node = activeNode.get(activeProof);
-            if (node.getChildren().size() == 0) {
+            if (node.getChildren() != null && node.getChildren().size() == 0) {
                 if (node.isClosed()) {
                     goalTypeLabel.setText("Closed Goal");
                     goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK));
