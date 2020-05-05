@@ -252,7 +252,6 @@ public class MultiViewSplitPane extends Pane {
     public boolean isScreenDividerOff() {
         for (int i = 0; 2 * i + 1 < this.splitPane.getDividers().size(); i++){
             if (this.splitPane.getDividers().get(2 * i + 1).getPosition() != this.screenDividers[i]) {
-                System.out.println("AHA!!");
                 return true;
             } // else continue;
         }
