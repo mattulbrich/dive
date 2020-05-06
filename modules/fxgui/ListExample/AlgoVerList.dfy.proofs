@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-<comment>Created by DIVE at Tue Apr 28 19:51:39 CEST 2020</comment>
+<comment>Created by DIVE at Tue May 05 11:08:15 CEST 2020</comment>
 <entry key="List.removeAt/then/else/Bounds">expand on='... ((?match: this.Valid())) ... |-';
 boogie ;
 
@@ -77,6 +77,8 @@ boogie ;
 </entry>
 <entry key="List.removeAt/then/else/Bounds.2">boogie;
 </entry>
+<entry key="List.removeAt/then/else/Bounds.3">boogie;
+</entry>
 <entry key="List.getAt/loop_exit/Post">expand on='... ((?match: this.Valid())) ... |-';
 andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| &gt;= 1 &amp;&amp; this.head != null &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; this.nodeseqq[n] != null)) &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[k].next != null)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])))) ... |-';
 andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| &gt;= 1 &amp;&amp; this.head != null &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; this.nodeseqq[n] != null)) &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[k].next != null)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null)) ... |-';
@@ -86,8 +88,6 @@ andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| 
 inst on='(forall i:int :: i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)'
      with='idx₁';
 boogie;</entry>
-<entry key="List.removeAt/then/else/Bounds.3">boogie;
-</entry>
 <entry key="List.removeAt/else/loop/Null">expand on='... ((?match: this.Valid())) ... |-';
 boogie ;
 </entry>

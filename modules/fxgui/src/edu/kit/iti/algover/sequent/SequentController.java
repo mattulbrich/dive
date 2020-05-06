@@ -303,7 +303,7 @@ public class SequentController extends FxmlController {
             activeNode = proofNodeSelector;
             BranchInfo branchInfo = null;
             ProofRuleApplication application = proofNode.getProofRuleApplication();
-            if (application != null) {
+            if (application != null && application.getBranchInfo().size() > 0) {
                 branchInfo = application.getBranchInfo().get(
                         proofNodeSelector.getPath()[proofNodeSelector.getPath().length - 1]
                 );

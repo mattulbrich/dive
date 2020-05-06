@@ -65,7 +65,7 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
 
     private List<ProofNodeSelector> getAllChildSelectors(ProofNodeSelector selector) {
         Optional<ProofNode> parentNode = selector.optionalGet(activeProof);
-        if(!parentNode.isPresent()) {
+        if(parentNode.isEmpty()) {
             return new ArrayList<>();
         }
         int numChildren = parentNode.get().getSuccessors().size();
@@ -163,9 +163,7 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
     }
 
     public void viewReferences(Set<ProofTermReferenceTarget> proofTermReferenceTargetSet, ProofTermReferenceTarget selected){
-        controllers.forEach(sequentController -> {
-            sequentController.removeStyle("Target");
-        });
+        controllers.forEach(sequentController -> sequentController.removeStyle("Target"));
 
         lastSelectedRefTarget = selected;
         this.referenceTargetsToHighlight = proofTermReferenceTargetSet;
@@ -186,9 +184,7 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
     @Override
     public void removeReferenceHighlighting() {
         referenceTargetsToHighlight.clear();
-        controllers.forEach(sequentController -> {
-            sequentController.removeStyle("Target");
-        });
+        controllers.forEach(sequentController -> sequentController.removeStyle("Target"));
 //        setReferenceTargetsToHighlight(referenceTargetsToHighlight);
     }
 

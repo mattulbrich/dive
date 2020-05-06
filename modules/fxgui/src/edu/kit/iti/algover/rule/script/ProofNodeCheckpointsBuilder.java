@@ -20,9 +20,10 @@ public class ProofNodeCheckpointsBuilder {
 
 
         List<ProofNodeCheckpoint> result = new ArrayList<>();
-//        ProofNode node = proof.getProofRoot();
-//        ProofNodeSelector pns = new ProofNodeSelector();
-//        collect(node, pns, result);
+        ProofNode node = proof.getProofRoot();
+        ProofNodeSelector pns = new ProofNodeSelector();
+        collect(node, pns, result);
+        result.add(0, new ProofNodeCheckpoint(pns, new Position(0, 0), new Position(0, 0)));
 
         return result;
     }
