@@ -9,28 +9,22 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.proof.MockPVCBuilder;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.FocusProofRule;
 import edu.kit.iti.algover.rules.Parameters;
-import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleApplicator;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.rules.TermSelector;
-import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.ProofMockUtil;
-import edu.kit.iti.algover.util.TestUtil;
-import org.antlr.v4.runtime.RecognitionException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -69,7 +63,7 @@ public class SkolemizationTest {
         Parameters params = new Parameters();
         params.putValue(FocusProofRule.ON_PARAM_REQ, new TermParameter(new TermSelector("A.0"), s));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
     }
 
     @Test
@@ -83,7 +77,7 @@ public class SkolemizationTest {
         Parameters params = new Parameters();
         params.putValue(FocusProofRule.ON_PARAM_REQ, new TermParameter(new TermSelector("A.0"), s));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
         assertEquals(1, newNodes.size());
         assertEquals("$imp($and($ge(skvar0, 0), $lt(skvar0, 5)), $eq<int>(3, skvar0)) |-", newNodes.get(0).getSequent().toString());
     }
@@ -100,7 +94,7 @@ public class SkolemizationTest {
         Parameters params = new Parameters();
         params.putValue(FocusProofRule.ON_PARAM_REQ, new TermParameter(new TermSelector("A.0"), s));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
         assertEquals(1, newNodes.size());
         assertEquals("$imp($and($ge(skvar1, 0), $lt(skvar1, 5)), $eq<int>(skvar0, skvar1)) |-", newNodes.get(0).getSequent().toString());
     }

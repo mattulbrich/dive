@@ -52,6 +52,7 @@ public class ProofNode {
      */
     private @Nullable List<ProofNode> children;
 
+    private final Exception exception;
     /**
      * Root PVC
      */
@@ -77,15 +78,33 @@ public class ProofNode {
 
 
     public static ProofNode createRoot(PVC pvc) {
-        return new ProofNode(null, null, null, null, pvc.getSequent(), pvc);
+        return new ProofNode(null, null, null, null,
+                pvc.getSequent(), null, pvc);
     }
 
+    public static ProofNode createChild(ProofNode parent, ProofRuleApplication pra,
+                                        String label, Command command, Sequent seq) {
+        return new ProofNode(parent, pra, label, command, seq, null, parent.getPVC());
+    }
+
+    public static ProofNode createExceptionChild(ProofNode parent, ProofRuleApplication pra,
+                                                 Command command, Exception exception) {
+        return new ProofNode(parent, pra, "*error*", command, Sequent.EMPTY, exception, parent.getPVC());
+    }
+
+    public static ProofNode createClosureChild(ProofNode parent, ProofRuleApplication pra,
+                                               Command command) {
+        return new ProofNode(parent, pra, "*error*", command, Sequent.EMPTY, null, parent.getPVC());
+    }
+
+    // TODO Make this private and call it with reflection from test cases to hide it.
     public ProofNode(ProofNode parent, ProofRuleApplication pra,
-                     String label, Command command, Sequent seq, PVC rootPVC) {
+                     String label, Command command, Sequent seq, Exception exception, PVC rootPVC) {
         this.parent = parent;
         this.ruleApplication = pra;
         this.label = label;
         this.sequent = seq;
+        this.exception = exception;
         this.pvc = rootPVC;
         this.command = command;
         this.addedSymbols = new MapSymbolTable(Collections.emptyList());
@@ -158,13 +177,25 @@ public class ProofNode {
 
     /**
      * Get the list of all children of this proof node.
-     *
      * This returns null during script interpretation as the proof tree grows
      *
      * @return an immutable view to the list of children, null if not yet fully expanded
+     * @see #getSuccessors()
      */
     public List<ProofNode> getChildren() {
         return children == null ? null : Collections.unmodifiableList(children);
+    }
+
+    /**
+     * Get the list of all children of this proof node.
+     * While the children reference may be null, this will always return a valid object reference.
+     * In case of children==null, it returns an empty list.
+     *
+     * @return an immutable view to the list of children, null if not yet fully expanded
+     * @see #getChildren()
+     */
+    public List<ProofNode> getSuccessors() {
+        return children == null ? Collections.emptyList() : Collections.unmodifiableList(children);
     }
 
     public SymbolTable getAddedSymbols() {

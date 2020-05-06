@@ -78,7 +78,7 @@ public class OrLeftRuleTest {
 //        assertEquals(pra.getScriptTranscript(), "orLeft on='" + testSequent.getAntecedent().get(0).getTerm() + "';");
 
         pra = orLeftRule.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
 
         assertTrue(newNodes.size() == 2);
         assertEquals("b1, b3 |- b3, $or(b2, b1)", newNodes.get(0).getSequent().toString());

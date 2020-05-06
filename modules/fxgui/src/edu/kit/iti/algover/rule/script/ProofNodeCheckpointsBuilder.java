@@ -34,7 +34,7 @@ public class ProofNodeCheckpointsBuilder {
             result.add(new ProofNodeCheckpoint(pns, pos, pos));
         }
         int number = 0;
-        for (ProofNode child : node.getChildren()) {
+        for (ProofNode child : node.getSuccessors()) {
             ProofNodeSelector childPNS = new ProofNodeSelector(pns, number);
             collect(child, pns, result);
             number++;

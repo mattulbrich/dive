@@ -6,9 +6,9 @@
 package edu.kit.iti.algover.rules;
 
 
+import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.ReplaceVisitor;
@@ -37,32 +37,32 @@ public final class RuleApplicator {
      * Apply a Proof Rule to a proof node.
      *
      * @param app the proof rule application to be applied
+     * @param command
      * @param pn                   the ProofNode to which the rule should be applied
      * @return a list of new proof nodes (children) resulting form the rule application
      */
-    public static List<ProofNode> applyRule(ProofRuleApplication app, ProofNode pn) throws TermBuildException {
+    public static List<ProofNode> applyRule(ProofRuleApplication app, Command command, ProofNode pn) throws TermBuildException {
 
-        List<ProofNode> newNodes = applySingleApplication(app, pn);
+        List<ProofNode> newNodes = applySingleApplication(app, command, pn);
         ImmutableList<ProofRuleApplication> subApps = app.getSubApplications();
         if(subApps != null) {
             assert subApps.size() == newNodes.size();
             for (int i = 0; i < newNodes.size(); ++i) {
                 if (subApps.get(i) != null) {
-                    newNodes.get(i).setChildren(applyRule(subApps.get(i), newNodes.get(i)));
+                    newNodes.get(i).setChildren(applyRule(subApps.get(i), command, newNodes.get(i)));
                 }
             }
         }
         return newNodes;
     }
 
-    private static List<ProofNode> applySingleApplication(ProofRuleApplication appl, ProofNode proofNode) throws TermBuildException {
+    private static List<ProofNode> applySingleApplication(ProofRuleApplication appl, Command command, ProofNode proofNode) throws TermBuildException {
 
         ImmutableList<BranchInfo> infos = appl.getBranchInfo();
 
         if (infos.equals(BranchInfo.CLOSE)) {
             // for a closing rule application add an artificial node that manifests the application.
-            ProofNode markerNode = new ProofNode(proofNode, appl, "*close*", null,
-                    proofNode.getSequent(), proofNode.getPVC());
+            ProofNode markerNode = ProofNode.createClosureChild(proofNode, appl,  command);
             markerNode.setChildren(Collections.emptyList());
             return List.of(markerNode);
         }
@@ -74,8 +74,8 @@ public final class RuleApplicator {
         for (BranchInfo branchInfo : infos) {
             Sequent newSequent = null;
             newSequent = createNewSequent(branchInfo, sequent);
-            ProofNode pnNew = new ProofNode(proofNode, appl,
-                    branchInfo.getLabel(), null, newSequent, proofNode.getPVC());
+            ProofNode pnNew = ProofNode.createChild(proofNode, appl,
+                    branchInfo.getLabel(), command, newSequent);
             appl.getNewFunctionSymbols().forEach(
                     functionSymbol -> pnNew.getAddedSymbols().addFunctionSymbol(functionSymbol));
             result.add(pnNew);

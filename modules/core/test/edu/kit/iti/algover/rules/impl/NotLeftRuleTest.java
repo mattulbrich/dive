@@ -5,22 +5,17 @@
  */
 package edu.kit.iti.algover.rules.impl;
 
-import antlr.RecognitionException;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
-import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
-import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.ProofMockUtil;
 import org.junit.Before;
@@ -62,7 +57,7 @@ public class NotLeftRuleTest {
 
         ProofRuleApplication pra = notLeftRule.considerApplication(pn, testSequent, ts);
         assertEquals(Applicability.APPLICABLE, pra.getApplicability());
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
         assertEquals(1, newNodes.size());
 
         assertEquals("$not(b3) |- b3, $and(b1, $not(b2))", newNodes.get(0).getSequent().toString());
@@ -77,7 +72,7 @@ public class NotLeftRuleTest {
 
         ProofRuleApplication pra = notLeftRule.considerApplication(pn, testSequent, ts);
         assertEquals(Applicability.APPLICABLE, pra.getApplicability());
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
         assertEquals(1, newNodes.size());
 
         assertEquals("$not($and(b1, $not(b2))) |- b3", newNodes.get(0).getSequent().toString());

@@ -19,6 +19,7 @@ import nonnull.Nullable;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Proof Object.
@@ -220,12 +221,16 @@ public class Proof {
 
             publishReferences();
 
-            this.failException = null;
-            proofStatus.setValue(newRoot.allLeavesClosed() ?
-                    ProofStatus.CLOSED : ProofStatus.OPEN);
+            if(interpreter.hasFailure()) {
+                this.failException = interpreter.getFailures().get(0);
+                this.proofStatus.setValue(ProofStatus.FAILING);
+            } else {
+                this.failException = null;
+                proofStatus.setValue(newRoot.allLeavesClosed() ?
+                        ProofStatus.CLOSED : ProofStatus.OPEN);
+            }
         } catch(Exception ex) {
             this.failException = ex;
-
             proofStatus.setValue(ProofStatus.FAILING);
         }
     }
@@ -236,16 +241,17 @@ public class Proof {
         todo.add(proofRoot);
         while (!todo.isEmpty()) {
             ProofNode node = todo.removeFirst();
-            if (node.getChildren() != null) {
+            List<ProofNode> children = node.getChildren();
+            if (children != null) {
                 try {
-                    graph.addFromRuleApplication(this, node, node.getChildren());
+                    graph.addFromRuleApplication(this, node, children);
                 } catch (RuleException e) {
                     System.err.println("Reference graph is incomplete due to exception:");
                     e.printStackTrace();
                 }
 
-                if (node.getChildren().size() > 0) {
-                    ProofNode child = node.getChildren().get(0);
+                if (children.size() > 0) {
+                    ProofNode child = children.get(0);
                     if(child.getCommand() != null) {
                         try {
                             graph.addFromScriptNode(child.getCommand(), node, this);
@@ -256,7 +262,7 @@ public class Proof {
                     }
                 }
 
-                todo.addAll(node.getChildren());
+                todo.addAll(children);
             }
         }
 

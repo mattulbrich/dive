@@ -238,7 +238,7 @@ public class SequentController extends FxmlController {
         if (activeNode != null) {
             try {
                 ProofNode nodeBefore = activeNode.get(activeProof);
-                while (nodeBefore.getChildren().size() > 0) {
+                while (nodeBefore.getSuccessors().size() > 0) {
                     ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
                     ProofNode node = newActiveNode.get(activeProof);
                     updateSequent(node.getSequent(), null);
@@ -390,7 +390,7 @@ public class SequentController extends FxmlController {
     private void updateGoalTypeLabel() {
         try {
             ProofNode node = activeNode.get(activeProof);
-            if (node.getChildren().size() == 0) {
+            if (node.getSuccessors().size() == 0) {
                 if (node.isClosed()) {
                     goalTypeLabel.setText("Closed Goal");
                     goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK));

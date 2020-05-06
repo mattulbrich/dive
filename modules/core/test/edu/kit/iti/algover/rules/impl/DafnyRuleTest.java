@@ -8,7 +8,6 @@ package edu.kit.iti.algover.rules.impl;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -25,7 +24,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -89,7 +87,7 @@ public class DafnyRuleTest {
         assertEquals("addZero on='... ((?match: b + 0)) ... |-';", pra.getScriptTranscript());
 
         pra = dafnyRule.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
 
         assertTrue(newNodes.size() == 1);
         assertEquals("$gt(b, 0) |- $gt($plus(c, d), 0)", newNodes.get(0).getSequent().toString());
@@ -110,7 +108,7 @@ public class DafnyRuleTest {
         assertEquals("commAddition on='|- ... ((?match: c + d)) ...';", pra.getScriptTranscript());
 
         pra = dafnyRule.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
 
         assertTrue(newNodes.size() == 1);
         assertEquals("$gt($plus(b, 0), 0) |- $gt($plus(d, c), 0)", newNodes.get(0).getSequent().toString());

@@ -103,7 +103,7 @@ public class ProofMockUtil {
     @TestInfrastructure
     public static ProofNode mockProofNode(ProofNode parent, List<ProofFormula> antedecentTerms, List<ProofFormula> succedentTerms) throws TermBuildException {
         return new ProofNode(parent, null, null, null,
-                new Sequent(antedecentTerms, succedentTerms), null);
+                new Sequent(antedecentTerms, succedentTerms), null, null);
     }
 
     /**
@@ -219,6 +219,6 @@ public class ProofMockUtil {
 
     @TestInfrastructure
     public static ProofNode mockProofNode(Sequent seq, PVC pvc) {
-        return new ProofNode(null, null, null, null, seq, pvc);
+        return new ProofNode(null, null, null, null, seq, null, pvc);
     }
 }

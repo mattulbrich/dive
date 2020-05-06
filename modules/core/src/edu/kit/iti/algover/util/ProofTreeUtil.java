@@ -64,8 +64,8 @@ public final class ProofTreeUtil {
         }
         buffer.append(node.toString());
 
-        List<ProofNode> children = node.getChildren();
-        if (children != null && !children.isEmpty()) {
+        List<ProofNode> children = node.getSuccessors();
+        if (!children.isEmpty()) {
             if (children.size() > 1) {
                 Iterator<ProofNode> it = children.iterator();
                 parentIterators.add(it);

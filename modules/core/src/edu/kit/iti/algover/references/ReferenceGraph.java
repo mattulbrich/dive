@@ -190,7 +190,7 @@ public class ReferenceGraph {
     public void addFromScriptNode(ScriptAST node, ProofNode pNode, Proof proof) throws RuleException {
         ScriptReferenceTarget sct = new ScriptReferenceTarget(pNode.getPVC(), node);
         ScriptReferenceBuilder srb = new ScriptReferenceBuilder(this, sct, pNode, proof);
-        srb.buildReferences(pNode.getChildren());
+        srb.buildReferences(pNode.getSuccessors());
     }
 
 

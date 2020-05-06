@@ -78,7 +78,7 @@ public class ExhaustiveRule extends FocusProofRule {
         List<ProofNode> nodes;
         if (proofRuleApplication.getApplicability().equals(ProofRuleApplication.Applicability.APPLICABLE)) {
             try {
-                nodes = RuleApplicator.applyRule(proofRuleApplication, pn);
+                nodes = RuleApplicator.applyRule(proofRuleApplication, null, pn);
             } catch (TermBuildException e) {
                 throw new RuleException(e);
             }

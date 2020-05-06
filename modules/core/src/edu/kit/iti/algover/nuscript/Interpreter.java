@@ -19,6 +19,7 @@ import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.Parameters;
@@ -26,18 +27,18 @@ import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.RuleApplicator;
-import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.Util;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +50,8 @@ public class Interpreter {
     private final ReferenceGraph referenceGraph;
 
     private List<ProofNode> currentNodes;
+
+    private final List<Exception> failures = new ArrayList<>();
 
     public Interpreter(Proof proof) {
         this.referenceGraph = proof.getReferenceGraph();
@@ -119,28 +122,26 @@ public class Interpreter {
 
         String commandName = command.getCommand().getText();
         ProofRule rule = knownRules.get(commandName);
-        if (rule == null) {
-            throw new ScriptException("Unknown script command " + commandName, command);
-        }
 
         try {
+            if (rule == null) {
+                throw new ScriptException("Unknown script command " + commandName, command);
+            }
             Parameters params = interpretParameters(node, rule, command.getParameters());
             ProofRuleApplication proofRuleApplication = rule.makeApplication(node, params);
             proofRuleApplication = proofRuleApplication.refine();
             if(proofRuleApplication.getApplicability() != Applicability.APPLICABLE) {
                 throw new ScriptException("This command is not applicable", command);
             }
-            List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, node);
-            for (ProofNode pn : newNodes) {
-                pn.setCommand(command);
-            }
+            List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, command, node);
             node.setChildren(newNodes);
             currentNodes = newNodes;
 
-
-
-        } catch (RuleException | TermBuildException e) {
-            throw new ScriptException(e, command);
+        } catch (Exception e) {
+            ProofNode errorChild = ProofNode.createExceptionChild(node, null, command, e);
+            node.setChildren(List.of(errorChild));
+            this.failures.add(e);
+            currentNodes = List.of();
         }
 
         return null;
@@ -215,5 +216,13 @@ public class Interpreter {
 
     public ProofNode getRootNode() {
         return rootNode;
+    }
+
+    public boolean hasFailure() {
+        return !failures.isEmpty();
+    }
+
+    public List<Exception> getFailures() {
+        return failures;
     }
 }
