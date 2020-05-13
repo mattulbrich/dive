@@ -74,7 +74,7 @@ public class ProjectSettings {
         }
     }
 
-    /*
+    /* -----------------------------------------------------
      * All available settings should be collected here
      */
 
@@ -217,6 +217,15 @@ public class ProjectSettings {
     public static List<Property> getDefinedProperties() {
         return Util.readOnlyArrayList(DEFINED_PROPERTIES);
     }
+
+    public static Map<String, Property> getDefinedPropertyMap() {
+        Map<String, Property> result = new HashMap<>();
+        for (Property definedProperty : getDefinedProperties()) {
+            result.put(definedProperty.key, definedProperty);
+        }
+        return result;
+    }
+
 
     public String toString() {
         return set.toString();
