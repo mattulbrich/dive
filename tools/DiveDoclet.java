@@ -22,12 +22,12 @@ public class DiveDoclet {
         readOptions(root.options());
         ClassDoc[] classes = root.classes();
         for (int i = 0; i < classes.length; ++i) {
-            handleIvilTags(classes[i]);
+            handleDiveTags(classes[i]);
             for (FieldDoc fieldDoc : classes[i].fields()) {
-                handleIvilTags(fieldDoc);
+                handleDiveTags(fieldDoc);
             } 
             for (MethodDoc fieldDoc : classes[i].methods()) {
-                handleIvilTags(fieldDoc);
+                handleDiveTags(fieldDoc);
             }
         }
         
@@ -36,8 +36,8 @@ public class DiveDoclet {
         return true;
     }
     
-    private static void handleIvilTags(ProgramElementDoc doc) {
-        Tag[] tags = doc.tags("ivildoc");
+    private static void handleDiveTags(ProgramElementDoc doc) {
+        Tag[] tags = doc.tags("divedoc");
         for (Tag tag : tags) {
             handleTag(tag);
         }
@@ -68,7 +68,7 @@ public class DiveDoclet {
 
 
     private static void outputXML() {
-        outStream.println("<ivildoc>");
+        outStream.println("<divedoc>");
         for (Map.Entry<String, HashMap<String, String>> entry : table.entrySet()) {
             outStream.println("  <category name=\"" + entry.getKey() + "\">");
             for (Map.Entry<String, String> entry2 : entry.getValue().entrySet()) {
@@ -78,7 +78,7 @@ public class DiveDoclet {
             }
             outStream.println("  </category>");
         }
-        outStream.println("</ivildoc>");
+        outStream.println("</divedoc>");
     }
 
     private static void handleTag(Tag tag) {
@@ -87,7 +87,7 @@ public class DiveDoclet {
         int stringEnd = text.indexOf('"', stringStart + 1);
         
         if(stringStart == -1 || stringEnd == -1) {
-            System.err.println("Ignore @ivildoc: Missing descriptor at " + tag.position());
+            System.err.println("Ignore @divedoc: Missing descriptor at " + tag.position());
         }
         
         String[] parts = text.substring(stringStart+1, stringEnd).split("/");
