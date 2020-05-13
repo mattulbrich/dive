@@ -7,44 +7,33 @@ package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
-import edu.kit.iti.algover.editor.HighlightingRule;
-import edu.kit.iti.algover.editor.LayeredHighlightingRule;
 import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
-import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
-import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.script.ast.Position;
-import edu.kit.iti.algover.script.ast.ProofScript;
-import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
+import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
-import edu.kit.iti.algover.util.ExceptionDialog;
-import edu.kit.iti.algover.util.RuleApp;
 import javafx.beans.Observable;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
-import org.antlr.runtime.Token;
-import org.fxmisc.richtext.model.StyleSpans;
 
-import java.awt.*;
-import java.io.StringWriter;
-import java.time.Duration;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
@@ -56,6 +45,7 @@ import java.util.stream.Collectors;
 public class ScriptController implements ScriptViewListener, ReferenceHighlightingHandler {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
     KeyCombination runShortcut = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
+    KeyCombination insertCasesShortcut = new KeyCodeCombination(KeyCode.I, KeyCombination.CONTROL_DOWN);
     KeyCombination reloadAndExecuteShortcut = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN);
 
     private final ScriptView view;
@@ -64,6 +54,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     private Lookup lookup;
 
     private SimpleIntegerProperty fontSizeProperty = new SimpleIntegerProperty(12);
+    private SimpleBooleanProperty scriptChanged = new SimpleBooleanProperty(false);
 
 
     /**
@@ -86,25 +77,27 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         this.fontSizeProperty.setValue(MainController.systemprefs.getInt("FONT_SIZE_SCRIPT_EDITOR", 12));
 
-        MainController.systemprefs.addPreferenceChangeListener(new PreferenceChangeListener() {
-            @Override
-            public void preferenceChange(PreferenceChangeEvent preferenceChangeEvent) {
-                int font_size_seq_view1 = preferenceChangeEvent.getNode().getInt("FONT_SIZE_SCRIPT_EDITOR", 12);
-                fontSizeProperty.set(font_size_seq_view1);
-            }
+        MainController.systemprefs.addPreferenceChangeListener(preferenceChangeEvent -> {
+            int font_size_seq_view1 = preferenceChangeEvent.getNode().getInt("FONT_SIZE_SCRIPT_EDITOR", 12);
+            fontSizeProperty.set(font_size_seq_view1);
         });
 
         view.fontsizeProperty().bind(fontSizeProperty);
 
+        this.scriptChanged.addListener(((observable, oldValue, newValue) -> {
+            if(newValue) {
+                view.setStyle("-fx-background-color: #c4c1c9; -fx-font-size: "+fontSizeProperty.get()+"pt;");
+            } else {
+                view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
+            }
+        }));
 
         view.setHighlightingRule(this.highlightingRules);
 
         view.caretPositionProperty().addListener(this::onCaretPositionChanged);
 
         observableInsertPosition.set(new Position(1,0));
-        observableInsertPosition.addListener((o, old, nv) -> {
-            onInsertPositionChanged(old, nv);
-        });
+        observableInsertPosition.addListener((o, old, nv) -> onInsertPositionChanged(old, nv));
 
         view.getGutterAnnotations().get(0).setInsertMarker(true);
         view.getGutterAnnotations().get(0).setProofNode(new ProofNodeSelector());
@@ -148,6 +141,9 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         if (runShortcut.match(keyEvent)) {
             runScript();
         }
+        if (insertCasesShortcut.match(keyEvent)) {
+            onInsertCases();
+        }
     }
 
     public void setProof(Proof proof) {
@@ -187,7 +183,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         // If the selector points to nowhere, its probably because the rule closed the proof and didn't generate
         // another child...
         // REVIEW This is kind of ugly. In the future this off-by-one fix has to be removed
-        if (!checkpoint.selector.optionalGet(proof).isPresent()) {
+        if (checkpoint.selector.optionalGet(proof).isEmpty()) {
             if(checkpoint.selector.getParentSelector() != null) {
                 this.listener.onSwitchViewedNode(checkpoint.selector.getParentSelector());
             } else {
@@ -271,7 +267,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         //neuberechnen -> User
         //onCaretPositionChanged(null);
 
-          view.setStyle("-fx-background-color: #c4c1c9; -fx-font-size: "+fontSizeProperty.get()+"pt;");
+          scriptChanged.set(true);
           view.resetGutter();
           view.requestLayout();
 
@@ -305,10 +301,8 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         proof.setScriptTextAndInterpret(pp.toString());*/
             proof.setScriptTextAndInterpret(text);
-        } catch (ParseCancellationException pce) {
+        } catch (ParseCancellationException | RecognitionException pce) {
             failException = pce;
-        } catch (RecognitionException re) {
-            failException = re;
         }
         if(failException == null) {
             failException = proof.getFailException();
@@ -334,14 +328,122 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         createVisualSelectors(checkpoints);
 
         switchViewedNode();
-        view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
+        scriptChanged.set(false);
     }
 
     @Override
-    public String onInsertCases() {
-        System.out.println("TODO insert cases");
-        return "TODO";
+    public void onInsertCases() {
+        if(scriptChanged.get()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+        "Do you want to run the script now?");
+            alert.setTitle("Run script.");
+            alert.setHeaderText("In order to insert missing case statements the script has to be run first.");
+            alert.showAndWait();
+            if(alert.getResult() == ButtonType.OK) {
+                runScript();
+            } else {
+                return;
+            }
+        }
+        ProofScript script = this.proof.getProofScript();
+        Statements newScript = insertCasesForStatement(proof.getProofRoot(), script.getBody());
+        script.setBody(newScript);
+        PrettyPrinter pp = new PrettyPrinter();
+        script.accept(pp);
+        view.replaceText(pp.toString());
+        runScript();
+    }
 
+    /**@
+     * recursivly inserts all missing case statements in the given script
+     *
+     * @param pn the proofnode for which the cases should be inserted
+     * @param stmts the current script that should be extended by the missing case statements
+     * @return a new script containing all necessary case statements
+     */
+    private Statements insertCasesForStatement(ProofNode pn, Statements stmts) {
+        if(stmts.size() == 0) {
+            return stmts;
+        }
+        Statements result = new Statements();
+        for (int i = 0; i < stmts.size() - 1; ++i) {
+            if(stmts.get(i) instanceof CallStatement) {
+                result.add(stmts.get(i));
+            } else {
+                Logger.getGlobal().warning("Only the last statement may be a cases-statement.");
+                return stmts;
+            }
+            if((pn.getChildren() != null && pn.getChildren().size() == 1)) {
+                    pn = pn.getChildren().get(0);
+            } else if (stmts.size() - 2 != i) {
+                Logger.getGlobal().warning("Script has unexpected number of children at some point.");
+                return stmts;
+            }
+        }
+        Statement st = stmts.get(stmts.size() - 1);
+        if(pn.getChildren().size() == 1 && st instanceof CallStatement) {
+            result.add(st);
+        } else if (pn.getChildren().size() > 1 && st instanceof CasesStatement) {
+                result.add(createCasesForNode(pn, ((CasesStatement) st).getCases()));
+        } else if (pn.getChildren().size() > 1 && !(st instanceof CasesStatement)) {
+            result.add(st);
+            result.add(createCasesForNode(pn));
+        }
+
+        return result;
+    }
+
+    /**@
+     * Creates all cases for the given proofnode except the ones given in cases
+     *
+     * @param pn the proofnode for which the cases should be created
+     * @param cases the cases that already exist
+     * @return a case statement containing all necesarry cases
+     */
+    private Statement createCasesForNode(ProofNode pn, List<CaseStatement> cases) {
+        CasesStatement res = new CasesStatement();
+        for(ProofNode p : pn.getChildren()) {
+            boolean found = false;
+            for(CaseStatement caze : cases) {
+                if(!(caze instanceof SimpleCaseStatement)) {
+                    throw new UnsupportedOperationException("Creating cases for non simple Casestatements currently " +
+                            "not supported.");
+                }
+                SimpleCaseStatement scs = (SimpleCaseStatement)caze;
+                //apparently some guards are string literals and some are MathcExpressions...
+                if(scs.getGuard() instanceof StringLiteral) {
+                    String caseString = scs.getGuard().getText();
+                    caseString = caseString.replaceAll("\"", "");
+                    if (caseString.equals(p.getLabel())) {
+                        Statements statements = insertCasesForStatement(p, scs.getBody());
+                        scs.setBody(statements);
+                        res.getCases().add(scs);
+                        found = true;
+                    }
+                } else if (scs.getGuard() instanceof MatchExpression) {
+                    Expression pattern =  ((MatchExpression) scs.getGuard()).getPattern();
+                    String caseString = pattern.getText();
+                    caseString = caseString.replaceAll("\"", "");
+                    if(caseString.equals(p.getLabel())) {
+                        Statements statements = insertCasesForStatement(p, scs.getBody());
+                        scs.setBody(statements);
+                        res.getCases().add(scs);
+                        found = true;
+                    }
+                }
+            }
+            if(!found) {
+                SimpleCaseStatement c = new SimpleCaseStatement();
+                c.setGuard(new StringLiteral(p.getLabel()));
+                c.setBody(new Statements());
+                res.getCases().add(c);
+            }
+        }
+        return res;
+    }
+
+    private Statement createCasesForNode(ProofNode pn) {
+        return createCasesForNode(pn, new ArrayList<>());
     }
 
     /**
@@ -460,6 +562,6 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     @Override
     public void removeReferenceHighlighting() {
-        view.getGutterAnnotations().forEach(gutterAnnotation -> {gutterAnnotation.setProofNodeIsReferenced(false);});
+        view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsReferenced(false));
     }
 }

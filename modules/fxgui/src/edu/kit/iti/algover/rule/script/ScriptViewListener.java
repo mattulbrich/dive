@@ -5,8 +5,6 @@
  */
 package edu.kit.iti.algover.rule.script;
 
-import edu.kit.iti.algover.script.ast.ProofScript;
-
 public interface ScriptViewListener {
 
     void onScriptSave();
@@ -15,5 +13,5 @@ public interface ScriptViewListener {
 
     void runScript();
 
-    String onInsertCases();
+    void onInsertCases();
 }

@@ -18,6 +18,7 @@ import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
 import java.util.Map;
@@ -65,7 +66,7 @@ public class RuleViewOverlay extends AnchorPane {
         applyButton.getStyleClass().add("apply");
         applyButton.setDisable(application.getApplicability() != Applicability.APPLICABLE
                 && application.getApplicability() != Applicability.INSTANTIATION_REQUIRED);
-        applyButton.setOnAction(this::onRuleApplication);
+        applyButton.setOnMouseClicked(this::onRuleApplication);
 
         refineButton = new JFXButton("Refine");
         refineButton.getStyleClass().add("refine");
@@ -90,17 +91,17 @@ public class RuleViewOverlay extends AnchorPane {
         setRightAnchor(refineButton, 0.0);
     }
 
-    private void onRuleApplication(ActionEvent ae) {
+    private void onRuleApplication(MouseEvent mouseEvent) {
         int requiredParams = 0;
         for(ParameterDescription<?> p : application.getRule().getAllParameters().values()) {
             if(p.isRequired() && p.getDefaultValue().isEmpty()) {
                 requiredParams++;
             }
         }
-        if (requiredParams > 0 ||
+        if (mouseEvent.isShiftDown() || (requiredParams > 0 &&
                 (application.getRule().getAllParameters().size() == 1 &&
-                        (!application.getRule().getAllParameters().containsValue(FocusProofRule.ON_PARAM_REQ)) &&
-                        !application.getRule().getAllParameters().containsValue(DefaultFocusProofRule.ON_PARAM_OPT))) {
+                        (!application.getRule().getAllParameters().containsValue(FocusProofRule.ON_PARAM_REQ) &&
+                                !application.getRule().getAllParameters().containsValue(DefaultFocusProofRule.ON_PARAM_OPT))))) {
             String on;
             try {
                 PrettyPrint pp = new PrettyPrint();

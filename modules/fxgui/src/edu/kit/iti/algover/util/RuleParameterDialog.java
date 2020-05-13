@@ -21,6 +21,9 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -75,15 +78,13 @@ public class RuleParameterDialog extends Dialog<Void> {
             gridPane.add(new Label(e.getKey()), 0, row);
             TextField tf = new TextField();
             tf.setUserData(e.getValue().getType());
-            if(e.getKey() == "on" && defaultOn != null) {
+            if(e.getKey().equals("on") && defaultOn != null) {
                 tf.setText(defaultOn);
             }
             tf.setMinWidth(200.0);
             gridPane.add(tf, 1, row);
-            Platform.runLater(() -> {
-                validationSupport.registerValidator(tf, e.getValue().isRequired(),
-                        getValidatorForType(e.getValue().getType()));
-            });
+            Platform.runLater(() -> validationSupport.registerValidator(tf, e.getValue().isRequired(),
+                    getValidatorForType(e.getValue().getType())));
             row++;
         }
         Button okButton = new Button("Apply");
@@ -92,12 +93,28 @@ public class RuleParameterDialog extends Dialog<Void> {
             setParametersFromTextFields();
             window.hide();
         });
+        okButton.sceneProperty().addListener((observable, oldValue, newScene) -> {
+            if (newScene != null) {
+                newScene.getAccelerators().put(
+                        new KeyCodeCombination(KeyCode.ENTER),
+                        okButton::fire
+                );
+            }
+        });
 
         Button cancelButton = new Button("Cancel");
         cancelButton.setMinWidth(70.0);
         cancelButton.setOnAction(action -> {
             parameters = null;
             window.hide();
+        });
+        cancelButton.sceneProperty().addListener((observable, oldValue, newScene) -> {
+            if (newScene != null) {
+                newScene.getAccelerators().put(
+                        new KeyCodeCombination(KeyCode.ESCAPE),
+                        cancelButton::fire
+                );
+            }
         });
 
         vBox.getChildren().add(gridPane);
@@ -136,11 +153,7 @@ public class RuleParameterDialog extends Dialog<Void> {
                     Term t = termParser.parse(text);
                     parameters.checkAndPutValue(pd, new TermParameter(t, sequent));
                     //parameters.putValue(((Label) (gridPane.getChildren().get(i * 2))).getText(), new TermParameter(t, sequent));
-                } catch (DafnyParserException e) {
-                    //e.printStackTrace();
-                    parameters = null;
-                    return;
-                } catch (DafnyException e) {
+                } catch (DafnyParserException | DafnyException e) {
                     //e.printStackTrace();
                     parameters = null;
                     return;
@@ -174,9 +187,7 @@ public class RuleParameterDialog extends Dialog<Void> {
     private ValidationResult termValidator(Control c, String newValue) {
         try {
             termParser.parse(newValue);
-        } catch (DafnyException e) {
-            return ValidationResult.fromError(c, "Could not parse this term.");
-        } catch (DafnyParserException e) {
+        } catch (DafnyException | DafnyParserException e) {
             return ValidationResult.fromError(c, "Could not parse this term.");
         }
         return new ValidationResult();
