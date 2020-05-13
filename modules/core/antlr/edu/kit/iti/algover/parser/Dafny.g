@@ -279,7 +279,7 @@ type:
   | SET^ '<'! type '>'!
   | ARRAY^ '<'! type '>'!
   | SEQ^ '<'! type '>'!
-  | ID^ ( '<'! type ( ','! type )* '>'! )?
+  | ID^ ( '?'! )? ( '<'! type ( ','! type )* '>'! )?
   ;
 
 typeRef:
