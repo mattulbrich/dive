@@ -56,6 +56,7 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
         controllers.add(new SequentController(listener, lookup));
         view.getTabs().add(new Tab("default", controllers.get(0).getView()));
         view.getSelectionModel().selectedIndexProperty().addListener(this::onTabSelected);
+        view.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         referenceTargetsToHighlight = new HashSet<>();
         lastSelectedRefTarget = null;
         lookup.register(this, ReferenceHighlightingHandler.class);

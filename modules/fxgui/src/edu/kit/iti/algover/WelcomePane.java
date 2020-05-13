@@ -206,7 +206,7 @@ public class WelcomePane {
     }
 
     private void loadExample(ActionEvent event){
-        File exampleFile = new File("ListExample" + File.separator + "AlgoVerList.dfy");
+        File exampleFile = new File( "ListExample" + File.separator + "AlgoVerList.dfy").getAbsoluteFile();
         if(!exampleFile.exists()) {
             try {
                 InputStream is = getClass().getResourceAsStream("AlgoVerList.dfy");
@@ -441,7 +441,7 @@ public class WelcomePane {
         substage.setWidth(width);
         substage.setHeight(height);
         substage.setTitle("DIVE - " + projectFile);
-        substage.setMinWidth(350);
+        substage.setMinWidth(500);
         substage.setMinHeight(350);
         substage.show();
     }

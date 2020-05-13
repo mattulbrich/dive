@@ -99,11 +99,22 @@ public class ProofNodeCheckpointsBuilder extends DefaultASTVisitor<Void> {
         int selectedChildIdx = -1;
         for (int i = 0; lastHandledNodes.size() > 0 && i < lastHandledNodes.get(inCase - 1).getChildren().size(); ++i) {
             //TODO only label matching no sequent matching supported as of yet
-            if (simpleCaseStatement.getGuard().getText().
-                    substring(6, simpleCaseStatement.getGuard().getText().length() - 1).
-                    equals(lastHandledNodes.get(inCase - 1).getChildren().get(i).getLabel())) {
-                selectedChildIdx = i;
+            if(simpleCaseStatement.getGuard() instanceof MatchExpression) {
+                if (simpleCaseStatement.getGuard().getText().
+                        substring(6, simpleCaseStatement.getGuard().getText().length() - 1).
+                        equals(lastHandledNodes.get(inCase - 1).getChildren().get(i).getLabel())) {
+                    selectedChildIdx = i;
+                }
+            } else if(simpleCaseStatement.getGuard() instanceof StringLiteral) {
+                if (simpleCaseStatement.getGuard().getText().
+                        substring(1, simpleCaseStatement.getGuard().getText().length() - 1).
+                        equals(lastHandledNodes.get(inCase - 1).getChildren().get(i).getLabel())) {
+                    selectedChildIdx = i;
+                }
+            } else {
+                throw new UnsupportedOperationException("Only string labels for case matches supported.");
             }
+
         }
         if (selectedChildIdx != -1) {
             ProofNodeSelector selector = new ProofNodeSelector(lastHandledSelectors.get(inCase - 1), selectedChildIdx);

@@ -79,6 +79,18 @@ public class PrettyPrintTest {
             { "! !b1" },
             { "!(b1 && b1)" },
             { "1 != 2" },
+            { "b1 && (b1 && b1)" },
+            { "b1 && b1 && b1" },
+        };
+    }
+
+    public Object[][] parametersForTestWithLinebreak() {
+        return new Object[][] {
+            { "b1 && b1", "   b1\n&& b1", 5 },
+            { "(b1 && b1) && b1", "   b1\n&& b1\n&& b1", 5 },
+            { "(b1 || b1) || b1", "   b1\n|| b1\n|| b1", 5 },
+            { "b1 && (b1 && b1)", "   b1\n&& (   b1\n    && b1)", 7 },
+            { "b1 || b1 && b1",   "   b1\n||    b1\n   && b1", 7 }
         };
     }
 
@@ -195,6 +207,17 @@ public class PrettyPrintTest {
         AnnotatedString printed = new PrettyPrint().print(parsed);
 
         assertEquals(input, printed.toString());
+    }
+
+    @Test @Parameters
+    public void testWithLinebreak(String input, String expected, Integer linewidth)
+             throws DafnyParserException, DafnyException {
+
+        Term parsed = TermParser.parse(st, input);
+        PrettyPrint pp = new PrettyPrint();
+        AnnotatedString printed = pp.print(parsed, linewidth);
+
+        assertEquals(expected, printed.toString());
     }
 
     @Test @Parameters
