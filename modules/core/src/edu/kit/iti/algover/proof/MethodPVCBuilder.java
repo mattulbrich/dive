@@ -92,7 +92,7 @@ public class MethodPVCBuilder implements PVCBuilder {
     public MethodPVCBuilder(Project project) {
         this.project = project;
         if(project != null) {
-            this.sequenter = findSequenter(project.getSettings().getString(ProjectSettings.SEQUENTER));
+            this.sequenter = findSequenter(project.getSettings().getString(ProjectSettings.SEQUENTER_PROP.key));
         }
     }
 

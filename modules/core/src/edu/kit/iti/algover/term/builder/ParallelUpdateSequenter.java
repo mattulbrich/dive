@@ -18,6 +18,55 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This sequenter is a specialisation of an update sequenter.
+ *
+ * It parallelises all let-assignments into a single assignment with potentially
+ * several assignment targets.
+ *
+ * <p> For example: For the term
+ * <pre>
+ *     let x:=1 :: let y:=2 :: let x:=y+1 :: let y:= 3 :: x+2 > 0
+ * </pre>
+ * the parallel assignment is
+ * <pre>
+ *     let x,y := 2+1,3 :: x+2 > 0
+ * </pre>
+ *
+ * <p>Spurious assignments are not removed unlike with the
+ * <a href="dive:/VC generation/Simplified Updates">simplified updates</a>.</p>
+ *
+ * @author Mattias Ulbrich
+ *
+ * @divedoc "VC generation/Parallel Updates"
+ *
+ * <h2>Sequent Generation with Parallel Updates</h2>
+ *
+ * <p><b>Name: <tt>ass-parallel</tt></b></p>
+ *
+ * <p>This sequent generation is similar to the
+ * <a href="dive:/VC generation/Updates">generator with updates</a>.
+ * The only difference is that the <tt>let</tt>-cascades generated are parallelised.</p>
+ * <p> For example: For the term
+ * <pre>
+ *     let x:=1 :: let y:=2 :: let x:=y+1 :: let y:= 3 :: x+2 > 0
+ * </pre>
+ * the parallel assignment is
+ * <pre>
+ *     let x,y := 2+1,3 :: x+2 > 0
+ * </pre>
+ *
+ * <p>Spurious assignments are not removed unlike with the
+ * <a href="dive:/VC generation/Simplified Updates">simplified updates</a>.</p>
+ *
+ * <p>If you want to use this for verification condition, add to your input file:</p>
+ * <pre>
+ *     settings {
+ *         "Sequent Generation Type" = "ass-parallel"
+ *     }
+ * </pre>
+ *
+ */
 public class ParallelUpdateSequenter extends UpdateSequenter {
 
     @Override

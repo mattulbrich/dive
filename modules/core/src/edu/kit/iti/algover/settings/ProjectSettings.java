@@ -28,14 +28,41 @@ import java.util.Set;
  * REVIEW MU:?: has to be called by projectbuilder
  * @author Created by sarah on 8/3/16.
  * @version 2018-Jan. refactored by Mattias
+ *
+ * @divedoc "Settings"
+ *
+ * <h2>Project settings</h2>
+ *
+ * <p>In the header of the main input file, one can set a number of project settings.
+ * All of them have default values, i.e., the settings section can be omitted if one is happy with
+ * the default values.</p>
+ *
+ * <p>Settings are embedded into Dafny files as follows, usually at the beginning of the file:</p>
+ *
+ * <pre>
+ * settings {
+ *     "Settings key 1" = "Settings Value 1",
+ *     "Settings key 2" = "Settings Value 2"
+ * }
+ * </pre>
+ *
+ * <p>You can embed this into
+ * <a href="dive:/Input Files/Special comments">DIVE special comments</a>.</p>
+ *
+ * <p>Information about the available settings and valid values for the settings.
+ * can be found on subpages.</p>
+ *
  */
 public class ProjectSettings {
 
+    /**
+     * A class that defines a property: name, default value, and checker that
+     * can find out if a value is valid or not.
+     */
     public static class Property {
         public final String key;
         public final String defaultValue;
         public final StringValidator validator;
-
 
         public final String helpText;
 
@@ -47,28 +74,92 @@ public class ProjectSettings {
         }
     }
 
-    /**
-     * Available settings should be collected here, including their default values.
+    /*
+     * All available settings should be collected here
      */
 
-    public static final String DAFNY_TIMEOUT = "Dafny Timeout";
-    public static final String KEY_TIMEOUT = "KeY Timeout";
-    public static final String SMT_TIMEOUT = "SMT Timeout";
-//    public static final String SYMBEX_UNROLL_LOOPS = "Unroll Loops";
- //   public static final String SYMBEX_INLINE_METHODS = "Inline Methods";
-    public static final String SEQUENTER = "Sequent Generation Type";
-    public static final String DEFAULT_SCRIPT = "Default Script";
+    /** @divedoc "Settings/Dafny Timeout"
+     *
+     * <h2>Project settings: <tt>Dafny Timeout</tt></h2>
+     *
+     * <p>Set the timeout in seconds which is used for invocations
+     * of the Dafny backend via Boogie.</p>
+     *
+     * <p>Value range: a positive natural number</p>
+     * <p>Default value: 5 [seconds]</p>
+     */
+    public static final Property DAFNY_TIMEOUT_PROP =
+            new Property("Dafny Timeout", "5",
+                    StringValidators.POSITIVE_VALIDATOR,
+                    "Timeout for the Dafny backend solver");
 
-    private static final Property DEFINED_PROPERTIES[] = {
-            new Property(DAFNY_TIMEOUT, "5", StringValidators.POSITIVE_VALIDATOR, "Timeout for the Dafny backend solver"),
-            new Property(KEY_TIMEOUT, "10", StringValidators.POSITIVE_VALIDATOR, "Timeout for the KeY backend solver"),
-            new Property(SMT_TIMEOUT, "10", StringValidators.POSITIVE_VALIDATOR, "Time out for the selected SMT solver"),
-           // new Property(SYMBEX_UNROLL_LOOPS, "0", StringValidators.POSITIVE_VALIDATOR),
-           // new Property(SYMBEX_INLINE_METHODS, "false", StringValidators.BOOLEAN_VALIDATOR),
-            new Property(SEQUENTER,
-                    PVCSequenter.INSTANCES.get(0).getName(),
-                    StringValidators.oneOfValidator(Util.map(PVCSequenter.INSTANCES, PVCSequenter::getName)), createHelpTextForSequenter(PVCSequenter.INSTANCES)),
-            new Property(DEFAULT_SCRIPT, "", StringValidators.ANY_VALIDATOR, "The commands that should be executed as default script "),
+    /** @divedoc "Settings/KeY Timeout"
+     *
+     * <h2>Project settings: <tt>KeY Timeout</tt></h2>
+     *
+     * <p>Set the timeout in seconds which is used for invocations
+     * of the KeY backend.</p>
+     *
+     * <p>Value range: a positive natural number</p>
+     * <p>Default value: 10 [seconds]</p>
+     */
+    public static final Property KEY_TIMEOUT_PROP =
+            new Property("KeY Timeout", "10",
+                    StringValidators.POSITIVE_VALIDATOR,
+                    "Timeout for the KeY backend solver");
+
+
+    /** @divedoc "Settings/SMT Timeout"
+     *
+     * <h2>Project settings: <tt>SMT Timeout</tt></h2>
+     *
+     * <p>Set the timeout in seconds which is used for invocations
+     * of the SMT backend via Z3.</p>
+     *
+     * <p>Value range: a positive natural number</p>
+     * <p>Default value: 10 [seconds]</p>
+     */
+    public static final Property SMT_TIMEOUT_PROP =
+            new Property("SMT Timeout", "10",
+                    StringValidators.POSITIVE_VALIDATOR,
+                    "Time out for the selected SMT solver");
+
+    /** @divedoc "Settings/Default Script"
+     *
+     * <h2>Project settings: <tt>Dafny Timeout</tt></h2>
+     *
+     * <p>Set the timeout in seconds which is used for invocations
+     * of the Dafny backend via Boogie.</p>
+     *
+     * <p>Value range: a positive natural number</p>
+     * <p>Default value: 5 [seconds]</p>
+     */
+    public static final Property DEFAULT_SCRIPT_PROP =
+            new Property("Default Script", "",
+                    StringValidators.ANY_VALIDATOR,
+                    "The commands that should be executed as default script ");
+
+    /** @divedoc "Settings/Sequent Generation Type"
+     *
+     * <h2>Project settings: <tt>Sequent Generation Type</tt></h2>
+     *
+     * <p>Set the sequent style that should be used for verification condition generation.
+     * They are explained under <a href="dive:/VC generation">Verification Condition Generation</a>.</p>
+     *
+     * <p>Value range: One of the values summarised here <a href="VC generation">here</a>.</p>
+     * <p>Default value: "ass-simp"</p>
+     */
+    public static final Property SEQUENTER_PROP = new Property("Sequent Generation Type",
+            PVCSequenter.INSTANCES.get(0).getName(),
+            StringValidators.oneOfValidator(Util.map(PVCSequenter.INSTANCES, PVCSequenter::getName)),
+            createHelpTextForSequenter(PVCSequenter.INSTANCES));
+
+    private static final Property[] DEFINED_PROPERTIES = {
+            DAFNY_TIMEOUT_PROP,
+            KEY_TIMEOUT_PROP,
+            SMT_TIMEOUT_PROP,
+            SEQUENTER_PROP,
+            DEFAULT_SCRIPT_PROP,
     };
 
 
