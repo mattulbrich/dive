@@ -373,11 +373,9 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
                 Logger.getGlobal().warning("Only the last statement may be a cases-statement.");
                 return stmts;
             }
-            if((pn.getChildren() != null && pn.getChildren().size() == 1) || i == stmts.size() - 2) {
-                if(i != stmts.size() - 2) {
+            if((pn.getChildren() != null && pn.getChildren().size() == 1)) {
                     pn = pn.getChildren().get(0);
-                }
-            } else {
+            } else if (stmts.size() - 2 != i) {
                 Logger.getGlobal().warning("Script has unexpected number of children at some point.");
                 return stmts;
             }
