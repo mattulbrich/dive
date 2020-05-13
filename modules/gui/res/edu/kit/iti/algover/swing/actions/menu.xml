@@ -40,6 +40,7 @@
 			center.fileMenu
 			center.navMenu
 			center.proofMenu
+			center.helpMenu
             <!--prover.editorMenu prover.proofMenu prover.settingsMenu prover.experimentalMenu
             -->
 		</menubar>
@@ -78,6 +79,11 @@
 			proof.insertBranches
 			proof.autoIndent
 		</proofMenu>
+
+		<helpMenu text="Help" mnemonic="H">
+			help.referenceManual
+			<!-- help.about -->
+		</helpMenu>
 
 		<proofMenuHidden>
 			proof.prune proof.pruneLast proof.auto proof.autoSubtree proof.reintroduceHiddenTerm proof.axiom proof.conjecture proof.decProc
@@ -262,5 +268,11 @@
 			<icon>proof/text_indent.png</icon>
 		</autoIndent>
 	</proof>
+
+	<help>
+		<referenceManual>ACTION ReferenceManualAction
+			<text>Reference manual</text>
+		</referenceManual>
+	</help>
 
 </barmanager>

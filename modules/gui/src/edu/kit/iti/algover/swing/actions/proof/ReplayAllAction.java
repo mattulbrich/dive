@@ -73,7 +73,7 @@ public class ReplayAllAction extends BarAction implements Initialisable {
                 String script = proof.getScript();
                 if (script == null || script.trim().isEmpty()) {
                     script = getDiveCenter().properties().project.getValue().
-                            getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
+                            getSettings().getString(ProjectSettings.DEFAULT_SCRIPT_PROP.key);
                     proof.setScriptText(script);
                 }
 
