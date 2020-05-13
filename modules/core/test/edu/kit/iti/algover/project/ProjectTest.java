@@ -79,9 +79,9 @@ public class ProjectTest {
     public void testSettings() throws FormatException {
         ProjectSettings testSettings = p.getSettings();
         testSettings.validate();
-        String value = testSettings.getString(ProjectSettings.DAFNY_TIMEOUT);
+        String value = testSettings.getString(ProjectSettings.DAFNY_TIMEOUT_PROP.key);
         assertEquals(24, Integer.parseInt(value));
-        assertEquals(24, testSettings.getInt(ProjectSettings.DAFNY_TIMEOUT));
+        assertEquals(24, testSettings.getInt(ProjectSettings.DAFNY_TIMEOUT_PROP.key));
        // assertEquals(true, testSettings.getBoolean(ProjectSettings.SYMBEX_UNROLL_LOOPS));
     }
 
@@ -92,7 +92,7 @@ public class ProjectTest {
 
         Field fieldSet = ProjectSettings.class.getDeclaredField("set");
         fieldSet.setAccessible(true);
-        ((Map) fieldSet.get(testSettings)).put(ProjectSettings.DAFNY_TIMEOUT, "No integer");
+        ((Map) fieldSet.get(testSettings)).put(ProjectSettings.DAFNY_TIMEOUT_PROP.key, "No integer");
 
         exception.expect(FormatException.class);
         testSettings.validate();
