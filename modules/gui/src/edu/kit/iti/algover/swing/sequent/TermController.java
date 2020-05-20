@@ -2,7 +2,7 @@
  * This file is part of AlgoVer.
  *
  * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
- *  
+ *
  */
 
 package edu.kit.iti.algover.swing.sequent;
@@ -37,13 +37,20 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Set;
-import java.util.function.Consumer;
 
+
+/**
+ * This class manages an individual text field that displays a single formula.
+ *
+ * @author Mattias Ulbrich
+ */
+@SuppressWarnings("checkstyle:JavadocVariable")
 public class TermController extends MouseAdapter {
 
+    @SuppressWarnings("checkstyle:StaticVariableName")
     private static Settings S = Settings.getInstance();
 
-    /**
+    /*
      * some UI constants
      */
     private static final Font FONT = S.getFont("dive.termcomponent.font", null);
@@ -139,6 +146,7 @@ public class TermController extends MouseAdapter {
     private AnnotatedString annotatedString;
     private SubtermSelector mouseSelection;
 
+    @SuppressWarnings("checkstyle:JavadocMethod")
     public TermController(DiveCenter diveCenter, ProofFormula proofFormula, TermSelector termSelector) {
         this.diveCenter = diveCenter;
         this.proofFormula = proofFormula;
@@ -181,6 +189,16 @@ public class TermController extends MouseAdapter {
         reprint();
     }
 
+    /**
+     * React to a changed termselector.
+     *
+     * Update my highlight accordingly.
+     *
+     * This is not done by subscribing to a property because unsubscribing
+     * would be necessary.
+     *
+     * @param ts the new termselector
+     */
     public void updateTermSelector(TermSelector ts) {
         try {
             if (ts == null || !ts.getToplevelSelector().equals(this.termSelector)) {
@@ -206,6 +224,14 @@ public class TermController extends MouseAdapter {
 
     }
 
+    /**
+     * React to the sources being unavailable.
+     *
+     * This is not done by subscribing to a property because unsubscribing
+     * would be necessary.
+     *
+     * @param modified flag to show if active/deactivated
+     */
     public void sourcesModified(boolean modified) {
         if (modified) {
             component.setEnabled(false);
@@ -225,6 +251,11 @@ public class TermController extends MouseAdapter {
         }
     }
 
+    /**
+     * Return the Component that this controller handles
+     *
+     * @return the text pane, not null
+     */
     public Component getComponent() {
         return component;
     }
@@ -365,7 +396,7 @@ public class TermController extends MouseAdapter {
     }
 
     // stolen from KeY
-    public int viewToModel(Point p) {
+    private int viewToModel(Point p) {
         String seqText = component.getText();
 
         // bugfix for empty strings

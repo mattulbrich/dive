@@ -21,7 +21,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -36,7 +35,7 @@ import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 import javax.swing.UIManager;
 
-/**
+/*
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
  * Builder, which is free for non-commercial use. If Jigloo is being used
  * commercially (ie, by a corporation, company or business for any purpose
@@ -46,27 +45,79 @@ import javax.swing.UIManager;
  * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
  * ANY CORPORATE OR COMMERCIAL PURPOSE.
  */
+
+/**
+ * A dialog which shows an exception message and allows one to expand a pane that
+ * then contains the stacktrace.
+ *
+ * @author mattias ulbrich
+ */
 public class ExceptionDialog extends JDialog {
     private static final long serialVersionUID = -3300467843405170589L;
 
-    private final Icon errorIcon = UIManager.getIcon("OptionPane.errorIcon");
-    private JLabel jIcon;
+    /**
+     * Minimum width of the dialog.
+     */
+    private static final int MIN_WIDTH = 300;
+
+    /**
+     * How many characters per line for exception messages
+     */
+    private static final int LINE_LENGTH = 72;
+
+    /**
+     * Maximum number of lines before a truncation message is displayed.
+     */
+    private static final int MAX_LINES = 32;
+
+    /**
+     * Icon to display in dialog.
+     */
+    private static final Icon ERROR_ICON = UIManager.getIcon("OptionPane.ERROR_ICON");
+
+    /**
+     * text area that holds the stacktrace
+     */
     private JTextArea jTextArea;
+
+    /**
+     * container for jTextArea
+     */
     private JScrollPane jScrollPane;
+
+    /**
+     * Button "Details"
+     */
     private JToggleButton jDetails;
-    private JButton jOK;
-    private JPanel jPanel1;
-    private JComponent jError;
+
+    /**
+     * The exception to display, can be null.
+     */
     private final Throwable exception;
+
+    /**
+     * Error message to display
+     */
     private String message;
+
+    /**
+     * Remembering initial size of the dlg.
+     */
     private final Dimension firstSize;
+
+    /**
+     * One can set an alternative button label
+     */
     private final String alternateButtonText;
+
+    /**
+     * remember triggering the alternate button
+     */
     private boolean alternateHasBeenPressed;
 
-    private static int MIN_WIDTH = 300;
-    private static int LINE_LENGTH = 72;
-    private static int MAX_LINES = 32;
-
+    /*
+     * private constructor invoked from {@link #showExceptionDialog(Window, String)}
+     */
     private ExceptionDialog(Window w, String message, Throwable throwable, String alternateButton) {
         super(w, "Error", ModalityType.APPLICATION_MODAL);
         this.exception = throwable;
@@ -76,10 +127,6 @@ public class ExceptionDialog extends JDialog {
         firstSize = getSize();
     }
 
-//    private ExceptionDialog() {
-//        this(new JFrame(), new Exception("test"));
-//    }
-
     private void initGUI() {
         {
             GridBagLayout thisLayout = new GridBagLayout();
@@ -87,17 +134,17 @@ public class ExceptionDialog extends JDialog {
             getContentPane().setLayout(thisLayout);
             this.setSize(282, 195);
             {
-                jIcon = new JLabel();
+                JLabel jIcon = new JLabel();
                 getContentPane().add(
                         jIcon,
                         new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                                 GridBagConstraints.CENTER,
                                 GridBagConstraints.NONE, new Insets(20, 20, 10,
                                         10), 0, 0));
-                jIcon.setIcon(errorIcon);
+                jIcon.setIcon(ERROR_ICON);
             }
             {
-                jError = mkErrorPanel();
+                JComponent jError = mkErrorPanel();
                 getContentPane().add(
                         jError,
                         new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0,
@@ -108,7 +155,7 @@ public class ExceptionDialog extends JDialog {
                 // jError.setHorizontalTextPosition(SwingConstants.CENTER);
             }
             {
-                jPanel1 = new JPanel();
+                JPanel jPanel1 = new JPanel();
                 getContentPane().add(
                         jPanel1,
                         new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0,
@@ -139,7 +186,7 @@ public class ExceptionDialog extends JDialog {
                     jPanel1.add(jAlternate);
                 }
                 {
-                    jOK = new JButton();
+                    JButton jOK = new JButton();
                     jPanel1.add(jOK);
                     jOK.setText("Close");
                     jOK.addActionListener(new ActionListener() {
@@ -253,33 +300,92 @@ public class ExceptionDialog extends JDialog {
         return panel;
     }
 
+    /**
+     * Show a modal exception dialog.
+     *
+     * @param parentComponent the window to relate this dialog to
+     * @param throwable the thrown exception / throwable.
+     */
     public static void showExceptionDialog(Window parentComponent,
             Throwable throwable) {
         showExceptionDialog(parentComponent, throwable.getLocalizedMessage(),
                 throwable, null);
     }
 
-    public static void showExceptionDialog(Window owner, String message) {
-        showExceptionDialog(owner, new StackTraceThrowable(message));
+    /**
+     * Show a modal exception dialog.
+     *
+     * Stacktrace is taken from the current program location.
+     *
+     * @param parentComponent the window to relate this dialog to
+     * @param message the error message
+     */
+    public static void showExceptionDialog(Window parentComponent, String message) {
+        showExceptionDialog(parentComponent, new StackTraceThrowable(message));
     }
 
+    /**
+     * Show a modal exception dialog.
+     *
+     * The error message is taken from the message parameter whereas the stacktrace
+     * comes from the throwable.
+     *
+     * @param parentComponent the window to relate this dialog to
+     * @param message the error message
+     * @param throwable the thrown exception / throwable.
+     */
     public static void showExceptionDialog(Window parentComponent,
             String message, Throwable throwable) {
         showExceptionDialog(parentComponent, message, throwable, null);
     }
 
-    public static boolean showExceptionDialog(Window owner, String message, String alternateButton) {
-        return showExceptionDialog(owner, new StackTraceThrowable(message), alternateButton);
+    /**
+     * Show a modal exception dialog.
+     *
+     * Display a second button with an alternative action.
+     *
+     * @param parentComponent the window to relate this dialog to
+     * @param message error message to display
+     * @param alternateButton Text for the second button in the dialog, null for no such button.
+     * @return true if the alternate button has been pressed
+     */
+    public static boolean showExceptionDialog(Window parentComponent, String message, String alternateButton) {
+        return showExceptionDialog(parentComponent, new StackTraceThrowable(message), alternateButton);
     }
 
+    /**
+     * Show a modal exception dialog.
+     *
+     * The stacktrace is taken from the call location.
+     * Display a second button with an alternative action.
+     *
+     * @param parentComponent the window to relate this dialog to
+     * @param throwable the thrown exception / throwable.
+     * @param alternateButton Text for the second button in the dialog, null for no such button.
+     * @return true if the alternate button has been pressed
+     */
     public static boolean showExceptionDialog(Window parentComponent,
-            Throwable throwable, String alternateButton) {
+                                              Throwable throwable, String alternateButton) {
         return showExceptionDialog(parentComponent, throwable.getLocalizedMessage(),
                 throwable, alternateButton);
     }
 
+    /**
+     * Show a modal exception dialog.
+     *
+     * Display a second button with an alternative action.
+     *
+     * The error message is taken from the message parameter whereas the stacktrace
+     * comes from the throwable.
+     *
+     * @param parentComponent the window to relate this dialog to
+     * @param message error message to display
+     * @param throwable the thrown exception / throwable.
+     * @param alternateButton Text for the second button in the dialog, null for no such button.
+     * @return true if the alternate button has been pressed
+     */
     public static boolean showExceptionDialog(Window parentComponent,
-            String message, Throwable throwable, String alternateButton) {
+                                              String message, Throwable throwable, String alternateButton) {
         Log.stacktrace(Log.DEBUG, throwable);
 
         if(Log.isLogging(Log.WARNING)) {
@@ -297,6 +403,7 @@ public class ExceptionDialog extends JDialog {
         return dlg.isAlternatePressed();
     }
 
+    @SuppressWarnings("checkstyle:MissingJavadocMethod")
     public static void main(String[] args) {
         showExceptionDialog(new JFrame(), new NullPointerException(
                 "Some more eleborate error message"));
