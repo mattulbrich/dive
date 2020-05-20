@@ -5,7 +5,13 @@
  */
 package edu.kit.iti.algover.parser;
 
-import static edu.kit.iti.algover.parser.ChainedRelationsVisitor.Direction.*;
+import edu.kit.iti.algover.util.Util;
+
+import java.util.Arrays;
+import java.util.BitSet;
+
+import static edu.kit.iti.algover.parser.DafnyParser.*;
+import static edu.kit.iti.algover.parser.DafnyParser.EQ;
 
 /**
  * This syntactic sugar resolution routine resolves chained integer comparison.
@@ -22,67 +28,79 @@ import static edu.kit.iti.algover.parser.ChainedRelationsVisitor.Direction.*;
 public class ChainedRelationsVisitor
         extends DafnyTreeDefaultVisitor<Object, Void> {
 
-    enum Direction { ASC, DESC, EQ, leftRelType, NO_COMP };
+    private static final BitSet CHAINABLE_TYPES =
+            Util.bitSet(LE, LT, GE, GT, EQ);
 
     @Override
     public Object visitDefault(DafnyTree t, Void arg) {
-        Direction relDir = getRelDirection(t);
-        if(relDir != NO_COMP) {
-            DafnyTree left = t.getChild(0);
-            Direction leftRelDir = getRelDirection(left);
-            if(isCompatible(relDir, leftRelDir)) {
-                return act(t);
-            } else if(leftRelDir != NO_COMP) {
+
+        if (!CHAINABLE_TYPES.get(t.getType())) {
+            return null;
+        }
+
+        // This is the unchained case
+        if (t.getChildCount() == 2) {
+            return null;
+        }
+
+        assert t.getChildCount() %2 == 0 :
+                "Chained operators must have even number of subtrees";
+
+        return act(t);
+    }
+
+    private Object act(DafnyTree t) {
+        int direction = getRelDirection(t);
+
+        // Original comparison
+        DafnyTree last = t.getChild(1);
+        DafnyTree result = new DafnyTree(t.getToken());
+        result.addChild(t.getChild(0));
+        result.addChild(t.getChild(1));
+
+        // iterate over the chained cases
+        for(int i = 2; i < t.getChildCount(); i += 2) {
+            DafnyTree op = t.getChild(i);
+
+            // check that direction is consistent
+            int newdir = getRelDirection(op);
+            if(direction * newdir < 0) {
                 return new DafnyException("Illegally chained relational expressions", t);
             }
+            direction += newdir;
+
+            // create current comparison
+            DafnyTree x = t.getChild(i + 1);
+            DafnyTree comp = new DafnyTree(op.getToken());
+            comp.addChild(last);
+            comp.addChild(x);
+            last = x;
+
+            // rearrange into result
+            DafnyTree newresult = new DafnyTree(DafnyParser.AND, "&&");
+            newresult.addChild(result);
+            newresult.addChild(comp);
+            result = newresult;
         }
-        return null;
-    }
 
-    private static boolean isCompatible(Direction d1, Direction d2) {
-        return d1 != NO_COMP && d2 != NO_COMP &&
-                (d1 == d2 || d1 == EQ || d2 == EQ);
-    }
-
-    /*
-     * Identified is (a <= b) <= c or similar. left is (a <= b)
-     * Make that into (a <= b) && (b <= c)
-     */
-    private DafnyTree act(DafnyTree t) {
         int index = t.getChildIndex();
-        DafnyTree left = t.getChild(0);
-        DafnyTree a = left.getChild(0);
-        DafnyTree b = t.getChild(0).getChild(1);
-        DafnyTree c = t.getChild(1);
+        t.getParent().replaceChildren(index, index, result);
 
-        DafnyTree replacement = new DafnyTree(DafnyParser.AND, "&&");
-        t.getParent().replaceChildren(index, index, replacement);
-
-        t.removeAllChildren();
-        t.addChild(b.dupTree());
-        t.addChild(c);
-
-        replacement.addChild(left);
-        replacement.addChild(t);
-
-        return replacement;
+        return result;
     }
 
-    private static Direction getRelDirection(DafnyTree t) {
+    private static int getRelDirection(DafnyTree t) {
         switch(t.getType()) {
-        case DafnyParser.LT:
-        case DafnyParser.LE:
-            return ASC;
-        case DafnyParser.GE:
-        case DafnyParser.GT:
-            return DESC;
-        case DafnyParser.EQ:
-            Direction recursive = getRelDirection(t.getChild(0));
-            if(recursive == NO_COMP)
-                return EQ;
-            return recursive;
+        case LT:
+        case LE:
+            return +1;
+        case GE:
+        case GT:
+            return -1;
+        case EQ:
+            return 0;
         default:
-            return NO_COMP;
+            throw new Error("Unexpected case!");
         }
     }
 }
