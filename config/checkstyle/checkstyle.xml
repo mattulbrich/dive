@@ -47,6 +47,8 @@ The original was taken from version 8.9 and was called "sun_checks.xml".
     <property name="severity" value="warning" />
   </module>
 
+  <module name="SuppressWarningsFilter"/>
+
   <module name="TreeWalker">
 
       
@@ -68,6 +70,8 @@ The original was taken from version 8.9 and was called "sun_checks.xml".
     <property name="checkFormat" value=".*"/>
   </module>
 
+  <!-- allow @SuppressWarning (which is nicer) -->
+  <module name="SuppressWarningsHolder" />
 
     <!-- Checks for Javadoc comments.                     -->
     <!-- See https://checkstyle.org/config_javadoc.html -->
