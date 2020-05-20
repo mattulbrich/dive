@@ -14,6 +14,7 @@ import java.nio.charset.Charset;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -553,5 +554,14 @@ public final class Util {
         }
         return false;
     }
+
+    public static BitSet bitSet(int... elems) {
+        BitSet result = new BitSet();
+        for (int elem : elems) {
+            result.set(elem);
+        }
+        return result;
+    }
+
 
 }

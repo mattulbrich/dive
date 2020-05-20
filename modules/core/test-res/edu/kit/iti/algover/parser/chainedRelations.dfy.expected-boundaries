@@ -1,0 +1,13 @@
+(COMPILATION_UNIT[lemma-<EOF>]
+  (lemma[lemma-}] m[m-m]
+    (ARGS[x-int] (VAR[x-int] x[x-x] (TYPE[int-int] int[int-int]))
+                 (VAR[y-int] y[y-y] (TYPE[int-int] int[int-int]))
+                 (VAR[z-int] z[z-z] (TYPE[int-int] int[int-int])))
+    (requires[requires-z] (==[x-z] x[x-x] y[y-y] ==[==-==] z[z-z]))
+    (requires[requires-z] (>[x-z] x[x-x] y[y-y] >=[>=->=] z[z-z]))
+    (requires[requires-z] (>[x-z] x[x-x] y[y-y] ==[==-==] z[z-z]))
+    (requires[requires-z] (==[x-z] x[x-x] y[y-y] >=[>=->=] z[z-z]))
+    (requires[requires-true] (==[(-true] (>[(-)] x[x-x] 0[0-0]) true[true-true]))
+    (requires[requires-true] (==[(-true] (==[(-)] x[x-x] 0[0-0]) true[true-true]))
+    (requires[requires-)] (<[(-)] (+[(-)] x[x-x] 1[1-1]) (+[(-)] x[x-x] 2[2-2]) <[<-<] (+[(-)] x[x-x] 3[3-3])))
+      BLOCK[BLOCK-BLOCK]))

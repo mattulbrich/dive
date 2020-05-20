@@ -433,7 +433,7 @@ and_expr:
 
 rel_op: ( '<' | '>'  | '==' | '!=' | '<=' | '>=' | 'in' | '!in' ) ;
 rel_expr:
-  add_expr ( (rel_op) => rel_op^ add_expr )*
+  add_expr ( (rel_op) => rel_op^ add_expr )? ( (rel_op) => rel_op add_expr )*
   ;
 
 add_op: ('+' | '-') ;
