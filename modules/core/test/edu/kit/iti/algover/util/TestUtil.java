@@ -9,16 +9,13 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -26,14 +23,9 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Function;
 
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
-import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
 import edu.kit.iti.algover.parser.*;
-import edu.kit.iti.algover.proof.Proof;
-import edu.kit.iti.algover.proof.ProofNode;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.Parser;
 import org.antlr.runtime.ParserRuleReturnScope;
 import org.antlr.runtime.RecognitionException;
 
@@ -43,7 +35,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Assert;
-import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 public class TestUtil {
@@ -408,9 +400,11 @@ public class TestUtil {
     }
 
     @TestInfrastructure
-    public static void assertNoException(Exception failException) {
-        if (failException != null) {
-            failException.printStackTrace();
+    public static void assertNoException(List<Exception> failures) {
+        if (!failures.isEmpty()) {
+            for (Exception failure : failures) {
+                failure.printStackTrace();
+            }
             Assert.fail("Unexpected exception!");
         }
     }

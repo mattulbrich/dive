@@ -19,7 +19,6 @@ import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.Parameters;
@@ -36,13 +35,13 @@ import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class Interpreter {
+
+    private static final boolean VERBOSE = false;
 
     private final Map<String, ProofRule> knownRules;
     private final ProofNode rootNode;
@@ -70,9 +69,17 @@ public class Interpreter {
         return result;
     }
 
-    public void interpret(Script script) throws ScriptException {
+    public void interpret(Script script) {
         currentNodes = singleList(rootNode);
-        script.visit(this::interpretCommand, this::interpretCases);
+        try {
+            script.visit(this::interpretCommand, this::interpretCases);
+        } catch (ScriptException e) {
+            if (VERBOSE) {
+                e.printStackTrace();
+            }
+            // This exception has been thrown to indicate an error during execution.
+            // It has been taken down and added to the corresponding proof node.
+        }
     }
 
     /**
@@ -91,7 +98,7 @@ public class Interpreter {
         for (Case cas : cases.getCases()) {
             ProofNode node = findCase(cas);
             if (node == null) {
-                throw new ScriptException("Unknown label \"" + cas.getLabel().getText() + "\"", cas);
+                throw new ScriptException("Unknown label \"" + cas.getLabel().getText() + "\"", cas, node);
             }
             List<ProofNode> oldCurrent = currentNodes;
             currentNodes = singleList(node);
@@ -114,8 +121,14 @@ public class Interpreter {
 
     private Void interpretCommand(Command command) throws ScriptException {
 
-        if(currentNodes.size() != 1) {
-            throw new ScriptException("Command cannot be applied, there is more than one open goal", command);
+        if (currentNodes.size() != 1) {
+            ProofNode node = null;
+            if (currentNodes.size() > 0) {
+                node = currentNodes.get(0).getParent();
+            }
+            throw new ScriptException(
+                    "Command cannot be applied, there is more than one (or no) open goal",
+                    command, node);
         }
 
         ProofNode node = currentNodes.get(0);
@@ -125,21 +138,19 @@ public class Interpreter {
 
         try {
             if (rule == null) {
-                throw new ScriptException("Unknown script command " + commandName, command);
+                throw new ScriptException("Unknown script command " + commandName, command, node);
             }
             Parameters params = interpretParameters(node, rule, command.getParameters());
             ProofRuleApplication proofRuleApplication = rule.makeApplication(node, params);
             proofRuleApplication = proofRuleApplication.refine();
             if(proofRuleApplication.getApplicability() != Applicability.APPLICABLE) {
-                throw new ScriptException("This command is not applicable", command);
+                throw new ScriptException("This command is not applicable", command, node);
             }
             List<ProofNode> newNodes = RuleApplicator.applyRule(proofRuleApplication, command, node);
             node.setChildren(newNodes);
             currentNodes = newNodes;
 
         } catch (Exception e) {
-            ProofNode errorChild = ProofNode.createExceptionChild(node, null, command, e);
-            node.setChildren(List.of(errorChild));
             this.failures.add(e);
             currentNodes = List.of();
         }
@@ -156,7 +167,7 @@ public class Interpreter {
             ParameterDescription<?> knownParam = knownParams.get(paramName);
 
             if (knownParam == null) {
-                throw new ScriptException("Unknown parameter " + paramName, param);
+                throw new ScriptException("Unknown parameter " + paramName, param, node);
             }
 
             Token value = param.getValue();
@@ -186,7 +197,7 @@ public class Interpreter {
                         obj = new TermParameter(term, node.getSequent());
                     }
                 } catch (DafnyException | DafnyParserException e) {
-                    throw new ScriptException("Cannot parse term/sequent " + string, e, param);
+                    throw new ScriptException("Cannot parse term/sequent " + string, e, param, node);
                 }
                 break;
 
@@ -201,7 +212,7 @@ public class Interpreter {
             if (!knownParam.acceptsValue(obj)) {
                 throw new ScriptException("Parameter " + paramName +
                         " expects an argument of type " + knownParam.getType() +
-                        ", not " + obj, param);
+                        ", not " + obj, param, node);
             }
             result.checkAndPutValue(knownParam, obj);
 

@@ -17,6 +17,7 @@ import edu.kit.iti.algover.util.ProofTreeUtil;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,8 +85,8 @@ public class Proof {
     /**
      * The exception with which interpretation has failed.
      */
-    /*@ invariant failException != null <==> poofStatus.getValue() == FAIL; */
-    private @Nullable Exception failException;
+    /*@ invariant failures.isEmpty() <==> poofStatus.getValue() != FAIL; */
+    private @NonNull List<Exception> failures = Collections.emptyList();
 
     /**
      * Create a new proof for a PVC.
@@ -134,8 +135,8 @@ public class Proof {
         return proofStatus.getValue();
     }
 
-    public @Nullable Exception getFailException() {
-        return failException;
+    public @NonNull List<Exception> getFailures() {
+        return failures;
     }
 
     public @NonNull ReferenceGraph getReferenceGraph() {
@@ -207,7 +208,7 @@ public class Proof {
         try {
             this.scriptAST = Scripts.parseScript(script);
         } catch(Exception ex) {
-            this.failException = ex;
+            this.failures = Collections.singletonList(ex);
             this.scriptAST = null;
 
             proofStatus.setValue(ProofStatus.FAILING);
@@ -222,15 +223,17 @@ public class Proof {
             publishReferences();
 
             if(interpreter.hasFailure()) {
-                this.failException = interpreter.getFailures().get(0);
+                this.failures = interpreter.getFailures();
                 this.proofStatus.setValue(ProofStatus.FAILING);
             } else {
-                this.failException = null;
+                this.failures = Collections.emptyList();
                 proofStatus.setValue(newRoot.allLeavesClosed() ?
                         ProofStatus.CLOSED : ProofStatus.OPEN);
             }
         } catch(Exception ex) {
-            this.failException = ex;
+            System.err.println("This is an unexpected error (should not be raised):");
+            ex.printStackTrace();
+            this.failures = Collections.singletonList(ex);
             proofStatus.setValue(ProofStatus.FAILING);
         }
     }

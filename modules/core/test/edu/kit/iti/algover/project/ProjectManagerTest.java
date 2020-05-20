@@ -13,19 +13,24 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.TestUtil;
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -95,12 +100,12 @@ public class ProjectManagerTest {
         // pm.findAndParseScriptFileForPVC(testPVCm1Post);
        // Assert.assertTrue();
         Assert.assertEquals("Proofscript is parsed", ProofStatus.CHANGED_SCRIPT, proof.getProofStatus());
-        Assert.assertNull(proof.getFailException());
+        TestUtil.assertNoException(proof.getFailures());
 
         proof.interpretScript();
 
         Assert.assertEquals("Proofscript has run", ProofStatus.OPEN, proof.getProofStatus());
-        TestUtil.assertNoException(proof.getFailException());
+        TestUtil.assertNoException(proof.getFailures());
 
         System.out.println("Proof root for PVC " + testPVCxPost + " \n" + pm.getProofForPVC(testPVCxPost).getProofRoot().getSequent());
         //get the Proof object for a PVC
@@ -117,7 +122,7 @@ public class ProjectManagerTest {
 
         //this should be the way a script should be interpreted
         proof2.interpretScript();
-        Assert.assertNull(proof.getFailException());
+        Assert.assertThat(proof.getFailures(), empty());
 
         //the way to print the proof tree
         //proof2.getProofRoot();
@@ -133,7 +138,7 @@ public class ProjectManagerTest {
         System.out.println(proof2.getScriptText());
         //interpret new Script
         proof2.interpretScript();
-        TestUtil.assertNoException(proof.getFailException());
+        TestUtil.assertNoException(proof.getFailures());
         System.out.println(proof2.getPVCName() + ": " + proof2.getReferenceGraph());
         pm.getAllProofs().forEach((s1, proof1) -> {
             proof1.invalidate();
@@ -157,7 +162,7 @@ public class ProjectManagerTest {
     // This test currently throws a NullPointerException, instead of the ScriptCommandNotApplicable exception.
     // That exception is caught during execution at some point and during catching, a NullPointerException is
     // generated. The point that happens is marked via "TODO handling of error state for each visit".
-    @Test(expected = ScriptException.class)
+    @Test(expected = RuleException.class)
     public void testInapplicableScriptCommand() throws Exception {
         ProjectManager pm = new XMLProjectManager (new File(testDir), config);
         pm.reload();
@@ -165,7 +170,8 @@ public class ProjectManagerTest {
         Proof proof = pm.getProofForPVC(testPVCm1Post);
 
         proof.setScriptTextAndInterpret("substitute on='true';");
-        throw proof.getFailException();
+        assertEquals(1, proof.getFailures().size());
+        throw proof.getFailures().get(0);
     }
 
     // This test currently fails with a NullPointerException, but I felt like an empty script should be
@@ -179,13 +185,11 @@ public class ProjectManagerTest {
 
         proof.setScriptTextAndInterpret(" ");
         assertNull(proof.getProofRoot().getChildren());
-        if (proof.getFailException() != null)
-            proof.getFailException().printStackTrace();
-        TestUtil.assertNoException(proof.getFailException());
+        TestUtil.assertNoException(proof.getFailures());
 
         proof.setScriptTextAndInterpret(" /* empty script */ ");
         assertNull(proof.getProofRoot().getChildren());
-        TestUtil.assertNoException(proof.getFailException());
+        TestUtil.assertNoException(proof.getFailures());
     }
 
     @Test
@@ -207,15 +211,14 @@ public class ProjectManagerTest {
 
     }
 
-    @Test
-    public void interpretScriptExhaustiveRules() throws Exception {
-        ProjectManager pm = new XMLProjectManager(new File(testDir), "configsum.xml");
-        pm.reload();
-        Proof proof = pm.getProofForPVC("sumAndMax/loop/else/Inv");
-        proof.interpretScript(); //Hier Zeile die exhaustive sein soll einfuegen
-
-        if (proof.getFailException() != null)
-            proof.getFailException().printStackTrace();
-    }
+//    @Deprecated @Ignore
+//    public void interpretScriptExhaustiveRules() throws Exception {
+//        ProjectManager pm = new XMLProjectManager(new File(testDir), "configsum.xml");
+//        pm.reload();
+//        Proof proof = pm.getProofForPVC("sumAndMax/loop/else/Inv");
+//        proof.interpretScript(); //Hier Zeile die exhaustive sein soll einfuegen
+//
+//        TestUtil.assertNoException(proof.getFailures());
+//    }
 
 }

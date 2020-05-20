@@ -13,6 +13,7 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.HistoryProofUtils;
 import edu.kit.iti.algover.util.ProofUtils;
+import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Assert;
@@ -89,9 +90,7 @@ public class ReferenceGraphDirectParentsInProofsTest {
             proofWithTwoSubstitutionsAndSkips.setScriptTextAndInterpret("substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
                     "substitute on='|- ... ((?match: let m := x :: m > 1)) ...';\n"+"skip;\n"+"skip;\n");
 
-            if(proofWithTwoSubstitutionsAndSkips.getFailException() != null) {
-                proofWithTwoSubstitutionsAndSkips.getFailException().printStackTrace();
-            }
+        TestUtil.assertNoException(proofWithTwoSubstitutionsAndSkips.getFailures());
             assertEquals(ProofStatus.OPEN, proofWithTwoSubstitutionsAndSkips.getProofStatus());
 
             proofBranched = pm.getProofForPVC("max/then/Post.1");
@@ -111,9 +110,7 @@ public class ReferenceGraphDirectParentsInProofsTest {
                     "\t}\n" +
                     "}";
             proofBranched.setScriptTextAndInterpret(script2);
-            if(proofBranched.getFailException() != null) {
-                proofBranched.getFailException().printStackTrace();
-            }
+        TestUtil.assertNoException(proofBranched.getFailures());
             assertEquals(ProofStatus.OPEN, proofBranched.getProofStatus());
 
 
@@ -138,9 +135,7 @@ public class ReferenceGraphDirectParentsInProofsTest {
 
             proofWithReplacement = pm.getProofForPVC("max/else/Post.1");
             proofWithReplacement.setScriptTextAndInterpret(script);
-            if(proofWithReplacement.getFailException() != null) {
-                proofWithReplacement.getFailException().printStackTrace();
-            }
+        TestUtil.assertNoException(proofWithReplacement.getFailures());
             assertEquals(ProofStatus.OPEN, proofWithReplacement.getProofStatus());
 
     }

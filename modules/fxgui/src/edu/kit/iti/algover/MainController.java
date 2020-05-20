@@ -273,9 +273,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                         String oldScript = p.getScriptText();
                         String script = "boogie;\n";
                         p.setScriptTextAndInterpret(script);
-                        if (p.getFailException() != null) {
+                        if (!p.getFailures().isEmpty()) {
+                            // TODO This should use the default script!
                             p.setScriptTextAndInterpret(oldScript + "boogie;");
-                            if (p.getFailException() != null) {
+                            if (!p.getFailures().isEmpty()) {
                                 p.setScriptText(oldScript);
                                 failed++;
                             }
@@ -665,7 +666,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
         ruleApplicationController.resetConsideration();
         sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
-        if(sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
+        if(sequentController.getActiveSequentController().getActiveProof().getFailures().isEmpty()) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
         }
     }

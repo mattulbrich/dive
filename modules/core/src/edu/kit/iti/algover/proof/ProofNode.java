@@ -9,7 +9,10 @@ import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
 import edu.kit.iti.algover.rules.BranchInfo;
+import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.term.Sequent;
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -44,15 +47,13 @@ public class ProofNode {
      * Can be set after construction.
      * TODO Making this final is pretty easy if RuleApplicator takes the command as argument
      */
-    private @Nullable Command command;
-
+    private final @Nullable Command command;
 
     /**
      * Pointer to children; mutable
      */
     private @Nullable List<ProofNode> children;
 
-    private final Exception exception;
     /**
      * Root PVC
      */
@@ -79,32 +80,26 @@ public class ProofNode {
 
     public static ProofNode createRoot(PVC pvc) {
         return new ProofNode(null, null, null, null,
-                pvc.getSequent(), null, pvc);
+                pvc.getSequent(), pvc);
     }
 
     public static ProofNode createChild(ProofNode parent, ProofRuleApplication pra,
                                         String label, Command command, Sequent seq) {
-        return new ProofNode(parent, pra, label, command, seq, null, parent.getPVC());
-    }
-
-    public static ProofNode createExceptionChild(ProofNode parent, ProofRuleApplication pra,
-                                                 Command command, Exception exception) {
-        return new ProofNode(parent, pra, "*error*", command, Sequent.EMPTY, exception, parent.getPVC());
+        return new ProofNode(parent, pra, label, command, seq, parent.getPVC());
     }
 
     public static ProofNode createClosureChild(ProofNode parent, ProofRuleApplication pra,
                                                Command command) {
-        return new ProofNode(parent, pra, "*error*", command, Sequent.EMPTY, null, parent.getPVC());
+        return new ProofNode(parent, pra, "*error*", command, Sequent.EMPTY, parent.getPVC());
     }
 
     // TODO Make this private and call it with reflection from test cases to hide it.
     public ProofNode(ProofNode parent, ProofRuleApplication pra,
-                     String label, Command command, Sequent seq, Exception exception, PVC rootPVC) {
+                     String label, Command command, Sequent seq, PVC rootPVC) {
         this.parent = parent;
         this.ruleApplication = pra;
         this.label = label;
         this.sequent = seq;
-        this.exception = exception;
         this.pvc = rootPVC;
         this.command = command;
         this.addedSymbols = new MapSymbolTable(Collections.emptyList());
@@ -153,10 +148,6 @@ public class ProofNode {
 
     public Command getCommand() {
         return command;
-    }
-
-    public void setCommand(Command command) {
-        this.command = command;
     }
 
     public Sequent getSequent() {

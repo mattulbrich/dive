@@ -8,10 +8,12 @@ import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.TestUtil;
 import org.antlr.runtime.RecognitionException;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,9 +29,6 @@ import static org.junit.Assert.*;
 public class InterpreterTest {
 
     private MapSymbolTable symbTable;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setupTable() throws DafnyParserException, RecognitionException, IOException, DafnyException {
@@ -152,11 +151,14 @@ public class InterpreterTest {
         PVC pvc = p.getPVCByName("m/Post");
         Proof proof = new Proof(p, pvc);
         Interpreter interpreter = new Interpreter(proof);
-
-        thrown.expect(ScriptException.class);
-        thrown.expectMessage("Schematic sequent |- (?match: $and(_, _)) does not match.");
-
         interpreter.interpret("andRight;");
+
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(RuleException.class));
+        assertThat(exc.getMessage(),
+                Matchers.equalToIgnoringCase("Schematic sequent |- (?match: $and(_, _)) does not match."));
+
     }
 
     @Test
@@ -165,10 +167,26 @@ public class InterpreterTest {
         PVC pvc = p.getPVCByName("m/Post");
         Proof proof = new Proof(p, pvc);
         Interpreter interpreter = new Interpreter(proof);
-
-        thrown.expect(ScriptException.class);
-        thrown.expectMessage("Unknown script command unknownCommand");
-
         interpreter.interpret("unknownCommand;");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.equalToIgnoringCase("Unknown script command unknownCommand"));
+    }
+
+    // was a bug
+    @Test
+    public void testContinueAfterUnknownCommand() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 == b1 { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(p, pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret("unknownCommand; skip;");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.equalToIgnoringCase("Unknown script command unknownCommand"));
     }
 }

@@ -155,7 +155,7 @@ public class ReferenceGraphDirectParentsSingleTests {
     public void testAddedTermWithScriptReference() throws FormatException {
         Proof proofConj = pm.getProofForPVC("simpleConjunction/Post");
         proofConj.setScriptTextAndInterpret("addHypothesis  with='a == b';");
-        TestUtil.assertNoException(proofConj.getFailException());
+        TestUtil.assertNoException(proofConj.getFailures());
         ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0");
         ProofTermReferenceTarget b = new ProofTermReferenceTarget(lastNode, new TermSelector("A.1"));
         Set<ProofTermReferenceTarget> directParents = proofConj.getReferenceGraph().findDirectParents(b, proofConj);
@@ -172,7 +172,7 @@ public class ReferenceGraphDirectParentsSingleTests {
     public void testReplacedTerm() throws Exception {
         Proof proofDisj = pm.getProofForPVC("simpleSplit/Post");
         proofDisj.setScriptTextAndInterpret("orRight on= '|- _ || _';");
-        TestUtil.assertNoException(proofDisj.getFailException());
+        TestUtil.assertNoException(proofDisj.getFailures());
         ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0");
         ProofTermReferenceTarget right = new ProofTermReferenceTarget(lastNode, new TermSelector("S.0.1"));
         System.out.println(proofDisj.getReferenceGraph());

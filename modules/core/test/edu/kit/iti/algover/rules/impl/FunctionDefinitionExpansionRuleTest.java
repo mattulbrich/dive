@@ -43,7 +43,7 @@ public class FunctionDefinitionExpansionRuleTest {
         Project p = TestUtil.mockProject(code);
         PVC pvc = p.getPVCByName("m/Assert");
         Sequent seq = pvc.getSequent();
-        ProofNode target = new ProofNode(null, null, null, null, seq, null, pvc);
+        ProofNode target = new ProofNode(null, null, null, null, seq, pvc);
         FunctionDefinitionExpansionRule fder = new FunctionDefinitionExpansionRule();
 
         ProofRuleApplication application = fder.considerApplication(

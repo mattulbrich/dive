@@ -21,6 +21,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class ProofTest {
 
@@ -55,15 +58,15 @@ public class ProofTest {
     public void getScript() throws Exception {
         Proof p = makeProof("true");
         p.setScriptText("someText");
-        Assert.assertEquals("someText", p.getScriptText());
-        Assert.assertEquals(ProofStatus.CHANGED_SCRIPT, p.getProofStatus());
+        assertEquals("someText", p.getScriptText());
+        assertEquals(ProofStatus.CHANGED_SCRIPT, p.getProofStatus());
     }
 
     @Test
     public void positiveFake() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake close=true;");
-        Assert.assertEquals(ProofStatus.CLOSED, p.getProofStatus());
+        assertEquals(ProofStatus.CLOSED, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
     }
 
@@ -71,19 +74,23 @@ public class ProofTest {
     public void negativeFake() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake close=false;");
-        Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
+        assertEquals(ProofStatus.FAILING, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
-        if(TestUtil.VERBOSE)
-            p.getFailException().printStackTrace();
-        throw p.getFailException();
+        assertAndThrowSingleException(p);
+    }
+
+    private void assertAndThrowSingleException(Proof p) throws Exception {
+        List<Exception> failures = p.getFailures();
+        assertEquals(1, failures.size());
+        throw failures.get(0);
     }
 
     @Test
     public void skip() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("skip;");
-        TestUtil.assertNoException(p.getFailException());
-        Assert.assertEquals(ProofStatus.OPEN, p.getProofStatus());
+        TestUtil.assertNoException(p.getFailures());
+        assertEquals(ProofStatus.OPEN, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
     }
 
@@ -91,40 +98,34 @@ public class ProofTest {
     public void gibberish() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("!§$%&");
-        Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
+        assertEquals(ProofStatus.FAILING, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
-        if(TestUtil.VERBOSE)
-            p.getFailException().printStackTrace();
-        throw p.getFailException();
+        assertAndThrowSingleException(p);
     }
 
     @Test(expected = ParseCancellationException.class)
     public void extraInput() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake; 123");
-        Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
+        assertEquals(ProofStatus.FAILING, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
-        if(TestUtil.VERBOSE)
-            p.getFailException().printStackTrace();
-        throw p.getFailException();
+        assertAndThrowSingleException(p);
     }
 
     @Test(expected = ScriptException.class)
     public void illegalParameter() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake unknownParameter=true;");
-        Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
+        assertEquals(ProofStatus.FAILING, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
-        if(TestUtil.VERBOSE)
-            p.getFailException().printStackTrace();
-        throw p.getFailException();
+        assertAndThrowSingleException(p);
     }
 
     @Test
     public void schemaOnParameter() throws Exception {
         Proof p = makeProof("let i:=0 ; i >= 0");
         p.setScriptTextAndInterpret("substitute on='|- (?match: _) '; ");
-        Assert.assertEquals(ProofStatus.OPEN, p.getProofStatus());
+        assertEquals(ProofStatus.OPEN, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
     }
 

@@ -287,8 +287,9 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         } catch (ParseCancellationException | RecognitionException pce) {
             failException = pce;
         }
-        if(failException == null) {
-            failException = proof.getFailException();
+
+        if(failException == null && proof.getFailures().size() > 0) {
+            failException = proof.getFailures().get(0);
         }
 
 
