@@ -18,7 +18,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
@@ -36,7 +35,6 @@ import org.fxmisc.wellbehaved.event.Nodes;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
-import java.util.prefs.Preferences;
 
 /**
  * Shows a dafny-syntax-highlighted code editor.
@@ -48,6 +46,9 @@ import java.util.prefs.Preferences;
  * Created by philipp on 28.06.17.
  */
 public class DafnyCodeArea extends AsyncHighlightingCodeArea {
+
+    private static final String OPENING_BRACKETS = "{[(";
+    private static final String CLOSING_BRACKETS = "}])";
 
     private HighlightingRule highlightingRule;
     private final ExecutorService executor;
@@ -107,15 +108,63 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
 
         this.addEventFilter(KeyEvent.KEY_PRESSED, this::handleTabPress);
         this.addEventFilter(KeyEvent.KEY_PRESSED, this::handleEnterKey);
+        this.setOnKeyTyped(event -> {
+            System.out.println("A key was typed");
+            System.out.println(event.getCharacter());
+            String typedCharacterString = event.getCharacter();
+            int idx = OPENING_BRACKETS.indexOf(typedCharacterString);
+            if (idx != -1) {
+                matchParentheses(idx);
+            }
+            event.consume();
+        });
 
         initContextMenu();
     }
+
+    private void matchParentheses(int type) {
+        this.insertText(getCaretPosition(), String.valueOf(CLOSING_BRACKETS.charAt(type)));
+        moveTo(getCaretPosition() - 1);
+    }
+
+    /*private void handleEnterKey(KeyEvent t) {
+        if(t.getCode() == KeyCode.ENTER) {
+            String currentLine = getText(getCurrentParagraph());
+            String clNoSpaces = currentLine.replaceAll("\\p{Blank}", "");
+
+            long openBraces = this.getText(0, this.getCaretPosition() -
+                    this.getParagraphLength(this.getCurrentParagraph())).chars().filter(ch -> ch == '{').count();
+            long closeBraces = this.getText(0, this.getCaretPosition()).chars().filter(ch -> ch == '}').count();
+
+            String indent = " ".repeat((int) (tabWidth * (openBraces - closeBraces)));
+
+            this.insertText(this.getCaretPosition(), "\n" + indent);
+
+            if (clNoSpaces.length() > 0 && clNoSpaces.chars().allMatch(ch -> ch == '{')) {
+                long numberBracesOpened = clNoSpaces.length();
+                this.insertText(getCaretPosition(), " ".repeat((int) (tabWidth * numberBracesOpened)));
+                String closingBraces = "}".repeat((int) numberBracesOpened);
+                int pos = getCaretPosition();
+                this.insertText(this.getCaretPosition(), "\n" + indent + closingBraces);
+                moveTo(pos);
+            }
+
+            t.consume();
+        }
+    }*/
 
     private void handleEnterKey(KeyEvent t) {
         if(t.getCode() == KeyCode.ENTER) {
             long openBraces = this.getText(0, this.getCaretPosition()).chars().filter(ch -> ch == '{').count();
             long closeBraces = this.getText(0, this.getCaretPosition()).chars().filter(ch -> ch == '}').count();
-            this.insertText(this.getCaretPosition(), "\n" + " ".repeat((int) (tabWidth * (openBraces - closeBraces))));
+            int indentLevel = (int) (openBraces - closeBraces);
+            this.insertText(this.getCaretPosition(), "\n" + " ".repeat((tabWidth * indentLevel)));
+            int pos = this.getCaretPosition();
+            if (this.getText().length() > this.getCaretPosition() &&
+                    CLOSING_BRACKETS.contains(this.getText(this.getCaretPosition(), this.getCaretPosition() + 1))) {
+                this.insertText(this.getCaretPosition(), "\n" + " ".repeat(tabWidth * (indentLevel - 1)));
+                moveTo(pos);
+            }
             t.consume();
         }
     }
@@ -125,6 +174,18 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
             this.insertText(this.getCaretPosition(), " ".repeat(tabWidth));
             t.consume();
         }
+    }
+
+    private void handleBraceOpen(KeyEvent t) {
+        System.out.println(t.getCode());
+        if ( t.getCode() == KeyCode.BRACELEFT) {
+            System.out.println("{ Braceeeeleft");
+            t.consume();
+        }
+    }
+
+    private int indentSpaces() {
+        return 0;
     }
 
     private void updateFontSize(int font_size_editor) {
