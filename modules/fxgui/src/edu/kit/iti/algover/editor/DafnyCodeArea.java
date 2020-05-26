@@ -134,8 +134,6 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
     }
 
     private void matchBracesInCurrentLine(int indent) {
-        // TODO: Make more readable.
-
         if (indent < 1) {
             return;
         }
@@ -143,12 +141,18 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         if (!currentLine.endsWith("{")) {
             return;
         }
-        String trailingBraces = currentLine.substring(currentLine.indexOf('{'), currentLine.lastIndexOf('{') + 1);
+        Pattern pattern = Pattern.compile("[\\{]+");
+        Matcher matcher = pattern.matcher(currentLine);
+        String trailingBraces = "";
+        // find last occurrence
+        while (matcher.find()) {
+            trailingBraces = matcher.group();
+        }
         int bracesOpenedL = 0;
 
-        if (trailingBraces.length() > 0 && trailingBraces.chars().allMatch(ch -> ch == '{')) {
+        if (trailingBraces.length() > 0) {
             bracesOpenedL = trailingBraces.length();
-        } else { // should be never reached
+        } else {
             return;
         }
 
@@ -156,11 +160,11 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
 
         String follow = this.getText(this.getCaretPosition(), this.getText().length());
 
-        String search = " ".repeat(toIndent * tabWidth) + "}";
-        int idxClose = follow.indexOf(search);
+        String closingBraces = " ".repeat(toIndent * tabWidth) + "}";
+        int idxClose = follow.indexOf(closingBraces);
 
         if (idxClose != -1) {
-            follow = follow.substring(0, follow.indexOf(search));
+            follow = follow.substring(0, idxClose);
         }
 
         long openBraces = follow.chars().filter(ch -> ch == '{').count();
@@ -168,11 +172,10 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
 
         if (openBraces != closeBraces) {
             int pos = this.getCaretPosition();
-
             this.insertText(this.getCaretPosition(), "\n" +
                     " ".repeat(tabWidth * (toIndent)));
             this.insertText(this.getCaretPosition(), "}".repeat(bracesOpenedL));
-            moveTo(pos);
+            this.moveTo(pos);
         }
     }
 
