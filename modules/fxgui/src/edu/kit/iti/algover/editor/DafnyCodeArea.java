@@ -18,7 +18,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
@@ -36,7 +35,8 @@ import org.fxmisc.wellbehaved.event.Nodes;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
-import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Shows a dafny-syntax-highlighted code editor.
@@ -55,7 +55,6 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
     private String currentProofText;
     private DafnyCodeAreaListener listener;
     private int tabWidth = 2;
-
 
     /**
      * @param text     the initial code inside the code editor
@@ -88,6 +87,7 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         tabWidth = MainController.systemprefs.getInt("TABWIDTH_EDITOR", 2);
 
         currentProofText = text;
+
         int fontSizeEditor = MainController.systemprefs.getInt("FONT_SIZE_EDITOR", 12);
         setStyle("-fx-font-size: "+fontSizeEditor+"pt;");
 
@@ -115,7 +115,13 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         if(t.getCode() == KeyCode.ENTER) {
             long openBraces = this.getText(0, this.getCaretPosition()).chars().filter(ch -> ch == '{').count();
             long closeBraces = this.getText(0, this.getCaretPosition()).chars().filter(ch -> ch == '}').count();
-            this.insertText(this.getCaretPosition(), "\n" + " ".repeat((int) (tabWidth * (openBraces - closeBraces))));
+
+            int indentLevel = (int) (openBraces - closeBraces);
+            indentLevel = (indentLevel > 0) ? indentLevel : 0;
+
+            matchBracesInCurrentLine(indentLevel);
+
+            this.insertText(this.getCaretPosition(), "\n" + " ".repeat((tabWidth * indentLevel)));
             t.consume();
         }
     }
@@ -124,6 +130,52 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         if(t.getCode() == KeyCode.TAB) {
             this.insertText(this.getCaretPosition(), " ".repeat(tabWidth));
             t.consume();
+        }
+    }
+
+    private void matchBracesInCurrentLine(int indent) {
+        if (indent < 1) {
+            return;
+        }
+        String currentLine = this.getText(this.getCurrentParagraph());
+        if (!currentLine.endsWith("{")) {
+            return;
+        }
+        Pattern pattern = Pattern.compile("[\\{]+");
+        Matcher matcher = pattern.matcher(currentLine);
+        String trailingBraces = "";
+        // find last occurrence
+        while (matcher.find()) {
+            trailingBraces = matcher.group();
+        }
+        int bracesOpenedL = 0;
+
+        if (trailingBraces.length() > 0) {
+            bracesOpenedL = trailingBraces.length();
+        } else {
+            return;
+        }
+
+        int toIndent = indent - bracesOpenedL;
+
+        String follow = this.getText(this.getCaretPosition(), this.getText().length());
+
+        String closingBraces = " ".repeat(toIndent * tabWidth) + "}";
+        int idxClose = follow.indexOf(closingBraces);
+
+        if (idxClose != -1) {
+            follow = follow.substring(0, idxClose);
+        }
+
+        long openBraces = follow.chars().filter(ch -> ch == '{').count();
+        long closeBraces = follow.chars().filter(ch -> ch == '}').count();
+
+        if (openBraces != closeBraces) {
+            int pos = this.getCaretPosition();
+            this.insertText(this.getCaretPosition(), "\n" +
+                    " ".repeat(tabWidth * (toIndent)));
+            this.insertText(this.getCaretPosition(), "}".repeat(bracesOpenedL));
+            this.moveTo(pos);
         }
     }
 
@@ -156,6 +208,8 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         String currentText = this.getText();
         String[] paragraphs = currentText.split("(?<=[{}])");
         for(String p : paragraphs) {
+            System.out.println("New Paragraph: ");
+            System.out.println(p);
             String formattedP = p.replaceAll("\n[\t ]*", "\n" + " ".repeat(tabWidth * currentIdentation));
             //This hardcoded formatting is ugly but works for now
             formattedP = formattedP.replaceAll("(modifies|requires|ensures|invariant|decreases)", " ".repeat(tabWidth) + "$1");

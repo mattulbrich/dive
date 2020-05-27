@@ -232,20 +232,22 @@ public class MultiViewSplitPane extends Pane {
         ObservableList<SplitPane.Divider> dividers = this.splitPane.getDividers();
         // Even indexed dividers are only linked upon frame change
         linkDividerPositions();
-        // if the even indexed dividers are reset
-        if (oldPos % 2 == 0) {
-            // A bit hacky: the value is required to change, for listener to be triggered
-            // Very hacky: not resetting it seems to prevent a repaint bug in FormulaCell.
-            // That is why it is shifted in different directions in each call.
-            dividers.get(oldPos).setPosition(dividers.get(oldPos).getPosition()
-                    +0.001 * alternateDividerShiftFactor);
-            alternateDividerShiftFactor *= (-1);
-        } else { // if the odd indexed, fixed dividers are reset
+
+        // if the odd indexed dividers are reset
+        if (oldPos % 2 == 1) {
             double desired = this.screenDividers[oldPos / 2];
             double delta = dividers.get(oldPos).getPosition() - desired;
             dividers.get(oldPos).setPosition(desired);
             dividers.get(newPos).setPosition(dividers.get(newPos).getPosition() - delta);
+
+            alternateDividerShiftFactor *= (-1);
         }
+
+        // A bit hacky: the divider position is required to change for ChangeListener to be triggered
+        // Very hacky: not resetting it seems to prevent JavaFX repaint bug for the individual nodes.
+        dividers.get(oldPos).setPosition(dividers.get(oldPos).getPosition()
+                +0.00051 * alternateDividerShiftFactor);
+
         unlinkDividerPositions();
     }
 

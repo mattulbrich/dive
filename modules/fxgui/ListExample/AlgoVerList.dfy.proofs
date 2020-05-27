@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-<comment>Created by DIVE at Tue Apr 28 19:51:39 CEST 2020</comment>
+<comment>Created by DIVE at Fri May 22 13:49:57 CEST 2020</comment>
 <entry key="List.removeAt/then/else/Bounds">expand on='... ((?match: this.Valid())) ... |-';
 boogie ;
 
@@ -72,10 +72,17 @@ boogie ;
 boogie ;
 
 </entry>
+<entry key="List.Valid/Reads.14"></entry>
+<entry key="List.Valid/Reads.13"></entry>
+<entry key="List.Valid/Reads.12"></entry>
+<entry key="List.Valid/Reads.11"></entry>
 <entry key="List.removeAt/then/else/Bounds.1">expand on='... ((?match: this.Valid())) ... |-';
 boogie ;
 </entry>
+<entry key="List.Valid/Reads.10"></entry>
 <entry key="List.removeAt/then/else/Bounds.2">boogie;
+</entry>
+<entry key="List.removeAt/then/else/Bounds.3">boogie;
 </entry>
 <entry key="List.getAt/loop_exit/Post">expand on='... ((?match: this.Valid())) ... |-';
 andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| &gt;= 1 &amp;&amp; this.head != null &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; this.nodeseqq[n] != null)) &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[k].next != null)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])))) ... |-';
@@ -86,8 +93,11 @@ andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| 
 inst on='(forall i:int :: i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)'
      with='idx₁';
 boogie;</entry>
-<entry key="List.removeAt/then/else/Bounds.3">boogie;
-</entry>
+<entry key="List.Valid/Reads.19"></entry>
+<entry key="List.Valid/Reads.18"></entry>
+<entry key="List.Valid/Reads.17"></entry>
+<entry key="List.Valid/Reads.16"></entry>
+<entry key="List.Valid/Reads.15"></entry>
 <entry key="List.removeAt/else/loop/Null">expand on='... ((?match: this.Valid())) ... |-';
 boogie ;
 </entry>
@@ -97,6 +107,8 @@ boogie ;
 <entry key="List.insertAt/loop_exit/Null">expand on='... ((?match: this.Valid())) ... |-';
 boogie ;
 </entry>
+<entry key="List.Valid/Reads.21"></entry>
+<entry key="List.Valid/Reads.20"></entry>
 <entry key="List.removeAt/else/loop_exit/Post">boogie;
 </entry>
 <entry key="List.removeAt/else/InitInv.1">expand on='... ((?match: this.Valid())) ... |-';
@@ -232,6 +244,7 @@ boogie ;
 <entry key="List.size/loop/Dec"></entry>
 <entry key="List.insertAt/loop/Dec">boogie;
 </entry>
+<entry key="List.Valid/Reads"></entry>
 <entry key="List.insertAt/loop/Inv">boogie;
 </entry>
 <entry key="List.getAt/loop/Null">expand on='... ((?match: this.Valid())) ... |-';
@@ -240,9 +253,15 @@ boogie ;
 <entry key="List.removeAt/else/loop_exit/Null">expand on='... ((?match: this.Valid())) ... |-';
 boogie ;
 </entry>
+<entry key="List.Valid/Reads.9"></entry>
+<entry key="List.Valid/Reads.8"></entry>
 <entry key="List.removeAt/else/loop_exit/else/Null.1">boogie;
 </entry>
+<entry key="List.Valid/Reads.7"></entry>
 <entry key="List.removeAt/else/loop_exit/else/Null.2"></entry>
+<entry key="List.Valid/Reads.6"></entry>
+<entry key="List.Valid/Reads.5"></entry>
+<entry key="List.Valid/Reads.4"></entry>
 <entry key="List.removeAt/else/loop_exit/then/Post.1">expand on='... ((?match: this.Valid())) ... |-';
 substitute on='|- ... ((?match: let node := node₁ :: let $heap := $heap[node.next := node.next.next] :: let $heap := $heap[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, 0, pos)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos)] :: this.Valid()@$heap)) ...';
 substitute on='|- ... ((?match: let $heap := $heap[node₁.next := ((node₁.next).next)] :: let $heap := $heap[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, 0, pos)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos)] :: this.Valid()@$heap)) ...';
@@ -264,9 +283,12 @@ boogie ;
 </entry>
 <entry key="List.insertAt/InitInv">boogie;
 </entry>
+<entry key="List.Valid/Reads.3"></entry>
+<entry key="List.Valid/Reads.2"></entry>
 <entry key="List.insertAt/loop_exit/Post">expand on='... ((?match: this.Valid())) ... |-';
 substitute on='|- ... ((?match: let node := node₁ :: let $heap := $heap[$create($new₁)] :: let newNode := $new₁ :: let $heap := $heap[$anon(let this, value, next := newNode, value, node.next@$heap :: {this}, $aheap₁)] :: let $heap := $heap[node.next := newNode] :: let $heap := $heap[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, 0, pos) + ([newNode]) + $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, pos, |this.nodeseqq@$heap|)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + ([value]) + $seq_sub&lt;int&gt;(this.seqq@$heap, pos, |this.seqq@$heap|)] :: this.seqq@$heap == (let $heap := $oldheap :: $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + ([value]) + $seq_sub&lt;int&gt;(this.seqq@$heap, pos, |this.seqq@$heap|)))) ...';
 </entry>
+<entry key="List.Valid/Reads.1"></entry>
 <entry key="List.removeAt/else/loop/Inv">boogie;
 </entry>
 </properties>
