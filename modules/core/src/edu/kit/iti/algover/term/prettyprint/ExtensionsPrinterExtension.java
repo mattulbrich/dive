@@ -34,14 +34,14 @@ public class ExtensionsPrinterExtension implements PrettyPrintExtension {
 
     @Override
     public int getLeftPrecedence(ApplTerm application) {
-        return 0;
-        // TODO find out!
+        // very high number since it starts with an unambigouous token ']'
+        return 1000;
     }
 
     @Override
     public int getRightPrecedence(ApplTerm application) {
-        return 0;
-        // TODO find out
+        // very high number since it ends with an unambigouous token ']'
+        return 1000;
     }
 
     @Override
