@@ -26,8 +26,11 @@ public interface PrettyPrintExtension {
      * expression.
      *
      * This is used to decide whether or not parentheses must be added around the expression.
-     * @param application
-     * @return
+     *
+     * For expressions that bind strongest (e.g. postfix suffixes), the value should be 1000.
+     *
+     * @param application the term for which the precedence is to be given
+     * @return {@code 0 <= result <= 1000}
      */
     int getLeftPrecedence(ApplTerm application);
 
@@ -36,8 +39,11 @@ public interface PrettyPrintExtension {
      * expression.
      *
      * This is used to decide whether or not parentheses must be added around the expression.
-     * @param application
-     * @return
+     *
+     * For expressions that bind strongest (e.g. postfix suffixes), the value should be 1000.
+     *
+     * @param application the term for which the precedence is to be given
+     * @return {@code 0 <= result <= 1000}
      */
     int getRightPrecedence(ApplTerm application);
 
