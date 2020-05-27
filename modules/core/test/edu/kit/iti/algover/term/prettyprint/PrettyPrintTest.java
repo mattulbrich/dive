@@ -313,17 +313,17 @@ public class PrettyPrintTest {
      * substitutions as subterms
      */
 
-    @Test @Ignore
+    @Test
     public void testAnnotations2() throws Exception {
         Term t = TermParser.parse(st, "let var x := i1 + i1 :: (x == i1)");
         AnnotatedString as = new PrettyPrint().print(t);
-        assertEquals("let x := i1 + i1 :: i1 = i1)", as.toString());
-        assertEquals("[Element[begin=8;end=15;attr=1], " +
-                "Element[begin=8;end=10;attr=1.0], " +
-                "Element[begin=13;end=15;attr=1.1], " +
-                "Element[begin=17;end=26;attr=0], " +
-                "Element[begin=18;end=20;attr=0.0], " +
-                "Element[begin=23;end=25;attr=0.1]]", as.describeAllElements());
+        assertEquals("let x := i1 + i1 :: x == i1", as.toString());
+        assertEquals("[Element[begin=9;end=16;attr=1], " +
+                "Element[begin=9;end=11;attr=1.0], " +
+                "Element[begin=14;end=16;attr=1.1], " +
+                "Element[begin=20;end=27;attr=0], " +
+                "Element[begin=20;end=21;attr=0.0], " +
+                "Element[begin=25;end=27;attr=0.1]]", as.describeAllElements());
 
     }
 
