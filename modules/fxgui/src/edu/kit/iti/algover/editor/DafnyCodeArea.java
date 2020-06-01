@@ -35,8 +35,6 @@ import org.fxmisc.wellbehaved.event.Nodes;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Shows a dafny-syntax-highlighted code editor.
@@ -106,22 +104,19 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         getUndoManager().forgetHistory();
 
         this.addEventFilter(KeyEvent.KEY_PRESSED, this::handleTabPress);
-        this.addEventFilter(KeyEvent.KEY_PRESSED, this::handleEnterKey);
+        this.addEventHandler(KeyEvent.KEY_PRESSED, this::handleEnterKey);
 
         initContextMenu();
     }
 
     private void handleEnterKey(KeyEvent t) {
         if(t.getCode() == KeyCode.ENTER) {
-            long openBraces = this.getText(0, this.getCaretPosition()).chars().filter(ch -> ch == '{').count();
-            long closeBraces = this.getText(0, this.getCaretPosition()).chars().filter(ch -> ch == '}').count();
-
-            int indentLevel = (int) (openBraces - closeBraces);
+            int indentLevel = braceBalance(this.getText(0, this.getCaretPosition()));
             indentLevel = (indentLevel > 0) ? indentLevel : 0;
+            this.insertText(this.getCaretPosition(), " ".repeat((tabWidth * indentLevel)));
 
-            matchBracesInCurrentLine(indentLevel);
+            matchBracesCurrentPosition(indentLevel);
 
-            this.insertText(this.getCaretPosition(), "\n" + " ".repeat((tabWidth * indentLevel)));
             t.consume();
         }
     }
@@ -133,50 +128,33 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         }
     }
 
-    private void matchBracesInCurrentLine(int indent) {
+    private int braceBalance(String section) {
+        long openBraces = section.chars().filter(ch -> ch == '{').count();
+        long closeBraces = section.chars().filter(ch -> ch == '}').count();
+
+        return (int) (openBraces - closeBraces);
+    }
+
+    private boolean matchBracesCurrentPosition(int indent) {
         if (indent < 1) {
-            return;
+            return false;
         }
-        String currentLine = this.getText(this.getCurrentParagraph());
-        if (!currentLine.endsWith("{")) {
-            return;
-        }
-        Pattern pattern = Pattern.compile("[\\{]+");
-        Matcher matcher = pattern.matcher(currentLine);
-        String trailingBraces = "";
-        // find last occurrence
-        while (matcher.find()) {
-            trailingBraces = matcher.group();
-        }
-        int bracesOpenedL = 0;
-
-        if (trailingBraces.length() > 0) {
-            bracesOpenedL = trailingBraces.length();
-        } else {
-            return;
-        }
-
-        int toIndent = indent - bracesOpenedL;
-
         String follow = this.getText(this.getCaretPosition(), this.getText().length());
 
-        String closingBraces = " ".repeat(toIndent * tabWidth) + "}";
-        int idxClose = follow.indexOf(closingBraces);
+        int braceBalanceFollow = braceBalance(follow);
 
-        if (idxClose != -1) {
-            follow = follow.substring(0, idxClose);
-        }
+        int braceOpenSurplus = indent + braceBalanceFollow;
 
-        long openBraces = follow.chars().filter(ch -> ch == '{').count();
-        long closeBraces = follow.chars().filter(ch -> ch == '}').count();
-
-        if (openBraces != closeBraces) {
+        if (braceOpenSurplus > 0) {
             int pos = this.getCaretPosition();
             this.insertText(this.getCaretPosition(), "\n" +
-                    " ".repeat(tabWidth * (toIndent)));
-            this.insertText(this.getCaretPosition(), "}".repeat(bracesOpenedL));
+                    " ".repeat(tabWidth * (indent - 1)));
+            this.insertText(this.getCaretPosition(), "}".repeat(braceOpenSurplus));
             this.moveTo(pos);
+            return true;
         }
+
+        return false;
     }
 
     private void updateFontSize(int font_size_editor) {
