@@ -30,14 +30,14 @@ public class HeapSelectionPrinterExtension implements PrettyPrintExtension {
 
     @Override
     public int getLeftPrecedence(ApplTerm application) {
-        // return a very large number (higher than any in/pre-fix operator)
-        return 1000;
+        // this is more than the arithmetic operations, but less than plain suffix operations
+        return 70;
     }
 
     @Override
     public int getRightPrecedence(ApplTerm application) {
-        // return a very large number (higher than any in/pre-fix operator)
-        return 1000;
+        // this is more than the arithmetic operations, but less than plain suffix operations
+        return 70;
     }
 
     @Override
