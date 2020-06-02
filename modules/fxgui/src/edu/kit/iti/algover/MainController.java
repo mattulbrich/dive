@@ -552,8 +552,11 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     /**
      * Refresh all GUI contents including the tabs in the DafnyCode Tab Pane
      */
-    public void reloadWholeGUIcontents(){
-        editorController.refreshTabView(manager.getProject().getDafnyFiles());
+    public void reloadWholeGUIcontents() {
+        //editorController.refreshTabView(manager.getProject().getDafnyFiles()); will open another editor
+        // tab with same file
+        // use instead
+        editorController.reloadAllOpenFiles();
         refreshHelper();
     }
 
