@@ -100,6 +100,10 @@ public class Main {
                 try {
                     printVersion();
 
+                    if(!Boolean.getBoolean("dive.swingmetal")) {
+                        com.formdev.flatlaf.FlatLightLaf.install();
+                    }
+
                     CommandLine commandLine = makeCommandLine();
                     commandLine.parse(args);
 

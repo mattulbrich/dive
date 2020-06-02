@@ -16,6 +16,7 @@ dependencies {
     compile project(":cli")
     runtime project(":dafny")
     compile 'com.fifesoft:rsyntaxtextarea:3.0.3'
+    compile 'com.formdev:flatlaf:0.35'
     testCompile project(':core').sourceSets.test.output
 }
 
