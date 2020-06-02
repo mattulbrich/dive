@@ -45,6 +45,10 @@ runShadow {
     environment 'PATH', "${environment.PATH}"
 }
 
+task fx {
+    dependsOn('run')
+}
+
 application {
     applicationDefaultJvmArgs =  [ "--add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base",
                                    "--add-exports=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED",

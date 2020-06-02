@@ -28,6 +28,11 @@ run {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+task swing {
+    dependsOn('run')
+}
+
+
 license {
     header file("COMBINED_HEADER")
     ext.year = Calendar.getInstance().get(Calendar.YEAR)

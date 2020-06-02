@@ -13,6 +13,6 @@ project(":dafny").projectDir=file("modules/dafny")
 include 'fxgui'
 project(":fxgui").projectDir=file("modules/fxgui")
 
-include 'gui'
-project(":gui").projectDir=file("modules/gui")
+include 'swing'
+project(":swing").projectDir=file("modules/swing")
 
