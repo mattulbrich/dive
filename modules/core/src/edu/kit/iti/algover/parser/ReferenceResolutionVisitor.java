@@ -464,12 +464,14 @@ public class ReferenceResolutionVisitor
             }
             if (lhs.getType() == DafnyParser.ARRAY_ACCESS) {
                 DafnyTree ref = lhs.getChild(0).getDeclarationReference();
-                Tree refParent = ref.getParent();
-                if (refParent.getType() == DafnyParser.ARGS) {
-                    if(ref.getFirstChildWithType(DafnyParser.TYPE).getChild(0).getType() == DafnyParser.SEQ) {
-                        exceptions.add(new DafnyException("Assignment to method parameter " +
-                                ref.getChild(0)
-                                + " not allowed", t));
+                if(ref != null) {
+                    Tree refParent = ref.getParent();
+                    if (refParent.getType() == DafnyParser.ARGS) {
+                        if (ref.getFirstChildWithType(DafnyParser.TYPE).getChild(0).getType() == DafnyParser.SEQ) {
+                            exceptions.add(new DafnyException("Assignment to method parameter " +
+                                    ref.getChild(0)
+                                    + " not allowed", t));
+                        }
                     }
                 }
             }
