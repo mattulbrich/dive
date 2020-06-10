@@ -124,6 +124,10 @@ public class ParserErrorTest {
                 "method m(p: int) { var q:int; q, p := f(); }");
     }
 
+    @Test @Ignore
+    public void recursiveVariableDeclaration() throws Exception {
+        parse("method m() { var y:=y; }");
+    }
 
 
     // After grammar change
