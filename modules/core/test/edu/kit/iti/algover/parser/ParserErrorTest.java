@@ -100,9 +100,8 @@ public class ParserErrorTest {
                 "method test() { m(1,2); }");
     }
 
-
     // correctness feature request.
-    @Test @Ignore
+    @Test
     public void parametersMustNotBeModified() throws Exception {
         thrown.expect(DafnyException.class);
         thrown.expectMessage("");
@@ -110,12 +109,22 @@ public class ParserErrorTest {
     }
 
     // correctness feature request.
-    @Test @Ignore
+    @Test
     public void parametersMustNotBeModified2() throws Exception {
         thrown.expect(DafnyException.class);
-        thrown.expectMessage("");
-        parse("method m(a:seq<int>) { a[0] := 0; }");
+        thrown.expectMessage("Assignment to method parameter s not allowed");
+        parse("method m(a:array<int>, s:seq<int>) { a[0] := 0; s[0] := 0;}");
     }
+
+    @Test
+    public void parametersMustNotBeModifiedMulti() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Assignment to method parameter p not allowed");
+        parse("method f() returns (a:int, b:int) { } " +
+                "method m(p: int) { var q:int; q, p := f(); }");
+    }
+
+
 
     // After grammar change
     @Test
