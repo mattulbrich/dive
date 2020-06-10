@@ -7,52 +7,47 @@
   (requires
    (&& (&& (&& (<= 0 N) (== N (Length A))) (== N (Length B))) (!= A B))) 
   (requires 
-   (forall k (==> (< (<= 0 k) N) (< (<= 0 (ARRAY_ACCESS A k)) N)))) 
+   (forall k (==> (<= 0 k < N) (<= 0 (ARRAY_ACCESS A k) < N))))
   (requires 
    (forall j k 
-    (==> (< (< (<= 0 j) k) N)
-         (!= (ARRAY_ACCESS A j) (ARRAY_ACCESS A k))))) 
+           (==> (<= 0 j < k < N)
+                (!= (ARRAY_ACCESS A j) (ARRAY_ACCESS A k))))) 
   (requires 
    (forall m 
     (==> 
-     (&& (< (<= 0 m) N) (CALL inImage (ARGS m))) 
+     (&& (<= 0 m < N) (CALL inImage (ARGS m)))
      (exists k (&& (&& (<= 0 k) (< k N)) (== (ARRAY_ACCESS A k) m)))))) 
   (ensures 
-   (forall k (==> (< (<= 0 k) N) (< (<= 0 (ARRAY_ACCESS B k)) N)))) 
+   (forall k (==> (<= 0 k < N) (<= 0 (ARRAY_ACCESS B k) < N))))
   (ensures 
-   (forall k 
-    (==> (< (<= 0 k) N) 
-     (== 
-      (== (ARRAY_ACCESS B (ARRAY_ACCESS A k)) k) 
-      (ARRAY_ACCESS A (ARRAY_ACCESS B k)))))) 
+   (forall k (==> (<= 0 k < N)
+                  (== (ARRAY_ACCESS B (ARRAY_ACCESS A k)) k
+                      == (ARRAY_ACCESS A (ARRAY_ACCESS B k))))))
   (ensures 
-   (forall j k 
-    (==> 
-     (< (< (<= 0 j) k) N) 
-     (!= (ARRAY_ACCESS B j) (ARRAY_ACCESS B k))))) 
+   (forall j k (==> (<= 0 j < k < N) (!= (ARRAY_ACCESS B j) (ARRAY_ACCESS B k)))))
   (modifies ({ B)) 
   (BLOCK 
    (var n 0) 
    (while (< n N) 
     (invariant (<= n N)) 
     (invariant 
-     (forall k (==> (< (<= 0 k) n) (== (ARRAY_ACCESS B (ARRAY_ACCESS A k)) k)))) 
+     (forall k (==> (<= 0 k < n) (== (ARRAY_ACCESS B (ARRAY_ACCESS A k)) k)))) 
     (BLOCK 
      (:= (ARRAY_ACCESS B (ARRAY_ACCESS A n)) n) 
      (:= n (+ n 1)))) 
    (assert 
     (forall i 
-     (==> (< (<= 0 i) N) 
+     (==> (<= 0 i < N) 
       (== (ARRAY_ACCESS A i) (old (ARRAY_ACCESS A i)))))) 
    (assert 
     (forall j 
      (==> 
-      (&& (< (<= 0 j) N) (CALL inImage (ARGS j))) 
-      (&& (< (<= 0 (ARRAY_ACCESS B j)) N)
+      (&& (<= 0 j < N) (CALL inImage (ARGS j))) 
+      (&& (<= 0 (ARRAY_ACCESS B j) < N)
        (== (ARRAY_ACCESS A (ARRAY_ACCESS B j)) j))))) 
    (assert 
     (forall j k 
-     (==> (< (< (<= 0 j) k) N) 
+     (==> (<= 0 j < k < N)
       (!= (ARRAY_ACCESS B j) (ARRAY_ACCESS B k)))))))
       
  (method Main ARGS 

@@ -76,6 +76,7 @@ public class ParserTest {
                 { "schwarz1.dfy" },
                 { "dotdot.dfy" },
                 { "functionWithReads.dfy" },
+                { "chainedRelations.dfy" },
                 });
     }
 
