@@ -787,13 +787,13 @@ public class SymbexTest {
             assertFalse(Util.map(path.getDeclaredLocalVars(), x -> x.getName()).contains("$decr_3"));
 
             List<String> assignments = Util.map(path.getAssignmentHistory(), x -> x.toStringTree());
-            assertTrue(assignments.contains("(ASSIGN $decr_1 b)"));
-            assertTrue(assignments.contains("(ASSIGN $decr_2 a)"));
+            assertTrue(assignments.contains("(ASSIGN $decr_1 y)"));
+            assertTrue(assignments.contains("(ASSIGN $decr_2 x)"));
 
             assertEquals(1, path.getProofObligations().size());
             AssertionElement proofObl = path.getProofObligations().getHead();
             assertEquals(AssertionType.VARIANT_DECREASED, proofObl.getType());
-            assertEquals("(NOETHER_LESS (LISTEX b a) (LISTEX $decr_1 $decr_2))",
+            assertEquals("(NOETHER_LESS (LISTEX y x) (LISTEX $decr_1 $decr_2))",
                     proofObl.getExpression().toStringTree());
         }
     }
