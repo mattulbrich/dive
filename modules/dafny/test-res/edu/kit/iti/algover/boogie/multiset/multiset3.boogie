@@ -1,0 +1,23 @@
+### decls:
+
+s: multiset<int>
+
+### sequent:
+
+5 !in s |- s - multiset{5} == s
+
+### result:
+prove
+
+### translation:
+
+const _s : MultiSet (int);
+
+axiom $Is(_s, TMultiSet(TInt));
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((_s[5] > 0));
+  assume !(MultiSet#Equal(MultiSet#Difference(_s, MultiSet#UnionOne(MultiSet#Empty(), 5)), _s));
+}

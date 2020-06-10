@@ -33,6 +33,7 @@ import java.util.TreeSet;
 import java.util.function.Function;
 
 import static edu.kit.iti.algover.data.BuiltinSymbols.*;
+import static edu.kit.iti.algover.data.BuiltinSymbols.MULTI_SET_IN;
 
 /**
  * This visitor is used to translate AlgoVer {@link Term} objects into Strings
@@ -101,6 +102,17 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(SET_ADD.getBaseName(), function("Set#UnionOne", true));
         result.put(SET_IN.getBaseName(), setIn());
         result.put(EMPTY_SET.getName(), function("Set#Empty"));
+        result.put(CARD.getBaseName(), function("Set#Card"));
+        // --- Multisets
+        result.put(MULTI_SUBSET.getBaseName(), function("MultiSet#Subset"));
+        result.put(MULTI_UNION.getBaseName(), function("MultiSet#Union"));
+        result.put(MULTI_INTERSECT.getBaseName(), function("MultiSet#Intersection"));
+        result.put(MULTI_SET_MINUS.getBaseName(), function("MultiSet#Difference"));
+        result.put(MULTI_UNION.getBaseName(), function("MultiSet#Union"));
+        result.put(MULTI_SET_ADD.getBaseName(), function("MultiSet#UnionOne", true));
+        result.put(MULTI_SET_IN.getBaseName(), multisetIn());
+        result.put(EMPTY_MULTI_SET.getName(), function("MultiSet#Empty"));
+        result.put(MULTI_CARD.getBaseName(), function("MultiSet#Card"));
         // --- Sequents
         result.put(SEQ_LEN.getBaseName(), function("Seq#Length"));
         result.put(SEQ_GET.getBaseName(), function("Seq#Index"));
@@ -209,7 +221,8 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
     /*
      * Equal is special. x==y becomes:
      *    Set#Equal(v(x), v(y)) for sets
-     *    Set#Equal(v(x), v(y)) for sequenes
+     *    MultiSet#Equal(v(x), v(y)) for multisets
+     *    Seq#Equal(v(x), v(y)) for sequences
      *    (v(x)==v(y))  otherwise
      */
     private static final Boogiefier equal() {
@@ -218,6 +231,9 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
             switch (t.getTerm(0).getSort().getName()) {
             case "set":
                 f = function("Set#Equal");
+                break;
+            case "multiset":
+                f = function("MultiSet#Equal");
                 break;
             case "seq":
                 f = function("Seq#Equal");
@@ -239,6 +255,18 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
             String set = t.getTerm(1).accept(v, null);
             String elem = t.getTerm(0).accept(v, null);
             return "(" + set + "[" + elem + "])";
+        };
+    }
+
+    /*
+     * For multiset membership, Boogie uses map syntax:
+     *    multi_set_in(e, s)    becomes    ( v(s) [ v(e) ] > 0)
+     */
+    private static Boogiefier multisetIn() {
+        return (t,v) -> {
+            String set = t.getTerm(1).accept(v, null);
+            String elem = t.getTerm(0).accept(v, null);
+            return "(" + set + "[" + elem + "] > 0)";
         };
     }
 
@@ -419,6 +447,8 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
             return "Seq (" + visitSort(sort.getArgument(0)) + ")";
         case "set" :
             return "Set (" + visitSort(sort.getArgument(0)) + ")";
+        case "multiset" :
+            return "MultiSet (" + visitSort(sort.getArgument(0)) + ")";
         case "bool":
         case "int":
             return sort.getName();
@@ -432,10 +462,12 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
     }
     private static String typeConstant(Sort sort) {
         switch(sort.getName()) {
-           case "seq" :
+        case "seq" :
             return "TSeq(" + typeConstant(sort.getArgument(0)) + ")";
         case "set" :
             return "TSet(" + typeConstant(sort.getArgument(0)) + ")";
+        case "multiset" :
+            return "TMultiSet(" + typeConstant(sort.getArgument(0)) + ")";
         case "bool":
             return "TBool";
         case "int":

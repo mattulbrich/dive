@@ -1,0 +1,15 @@
+### decls:
+
+### sequent:
+
+|- {1,2,3} == {3,2,1}
+
+### result:
+prove
+
+### translation:
+procedure Sequent()
+  ensures false;
+{
+  assume !(Set#Equal(Set#UnionOne(Set#UnionOne(Set#UnionOne(Set#Empty(), 1), 2), 3), Set#UnionOne(Set#UnionOne(Set#UnionOne(Set#Empty(), 3), 2), 1)));
+}
