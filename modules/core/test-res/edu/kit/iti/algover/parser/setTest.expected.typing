@@ -6,6 +6,10 @@
                     ({ 1[int] 2[int] 3[int])[set<int>])
                (var s3 (TYPE (set int))
                     (+ ({ 1[int])[set<int>] ({ 2[int])[set<int>])[set<int>])
+               (:= s3[set<int>]
+                    (* ({ 1[int])[set<int>] ({ 2[int])[set<int>])[set<int>])
+               (:= s3[set<int>]
+                    (- ({ 1[int])[set<int>] ({ 2[int])[set<int>])[set<int>])
                (var s4 (TYPE bool)
                     (in 1[int] {[set<$nothing>])[bool])
                (var s5 (TYPE bool)

@@ -26,6 +26,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     private static final DafnyTree BOOL_TYPE = new DafnyTree(DafnyParser.BOOL, "bool");
     private static final DafnyTree OBJECT_TYPE = new DafnyTree(DafnyParser.ID, "object");;
     private static final Set<String> INT_SET_SEQ = Util.asSet("int", "seq", "set");
+    private static final Set<String> INT_MULTI_SET_SEQ = Util.asSet("int", "seq", "set", "multiset");
     private static final Set<String> INT_SET = Util.asSet("int", "set");
     // private static final Set<String> INT_SET_SEQ = Util.asSet("int", "seq", "set");
 
@@ -199,12 +200,12 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitPLUS(DafnyTree t, Void a) {
-        return operationOverloaded(t, INT_SET_SEQ);
+        return operationOverloaded(t, INT_MULTI_SET_SEQ);
     }
 
     @Override
     public DafnyTree visitTIMES(DafnyTree t, Void a) {
-        return operationOverloaded(t, INT_SET);
+        return operationOverloaded(t, INT_MULTI_SET_SEQ);
     }
 
     @Override
@@ -223,7 +224,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
            // unary
            return operation(t, INT_TYPE, "int");
         } else {
-            return operationOverloaded(t, INT_SET);
+            return operationOverloaded(t, INT_MULTI_SET_SEQ);
         }
     }
 
@@ -305,14 +306,22 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         Sort sort1 = ASTUtil.toSort(type1);
         Sort sort2 = ASTUtil.toSort(type2);
 
-        try {
-            Sort.supremum(Sort.get("set", sort1), sort2);
-        } catch (TermBuildException e) {
-            exceptions.add(new DafnyException("The in predicate needs a value and a compatible set", tree, e));
+        if(!haveCommonSupertype(Sort.get("set", sort1), sort2)
+            && !haveCommonSupertype(Sort.get("multiset", sort1), sort2)) {
+              exceptions.add(new DafnyException("The in predicate needs a value and a compatible (multi)set", tree));
         }
 
         tree.setExpressionType(BOOL_TYPE);
         return BOOL_TYPE;
+    }
+
+    private boolean haveCommonSupertype(Sort s1, Sort s2) {
+        try {
+            Sort.supremum(s1, s2);
+            return true;
+        } catch (TermBuildException e) {
+            return false;
+        }
     }
 
     @Override
@@ -672,6 +681,11 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         return visitExtension(t, DafnyParser.SET);
     }
 
+    @Override
+    public DafnyTree visitMULTISETEX(DafnyTree t, Void aVoid) {
+        return visitExtension(t, DafnyParser.MULTISET);
+    }
+
     private DafnyTree visitExtension(DafnyTree t, int kind) {
 
         // It stores "SET" and "SEQ" rather than "set" and "seq"
@@ -704,6 +718,17 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         result = ASTUtil.fromSort(sort);
         result = ASTUtil.create(kind, kindString, result);
 
+        t.setExpressionType(result);
+        return result;
+    }
+
+    @Override
+    public DafnyTree visitMULTISET(DafnyTree t, Void a) {
+        DafnyTree argType = t.accept(this, a);
+        if(!Util.asSet("seq", "set").contains(argType.token.getText())) {
+            exceptions.add(new DafnyException("multiset can only be applied to sets and seqs.", t));
+        }
+        DafnyTree result = ASTUtil.create(DafnyParser.MULTISET, argType.getChild(0));
         t.setExpressionType(result);
         return result;
     }

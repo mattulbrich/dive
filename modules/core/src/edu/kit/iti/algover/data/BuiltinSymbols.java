@@ -210,6 +210,46 @@ public class BuiltinSymbols extends MapSymbolTable {
                     new FunctionSymbol("$subset", Sort.BOOL, SET1, SET1), 1);
 
 
+    private static final Sort MSET1 = Sort.get("multiset", FunctionSymbolFamily.VAR1);
+
+    public static final FunctionSymbolFamily MULTI_UNION =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$multi_union", MSET1, MSET1, MSET1), 1);
+
+    public static final FunctionSymbolFamily MULTI_INTERSECT =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$multi_intersect", MSET1, MSET1, MSET1), 1);
+
+    public static final FunctionSymbolFamily MULTI_SET_MINUS =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$multi_set_minus", MSET1, MSET1, MSET1), 1);
+
+    public static final FunctionSymbol EMPTY_MULTI_SET =
+            new FunctionSymbol("$multi_empty", Sort.get("multiset", Sort.BOTTOM));
+
+    public static final FunctionSymbolFamily MULTI_CARD =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$multi_set_card", Sort.INT, MSET1), 1);
+
+    public static final FunctionSymbolFamily MULTI_SET_ADD =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$multi_set_add", MSET1, FunctionSymbolFamily.VAR1, MSET1), 1);
+
+    public static final FunctionSymbolFamily MULTI_SET_IN =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$multi_set_in", Sort.BOOL, FunctionSymbolFamily.VAR1, MSET1), 1);
+
+    public static final FunctionSymbolFamily MULTI_SUBSET =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("$multi_subset", Sort.BOOL, MSET1, MSET1), 1);
+
+    public static final FunctionSymbolFamily SET_TO_MULTI_SET =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("multiset", MSET1, SET1), 1);
+
+
+
+
     private static final Sort SEQ1 = Sort.get("seq", FunctionSymbolFamily.VAR1);
 
     public static final FunctionSymbolFamily SEQ_LEN =
@@ -244,6 +284,11 @@ public class BuiltinSymbols extends MapSymbolTable {
     public static final FunctionSymbolFamily ARRAY_TO_SEQ =
             new FunctionSymbolFamily(
                     new FunctionSymbol("$array2seq", SEQ1, Sort.HEAP, ARRAY1),1);
+
+    public static final FunctionSymbolFamily SEQ_TO_MULTI_SET =
+            new FunctionSymbolFamily(
+                    new FunctionSymbol("multiset", MSET1, SEQ1), 1);
+
 
     private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);
 

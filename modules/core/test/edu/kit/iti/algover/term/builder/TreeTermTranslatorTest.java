@@ -185,6 +185,7 @@ public class TreeTermTranslatorTest {
             { "iseq + iseq", "$seq_concat<int>(iseq, iseq)" },
             { "mod * mod", "$intersect<object>(mod, mod)" },
             { "mod + mod", "$union<object>(mod, mod)" },
+            { "mod - mod", "$set_minus<object>(mod, mod)" },
             { "cseq + dseq", "$seq_concat<object>(cseq, dseq)" },
             { "{}", "$empty" },
             { "{} == {1}", "$eq<set<int>>($empty, $set_add<int>(1, $empty))" },
@@ -196,6 +197,17 @@ public class TreeTermTranslatorTest {
             { "iseq[0..2]", "$seq_sub<int>(iseq, 0, 2)" },
             { "iseq[..2]", "$seq_sub<int>(iseq, 0, 2)" },
             { "iseq[1..]", "$seq_sub<int>(iseq, 1, $seq_len<int>(iseq))" },
+
+            // Multisets
+            { "|mset|", "$multi_set_card<int>(mset)" },
+            { "multiset{1,2,3}", "$multi_set_add<int>(3, $multi_set_add<int>(2, $multi_set_add<int>(1, $multi_empty)))" },
+            { "mset + mset", "$multi_union<int>(mset, mset)" },
+            { "mset * mset", "$multi_intersect<int>(mset, mset)" },
+            { "mset - mset", "$multi_set_minus<int>(mset, mset)" },
+            { "multiset{}", "$multi_empty" },
+            { "multiset{} == multiset{1}", "$eq<multiset<int>>($multi_empty, $multi_set_add<int>(1, $multi_empty))" },
+            { "0 in mset", "$multi_set_in<int>(0, mset)" },
+            { "multiset(iseq)", "multiset<int>(iseq)" },
         };
     }
 
@@ -277,6 +289,7 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("loopHeap", Sort.HEAP));
         map.add(new FunctionSymbol("mod", Sort.get("set", Sort.OBJECT)));
         map.add(new FunctionSymbol("iseq", Sort.get("seq", Sort.INT)));
+        map.add(new FunctionSymbol("mset", Sort.get("multiset", Sort.INT)));
         map.add(new FunctionSymbol("cseq", Sort.get("seq", Sort.getClassSort("C"))));
         map.add(new FunctionSymbol("dseq", Sort.get("seq", Sort.getClassSort("D"))));
         Project p = TestUtil.mockProject("class C { var f: int; function fct(i:int): int {0} }");
