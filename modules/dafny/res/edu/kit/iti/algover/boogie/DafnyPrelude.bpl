@@ -1114,6 +1114,37 @@ axiom (forall<T> s, t: Seq T, n: int ::
 //D   { Seq#FromArray(update(h, a, IndexField(i), v), a) }
 //D     0 <= i && i < _System.array.Length(a) ==> Seq#FromArray(update(h, a, IndexField(i), v), a) == Seq#Update(Seq#FromArray(h, a), i, v) );
 
+function Seq#FromArray<T>(h: Heap, a: ref): Seq T;
+
+axiom (forall<T> h: Heap, a: ref ::
+  { Seq#Length(Seq#FromArray(h,a): Seq T) }
+  Seq#Length(Seq#FromArray(h, a): Seq T) == _System.array.Length(a));
+  
+axiom (forall<T> h: Heap, a: ref ::
+  { Seq#FromArray(h, a): Seq T }
+  (forall i: int ::
+    // it's important to include both triggers, so that assertions about the
+    // the relation between the array and the sequence can be proved in either
+    // direction
+    { read(h, a, IndexField(i)): T }
+    { Seq#Index(Seq#FromArray(h, a): Seq T, i) }
+    0 <= i &&
+    i < Seq#Length(Seq#FromArray(h, a): Seq T)  // this will trigger the previous axiom to get a connection with _System.array.Length(a)
+    ==>
+    Seq#Index(Seq#FromArray(h, a): Seq T, i) == read(h, a, IndexField(i))));
+
+// axiom (forall h0, h1: Heap, a: ref ::
+//   { Seq#FromArray(h1, a), $HeapSucc(h0, h1) }
+//   $IsGoodHeap(h0) && $IsGoodHeap(h1) && $HeapSucc(h0, h1) &&
+//   (forall i: int ::
+//     0 <= i && i < _System.array.Length(a) ==> read(h0, a, IndexField(i)) == read(h1, a, IndexField(i)))
+//   ==>
+//   Seq#FromArray(h0, a) == Seq#FromArray(h1, a));
+// axiom (forall h: Heap, i: int, v: Box, a: ref ::
+//   { Seq#FromArray(update(h, a, IndexField(i), v), a) }
+//    0 <= i && i < _System.array.Length(a) ==> Seq#FromArray(update(h, a, IndexField(i), v), a) == Seq#Update(Seq#FromArray(h, a), i, v) );
+
+
 // Commutability of Take and Drop with Update.
 axiom (forall<T> s: Seq T, i: int, v: T, n: int ::
         { Seq#Take(Seq#Update(s, i, v), n) }

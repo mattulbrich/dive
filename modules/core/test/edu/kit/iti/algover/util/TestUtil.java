@@ -61,7 +61,7 @@ public class TestUtil {
      */
     @TestInfrastructure
     public static final boolean VERBOSE =
-            Boolean.getBoolean("algover.verbose");
+            Boolean.getBoolean("dive.verbose");
 
     public static String beautify(DafnyTree tree) {
         return beautify(tree, DafnyTree::toString);

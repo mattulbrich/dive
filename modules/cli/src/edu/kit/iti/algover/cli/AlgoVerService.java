@@ -92,6 +92,7 @@ public class AlgoVerService {
     public @NonNull List<Proof> runVerification()
             throws DafnyParserException, IOException, DafnyException, FormatException {
         ProjectManager pm = getProjectManager();
+        pm.reload();
         List<PVC> allPVCs = pm.getAllPVCs().getContents();
         List<Proof> allProofs = new ArrayList<>();
         for (PVC pvc : allPVCs) {

@@ -119,6 +119,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(NULL.getName(), constant("null"));
         result.put(IS_CREATED.getName(), function("$IsCreated"));
         result.put(FRESH_OBJECTS.getName(), function("$FreshObjects"));
+        result.put(ARRAY_TO_SEQ.getBaseName(), array2seq());
         return result;
     }
 
@@ -163,6 +164,15 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         };
     }
 
+    private static Boogiefier array2seq() {
+        return (t,v) -> {
+            String heap = t.getTerm(0).accept(v, null);
+            Term array = t.getTerm(1);
+            String arg = array.accept(v, null);
+            return "(Seq#FromArray(" + heap + ", " + arg +
+                    "): Seq " + visitSort(array.getSort().getArgument(0)) + ")";
+        };
+    }
 
 
     /*
@@ -172,14 +182,14 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
      *    fctName(v(x), ..., v(y)
      * where v(...) is the applcation of the provided visitor.
      */
-    private static final Boogiefier function(String fctName) {
+    private static Boogiefier function(String fctName) {
         return function(fctName, false);
     }
 
     /*
      * Returns a constant string regardless of the parameter
      */
-    private static final Boogiefier constant(String string) {
+    private static Boogiefier constant(String string) {
         return (t,v) -> string;
     }
 
