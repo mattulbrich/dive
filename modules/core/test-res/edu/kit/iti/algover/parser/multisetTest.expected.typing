@@ -5,4 +5,6 @@
     (:= s2[multiset<int>] (* s2[multiset<int>] s2[multiset<int>])[multiset<int>])
     (:= s2[multiset<int>] (- s2[multiset<int>] s2[multiset<int>])[multiset<int>])
     (var b1 (TYPE bool) (in 42[int] s2[multiset<int>])[bool])
-    (var b2 (TYPE bool) (!in 2[int] s2[multiset<int>])[bool])))[scc_27]
+    (var b2 (TYPE bool) (!in 2[int] s2[multiset<int>])[bool])
+    (:= s2[multiset<int>] (multiset ({ 1[int] 2[int])[set<int>])[multiset<int>])
+    (:= s2[multiset<int>] (multiset ([ 1[int] 2[int])[seq<int>])[multiset<int>])))[scc_27]

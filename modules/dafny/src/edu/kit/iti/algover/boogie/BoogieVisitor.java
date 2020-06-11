@@ -113,6 +113,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(MULTI_SET_IN.getBaseName(), multisetIn());
         result.put(EMPTY_MULTI_SET.getName(), function("MultiSet#Empty"));
         result.put(MULTI_CARD.getBaseName(), function("MultiSet#Card"));
+        result.put("multiset", toMultiset());
         // --- Sequents
         result.put(SEQ_LEN.getBaseName(), function("Seq#Length"));
         result.put(SEQ_GET.getBaseName(), function("Seq#Index"));
@@ -175,6 +176,17 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         };
     }
 
+    private static Boogiefier toMultiset() {
+        return (t,v) -> {
+            Term arg = t.getTerm(0);
+            String argTrans = arg.accept(v, null);
+            switch(arg.getSort().getName()) {
+            case "set": return "MultiSet#FromSet(" + argTrans + ")";
+            case "seq": return "MultiSet#FromSeq(" + argTrans + ")";
+            default: throw new Error("not covered by the implementation: " + t.getSort());
+            }
+        };
+    }
 
 
     /*
@@ -199,11 +211,11 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
      * Returns a Boogiefier that translates
      *    f(x, ..., y)
      * into
-     *    fctName(v(x), ..., v(y)
+     *    fctName(v(x), ..., v(y))
      * if reverse == false and
-     *    fctName(v(y), ..., v(y)
+     *    fctName(v(y), ..., v(x))
      * otherwie
-     * where v(...) is the applcation of the provided visitor.
+     * where v(...) is the application of the provided visitor.
      */
     private static Boogiefier function(String fctName, boolean reverse) {
 
@@ -318,8 +330,9 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
             return handler.translate(term, this);
         }
 
-        assert !(fs instanceof InstantiatedFunctionSymbol) :
-                "This should have been in the table: " + name;
+        if (fs instanceof InstantiatedFunctionSymbol) {
+            throw new RuntimeException("This should have been in the table: " + name);
+        }
 
         String fctName = addDeclarations(fs);
 

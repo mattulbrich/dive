@@ -335,6 +335,9 @@ class C
      s2 := s2 - s2;
      var b1 := 42 in s2;
      var b2 := 2 !in s2;
+
+     s2 := multiset({1,2});
+     s2 := multiset([1,2]);
    }
 
 

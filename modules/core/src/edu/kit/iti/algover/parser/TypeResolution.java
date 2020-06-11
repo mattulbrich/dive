@@ -724,11 +724,11 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
     @Override
     public DafnyTree visitMULTISET(DafnyTree t, Void a) {
-        DafnyTree argType = t.accept(this, a);
+        DafnyTree argType = t.getChild(0).accept(this, a);
         if(!Util.asSet("seq", "set").contains(argType.token.getText())) {
             exceptions.add(new DafnyException("multiset can only be applied to sets and seqs.", t));
         }
-        DafnyTree result = ASTUtil.create(DafnyParser.MULTISET, argType.getChild(0));
+        DafnyTree result = ASTUtil.create(DafnyParser.MULTISET, "multiset", argType.getChild(0));
         t.setExpressionType(result);
         return result;
     }
