@@ -507,7 +507,8 @@ public class ReferenceResolutionVisitor
             }
         }
 
-        identifierMap.put(id, t);
+        // bugfix: This is too early and does not discover "var y:=y;"
+        // identifierMap.put(id, t);
         // bugfix #44
         DafnyTree ty = t.getFirstChildWithType(DafnyParser.TYPE);
         if(ty != null) {
@@ -516,6 +517,7 @@ public class ReferenceResolutionVisitor
         if (t.getLastChild().getType() != DafnyParser.TYPE) {
             t.getLastChild().accept(this, Mode.EXPR);
         }
+        identifierMap.put(id, t);
         return null;
     }
 

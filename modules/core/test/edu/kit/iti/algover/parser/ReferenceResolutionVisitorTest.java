@@ -50,6 +50,7 @@ public class ReferenceResolutionVisitorTest {
                 "(TYPE Unknown)",
                 "(FIELD_ACCESS a f)",
                 "(== local 0)",
+                "(var y y)",
         };
 
         List<DafnyException> exceptions = rrv.getExceptions();

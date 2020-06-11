@@ -25,6 +25,7 @@ import edu.kit.iti.algover.util.ProofMockUtil;
 import edu.kit.iti.algover.util.TestUtil;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -104,7 +105,7 @@ public class LetSubstitutionRuleTest {
     }
 
     @Test
-    @Category(KnownRegression.class)
+    @Ignore
     public void testNameClash() throws Exception {
         testSubstitution(
                 parse("let x := i :: forall i :: i == x"),
