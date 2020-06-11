@@ -10,6 +10,8 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.builder.AlphaNormalisation;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.match.Matching;
 import edu.kit.iti.algover.term.match.SequentMatcher;
 import edu.kit.iti.algover.util.ImmutableList;
@@ -71,3 +73,15 @@ public class LetSubstitutionRule extends FocusProofRule {
         return inner.accept(new SubstitutionVisitor(), substitutionMap);
     }
 }
+
+/*
+  towards bugfixing this:
+
+  try {
+            Term result = inner.accept(new SubstitutionVisitor(), substitutionMap);
+            result = AlphaNormalisation.normalise(result);
+            return result;
+        } catch (TermBuildException e) {
+            throw new RuleException(e);
+        }
+ */
