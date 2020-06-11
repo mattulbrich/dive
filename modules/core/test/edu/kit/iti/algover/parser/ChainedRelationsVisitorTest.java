@@ -91,7 +91,6 @@ public class ChainedRelationsVisitorTest {
     }
 
     @Test
-    @Category(KnownRegression.class)
     public void testNotTooEager() throws IOException, DafnyParserException, DafnyException {
         String s = "method m(x:int) ensures (x<5) == (x-5<0) {}";
         DafnyTree t = ParserTest.parseFile(new ByteArrayInputStream(s.getBytes()));
