@@ -49,7 +49,7 @@ dependencies {
 //buildVisitor.inputs.files=file("$projectDir/gen/Dafny.tokens")
 
 task runAntlr3(type:JavaExec) {
-    println "Building Dafny Parser"
+    doFirst { println "Building Dafny Parser" }
 
     inputs.files "antlr/edu/kit/iti/algover/parser/Dafny.g"
     classpath { configurations.antlr3.getAsPath()}
@@ -72,7 +72,7 @@ test {
 }
 
 task runAntlr4(type:JavaExec) {
-    println "Building Script Parser"
+    doFirst { println "Building Script Parser" }
 
     inputs.files configurations.antlr4
     inputs.file "src/edu/kit/iti/algover/script/ScriptLanguage.g4"
@@ -97,6 +97,33 @@ buildVisitor.shouldRunAfter runAntlr3
 compileJava.dependsOn runAntlr3
 compileJava.dependsOn buildVisitor
 compileJava.dependsOn runAntlr4
+
+
+
+task DiveDoclet(type: JavaCompile) {
+    source = ["$rootDir/tools"]
+    include "DiveDoclet.java"
+    println source
+    destinationDir = file("$buildDir/tools")
+    sourceCompatibility = "1.7"
+    targetCompatibility = "1.7"
+    options.compilerArgs = []
+    classpath = project.objects.fileCollection()
+}
+
+task referenceManual(type: Javadoc) {
+    dependsOn(DiveDoclet)
+
+    source sourceSets.main.java
+
+    classpath = sourceSets.main.runtimeClasspath
+    destinationDir = file("$buildDir/resources/main/edu/kit/iti/algover")
+
+    options.doclet "DiveDoclet"
+    options.docletpath file("$buildDir/tools")
+    options.windowTitle()
+    // options.showFromPrivate()
+}
 
 
 /*

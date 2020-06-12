@@ -42,11 +42,7 @@ subprojects {
             resources {
                 srcDirs = ['test-res']
             }
-
-
         }
-
-
     }
 
     dependencies {
@@ -66,6 +62,26 @@ subprojects {
         options.fork = true
         options.compilerArgs = ["-Werror", "-Xlint:unchecked", "-Xlint:rawtypes"]
         options.debug = true
+    }
+
+    /*
+     * Tests now exclude acknowledged issues.
+     */
+    test {
+        useJUnit {
+            excludeCategories 'edu.kit.iti.algover.KnownRegression'
+        }
+    }
+
+    /*
+     * Acknowledged issues can be tested separately.
+     * This task here records error but does not fail the build.
+     */
+    task testKnownRegressions(type: Test) {
+        useJUnit {
+            includeCategories 'edu.kit.iti.algover.KnownRegression'
+        }
+        ignoreFailures=true
     }
 
     tasks.withType(Checkstyle) {

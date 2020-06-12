@@ -91,7 +91,7 @@ class C {
    method conflictParamField(p_conflict: int)
    {
      // This is allowed!
-     p_conflict := 2;
+     var x := p_conflict + 2;
    }
 
 }

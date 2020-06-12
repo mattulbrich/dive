@@ -165,7 +165,7 @@ public final class XMLProjectManager extends AbstractProjectManager {
                 try {
                     script = loadScriptForPVC(pvc.getIdentifier());
                 } catch (FileNotFoundException ex) {
-                    script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
+                    script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT_PROP.key);
                 }
                 p.setScriptText(script);
 

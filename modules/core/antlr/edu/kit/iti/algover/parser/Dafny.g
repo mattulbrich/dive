@@ -19,7 +19,7 @@ tokens {
   ARRAY_ACCESS;
   NOETHER_LESS;
   WILDCARD;
-  HEAP_UPDATE;
+  UPDATE;
   TYPED_SCHEMA;
 }
 
@@ -60,6 +60,14 @@ tokens {
 
   private boolean schemaMode = false;
   public void setSchemaMode(boolean b) { this.schemaMode = b; }
+}
+
+
+@lexer::members {
+  @Override
+  public void reportError(RecognitionException e) {
+    throw new RuntimeException(e);
+  }
 }
 
 // exit upon first error
@@ -184,6 +192,10 @@ SINGLELINE_COMMENT: '//' ( ~('>'|'\r'|'\n') ~('\r' | '\n')* )?
                                          { $channel = HIDDEN; };
 MULTILINE_COMMENT: '/*' .* '*/'          { $channel = HIDDEN; };
 
+MULTILINE_COMMENT_BEGIN: '/*' ~('\n')* EOF { $channel = HIDDEN; };
+
+UNKNOWN_CHARACTER: .;
+
 label:
   'label'^ ID ':'!
   ;
@@ -267,7 +279,7 @@ type:
   | SET^ '<'! type '>'!
   | ARRAY^ '<'! type '>'!
   | SEQ^ '<'! type '>'!
-  | ID^ ( '<'! type ( ','! type )* '>'! )?
+  | ID^ ( '?'! )? ( '<'! type ( ','! type )* '>'! )?
   ;
 
 typeRef:
@@ -478,7 +490,7 @@ usual_or_logic_id_or_this:
 
 postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
-  ( '[' expression ( {logicMode}? ':=' expression ']'     -> ^( HEAP_UPDATE $postfix_expr expression expression )
+  ( '[' expression ( ':=' expression ']'     -> ^( UPDATE $postfix_expr expression expression )
                    | ( ',' expression )* ']' -> ^( ARRAY_ACCESS $postfix_expr expression+ )
                    | '..' expression? ']' -> ^( ARRAY_ACCESS $postfix_expr ^('..' expression+))
                    )

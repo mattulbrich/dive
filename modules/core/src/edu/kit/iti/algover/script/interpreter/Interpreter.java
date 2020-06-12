@@ -382,6 +382,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         //enter new variable scope
         VariableAssignment params = evaluateParameters(call.getParameters());
         ProofNode g = getSelectedNode();
+        g.setBeginPos(call.getStartPosition());
         g.enterScope();
         try {
             functionLookup.callCommand(this, call, params);
@@ -395,6 +396,9 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         }
         g.exitScope();
         exitScope(call);
+        if (g.getChildren().size() == 1) {
+            g.getChildren().get(0).setBeginPos(call.getEndPosition());
+        }
         return null;
     }
 
@@ -419,6 +423,7 @@ public class Interpreter<T> extends DefaultASTVisitor<Object>
         VariableAssignment va = evaluateMatchInGoal(matchExpression, selectedGoal);
         if (va != null) {
             enterScope(simpleCaseStatement);
+            selectedGoal.setBeginPos(simpleCaseStatement.getEndPosition());
             executeBody(simpleCaseStatement.getBody(), selectedGoal, va);
             //  executeCase(simpleCaseStatement.getBody(), )
             exitScope(simpleCaseStatement);

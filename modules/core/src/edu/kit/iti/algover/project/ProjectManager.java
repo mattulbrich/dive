@@ -16,6 +16,7 @@ import edu.kit.iti.algover.util.FormatException;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -150,4 +151,16 @@ public interface ProjectManager {
      * @throws IOException
      */
     void saveProjectConfiguration() throws IOException;
+
+    static ProjectManager fromFile(File projectFile) throws FormatException, IOException, DafnyParserException {
+        ProjectManager manager;
+        if (projectFile.getName().endsWith(".xml")) {
+            manager = new XMLProjectManager(projectFile.getParentFile(), projectFile.getName());
+        } else if (projectFile.getName().endsWith(".dfy")) {
+            manager = new DafnyProjectManager(projectFile);
+        } else {
+            throw new IllegalArgumentException("AlgoVer supports only .dfy and .xml files.");
+        }
+        return manager;
+    }
 }

@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.parser;
 
+import edu.kit.iti.algover.KnownRegression;
 import edu.kit.iti.algover.util.TestUtil;
 import org.antlr.runtime.MismatchedSetException;
 import org.hamcrest.BaseMatcher;
@@ -13,6 +14,7 @@ import org.hamcrest.Matcher;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 
 import java.io.ByteArrayInputStream;
@@ -100,9 +102,8 @@ public class ParserErrorTest {
                 "method test() { m(1,2); }");
     }
 
-
     // correctness feature request.
-    @Test @Ignore
+    @Test
     public void parametersMustNotBeModified() throws Exception {
         thrown.expect(DafnyException.class);
         thrown.expectMessage("");
@@ -110,12 +111,28 @@ public class ParserErrorTest {
     }
 
     // correctness feature request.
-    @Test @Ignore
+    @Test
     public void parametersMustNotBeModified2() throws Exception {
         thrown.expect(DafnyException.class);
-        thrown.expectMessage("");
-        parse("method m(a:seq<int>) { a[0] := 0; }");
+        thrown.expectMessage("Assignment to method parameter s not allowed");
+        parse("method m(a:array<int>, s:seq<int>) { a[0] := 0; s[0] := 0;}");
     }
+
+    @Test
+    public void parametersMustNotBeModifiedMulti() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Assignment to method parameter p not allowed");
+        parse("method f() returns (a:int, b:int) { } " +
+                "method m(p: int) { var q:int; q, p := f(); }");
+    }
+
+    @Test
+    public void recursiveVariableDeclaration() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Unknown identifier: y");
+        parse("method m() { var y:=y; }");
+    }
+
 
     // After grammar change
     @Test
@@ -125,7 +142,7 @@ public class ParserErrorTest {
         parse("method m() { var b : bool := 42; }");
     }
 
-    @Test @Ignore
+    @Test
     public void illegalReference() throws Exception {
         thrown.expect(DafnyException.class);
         thrown.expectMessage("Unknown identifier: m");

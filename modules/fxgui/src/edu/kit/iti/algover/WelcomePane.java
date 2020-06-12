@@ -91,7 +91,8 @@ public class WelcomePane {
         if(opendirectly != null && !opendirectly.isEmpty()){
             File absoluteFile = new File(opendirectly.get(0)).getAbsoluteFile();
             try {
-                createAndExecuteMainController(absoluteFile, createProjectManager(absoluteFile));
+                createAndExecuteMainController(absoluteFile,
+                        ProjectManager.fromFile(absoluteFile));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -190,7 +191,7 @@ public class WelcomePane {
             Tooltip.install(item.getContent(), new Tooltip(recentFile));
             item.setOnAction(ev -> {
                 try {
-                    ProjectManager pm = createProjectManager(file);
+                    ProjectManager pm = ProjectManager.fromFile(file);
                     createAndExecuteMainController(file, pm);
                 } catch (Exception e) {
                     // This will probably crash the app
@@ -225,7 +226,7 @@ public class WelcomePane {
         }
 
         try {
-            ProjectManager pm = createProjectManager(exampleFile);
+            ProjectManager pm = ProjectManager.fromFile(exampleFile);
             createAndExecuteMainController(exampleFile, pm);
         } catch (Exception e) {
             // This will probably crash the app
@@ -245,7 +246,7 @@ public class WelcomePane {
         try {
             projectFile = constructFileChooser();
             if(projectFile != null) {
-                manager = createProjectManager(projectFile);
+                manager = ProjectManager.fromFile(projectFile);
                 // TODO Maybe don't do this initially (might hurt UX, when there are a lot of proofs)
                 // manager.getAllProofs().values().forEach(proof -> proof.interpretScript());
 
@@ -443,19 +444,6 @@ public class WelcomePane {
         substage.setMinWidth(500);
         substage.setMinHeight(350);
         substage.show();
-    }
-
-    private ProjectManager createProjectManager(File projectFile) throws FormatException, IOException, DafnyParserException {
-        ProjectManager manager;
-        if (projectFile.getName().endsWith(".xml")) {
-            // Read all PVCs and update GUId
-            manager = new XMLProjectManager(projectFile.getParentFile(), projectFile.getName());
-        } else if (projectFile.getName().endsWith(".dfy")) {
-            manager = new DafnyProjectManager(projectFile);
-        } else {
-            throw new IllegalArgumentException("AlgoVer supports only .dfy and .xml files.");
-        }
-        return manager;
     }
 
 }

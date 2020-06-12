@@ -275,4 +275,8 @@ public class TermBuilder {
         FunctionSymbol f = symbolTable.getFunctionSymbol(BuiltinSymbols.ARRAY_TO_SEQ, inst);
         return new ApplTerm(f, heapTerm, arrayTerm);
     }
+
+    public Term anyTerm() {
+        return SchemaVarTerm.newUnnamedInstance();
+    }
 }

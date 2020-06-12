@@ -272,6 +272,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         if (!matrixTy.equals(BOOL_TYPE)) {
             exceptions.add(new DafnyException("Matrix of a quantifier must be Boolean", t));
         }
+        t.setExpressionType(BOOL_TYPE);
         return BOOL_TYPE;
     }
 
@@ -281,6 +282,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         if (!matrixTy.equals(BOOL_TYPE)) {
             exceptions.add(new DafnyException("Matrix of a quantifier must be Boolean", t));
         }
+        t.setExpressionType(BOOL_TYPE);
         return BOOL_TYPE;
     }
 
@@ -468,6 +470,32 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         DafnyTree ty = recvType.getChild(0);
         t.setExpressionType(ty);
         return ty;
+    }
+
+    @Override
+    public DafnyTree visitUPDATE(DafnyTree t, Void a) {
+        DafnyTree recType = t.getChild(0).accept(this, a);
+        Sort sort1 = ASTUtil.toSort(recType);
+        Sort sort2 = ASTUtil.toSort(t.getChild(1).accept(this, a));
+        Sort sort3 = ASTUtil.toSort(t.getChild(2).accept(this, a));
+
+        if (!sort1.getName().equals("seq")) {
+            exceptions.add(new DafnyException(
+                    "The update operator must only be applied to sequences in programs", t));
+        }
+
+        if (!sort3.isSubtypeOf(sort1.getArgument(0))) {
+            exceptions.add(new DafnyException(
+                    "Cannot update " + sort1 + " with a value of type " + sort3, t));
+        }
+
+        if (!sort2.equals(Sort.INT)) {
+            exceptions.add(new DafnyException(
+                    "Indices for sequence updates must be integers", t));
+        }
+
+        t.setExpressionType(recType);
+        return recType;
     }
 
     private DafnyTree visitARRAY_ACCESS_DOTDOT(DafnyTree t, DafnyTree receiver) {

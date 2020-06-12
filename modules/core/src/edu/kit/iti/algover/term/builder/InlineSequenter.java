@@ -17,6 +17,24 @@ import java.util.Map;
  * It removes the let-cascade by inlining the updates.
  *
  * @author Mattias Ulbrich
+ *
+ * @divedoc "VC generation/Inline"
+ *
+ * <h2>Sequent Generation with inlining all assignment</h2>
+ *
+ * <p><b>Name: <tt>inline</tt></b></p>
+ *
+ * <p>With this sequent generation all variable assignments are directly inlined
+ * into the verification condition. This is what one would expect when applying
+ * a vanilla weakest precondition calculus. No let expressions are produced at all.</p>
+ *
+ * <p>If you want to use this for verification condition, add to your input file:</p>
+ * <p>
+ *     settings {
+ *         "Sequent Generation Type" = "inline"
+ *     }
+ * </p>
+ *
  */
 public class InlineSequenter extends UpdateSequenter {
 

@@ -3,20 +3,23 @@ method noetherTest(a: int, b: int) returns (r: int)
   requires b >= 0
 {
 
-    while a >= 0 && b >= 0
-      decreases b, a
+    var x := a;
+    var y := b;
+
+    while x >= 0 && y >= 0
+      decreases y, x
     {
-        if a < b 
+        if x < y
         {
             var t: int;
-            t := a;
-            a := b;
-            b := t;
+            t := x;
+            x := y;
+            y := t;
         }
         else
         {
-            a := a - 1;
+            x := x - 1;
         }
     }
-    r := a;
+    r := x;
 }

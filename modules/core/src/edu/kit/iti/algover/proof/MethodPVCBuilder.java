@@ -92,7 +92,7 @@ public class MethodPVCBuilder implements PVCBuilder {
     public MethodPVCBuilder(Project project) {
         this.project = project;
         if(project != null) {
-            this.sequenter = findSequenter(project.getSettings().getString(ProjectSettings.SEQUENTER));
+            this.sequenter = findSequenter(project.getSettings().getString(ProjectSettings.SEQUENTER_PROP.key));
         }
     }
 
@@ -172,11 +172,13 @@ public class MethodPVCBuilder implements PVCBuilder {
     public void ensureSequentExists() {
         if(sequent == null) {
             try {
-                this.referenceMap = new HashMap<TermSelector, DafnyTree>();
+                this.referenceMap = new HashMap<>();
                 this.sequent =
                         sequenter.translate(pathThroughProgram, getSymbolTable(), referenceMap);
             } catch (DafnyException e) {
-            	e.getTree().setFilename(declaration.getFilename());
+                if (e.getTree() != null) {
+                    e.getTree().setFilename(declaration.getFilename());
+                }
                 throw new RuntimeException(e);
             }
         }

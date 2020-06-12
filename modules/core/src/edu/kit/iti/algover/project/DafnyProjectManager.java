@@ -14,6 +14,7 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.settings.ProjectSettings;
+import edu.kit.iti.algover.settings.ProjectSettings.Property;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.Util;
 import nonnull.NonNull;
@@ -98,7 +99,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
                 try {
                     script = loadScriptForPVC(pvc.getIdentifier());
                 } catch (FileNotFoundException ex) {
-                    script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
+                    script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT_PROP.key);
                 }
                 p.setScriptText(script);
 
@@ -118,7 +119,8 @@ public class DafnyProjectManager extends AbstractProjectManager {
 
         DafnyTree masterAST = DafnyFileParser.parse(masterFile);
 
-        pb.addInputFile(masterFile.getName());
+        // Pretty unclear ... pb.addInputFile(masterFile.getName());
+        pb.addInputFile(masterFile.getAbsolutePath());
 
         for (DafnyTree include :
                 masterAST.getChildrenWithType(DafnyParser.INCLUDE)) {
@@ -140,12 +142,24 @@ public class DafnyProjectManager extends AbstractProjectManager {
         }
 
         Map<String, String> settings = new HashMap<>();
+        Map<String, Property> propMap = ProjectSettings.getDefinedPropertyMap();
+
         for (DafnyTree settingsTree :
                 masterAST.getChildrenWithType(DafnyParser.SETTINGS)) {
             for (DafnyTree keyValuePair : settingsTree.getChildren()) {
                 String key = Util.stripQuotes(keyValuePair.getText());
                 String value = Util.stripQuotes(keyValuePair.getChild(0).getText());
                 settings.put(key, value);
+                Property prop = propMap.get(key);
+                if (prop == null) {
+                    throw new IOException(new DafnyException("Unknown property '" + key + "'", keyValuePair));
+                } else {
+                    try {
+                        prop.validator.validate(value);
+                    } catch (FormatException e) {
+                        throw new IOException(new DafnyException(keyValuePair.getChild(0), e));
+                    }
+                }
             }
         }
 

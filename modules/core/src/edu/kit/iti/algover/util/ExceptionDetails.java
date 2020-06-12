@@ -97,17 +97,22 @@ public final class ExceptionDetails {
             ExceptionReportInfo result = new ExceptionReportInfo();
             DafnyTree tree = dex.getTree();
             result.message = ex.getMessage();
-            result.filename = tree.getFilename();
+            if (tree != null) {
+                result.filename = tree.getFilename();
+                Token token = tree.getStartToken();
+                if(token != null) {
+                    result.line = token.getLine();
+                    // Columns in ANTLR 3 start at 0
+                    result.column = token.getCharPositionInLine() + 1;
+                    result.length = token.getText().length();
+                }
+            } else {
+                System.err.println("Caution! DafnyException w/o tree");
+            }
             if(result.filename != null) {
                 result.locationString = "file " + result.filename;
             }
-            Token token = tree.getStartToken();
-            if(token != null) {
-                result.line = token.getLine();
-                // Columns in ANTLR 3 start at 0
-                result.column = token.getCharPositionInLine() + 1;
-                result.length = token.getText().length();
-            }
+
             return result;
         }
 

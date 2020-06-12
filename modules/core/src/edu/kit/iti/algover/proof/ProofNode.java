@@ -10,12 +10,14 @@ import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.rules.BranchInfo;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.script.ast.ASTNode;
+import edu.kit.iti.algover.script.ast.Position;
 import edu.kit.iti.algover.script.ast.Type;
 import edu.kit.iti.algover.script.ast.Variable;
 import edu.kit.iti.algover.script.data.Value;
 import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.term.Sequent;
 import nonnull.NonNull;
+import nonnull.Nullable;
 
 import java.util.*;
 
@@ -71,7 +73,11 @@ public class ProofNode {
     /**
      * Pointer to ASTNode that mutated this node
      */
+    // REVIEW: Why is this a list? The name and usage here indicates that is
+            // always a singleton (at most)
     private List<ASTNode> mutator;
+
+    private @Nullable Position beginPos;
 
     /**
      * The label a rule application has given this Node on application.
@@ -298,4 +304,11 @@ public class ProofNode {
         this.label = label;
     }
 
+    public Position getBeginPos() {
+        return beginPos;
+    }
+
+    public void setBeginPos(Position beginPos) {
+        this.beginPos = beginPos;
+    }
 }

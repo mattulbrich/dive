@@ -1,0 +1,278 @@
+<!--
+  ~ This file is part of AlgoVer.
+  ~
+  ~ Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+  ~
+  -->
+<barmanager>
+
+    <!-- If no package name given, assume the following prefix -->
+	<package>edu.kit.iti.algover.swing.actions</package>
+
+	<!-- THE MAIN WINDOW -->
+	<center>
+		
+		<toolbar onlyIcons="true">
+            file.open
+            file.save
+            file.saveAndReload
+			SEPARATOR
+			viewport.left
+			viewport.pvc
+			viewport.code
+			viewport.proof
+			viewport.right
+			SEPARATOR
+			general.breadcrumbs
+			proof.previousPVC
+			proof.nextPVC
+			SEPARATOR
+			proof.replay
+			proof.replayAll
+			<!--	proof.auto proof.pruneLast SEPARATOR
+				prover.openInEditor SEPARATOR 
+				file.loadProb file.loadProof file.saveProof SEPARATOR
+				proof.stepInstr proof.stepSource smt.active smt.patient 
+				proof.conjecture proof.snapshots-->
+		</toolbar>
+
+		<menubar>
+			center.fileMenu
+			center.navMenu
+			center.proofMenu
+			center.helpMenu
+            <!--prover.editorMenu prover.proofMenu prover.settingsMenu prover.experimentalMenu
+            -->
+		</menubar>
+
+
+		<fileMenu text="File" mnemonic="F">
+			file.sampleBrowser file.open file.reload file.recentProb
+            SEPARATOR
+            file.save
+            file.saveAndReload
+			SEPARATOR general.close general.exit
+		</fileMenu>
+		
+		<editorMenu text="Editor" mnemonic="E">
+			prover.openInEditor editor.new editor.open	
+		</editorMenu>
+
+		<navMenu text="Navigate" mnemonic="N">
+			viewport.left
+			viewport.right
+			SEPARATOR
+			viewport.pvc
+			viewport.code
+			viewport.proof
+			SEPARATOR
+			proof.nextPVC
+			proof.previousPVC
+		</navMenu>
+
+		<proofMenu text="Proof" mnemonic="P">
+			proof.replay
+			proof.replayAll
+			proof.reset
+			proof.history
+			SEPARATOR
+			proof.insertBranches
+			proof.autoIndent
+		</proofMenu>
+
+		<helpMenu text="Help" mnemonic="H">
+			help.referenceManual
+			<!-- help.about -->
+		</helpMenu>
+
+		<proofMenuHidden>
+			proof.prune proof.pruneLast proof.auto proof.autoSubtree proof.reintroduceHiddenTerm proof.axiom proof.conjecture proof.decProc
+			proof.snapshots	SEPARATOR proof.stepInstr proof.stepSource
+		</proofMenuHidden>
+		
+		<settingsMenu text="Settings" mnemonic="S">
+			settings.verbosity settings.showNumbers settings.showProgramTrace prover.settingsMenu.prettyPrintingMenu smt.activation
+			smt.keepwindowopen settings.autoDnD settings.stepContinueWithoutProgram
+		    <prettyPrintingMenu text="Pretty printing" mnemonic="P">
+		    	SUBMENU settings.pp.typed settings.pp.fix settings.pp.mod
+		    </prettyPrintingMenu>
+        </settingsMenu>
+        
+        <experimentalMenu text="Experimental" mnemonic="X">
+           experimental.exportSMT experimental.exportEnv file.reloadAndReprove
+           experimental.saveDock
+        </experimentalMenu>
+        
+	</center>-->
+	
+	<!-- THE STARTUP WINDOW -->
+	<startup>
+		<menubar>
+			startup.fileMenu	
+		</menubar>
+
+		<fileMenu text="File" mnemonic="F">
+			file.sampleBrowser SEPARATOR
+			file.open
+			file.reload
+			file.recentProb
+			file.new
+			SEPARATOR general.exit	
+		</fileMenu>
+	</startup>
+
+
+	<!--
+	  ===== ACTIONS ======
+	-->
+
+	<file>
+		<sampleBrowser>TODO io/SampleBrowserAction
+			<tooltip>Show a collection of Dafny samples provided with the tool</tooltip>
+			<mnemonic>B</mnemonic>
+			<text>Samples ...</text>
+		</sampleBrowser>
+		<open>ACTION io/OpenAction
+			<tooltip>Open a Dafny project in a new window</tooltip>
+			<accelerator>control O</accelerator>
+			<mnemonic>O</mnemonic>
+			<text>Open ...</text>
+			<icon>io/page_white_text.png</icon>
+		</open>
+		<reload>ACTION io/MostRecentProblemAction
+			<tooltip>reload the most recent project file into a new window</tooltip>
+			<mnemonic>R</mnemonic>
+			<accelerator>control R</accelerator>
+			<text>Reload problem</text>
+			<icon>io/page_white_green_text.png</icon>
+		</reload>
+		<recentProb>COMPONENT edu.kit.iti.algover.swing.actions.io.RecentProblemsMenu</recentProb>
+		<loadProof>TODO io/LoadProofAction
+			<tooltip>load a proof to the currently active problem</tooltip>
+			<text>Load proof ...</text>
+			<mnemonic>P</mnemonic>
+			<icon>io/page.png</icon>
+		</loadProof>
+		<save>ACTION io/SaveAction
+			<tooltip>save the source files of the current project</tooltip>
+			<text>Save sources</text>
+			<accelerator>control S</accelerator>
+			<mnemonic>S</mnemonic>
+			<icon>io/disk.png</icon>
+		</save>
+        <saveAndReload>ACTION io/SaveAction
+            <tooltip>save the source files, and reload the project into prover</tooltip>
+            <text>Save sources and reload project</text>
+            <accelerator>control shift S</accelerator>
+			<mnemonic>S</mnemonic>
+			<extra>saveAndReload</extra>
+			<icon>io/disk.png</icon>
+		</saveAndReload>
+		<new>TODO io/NewFileAction
+			<tooltip>Create a new, empty Dafny project</tooltip>
+			<text>New ...</text>
+			<accelerator>control N</accelerator>
+			<mnemonic>S</mnemonic>
+			<icon>img/page_save.png</icon>
+		</new>
+	</file>
+
+	<general>
+		<close>ACTION CloseAction
+			<mnemonic>C</mnemonic>
+			<tooltip>Closes the current window</tooltip>
+			<accelerator>control W</accelerator>
+			<text>Close</text>
+		</close>
+		<exit>ACTION ExitAction
+            <mnemonic>X</mnemonic>
+            <tooltip>Closes all open windows of the program and exits</tooltip>
+            <accelerator>control Q</accelerator>
+            <text>Exit</text>
+        </exit>
+		<breadcrumbs>COMPONENT edu.kit.iti.algover.swing.sequent.Breadcrumbs
+		</breadcrumbs>
+	</general>
+
+	<viewport>
+		<left>ACTION nav/ViewportAction$Left
+			<text>Move left</text>
+			<tooltip>Move one viewport to the left</tooltip>
+			<accelerator>alt LEFT</accelerator>
+			<icon>nav/arrow_left.png</icon>
+		</left>
+		<right>ACTION nav/ViewportAction$Right
+			<text>Move right</text>
+			<tooltip>Move one viewport to the right</tooltip>
+			<accelerator>alt RIGHT</accelerator>
+			<icon>nav/arrow_right.png</icon>
+		</right>
+		<pvc>ACTION nav/ViewportAction$PVC
+			<text>Viewport 1</text>
+			<tooltip>Move to viewport 1: Obligation browser and code</tooltip>
+			<accelerator>alt 1</accelerator>
+			<icon>nav/one.png</icon>
+		</pvc>
+		<code>ACTION nav/ViewportAction$Code
+			<text>Viewport 2</text>
+			<tooltip>Move to viewport 2: Code and sequent</tooltip>
+			<accelerator>alt 2</accelerator>
+			<icon>nav/two.png</icon>
+		</code>
+		<proof>ACTION nav/ViewportAction$Proof
+			<text>Viewport 3</text>
+			<tooltip>Move to viewport 3: Sequent and proof</tooltip>
+			<accelerator>alt 3</accelerator>
+			<icon>nav/three.png</icon>
+		</proof>
+	</viewport>
+
+	<proof>
+		<replay>ACTION proof/ReplayAction
+			<text>Replay</text>
+			<tooltip>Run the active proof script on the active proof condition.</tooltip>
+			<icon>proof/play.png</icon>
+		</replay>
+		<replayAll>ACTION proof/ReplayAllAction
+			<text>Replay all proofs</text>
+			<tooltip>Run all dirty proof scripts.</tooltip>
+			<icon>proof/playAll.png</icon>
+		</replayAll>
+		<reset>TODO proof/ResetAction
+			<text>Reset all proof caches</text>
+		</reset>
+		<history>TODO History
+		</history>
+		<nextPVC>ACTION nav/ChangePVCAction
+			<text>Next obligation</text>
+			<tooltip>Go to the next proog obligation</tooltip>
+			<icon>nav/arrow_down.png</icon>
+			<accelerator>alt DOWN</accelerator>
+			<extra>next</extra>
+		</nextPVC>
+		<previousPVC>ACTION nav/ChangePVCAction
+			<text>Previous obligation</text>
+			<tooltip>Go to the previous proof obligation</tooltip>
+			<icon>nav/arrow_up.png</icon>
+			<extra>previous</extra>
+			<accelerator>alt UP</accelerator>
+		</previousPVC>
+		<insertBranches>ACTION proof/InsertBranchesAction
+			<text>Insert cases</text>
+			<tooltip>Insert a cases statement with the open branches</tooltip>
+			<icon>proof/insertBranches.png</icon>
+		</insertBranches>
+		<autoIndent>TODO proof/AutoIndentAction
+			<text>Auto-indent</text>
+			<tooltip>Automatic re-indentation of the script</tooltip>
+			<icon>proof/text_indent.png</icon>
+		</autoIndent>
+	</proof>
+
+	<help>
+		<referenceManual>ACTION ReferenceManualAction
+			<text>Reference manual</text>
+		</referenceManual>
+	</help>
+
+</barmanager>

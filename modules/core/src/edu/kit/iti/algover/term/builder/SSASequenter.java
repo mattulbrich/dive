@@ -41,6 +41,37 @@ import java.util.Map;
  * different names x, x_1, x_2, etc.
  *
  * @author Mattias Ulbrich
+ *
+ * @divedoc "VC generation/Single Static Assignment"
+ *
+ * <h2>Verification conditions with single static assignment (SSA)</h2>
+ *
+ * <p><b>Name: <tt>ssa</tt></b></p>
+ *
+ * <p>This generator is conceptually different from the others. While the others
+ * formulate assignments within formulas (with inlining or various forms of
+ * let-expressions), this generation generates equalities for all assignments,
+ * and uses intermediate variables to denote intermediate states.</p>
+ *
+ * For example, the program
+ * <pre>
+ *     a := 1; a := a + 1; assert a > 0;
+ * </pre>
+ * would generally be translated into
+ * <pre>
+ *     a_1 = 1,
+ *     a_2 = a_1 + 1
+ *   |-
+ *     a_2 > 0
+ * </pre>
+ *
+ *
+ * <p>If you want to use this for verification condition, add to your input file:</p>
+ * <pre>
+ *     settings {
+ *        "Sequent Generation Type" = "ssa"
+ *     }
+ * </pre>
  */
 public class SSASequenter implements PVCSequenter {
 

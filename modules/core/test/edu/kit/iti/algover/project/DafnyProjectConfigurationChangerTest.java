@@ -64,8 +64,8 @@ public class DafnyProjectConfigurationChangerTest {
                 new File("with spaces lib.dfy")));
 
         Map<String, String> map = new HashMap<>();
-        map.put(ProjectSettings.DAFNY_TIMEOUT, "100");
-        map.put(ProjectSettings.DEFAULT_SCRIPT, "boogie;");
+        map.put(ProjectSettings.DAFNY_TIMEOUT_PROP.key, "100");
+        map.put(ProjectSettings.DEFAULT_SCRIPT_PROP.key, "boogie;");
         c.setSettings(map);
 
         DafnyProjectConfigurationChanger.saveConfiguration(c, tmpFile);
@@ -97,8 +97,8 @@ public class DafnyProjectConfigurationChangerTest {
                 new File("with spaces lib.dfy")));
 
         Map<String, String> map = new HashMap<>();
-        map.put(ProjectSettings.DAFNY_TIMEOUT, "100");
-        map.put(ProjectSettings.DEFAULT_SCRIPT, "boogie;");
+        map.put(ProjectSettings.DAFNY_TIMEOUT_PROP.key, "100");
+        map.put(ProjectSettings.DEFAULT_SCRIPT_PROP.key, "boogie;");
         c.setSettings(map);
 
         DafnyProjectConfigurationChanger.saveConfiguration(c, tmpFile);

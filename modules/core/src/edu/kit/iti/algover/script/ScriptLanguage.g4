@@ -119,6 +119,7 @@ WS : [ \t\n\r]+ -> channel(HIDDEN) ;
 //comments, allowing nesting.
 SINGLE_LINE_COMMENT : '//' ~[\r\n]* -> channel(HIDDEN);
 MULTI_LINE_COMMENT  : '/*' (MULTI_LINE_COMMENT|.)*? '*/' -> channel(HIDDEN);
+MULTI_LINE_COMMENT_BEGIN: '/*' ~('\n')* EOF -> channel(HIDDEN);
 
 CASES: 'cases';
 CASE: 'case';
@@ -188,3 +189,5 @@ EXE_MARKER: '\u2316' -> channel(HIDDEN);
 DIGITS : DIGIT+ ;
 fragment DIGIT : [0-9] ;
 ID : [a-zA-Z] ([_a-zA-Z0-9] | '.' | '\\' | LBRACKET RBRACKET ~('|' | '-'))* ;
+
+UNKNOWN_CHAR : . ;
