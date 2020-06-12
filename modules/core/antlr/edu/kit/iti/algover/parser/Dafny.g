@@ -19,7 +19,7 @@ tokens {
   ARRAY_ACCESS;
   NOETHER_LESS;
   WILDCARD;
-  HEAP_UPDATE;
+  UPDATE;
   TYPED_SCHEMA;
 }
 
@@ -485,7 +485,7 @@ usual_or_logic_id_or_this:
 
 postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
-  ( '[' expression ( {logicMode}? ':=' expression ']'     -> ^( HEAP_UPDATE $postfix_expr expression expression )
+  ( '[' expression ( ':=' expression ']'     -> ^( UPDATE $postfix_expr expression expression )
                    | ( ',' expression )* ']' -> ^( ARRAY_ACCESS $postfix_expr expression+ )
                    | '..' expression? ']' -> ^( ARRAY_ACCESS $postfix_expr ^('..' expression+))
                    )
