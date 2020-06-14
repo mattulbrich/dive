@@ -688,6 +688,21 @@ public class TreeTermTranslator {
                     return tb.seqGet(arrayTerm, indexTerm);
                 }
 
+            case "multiset":
+
+                if (tree.getChildCount() != 2) {
+                    throw new TermBuildException("Indexing multiset requires one index argument");
+                }
+
+                indexTree = tree.getChild(1);
+                if (indexTree.getType() == DafnyParser.DOTDOT) {
+                    return buildSubSequence(arrayTerm, indexTree);
+                } else {
+                    indexTerm = build(indexTree);
+                    return tb.msCardOf(arrayTerm, indexTerm);
+                }
+
+
 
         case "array2":
                 if (tree.getChildCount() != 3) {

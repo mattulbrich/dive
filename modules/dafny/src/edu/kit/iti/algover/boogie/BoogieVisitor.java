@@ -113,6 +113,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(MULTI_SET_IN.getBaseName(), multisetIn());
         result.put(EMPTY_MULTI_SET.getName(), function("MultiSet#Empty"));
         result.put(MULTI_CARD.getBaseName(), function("MultiSet#Card"));
+        result.put(MULTI_SET_ELEM_CARD.getBaseName(), multisetElemCard());
         result.put("multiset", toMultiset());
         // --- Sequents
         result.put(SEQ_LEN.getBaseName(), function("Seq#Length"));
@@ -291,6 +292,14 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
             String set = t.getTerm(1).accept(v, null);
             String elem = t.getTerm(0).accept(v, null);
             return "(" + set + "[" + elem + "] > 0)";
+        };
+    }
+
+    private static Boogiefier multisetElemCard() {
+        return (t, v) -> {
+            String ms = t.getTerm(1).accept(v, null);
+            String elem = t.getTerm(0).accept(v, null);
+            return ms + "[" + elem + "]";
         };
     }
 

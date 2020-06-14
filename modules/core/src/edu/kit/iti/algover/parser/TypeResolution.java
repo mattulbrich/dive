@@ -453,10 +453,11 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         String typeName = TreeUtil.toSort(recvType).getName();
         switch(typeName) {
         case "array":
+        case "multiset" :
         case "seq":
             if(t.getChildCount() != 2) {
                 exceptions.add(new DafnyException(
-                        "(one-dimensional) arrays and sequences expect exactly one index argument", t));
+                        "(one-dimensional) arrays, sequences and multisets expect exactly one index argument", t));
             }
             break;
 
@@ -466,7 +467,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
                         "(two-dimensional) arrays expect exactly two index arguments", t));
             }
             break;
-            
+
         default:
             exceptions.add(new DafnyException(
                         "Only arrays or sequences can be indexed", t));
