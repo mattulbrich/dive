@@ -196,6 +196,7 @@ public class TreeTermTranslatorTest {
             { "iseq[0..2]", "$seq_sub<int>(iseq, 0, 2)" },
             { "iseq[..2]", "$seq_sub<int>(iseq, 0, 2)" },
             { "iseq[1..]", "$seq_sub<int>(iseq, 1, $seq_len<int>(iseq))" },
+            { "|mod|-1", "$minus($set_card<object>(mod), 1)"},
             { "iseq[1 := 1]", "$seq_upd<int>(iseq, 1, 1)" },
             { "iseq[42]", "$seq_get<int>(iseq, 42)" },
         };

@@ -399,9 +399,14 @@ ids:
 //
 // ---------------- Sequents ... entry point for logic
 //
+// Since |- does not make sense for Length expressions (|-a|),
+// we give it syntactic priority here. The grammar would not
+// be unique otherwise. Having a token '|-' would disallow '|a|-1'
+// which occurs rather often.
 
 sequent:
-  ante=expressions? '|-' succ=expressions? EOF -> ^(SEQ ^(BLOCK $ante?) ^(BLOCK $succ?))
+    ('|' '-') => '|' '-' succ=expressions? EOF -> ^(SEQ ^(BLOCK) ^(BLOCK $succ?))
+  | ante=expressions '|' '-' succ=expressions? EOF -> ^(SEQ ^(BLOCK $ante?) ^(BLOCK $succ?))
   ;
 
 //
