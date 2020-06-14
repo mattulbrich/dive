@@ -132,6 +132,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(NULL.getName(), constant("null"));
         result.put(IS_CREATED.getName(), function("$IsCreated"));
         result.put(FRESH_OBJECTS.getName(), function("$FreshObjects"));
+        result.put(ARRAY_TO_SEQ.getBaseName(), array2seq());
         return result;
     }
 
@@ -167,6 +168,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
                     );
 
     }
+
     private static Boogiefier seqSub() {
         return (t,v) -> {
             String seq = t.getTerm(0).accept(v, null);
@@ -175,6 +177,16 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
             return "Seq#Drop(Seq#Take(" + seq + ", " + to + "), " + from + ")";
         };
     }
+    private static Boogiefier array2seq() {
+        return (t,v) -> {
+            String heap = t.getTerm(0).accept(v, null);
+            Term array = t.getTerm(1);
+            String arg = array.accept(v, null);
+            return "(Seq#FromArray(" + heap + ", " + arg +
+                    "): Seq " + visitSort(array.getSort().getArgument(0)) + ")";
+        };
+    }
+
 
     private static Boogiefier toMultiset() {
         return (t,v) -> {
