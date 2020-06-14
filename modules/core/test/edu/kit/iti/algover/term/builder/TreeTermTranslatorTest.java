@@ -197,6 +197,9 @@ public class TreeTermTranslatorTest {
             { "iseq[0..2]", "$seq_sub<int>(iseq, 0, 2)" },
             { "iseq[..2]", "$seq_sub<int>(iseq, 0, 2)" },
             { "iseq[1..]", "$seq_sub<int>(iseq, 1, $seq_len<int>(iseq))" },
+            { "|mod|-1", "$minus($set_card<object>(mod), 1)"},
+            { "iseq[1 := 1]", "$seq_upd<int>(iseq, 1, 1)" },
+            { "iseq[42]", "$seq_get<int>(iseq, 42)" },
 
             // Multisets
             { "|mset|", "$multi_set_card<int>(mset)" },
@@ -267,6 +270,13 @@ public class TreeTermTranslatorTest {
             { "fresh(1)", "fresh can only be applied to objects, not to int"},
             { "|1|", "Unsupported sort for |...|: int" },
             { "1@$heap", "heap suffixes are only allowed for heap select terms" },
+            { "b1 + true", "'+' is not supported for these arguments" },
+            { "b1 <= true", "'<=' is not supported for these arguments" },
+            { "b1 * true", "'*' is not supported for these arguments" },
+            { "i1.f()", "Function application to a non-class sort: int" },
+            { "c.unknown()", "No function symbol unknown defined in class C" },
+            { "iseq[1,2]", "Indexing seq requires one index argument" },
+
         };
     }
 

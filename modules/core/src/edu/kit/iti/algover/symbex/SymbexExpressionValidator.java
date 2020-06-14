@@ -176,6 +176,14 @@ public class SymbexExpressionValidator {
             }
             break;
 
+        case DafnyParser.UPDATE:
+            // in programs: must be a sequence
+            child0 = expression.getChild(0);
+            addReadsCheck(child0, wrapper);
+            DafnyTree index = expression.getChild(1);
+            addIndexInRangeCheck(index, child0, "", wrapper);
+            break;
+
         case DafnyParser.LENGTH:
             child0 = expression.getChild(0);
             addNonNullCheck(child0, wrapper);

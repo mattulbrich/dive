@@ -35,6 +35,8 @@ dependencies {
     compile name: 'swingx-all-1.6.4'*/
     compile group: 'com.jfoenix', name: 'jfoenix', version: '9.0.8'
 
+    // actually only needed at runtime, but who cares ...
+    testCompile project(':core').sourceSets.test.output
 }
 
 run {
@@ -59,9 +61,7 @@ application {
     ]
 }
 
-
 // Merging Service Files
 shadowJar {
     mergeServiceFiles()
 }
-

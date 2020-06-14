@@ -25,7 +25,7 @@ const unique TInt  : Ty;
 //D function TBitvector(int) : Ty;
 function TSet(Ty)      : Ty;
 //D function TISet(Ty)     : Ty;
-function TMultiSet(Ty) : Ty;
+//D function TMultiSet(Ty) : Ty;
 function TSeq(Ty)      : Ty;
 //D function TMap(Ty, Ty)  : Ty;
 //D function TIMap(Ty, Ty) : Ty;
@@ -43,8 +43,8 @@ axiom (forall t: Ty :: { TSet(t) } Inv0_TSet(TSet(t)) == t);
 //D axiom (forall t: Ty :: { TISet(t) } Inv0_TISet(TISet(t)) == t);
 function Inv0_TSeq(Ty) : Ty;
 axiom (forall t: Ty :: { TSeq(t) } Inv0_TSeq(TSeq(t)) == t);
-function Inv0_TMultiSet(Ty) : Ty;
-axiom (forall t: Ty :: { TMultiSet(t) } Inv0_TMultiSet(TMultiSet(t)) == t);
+//D function Inv0_TMultiSet(Ty) : Ty;
+//D axiom (forall t: Ty :: { TMultiSet(t) } Inv0_TMultiSet(TMultiSet(t)) == t);
 //D function Inv0_TMap(Ty) : Ty;
 //D function Inv1_TMap(Ty) : Ty;
 //D axiom (forall t, u: Ty :: { TMap(t,u) } Inv0_TMap(TMap(t,u)) == t);
@@ -236,8 +236,6 @@ axiom (forall<T> v: Set T, t0: Ty :: { $Is(v, TSet(t0)) }
 //D     0 < v[bx] ==> $IsBox(bx, t0)));
 //D axiom (forall v: MultiSet Box, t0: Ty :: { $Is(v, TMultiSet(t0)) }
 //D   $Is(v, TMultiSet(t0)) ==> $IsGoodMultiSet(v));
-axiom (forall<T> v: MultiSet T, t0: Ty :: { $Is(v, TMultiSet(t0)) }
-  $Is(v, TMultiSet(t0)) ==> $IsGoodMultiSet(v));
 axiom (forall<T> v: Seq T, t0: Ty :: { $Is(v, TSeq(t0)) }
   $Is(v, TSeq(t0)) <==>
   (forall i : int :: { Seq#Index(v, i) }
@@ -813,139 +811,139 @@ axiom (forall<T> a: Set T, b: Set T :: { Set#Disjoint(a,b) }
 // -- Axiomatization of multisets --------------------------------
 // ---------------------------------------------------------------
 
-function Math#min(a: int, b: int): int;
-axiom (forall a: int, b: int :: { Math#min(a, b) } a <= b <==> Math#min(a, b) == a);
-axiom (forall a: int, b: int :: { Math#min(a, b) } b <= a <==> Math#min(a, b) == b);
-axiom (forall a: int, b: int :: { Math#min(a, b) } Math#min(a, b) == a || Math#min(a, b) == b);
-
-function Math#clip(a: int): int;
-axiom (forall a: int :: { Math#clip(a) } 0 <= a ==> Math#clip(a) == a);
-axiom (forall a: int :: { Math#clip(a) } a < 0  ==> Math#clip(a) == 0);
-
-type MultiSet T = [T]int;
-
-function $IsGoodMultiSet<T>(ms: MultiSet T): bool;
-// ints are non-negative, used after havocing, and for conversion from sequences to multisets.
-axiom (forall<T> ms: MultiSet T :: { $IsGoodMultiSet(ms) }
-  $IsGoodMultiSet(ms) <==>
-  (forall bx: T :: { ms[bx] } 0 <= ms[bx] && ms[bx] <= MultiSet#Card(ms)));
-
-function MultiSet#Card<T>(MultiSet T): int;
-axiom (forall<T> s: MultiSet T :: { MultiSet#Card(s) } 0 <= MultiSet#Card(s));
-axiom (forall<T> s: MultiSet T, x: T, n: int :: { MultiSet#Card(s[x := n]) }
-  0 <= n ==> MultiSet#Card(s[x := n]) == MultiSet#Card(s) - s[x] + n);
-
-function MultiSet#Empty<T>(): MultiSet T;
-axiom (forall<T> o: T :: { MultiSet#Empty()[o] } MultiSet#Empty()[o] == 0);
-axiom (forall<T> s: MultiSet T :: { MultiSet#Card(s) }
-  (MultiSet#Card(s) == 0 <==> s == MultiSet#Empty()) &&
-  (MultiSet#Card(s) != 0 ==> (exists x: T :: 0 < s[x])));
-
-function MultiSet#Singleton<T>(T): MultiSet T;
-axiom (forall<T> r: T, o: T :: { MultiSet#Singleton(r)[o] } (MultiSet#Singleton(r)[o] == 1 <==> r == o) &&
-                                                            (MultiSet#Singleton(r)[o] == 0 <==> r != o));
-axiom (forall<T> r: T :: { MultiSet#Singleton(r) } MultiSet#Singleton(r) == MultiSet#UnionOne(MultiSet#Empty(), r));
-
-function MultiSet#UnionOne<T>(MultiSet T, T): MultiSet T;
-// pure containment axiom (in the original multiset or is the added element)
-axiom (forall<T> a: MultiSet T, x: T, o: T :: { MultiSet#UnionOne(a,x)[o] }
-  0 < MultiSet#UnionOne(a,x)[o] <==> o == x || 0 < a[o]);
-// union-ing increases count by one
-axiom (forall<T> a: MultiSet T, x: T :: { MultiSet#UnionOne(a, x) }
-  MultiSet#UnionOne(a, x)[x] == a[x] + 1);
-// non-decreasing
-axiom (forall<T> a: MultiSet T, x: T, y: T :: { MultiSet#UnionOne(a, x), a[y] }
-  0 < a[y] ==> 0 < MultiSet#UnionOne(a, x)[y]);
-// other elements unchanged
-axiom (forall<T> a: MultiSet T, x: T, y: T :: { MultiSet#UnionOne(a, x), a[y] }
-  x != y ==> a[y] == MultiSet#UnionOne(a, x)[y]);
-axiom (forall<T> a: MultiSet T, x: T :: { MultiSet#Card(MultiSet#UnionOne(a, x)) }
-  MultiSet#Card(MultiSet#UnionOne(a, x)) == MultiSet#Card(a) + 1);
-
-
-function MultiSet#Union<T>(MultiSet T, MultiSet T): MultiSet T;
-// union-ing is the sum of the contents
-axiom (forall<T> a: MultiSet T, b: MultiSet T, o: T :: { MultiSet#Union(a,b)[o] }
-  MultiSet#Union(a,b)[o] == a[o] + b[o]);
-axiom (forall<T> a: MultiSet T, b: MultiSet T :: { MultiSet#Card(MultiSet#Union(a,b)) }
-  MultiSet#Card(MultiSet#Union(a,b)) == MultiSet#Card(a) + MultiSet#Card(b));
-
-function MultiSet#Intersection<T>(MultiSet T, MultiSet T): MultiSet T;
-axiom (forall<T> a: MultiSet T, b: MultiSet T, o: T :: { MultiSet#Intersection(a,b)[o] }
-  MultiSet#Intersection(a,b)[o] == Math#min(a[o],  b[o]));
-
-// left and right pseudo-idempotence
-axiom (forall<T> a, b: MultiSet T :: { MultiSet#Intersection(MultiSet#Intersection(a, b), b) }
-  MultiSet#Intersection(MultiSet#Intersection(a, b), b) == MultiSet#Intersection(a, b));
-axiom (forall<T> a, b: MultiSet T :: { MultiSet#Intersection(a, MultiSet#Intersection(a, b)) }
-  MultiSet#Intersection(a, MultiSet#Intersection(a, b)) == MultiSet#Intersection(a, b));
-
-// multiset difference, a - b. clip() makes it positive.
-function MultiSet#Difference<T>(MultiSet T, MultiSet T): MultiSet T;
-axiom (forall<T> a: MultiSet T, b: MultiSet T, o: T :: { MultiSet#Difference(a,b)[o] }
-  MultiSet#Difference(a,b)[o] == Math#clip(a[o] - b[o]));
-axiom (forall<T> a, b: MultiSet T, y: T :: { MultiSet#Difference(a, b), b[y], a[y] }
-  a[y] <= b[y] ==> MultiSet#Difference(a, b)[y] == 0 );
-axiom (forall<T> a, b: MultiSet T ::
-  { MultiSet#Card(MultiSet#Difference(a, b)) }
-  MultiSet#Card(MultiSet#Difference(a, b)) + MultiSet#Card(MultiSet#Difference(b, a))
-  + 2 * MultiSet#Card(MultiSet#Intersection(a, b))
-    == MultiSet#Card(MultiSet#Union(a, b)) &&
-  MultiSet#Card(MultiSet#Difference(a, b)) == MultiSet#Card(a) - MultiSet#Card(MultiSet#Intersection(a, b)));
-
-// multiset subset means a must have at most as many of each element as b
-function MultiSet#Subset<T>(MultiSet T, MultiSet T): bool;
-axiom(forall<T> a: MultiSet T, b: MultiSet T :: { MultiSet#Subset(a,b) }
-  MultiSet#Subset(a,b) <==> (forall o: T :: {a[o]} {b[o]} a[o] <= b[o]));
-
-function MultiSet#Equal<T>(MultiSet T, MultiSet T): bool;
-axiom(forall<T> a: MultiSet T, b: MultiSet T :: { MultiSet#Equal(a,b) }
-  MultiSet#Equal(a,b) <==> (forall o: T :: {a[o]} {b[o]} a[o] == b[o]));
-// extensionality axiom for multisets
-axiom(forall<T> a: MultiSet T, b: MultiSet T :: { MultiSet#Equal(a,b) }
-  MultiSet#Equal(a,b) ==> a == b);
-
-function MultiSet#Disjoint<T>(MultiSet T, MultiSet T): bool;
-axiom (forall<T> a: MultiSet T, b: MultiSet T :: { MultiSet#Disjoint(a,b) }
-  MultiSet#Disjoint(a,b) <==> (forall o: T :: {a[o]} {b[o]} a[o] == 0 || b[o] == 0));
-
-// conversion to a multiset. each element in the original set has duplicity 1.
-function MultiSet#FromSet<T>(Set T): MultiSet T;
-axiom (forall<T> s: Set T, a: T :: { MultiSet#FromSet(s)[a] }
-  (MultiSet#FromSet(s)[a] == 0 <==> !s[a]) &&
-  (MultiSet#FromSet(s)[a] == 1 <==> s[a]));
-axiom (forall<T> s: Set T :: { MultiSet#Card(MultiSet#FromSet(s)) }
-  MultiSet#Card(MultiSet#FromSet(s)) == Set#Card(s));
-
-// conversion to a multiset, from a sequence.
-function MultiSet#FromSeq<T>(Seq T): MultiSet T;
-// conversion produces a good map.
-axiom (forall<T> s: Seq T :: { MultiSet#FromSeq(s) } $IsGoodMultiSet(MultiSet#FromSeq(s)) );
-// cardinality axiom
-axiom (forall<T> s: Seq T ::
-  { MultiSet#Card(MultiSet#FromSeq(s)) }
-    MultiSet#Card(MultiSet#FromSeq(s)) == Seq#Length(s));
-// building axiom
-axiom (forall<T> s: Seq T, v: T ::
-  { MultiSet#FromSeq(Seq#Build(s, v)) }
-    MultiSet#FromSeq(Seq#Build(s, v)) == MultiSet#UnionOne(MultiSet#FromSeq(s), v)
-  );
-axiom (forall<T> :: MultiSet#FromSeq(Seq#Empty(): Seq T) == MultiSet#Empty(): MultiSet T);
-
-// concatenation axiom
-axiom (forall<T> a: Seq T, b: Seq T ::
-  { MultiSet#FromSeq(Seq#Append(a, b)) }
-    MultiSet#FromSeq(Seq#Append(a, b)) == MultiSet#Union(MultiSet#FromSeq(a), MultiSet#FromSeq(b)) );
-
-// update axiom
-axiom (forall<T> s: Seq T, i: int, v: T, x: T ::
-  { MultiSet#FromSeq(Seq#Update(s, i, v))[x] }
-    0 <= i && i < Seq#Length(s) ==>
-    MultiSet#FromSeq(Seq#Update(s, i, v))[x] ==
-      MultiSet#Union(MultiSet#Difference(MultiSet#FromSeq(s), MultiSet#Singleton(Seq#Index(s,i))), MultiSet#Singleton(v))[x] );
-  // i.e. MS(Update(s, i, v)) == MS(s) - {{s[i]}} + {{v}}
-axiom (forall<T> s: Seq T, x: T :: { MultiSet#FromSeq(s)[x] }
-  (exists i : int :: { Seq#Index(s,i) } 0 <= i && i < Seq#Length(s) && x == Seq#Index(s,i)) <==> 0 < MultiSet#FromSeq(s)[x] );
+//D function Math#min(a: int, b: int): int;
+//D axiom (forall a: int, b: int :: { Math#min(a, b) } a <= b <==> Math#min(a, b) == a);
+//D axiom (forall a: int, b: int :: { Math#min(a, b) } b <= a <==> Math#min(a, b) == b);
+//D axiom (forall a: int, b: int :: { Math#min(a, b) } Math#min(a, b) == a || Math#min(a, b) == b);
+//D
+//D function Math#clip(a: int): int;
+//D axiom (forall a: int :: { Math#clip(a) } 0 <= a ==> Math#clip(a) == a);
+//D axiom (forall a: int :: { Math#clip(a) } a < 0  ==> Math#clip(a) == 0);
+//D
+//D type MultiSet T = [T]int;
+//D
+//D function $IsGoodMultiSet<T>(ms: MultiSet T): bool;
+//D // ints are non-negative, used after havocing, and for conversion from sequences to multisets.
+//D axiom (forall<T> ms: MultiSet T :: { $IsGoodMultiSet(ms) }
+//D   $IsGoodMultiSet(ms) <==>
+//D   (forall bx: T :: { ms[bx] } 0 <= ms[bx] && ms[bx] <= MultiSet#Card(ms)));
+//D
+//D function MultiSet#Card<T>(MultiSet T): int;
+//D axiom (forall<T> s: MultiSet T :: { MultiSet#Card(s) } 0 <= MultiSet#Card(s));
+//D axiom (forall<T> s: MultiSet T, x: T, n: int :: { MultiSet#Card(s[x := n]) }
+//D   0 <= n ==> MultiSet#Card(s[x := n]) == MultiSet#Card(s) - s[x] + n);
+//D
+//D function MultiSet#Empty<T>(): MultiSet T;
+//D axiom (forall<T> o: T :: { MultiSet#Empty()[o] } MultiSet#Empty()[o] == 0);
+//D axiom (forall<T> s: MultiSet T :: { MultiSet#Card(s) }
+//D   (MultiSet#Card(s) == 0 <==> s == MultiSet#Empty()) &&
+//D   (MultiSet#Card(s) != 0 ==> (exists x: T :: 0 < s[x])));
+//D
+//D function MultiSet#Singleton<T>(T): MultiSet T;
+//D axiom (forall<T> r: T, o: T :: { MultiSet#Singleton(r)[o] } (MultiSet#Singleton(r)[o] == 1 <==> r == o) &&
+//D                                                             (MultiSet#Singleton(r)[o] == 0 <==> r != o));
+//D axiom (forall<T> r: T :: { MultiSet#Singleton(r) } MultiSet#Singleton(r) == MultiSet#UnionOne(MultiSet#Empty(), r));
+//D
+//D function MultiSet#UnionOne<T>(MultiSet T, T): MultiSet T;
+//D // pure containment axiom (in the original multiset or is the added element)
+//D axiom (forall<T> a: MultiSet T, x: T, o: T :: { MultiSet#UnionOne(a,x)[o] }
+//D   0 < MultiSet#UnionOne(a,x)[o] <==> o == x || 0 < a[o]);
+//D // union-ing increases count by one
+//D axiom (forall<T> a: MultiSet T, x: T :: { MultiSet#UnionOne(a, x) }
+//D   MultiSet#UnionOne(a, x)[x] == a[x] + 1);
+//D // non-decreasing
+//D axiom (forall<T> a: MultiSet T, x: T, y: T :: { MultiSet#UnionOne(a, x), a[y] }
+//D   0 < a[y] ==> 0 < MultiSet#UnionOne(a, x)[y]);
+//D // other elements unchanged
+//D axiom (forall<T> a: MultiSet T, x: T, y: T :: { MultiSet#UnionOne(a, x), a[y] }
+//D   x != y ==> a[y] == MultiSet#UnionOne(a, x)[y]);
+//D axiom (forall<T> a: MultiSet T, x: T :: { MultiSet#Card(MultiSet#UnionOne(a, x)) }
+//D   MultiSet#Card(MultiSet#UnionOne(a, x)) == MultiSet#Card(a) + 1);
+//D
+//D
+//D function MultiSet#Union<T>(MultiSet T, MultiSet T): MultiSet T;
+//D // union-ing is the sum of the contents
+//D axiom (forall<T> a: MultiSet T, b: MultiSet T, o: T :: { MultiSet#Union(a,b)[o] }
+//D   MultiSet#Union(a,b)[o] == a[o] + b[o]);
+//D axiom (forall<T> a: MultiSet T, b: MultiSet T :: { MultiSet#Card(MultiSet#Union(a,b)) }
+//D   MultiSet#Card(MultiSet#Union(a,b)) == MultiSet#Card(a) + MultiSet#Card(b));
+//D
+//D function MultiSet#Intersection<T>(MultiSet T, MultiSet T): MultiSet T;
+//D axiom (forall<T> a: MultiSet T, b: MultiSet T, o: T :: { MultiSet#Intersection(a,b)[o] }
+//D   MultiSet#Intersection(a,b)[o] == Math#min(a[o],  b[o]));
+//D
+//D // left and right pseudo-idempotence
+//D axiom (forall<T> a, b: MultiSet T :: { MultiSet#Intersection(MultiSet#Intersection(a, b), b) }
+//D   MultiSet#Intersection(MultiSet#Intersection(a, b), b) == MultiSet#Intersection(a, b));
+//D axiom (forall<T> a, b: MultiSet T :: { MultiSet#Intersection(a, MultiSet#Intersection(a, b)) }
+//D   MultiSet#Intersection(a, MultiSet#Intersection(a, b)) == MultiSet#Intersection(a, b));
+//D
+//D // multiset difference, a - b. clip() makes it positive.
+//D function MultiSet#Difference<T>(MultiSet T, MultiSet T): MultiSet T;
+//D axiom (forall<T> a: MultiSet T, b: MultiSet T, o: T :: { MultiSet#Difference(a,b)[o] }
+//D   MultiSet#Difference(a,b)[o] == Math#clip(a[o] - b[o]));
+//D axiom (forall<T> a, b: MultiSet T, y: T :: { MultiSet#Difference(a, b), b[y], a[y] }
+//D   a[y] <= b[y] ==> MultiSet#Difference(a, b)[y] == 0 );
+//D axiom (forall<T> a, b: MultiSet T ::
+//D   { MultiSet#Card(MultiSet#Difference(a, b)) }
+//D   MultiSet#Card(MultiSet#Difference(a, b)) + MultiSet#Card(MultiSet#Difference(b, a))
+//D   + 2 * MultiSet#Card(MultiSet#Intersection(a, b))
+//D     == MultiSet#Card(MultiSet#Union(a, b)) &&
+//D   MultiSet#Card(MultiSet#Difference(a, b)) == MultiSet#Card(a) - MultiSet#Card(MultiSet#Intersection(a, b)));
+//D
+//D // multiset subset means a must have at most as many of each element as b
+//D function MultiSet#Subset<T>(MultiSet T, MultiSet T): bool;
+//D axiom(forall<T> a: MultiSet T, b: MultiSet T :: { MultiSet#Subset(a,b) }
+//D   MultiSet#Subset(a,b) <==> (forall o: T :: {a[o]} {b[o]} a[o] <= b[o]));
+//D
+//D function MultiSet#Equal<T>(MultiSet T, MultiSet T): bool;
+//D axiom(forall<T> a: MultiSet T, b: MultiSet T :: { MultiSet#Equal(a,b) }
+//D   MultiSet#Equal(a,b) <==> (forall o: T :: {a[o]} {b[o]} a[o] == b[o]));
+//D // extensionality axiom for multisets
+//D axiom(forall<T> a: MultiSet T, b: MultiSet T :: { MultiSet#Equal(a,b) }
+//D   MultiSet#Equal(a,b) ==> a == b);
+//D
+//D function MultiSet#Disjoint<T>(MultiSet T, MultiSet T): bool;
+//D axiom (forall<T> a: MultiSet T, b: MultiSet T :: { MultiSet#Disjoint(a,b) }
+//D   MultiSet#Disjoint(a,b) <==> (forall o: T :: {a[o]} {b[o]} a[o] == 0 || b[o] == 0));
+//D
+//D // conversion to a multiset. each element in the original set has duplicity 1.
+//D function MultiSet#FromSet<T>(Set T): MultiSet T;
+//D axiom (forall<T> s: Set T, a: T :: { MultiSet#FromSet(s)[a] }
+//D   (MultiSet#FromSet(s)[a] == 0 <==> !s[a]) &&
+//D   (MultiSet#FromSet(s)[a] == 1 <==> s[a]));
+//D axiom (forall<T> s: Set T :: { MultiSet#Card(MultiSet#FromSet(s)) }
+//D   MultiSet#Card(MultiSet#FromSet(s)) == Set#Card(s));
+//D
+//D // conversion to a multiset, from a sequence.
+//D function MultiSet#FromSeq<T>(Seq T): MultiSet T;
+//D // conversion produces a good map.
+//D axiom (forall<T> s: Seq T :: { MultiSet#FromSeq(s) } $IsGoodMultiSet(MultiSet#FromSeq(s)) );
+//D // cardinality axiom
+//D axiom (forall<T> s: Seq T ::
+//D   { MultiSet#Card(MultiSet#FromSeq(s)) }
+//D     MultiSet#Card(MultiSet#FromSeq(s)) == Seq#Length(s));
+//D // building axiom
+//D axiom (forall<T> s: Seq T, v: T ::
+//D   { MultiSet#FromSeq(Seq#Build(s, v)) }
+//D     MultiSet#FromSeq(Seq#Build(s, v)) == MultiSet#UnionOne(MultiSet#FromSeq(s), v)
+//D   );
+//D axiom (forall<T> :: MultiSet#FromSeq(Seq#Empty(): Seq T) == MultiSet#Empty(): MultiSet T);
+//D
+//D // concatenation axiom
+//D axiom (forall<T> a: Seq T, b: Seq T ::
+//D   { MultiSet#FromSeq(Seq#Append(a, b)) }
+//D     MultiSet#FromSeq(Seq#Append(a, b)) == MultiSet#Union(MultiSet#FromSeq(a), MultiSet#FromSeq(b)) );
+//D
+//D // update axiom
+//D axiom (forall<T> s: Seq T, i: int, v: T, x: T ::
+//D   { MultiSet#FromSeq(Seq#Update(s, i, v))[x] }
+//D     0 <= i && i < Seq#Length(s) ==>
+//D     MultiSet#FromSeq(Seq#Update(s, i, v))[x] ==
+//D       MultiSet#Union(MultiSet#Difference(MultiSet#FromSeq(s), MultiSet#Singleton(Seq#Index(s,i))), MultiSet#Singleton(v))[x] );
+//D   // i.e. MS(Update(s, i, v)) == MS(s) - {{s[i]}} + {{v}}
+//D axiom (forall<T> s: Seq T, x: T :: { MultiSet#FromSeq(s)[x] }
+//D   (exists i : int :: { Seq#Index(s,i) } 0 <= i && i < Seq#Length(s) && x == Seq#Index(s,i)) <==> 0 < MultiSet#FromSeq(s)[x] );
 
 // ---------------------------------------------------------------
 // -- Axiomatization of sequences --------------------------------

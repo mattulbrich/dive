@@ -19,7 +19,7 @@ tokens {
   ARRAY_ACCESS;
   NOETHER_LESS;
   WILDCARD;
-  HEAP_UPDATE;
+  UPDATE;
   TYPED_SCHEMA;
 }
 
@@ -400,9 +400,14 @@ ids:
 //
 // ---------------- Sequents ... entry point for logic
 //
+// Since |- does not make sense for Length expressions (|-a|),
+// we give it syntactic priority here. The grammar would not
+// be unique otherwise. Having a token '|-' would disallow '|a|-1'
+// which occurs rather often.
 
 sequent:
-  ante=expressions? '|-' succ=expressions? EOF -> ^(SEQ ^(BLOCK $ante?) ^(BLOCK $succ?))
+    ('|' '-') => '|' '-' succ=expressions? EOF -> ^(SEQ ^(BLOCK) ^(BLOCK $succ?))
+  | ante=expressions '|' '-' succ=expressions? EOF -> ^(SEQ ^(BLOCK $ante?) ^(BLOCK $succ?))
   ;
 
 //
@@ -486,7 +491,7 @@ usual_or_logic_id_or_this:
 
 postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
-  ( '[' expression ( {logicMode}? ':=' expression ']'     -> ^( HEAP_UPDATE $postfix_expr expression expression )
+  ( '[' expression ( ':=' expression ']'     -> ^( UPDATE $postfix_expr expression expression )
                    | ( ',' expression )* ']' -> ^( ARRAY_ACCESS $postfix_expr expression+ )
                    | '..' expression? ']' -> ^( ARRAY_ACCESS $postfix_expr ^('..' expression+))
                    )

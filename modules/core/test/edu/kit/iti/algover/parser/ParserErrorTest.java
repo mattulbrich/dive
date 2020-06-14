@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.parser;
 
+import edu.kit.iti.algover.KnownRegression;
 import edu.kit.iti.algover.util.TestUtil;
 import org.antlr.runtime.MismatchedSetException;
 import org.hamcrest.BaseMatcher;
@@ -13,6 +14,7 @@ import org.hamcrest.Matcher;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 
 import java.io.ByteArrayInputStream;
@@ -124,8 +126,10 @@ public class ParserErrorTest {
                 "method m(p: int) { var q:int; q, p := f(); }");
     }
 
-    @Test @Ignore
+    @Test
     public void recursiveVariableDeclaration() throws Exception {
+        thrown.expect(DafnyException.class);
+        thrown.expectMessage("Unknown identifier: y");
         parse("method m() { var y:=y; }");
     }
 
@@ -138,7 +142,7 @@ public class ParserErrorTest {
         parse("method m() { var b : bool := 42; }");
     }
 
-    @Test @Ignore
+    @Test
     public void illegalReference() throws Exception {
         thrown.expect(DafnyException.class);
         thrown.expectMessage("Unknown identifier: m");

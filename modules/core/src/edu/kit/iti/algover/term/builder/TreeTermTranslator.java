@@ -291,7 +291,7 @@ public class TreeTermTranslator {
                             // TODO
                             throw new Error("IMPLEMENT ME!");
                         default:
-                            throw new TermBuildException("'+' is not supported for these arguments");
+                            throw new TermBuildException("'<=' is not supported for these arguments");
                         }
                     }), tree);
             break;
@@ -474,7 +474,7 @@ public class TreeTermTranslator {
 
         case DafnyParser.DOTDOT:
             throw new TermBuildException("unexpected range expression " +
-                    "(only allowed in '[...]')");
+                    "(only allowed in brackets [])");
 
         case DafnyParser.FIELD_ACCESS:
             result = buildFieldAccess(tree);
@@ -492,8 +492,8 @@ public class TreeTermTranslator {
             result = buildExplicitHeapAccess(tree);
             break;
 
-        case DafnyParser.HEAP_UPDATE:
-            result = buildHeapUpdate(tree);
+        case DafnyParser.UPDATE:
+            result = buildUpdate(tree);
             break;
 
         case DafnyParser.CALL:
@@ -677,7 +677,7 @@ public class TreeTermTranslator {
 
             case "seq":
                 if (tree.getChildCount() != 2) {
-                    throw new TermBuildException("Access to 'array2' requires two index arguments");
+                    throw new TermBuildException("Indexing seq requires one index argument");
                 }
 
                 indexTree = tree.getChild(1);
@@ -1158,15 +1158,28 @@ public class TreeTermTranslator {
         return new LetTerm(HEAP_VAR, oldHeap, inner);
     }
 
+    private Term buildUpdate(DafnyTree tree) throws TermBuildException {
+        Term receiver = build(tree.getChild(0));
+        if(receiver.getSort().equals(Sort.HEAP)) {
+            return buildHeapUpdate(receiver, tree);
+        }
+        if(receiver.getSort().getName().equals("seq")) {
+            return buildSequenceUpdate(receiver, tree);
+        }
+        throw new TermBuildException("The update operator may only be applied to heaps or sequences");
+    }
 
-    private Term buildHeapUpdate(DafnyTree tree) throws TermBuildException {
+    private Term buildSequenceUpdate(Term seq, DafnyTree tree) throws TermBuildException {
+
+        Term index = build(tree.getChild(1));
+        Term value = build(tree.getChild(2));
+        return tb.seqUpd(seq, index, value);
+    }
+
+
+    private Term buildHeapUpdate(Term heap, DafnyTree tree) throws TermBuildException {
 
         assert tree.getChildCount() == 3 : "I need heap, location, value";
-
-        Term heap = build(tree.getChild(0));
-        if(!heap.getSort().equals(Sort.HEAP)) {
-            throw new TermBuildException("Heap updates must be applied to heaps");
-        }
 
         FunctionSymbolFamily symbol;
         Term location = build(tree.getChild(1));

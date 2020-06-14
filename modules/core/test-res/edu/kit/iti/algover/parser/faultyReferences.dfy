@@ -47,3 +47,9 @@ class IllegalVariableRefs
       var local : int;
    }
 }
+
+method self()
+{
+   // was responsible for a stackoverflow
+   var y:= y;
+}
