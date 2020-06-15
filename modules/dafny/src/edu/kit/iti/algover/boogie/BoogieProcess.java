@@ -110,7 +110,6 @@ public class BoogieProcess {
                 return true;
             if (line.startsWith("Boogie program verifier finished with"))
                 return false;
-            System.out.println(line);
         }
 
         throw new RuleException("Oh dear, boogie seems to fail for " + tmpFile);
