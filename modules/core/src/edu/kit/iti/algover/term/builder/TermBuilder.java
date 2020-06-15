@@ -171,14 +171,14 @@ public class TermBuilder {
         return new ApplTerm(select, heap, array, index);
     }
 
-    public Term msCardOf(Term msTerm, Term valueTerm) throws TermBuildException{
+    public Term msNumOccOf(Term msTerm, Term valueTerm) throws TermBuildException{
         Sort seqSort = msTerm.getSort();
         assert seqSort.getName().equals("multiset");
         Sort elementSort = seqSort.getArguments().get(0);
-        FunctionSymbol mscard =
-                symbolTable.getFunctionSymbol(BuiltinSymbols.MULTI_SET_ELEM_CARD, elementSort);
+        FunctionSymbol msOcc =
+                symbolTable.getFunctionSymbol(BuiltinSymbols.MULTI_SET_ELEM_OCC, elementSort);
 
-        return new ApplTerm(mscard, valueTerm, msTerm);
+        return new ApplTerm(msOcc, valueTerm, msTerm);
     }
 
     public Term selectArray2(ApplTerm heap, Term array, Term index0, Term index1) throws TermBuildException {

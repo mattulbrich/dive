@@ -699,7 +699,7 @@ public class TreeTermTranslator {
                     return buildSubSequence(arrayTerm, indexTree);
                 } else {
                     indexTerm = build(indexTree);
-                    return tb.msCardOf(arrayTerm, indexTerm);
+                    return tb.msNumOccOf(arrayTerm, indexTerm);
                 }
 
 

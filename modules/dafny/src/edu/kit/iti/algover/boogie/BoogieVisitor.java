@@ -7,8 +7,6 @@ package edu.kit.iti.algover.boogie;
 
 import de.uka.ilkd.pp.NoExceptions;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
-import edu.kit.iti.algover.dafnystructures.DafnyFunction;
-import edu.kit.iti.algover.dafnystructures.DafnyFunctionSymbol;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
@@ -113,7 +111,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(MULTI_SET_IN.getBaseName(), multisetIn());
         result.put(EMPTY_MULTI_SET.getName(), function("MultiSet#Empty"));
         result.put(MULTI_CARD.getBaseName(), function("MultiSet#Card"));
-        result.put(MULTI_SET_ELEM_CARD.getBaseName(), multisetElemCard());
+        result.put(MULTI_SET_ELEM_OCC.getBaseName(), multisetElemCard());
         result.put("multiset", toMultiset());
         // --- Sequents
         result.put(SEQ_LEN.getBaseName(), function("Seq#Length"));
