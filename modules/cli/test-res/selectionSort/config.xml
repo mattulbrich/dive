@@ -7,8 +7,8 @@
 
 -->
 <configuration>
-<!--    <dafnyFile>selectionSort.dfy</dafnyFile>
+    <dafnyFile>selectionSort.dfy</dafnyFile>
     <settings>
       <entry><key>Default Script</key><value>z3;</value></entry>
-    </settings> -->
+    </settings>
 </configuration>
