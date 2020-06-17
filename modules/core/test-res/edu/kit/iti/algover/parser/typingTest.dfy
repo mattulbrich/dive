@@ -340,6 +340,10 @@ class C
 
      s2 := multiset({1,2});
      s2 := multiset([1,2]);
+
+     var count := s2[42];
+     var o: object;
+     var count2 := multiset{o,o}[o];
    }
 
 

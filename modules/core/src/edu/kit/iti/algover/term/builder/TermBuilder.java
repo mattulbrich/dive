@@ -176,7 +176,7 @@ public class TermBuilder {
         assert seqSort.getName().equals("multiset");
         Sort elementSort = seqSort.getArguments().get(0);
         FunctionSymbol msOcc =
-                symbolTable.getFunctionSymbol(BuiltinSymbols.MULTI_SET_ELEM_OCC, elementSort);
+                symbolTable.getFunctionSymbol(BuiltinSymbols.MULTI_COUNT, elementSort);
 
         return new ApplTerm(msOcc, valueTerm, msTerm);
     }

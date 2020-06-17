@@ -7,4 +7,7 @@
     (var b1 (TYPE bool) (in 42[int] s2[multiset<int>])[bool])
     (var b2 (TYPE bool) (!in 2[int] s2[multiset<int>])[bool])
     (:= s2[multiset<int>] (multiset ({ 1[int] 2[int])[set<int>])[multiset<int>])
-    (:= s2[multiset<int>] (multiset ([ 1[int] 2[int])[seq<int>])[multiset<int>])))[scc_27]
+    (:= s2[multiset<int>] (multiset ([ 1[int] 2[int])[seq<int>])[multiset<int>])
+    (var count (TYPE int) (ARRAY_ACCESS s2[multiset<int>] 42[int])[int])
+    (var o (TYPE object))
+    (var count2 (TYPE int) (ARRAY_ACCESS (multiset o[object] o[object])[multiset<object>] o[object])[int])))[scc_27]

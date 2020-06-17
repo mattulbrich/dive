@@ -211,6 +211,8 @@ public class TreeTermTranslatorTest {
             { "multiset{} == multiset{1}", "$eq<multiset<int>>($multi_empty, $multi_set_add<int>(1, $multi_empty))" },
             { "0 in mset", "$multi_set_in<int>(0, mset)" },
             { "multiset(iseq)", "multiset<int>(iseq)" },
+            { "mset[2]", "$multi_count<int>(2, mset)" },
+            { "multiset{c}[c]", "$multi_count<C>(c, $multi_set_add<C>(c, $multi_empty))" },
         };
     }
 

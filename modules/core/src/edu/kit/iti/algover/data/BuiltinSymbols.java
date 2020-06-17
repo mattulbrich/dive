@@ -247,9 +247,9 @@ public class BuiltinSymbols extends MapSymbolTable {
             new FunctionSymbolFamily(
                     new FunctionSymbol("multiset", MSET1, SET1), 1);
 
-    public static final FunctionSymbolFamily MULTI_SET_ELEM_OCC =
+    public static final FunctionSymbolFamily MULTI_COUNT =
             new FunctionSymbolFamily(
-                    new FunctionSymbol("$multi_set_elem_occ", Sort.INT,
+                    new FunctionSymbol("$multi_count", Sort.INT,
                             FunctionSymbolFamily.VAR1, MSET1), 1);
 
 
