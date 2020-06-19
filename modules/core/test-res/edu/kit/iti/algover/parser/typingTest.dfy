@@ -345,6 +345,4 @@ class C
      var o: object;
      var count2 := multiset{o,o}[o];
    }
-
-
 }

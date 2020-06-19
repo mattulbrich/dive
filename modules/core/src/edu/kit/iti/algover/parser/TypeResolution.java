@@ -74,33 +74,33 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         }
 
         switch (ref.getType()) {
-        case DafnyParser.VAR:
-        case DafnyParser.FIELD:
-        case DafnyParser.ALL:
-        case DafnyParser.EX:
-            DafnyTree typeTree = ref.getFirstChildWithType(DafnyParser.TYPE);
-            if (typeTree == null) {
-                // this is the case for "var i := 0" if ref has not been visited by type resolution, yet.
-                ref.accept(this, a);
-                typeTree = ref.getFirstChildWithType(DafnyParser.TYPE);
-            }
-            DafnyTree type = typeTree.getChild(0);
-            t.setExpressionType(type);
-            return type;
-
-        case DafnyParser.LET:
-            // find the relative number of variable and take type of appropriate expression
-            DafnyTree vars = ref.getChild(0);
-            for (int i = 0; i < vars.getChildCount(); i++) {
-                if(vars.getChild(i).getText().equals(t.getText())) {
-                    DafnyTree ty = ref.getChild(i + 1).getExpressionType();
-                    t.setExpressionType(ty);
-                    return ty;
+            case DafnyParser.VAR:
+            case DafnyParser.FIELD:
+            case DafnyParser.ALL:
+            case DafnyParser.EX:
+                DafnyTree typeTree = ref.getFirstChildWithType(DafnyParser.TYPE);
+                if (typeTree == null) {
+                    // this is the case for "var i := 0" if ref has not been visited by type resolution, yet.
+                    ref.accept(this, a);
+                    typeTree = ref.getFirstChildWithType(DafnyParser.TYPE);
                 }
-            }
+                DafnyTree type = typeTree.getChild(0);
+                t.setExpressionType(type);
+                return type;
 
-        default:
-            throw new Error("Should not be reachable " + ref.getType());
+            case DafnyParser.LET:
+                // find the relative number of variable and take type of appropriate expression
+                DafnyTree vars = ref.getChild(0);
+                for (int i = 0; i < vars.getChildCount(); i++) {
+                    if(vars.getChild(i).getText().equals(t.getText())) {
+                        DafnyTree ty = ref.getChild(i + 1).getExpressionType();
+                        t.setExpressionType(ty);
+                        return ty;
+                    }
+                }
+
+            default:
+                throw new Error("Should not be reachable " + ref.getType());
         }
     }
 
@@ -221,8 +221,8 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     @Override
     public DafnyTree visitMINUS(DafnyTree t, Void a) {
         if (t.getChildCount() == 1) {
-           // unary
-           return operation(t, INT_TYPE, "int");
+            // unary
+            return operation(t, INT_TYPE, "int");
         } else {
             return operationOverloaded(t, INT_MULTI_SET_SEQ);
         }
@@ -307,8 +307,8 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         Sort sort2 = ASTUtil.toSort(type2);
 
         if(!haveCommonSupertype(Sort.get("set", sort1), sort2)
-            && !haveCommonSupertype(Sort.get("multiset", sort1), sort2)) {
-              exceptions.add(new DafnyException("The in predicate needs a value and a compatible (multi)set", tree));
+                && !haveCommonSupertype(Sort.get("multiset", sort1), sort2)) {
+            exceptions.add(new DafnyException("The in predicate needs a value and a compatible (multi)set", tree));
         }
 
         tree.setExpressionType(BOOL_TYPE);
@@ -388,7 +388,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         DafnyTree type = arg.accept(this, null);
 
         if (type.getType() != DafnyParser.ARRAY &&
-            type.getType() != DafnyParser.SEQ) {
+                type.getType() != DafnyParser.SEQ) {
             exceptions.add(new DafnyException(
                     "Only arrays have a length", t));
         }
@@ -434,6 +434,14 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     public DafnyTree visitARRAY_ACCESS(DafnyTree t, Void a) {
         DafnyTree receiver = t.getChild(0);
 
+        DafnyTree recvType = receiver.accept(this, null);
+
+        System.out.println("receiver " + recvType.getText());
+
+        if (recvType.getType() == DafnyParser.MULTISET) {
+            return visitMULTI_COUNT(t, recvType);
+        }
+
         // Special casing a[..]
         if(t.getChild(1).getType() == DafnyParser.DOTDOT) {
             return visitARRAY_ACCESS_DOTDOT(t, receiver);
@@ -449,37 +457,56 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             }
         }
 
-        DafnyTree recvType = receiver.accept(this, null);
         String typeName = TreeUtil.toSort(recvType).getName();
         switch(typeName) {
-        case "array":
-        case "multiset" :
-        case "seq":
-            if(t.getChildCount() != 2) {
-                exceptions.add(new DafnyException(
-                        "(one-dimensional) arrays, sequences and multisets expect exactly one index argument", t));
-            }
-            break;
+            case "array":
+            case "multiset" :
+            case "seq":
+                if(t.getChildCount() != 2) {
+                    exceptions.add(new DafnyException(
+                            "(one-dimensional) arrays, sequences and multisets expect exactly one index argument", t));
+                }
+                break;
 
-        case "array2":
-            if(t.getChildCount() != 3) {
-                exceptions.add(new DafnyException(
-                        "(two-dimensional) arrays expect exactly two index arguments", t));
-            }
-            break;
+            case "array2":
+                if(t.getChildCount() != 3) {
+                    exceptions.add(new DafnyException(
+                            "(two-dimensional) arrays expect exactly two index arguments", t));
+                }
+                break;
 
-        default:
-            exceptions.add(new DafnyException(
+            default:
+                exceptions.add(new DafnyException(
                         "Only arrays or sequences can be indexed", t));
-            // set a fake type to avoid internal exceptions when continuing
-            DafnyTree ty = ASTUtil.id(Sort.UNTYPED_SORT.getName());
-            t.setExpressionType(ty);
-            return ty;
+                // set a fake type to avoid internal exceptions when continuing
+                DafnyTree ty = ASTUtil.id(Sort.UNTYPED_SORT.getName());
+                t.setExpressionType(ty);
+                return ty;
         }
 
         DafnyTree ty = recvType.getChild(0);
         t.setExpressionType(ty);
         return ty;
+    }
+
+    private DafnyTree visitMULTI_COUNT(DafnyTree t, DafnyTree recvType) {
+        if (t.getChildCount() != 2) {
+            exceptions.add(new DafnyException(
+                    "multiset can only be queried for number of occurance of a single element", t));
+        }
+
+        DafnyTree index = t.getChild(1);
+        DafnyTree indexType = index.accept(this, null);
+
+        Sort msElemSort = ASTUtil.toSort(recvType.getChild(0));
+        Sort indexSort = ASTUtil.toSort(indexType);
+
+        if(!haveCommonSupertype(msElemSort, indexSort)) {
+            exceptions.add(new DafnyException("The elem count predicate needs a value and a compatible (multi)set", t));
+        }
+
+        t.setExpressionType(INT_TYPE);
+        return INT_TYPE;
     }
 
     @Override
@@ -531,7 +558,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         DafnyTree decl = call.getDeclarationReference();
 
         assert decl != null:
-            "ReferenceResolutionVisitor must be run before the type resolution";
+                "ReferenceResolutionVisitor must be run before the type resolution";
 
         Tree parent = decl.getParent();
         if(t.getChildCount() == 3) {
@@ -560,7 +587,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
             if (!act.equals(expected)) {
                 exceptions.add(new DafnyException(
                         String.format("Wrong type for argument %d in "
-                                + "call to %s. Expected %s, but got %s.",
+                                        + "call to %s. Expected %s, but got %s.",
                                 i+1, call.getText(), expected, act), t));
             }
         }
@@ -775,25 +802,25 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     public DafnyTree visitWILDCARD(DafnyTree t, Void a) {
         DafnyTree parent = (DafnyTree) t.getParent();
         switch (parent.getType()) {
-        case DafnyParser.IF:
-        case DafnyParser.WHILE:
-            assert
-              parent.getFirstChildWithType(DafnyParser.LABEL) == null
-              ? parent.getChild(0) == t
-              : parent.getChild(1) == t : "Wildcard must be first child";
+            case DafnyParser.IF:
+            case DafnyParser.WHILE:
+                assert
+                        parent.getFirstChildWithType(DafnyParser.LABEL) == null
+                                ? parent.getChild(0) == t
+                                : parent.getChild(1) == t : "Wildcard must be first child";
 
-            t.setExpressionType(BOOL_TYPE);
-            return BOOL_TYPE;
+                t.setExpressionType(BOOL_TYPE);
+                return BOOL_TYPE;
 
-        case DafnyParser.ASSIGN:
-            assert parent.getChild(1) == t : "Wildcard must be 2nd child";
-            DafnyTree receiverType = parent.getChild(0).getExpressionType();
-            assert receiverType != null : "receiver type must already have been resolved";
-            t.setExpressionType(receiverType);
-            return receiverType;
+            case DafnyParser.ASSIGN:
+                assert parent.getChild(1) == t : "Wildcard must be 2nd child";
+                DafnyTree receiverType = parent.getChild(0).getExpressionType();
+                assert receiverType != null : "receiver type must already have been resolved";
+                t.setExpressionType(receiverType);
+                return receiverType;
 
-        default:
-            throw new Error("Should not be reachable by grammar: " + parent.getType());
+            default:
+                throw new Error("Should not be reachable by grammar: " + parent.getType());
         }
     }
 

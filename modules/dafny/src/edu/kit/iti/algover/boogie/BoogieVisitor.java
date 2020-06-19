@@ -302,7 +302,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         return (t, v) -> {
             String ms = t.getTerm(1).accept(v, null);
             String elem = t.getTerm(0).accept(v, null);
-            return ms + "[" + elem + "]";
+            return "(" + ms + "[" + elem + "])";
         };
     }
 
