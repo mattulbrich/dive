@@ -492,7 +492,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     private DafnyTree visitMULTI_COUNT(DafnyTree t, DafnyTree recvType) {
         if (t.getChildCount() != 2) {
             exceptions.add(new DafnyException(
-                    "multiset can only be queried for number of occurance of a single element", t));
+                    "Multiset can only be queried for number of occurrence of a single element", t));
         }
 
         DafnyTree index = t.getChild(1);
