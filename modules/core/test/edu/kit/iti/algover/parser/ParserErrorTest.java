@@ -74,7 +74,7 @@ public class ParserErrorTest {
     @Test
     public void illegalArrayAccess() throws Exception {
         thrown.expect(DafnyException.class);
-        thrown.expectMessage("Only arrays or sequences can be indexed");
+        thrown.expectMessage("element selection requires a sequence, array, multiset (got int)");
         parse("method m(i:int) { i[0] := 0; }");
     }
 

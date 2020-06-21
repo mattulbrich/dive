@@ -433,29 +433,7 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     @Override
     public DafnyTree visitARRAY_ACCESS(DafnyTree t, Void a) {
         DafnyTree receiver = t.getChild(0);
-
         DafnyTree recvType = receiver.accept(this, null);
-
-        System.out.println("receiver " + recvType.getText());
-
-        if (recvType.getType() == DafnyParser.MULTISET) {
-            return visitMULTI_COUNT(t, recvType);
-        }
-
-        // Special casing a[..]
-        if(t.getChild(1).getType() == DafnyParser.DOTDOT) {
-            return visitARRAY_ACCESS_DOTDOT(t, receiver);
-        }
-
-        for(int i = 1; i < t.getChildCount(); i++) {
-            DafnyTree index = t.getChild(i);
-            DafnyTree indexType = index.accept(this, null);
-
-            if (indexType.getType() != DafnyParser.INT) {
-                exceptions.add(new DafnyException(
-                        "Array index not of type int, but " + indexType, index));
-            }
-        }
 
         String typeName = TreeUtil.toSort(recvType).getName();
         switch(typeName) {
@@ -477,11 +455,31 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
 
             default:
                 exceptions.add(new DafnyException(
-                        "Only arrays or sequences can be indexed", t));
+                        "element selection requires a sequence, array, multiset " /* + ", or map" */+
+                                "(got " + typeName + ")", t));
                 // set a fake type to avoid internal exceptions when continuing
                 DafnyTree ty = ASTUtil.id(Sort.UNTYPED_SORT.getName());
                 t.setExpressionType(ty);
                 return ty;
+        }
+
+        if (recvType.getType() == DafnyParser.MULTISET) {
+            return visitMULTI_COUNT(t, recvType);
+        }
+
+        // Special casing a[..]
+        if(t.getChild(1).getType() == DafnyParser.DOTDOT) {
+            return visitARRAY_ACCESS_DOTDOT(t, receiver);
+        }
+
+        for(int i = 1; i < t.getChildCount(); i++) {
+            DafnyTree index = t.getChild(i);
+            DafnyTree indexType = index.accept(this, null);
+
+            if (indexType.getType() != DafnyParser.INT) {
+                exceptions.add(new DafnyException(
+                        "Array index not of type int, but " + indexType, index));
+            }
         }
 
         DafnyTree ty = recvType.getChild(0);
@@ -490,11 +488,6 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
     }
 
     private DafnyTree visitMULTI_COUNT(DafnyTree t, DafnyTree recvType) {
-        if (t.getChildCount() != 2) {
-            exceptions.add(new DafnyException(
-                    "Multiset can only be queried for number of occurrence of a single element", t));
-        }
-
         DafnyTree index = t.getChild(1);
         DafnyTree indexType = index.accept(this, null);
 
