@@ -127,7 +127,7 @@ public class WelcomePane {
         openRecent.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.RECYCLE));
         openRecent.setOnAction(this::handleOpenRecentAction);
 
-        createProject.setText("New project");
+        createProject.setText("New from dafny file");
         createProject.setStyle("-fx-font-size: 20");
         createProject.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.FOLDER));
         createProject.setOnAction(this::createNewProjectHandler);
