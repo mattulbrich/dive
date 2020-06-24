@@ -14,29 +14,29 @@ javafx {
 mainClassName = 'edu.kit.iti.algover.DIVEApplication'
 
 dependencies {
-    compile project(":core")
-    compile project(":dafny")
-    compile 'de.jensd:fontawesomefx-commons:11.0'
-    compile 'de.jensd:fontawesomefx-controls:9.1.2'
-    compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-9.1.2'
-    compile 'de.jensd:fontawesomefx-materialdesignfont:2.0.26-9.1.2'
-    compile 'de.jensd:fontawesomefx-materialicons:2.2.0-9.1.2'
+    implementation project(":core")
+    implementation project(":dafny")
+    implementation 'de.jensd:fontawesomefx-commons:11.0'
+    implementation 'de.jensd:fontawesomefx-controls:9.1.2'
+    implementation 'de.jensd:fontawesomefx-fontawesome:4.7.0-9.1.2'
+    implementation 'de.jensd:fontawesomefx-materialdesignfont:2.0.26-9.1.2'
+    implementation 'de.jensd:fontawesomefx-materialicons:2.2.0-9.1.2'
 
-    compile group: 'org.controlsfx', name: 'controlsfx', version: '11.0.0'
+    implementation group: 'org.controlsfx', name: 'controlsfx', version: '11.0.0'
 
 
-    compile group: 'com.miglayout', name: 'miglayout-swing', version: '5.2'
-    compile group: 'com.miglayout', name: 'miglayout-javafx', version: '5.2'
+    implementation group: 'com.miglayout', name: 'miglayout-swing', version: '5.2'
+    implementation group: 'com.miglayout', name: 'miglayout-javafx', version: '5.2'
 
-    /*compile name: 'richtextfx-fat-0.9.2'*/
+    /*implementation name: 'richtextfx-fat-0.9.2'*/
 
-    compile group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.10.0'
-    /*compile name: 'rsyntaxtextarea-2.6.0-SNAPSHOT'
-    compile name: 'swingx-all-1.6.4'*/
-    compile group: 'com.jfoenix', name: 'jfoenix', version: '9.0.8'
+    implementation group: 'org.fxmisc.richtext', name: 'richtextfx', version: '0.10.0'
+    /*implementation name: 'rsyntaxtextarea-2.6.0-SNAPSHOT'
+    implementation name: 'swingx-all-1.6.4'*/
+    implementation group: 'com.jfoenix', name: 'jfoenix', version: '9.0.8'
 
     // actually only needed at runtime, but who cares ...
-    testCompile project(':core').sourceSets.test.output
+    testImplementation project(':core').sourceSets.test.output
 }
 
 run {

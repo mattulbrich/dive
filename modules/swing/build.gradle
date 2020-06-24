@@ -12,12 +12,12 @@ plugins {
 }
 
 dependencies {
-    compile project(":core")
-    compile project(":cli")
+    implementation project(":core")
+    implementation project(":cli")
     runtime project(":dafny")
-    compile 'com.fifesoft:rsyntaxtextarea:3.0.3'
-    compile 'com.formdev:flatlaf:0.35'
-    testCompile project(':core').sourceSets.test.output
+    implementation 'com.fifesoft:rsyntaxtextarea:3.0.3'
+    implementation 'com.formdev:flatlaf:0.35'
+    testImplementation project(':core').sourceSets.test.output
 }
 
 compileTestJava.dependsOn tasks.getByPath(':core:testClasses')
