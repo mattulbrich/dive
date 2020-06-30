@@ -483,15 +483,14 @@ public class ProjectSettingsController implements ISettingsController {
 
         getConfig().setMasterFile(masterFile);
 
-        if (manager.get() != null) {
-            manager.get().updateProject(getConfig());
-        } else {
-            DafnyProjectConfigurationChanger.saveConfiguration(getConfig(), getConfig().getMasterFile());
+        if (manager.get() == null) {
             manager.set(new DafnyProjectManager(getConfig().getMasterFile()));
         }
+        manager.get().updateProject(getConfig());
+        manager.get().reload();
     }
 
-    private boolean projectConfigXML(File baseDir) throws IOException, DafnyException, DafnyParserException, FormatException {
+    private void projectConfigXML(File baseDir) throws IOException, DafnyException, DafnyParserException, FormatException {
         String configFileNameStr = this.configFileName.getText();
         if (configFileNameStr.equals("")) {
             configFileNameStr = getConfig().getConfigFile();
@@ -520,7 +519,9 @@ public class ProjectSettingsController implements ISettingsController {
             XMLProjectManager.saveConfiguration(getConfig());
             manager.set(new XMLProjectManager(baseDir, configFileNameStr));
         }
-        return true;
+
+        manager.get().updateProject(getConfig());
+        manager.get().reload();
     }
 
     private void validate() throws IOException {
