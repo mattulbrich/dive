@@ -5,7 +5,6 @@
  */
 package edu.kit.iti.algover.settings;
 
-import com.google.common.base.Charsets;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXRadioButton;
 import edu.kit.iti.algover.parser.DafnyException;
@@ -27,17 +26,13 @@ import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import edu.kit.iti.algover.settings.ProjectSettings.Property;
 import edu.kit.iti.algover.util.StringValidators.OptionStringValidator;
@@ -441,9 +436,9 @@ public class ProjectSettingsController implements ISettingsController {
 
         try {
             if(saveAsXML) {
-                createXMLConfig(baseDir);
+                projectConfigXML(baseDir);
             } else {
-                createProjectMasterDafnyFile(baseDir);
+                projectConfigDafny(baseDir);
             }
         } catch (IOException e) {
             String msg = "Could not save project settings to file";
@@ -465,7 +460,7 @@ public class ProjectSettingsController implements ISettingsController {
 
     }
 
-    private void createProjectMasterDafnyFile(File baseDir) throws IOException, FormatException, DafnyException, DafnyParserException {
+    private void projectConfigDafny(File baseDir) throws IOException, FormatException, DafnyException, DafnyParserException {
         String masterFileNameStr = this.masterFileName.getText();
         File masterFile = null;
         if (masterFileNameStr.equals("")) {
@@ -488,21 +483,15 @@ public class ProjectSettingsController implements ISettingsController {
 
         getConfig().setMasterFile(masterFile);
 
-        System.out.println("MasterFile: " + getConfig().getMasterFile());
-
         if (manager.get() != null) {
             manager.get().updateProject(getConfig());
         } else {
             DafnyProjectConfigurationChanger.saveConfiguration(getConfig(), getConfig().getMasterFile());
             manager.set(new DafnyProjectManager(getConfig().getMasterFile()));
         }
-
-        //manager.get().reload();
-        //manager.get().getConfiguration();
-
     }
 
-    private boolean createXMLConfig(File baseDir) throws IOException, DafnyException, DafnyParserException, FormatException {
+    private boolean projectConfigXML(File baseDir) throws IOException, DafnyException, DafnyParserException, FormatException {
         String configFileNameStr = this.configFileName.getText();
         if (configFileNameStr.equals("")) {
             configFileNameStr = getConfig().getConfigFile();
