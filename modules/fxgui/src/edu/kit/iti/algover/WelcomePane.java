@@ -45,10 +45,7 @@ import org.w3c.dom.ls.LSOutput;
 
 import javax.swing.text.html.ImageView;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -127,7 +124,7 @@ public class WelcomePane {
         openRecent.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.RECYCLE));
         openRecent.setOnAction(this::handleOpenRecentAction);
 
-        createProject.setText("New from dafny file");
+        createProject.setText("New project");
         createProject.setStyle("-fx-font-size: 20");
         createProject.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.FOLDER));
         createProject.setOnAction(this::createNewProjectHandler);
@@ -364,10 +361,8 @@ public class WelcomePane {
                     } else {
                         manager = new DafnyProjectManager(config.getMasterFile());
                     }
-                    createAndExecuteMainController(config.getBaseDir(), manager);
-
                 } catch (IOException e) {
-                    Logger.getGlobal().warning("Invalid settings set, please review.");
+                    Logger.getGlobal().warning("Invalid settings set, please review. " + e.getMessage());
                 } catch (DafnyParserException e) {
                     Logger.getGlobal().severe("Project could not be created");
                     e.printStackTrace();
@@ -375,6 +370,8 @@ public class WelcomePane {
                     Logger.getGlobal().severe("Project could not be created");
                     e.printStackTrace();
                 }
+
+                createAndExecuteMainController(config.getMasterFile(), manager);
 
 
             });
@@ -436,7 +433,7 @@ public class WelcomePane {
 
         double width = screenSize.getWidth();
         double height = screenSize.getHeight();
-        width=1000;
+        width = 1000;
         height = 1000;
         substage.setWidth(width);
         substage.setHeight(height);
