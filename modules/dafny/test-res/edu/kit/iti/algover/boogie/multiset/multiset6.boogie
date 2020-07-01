@@ -1,0 +1,23 @@
+### decls:
+
+s: multiset<int>
+
+### sequent:
+
+5 in s |- s[5] >= 1
+
+### result:
+prove
+
+### translation:
+
+const _s : MultiSet (int);
+
+axiom $Is(_s, TMultiSet(TInt));
+
+procedure Sequent()
+  ensures false;
+{
+  assume (_s[5] > 0);
+  assume !(((_s[5]) >= 1));
+}

@@ -1,0 +1,17 @@
+### decls:
+
+s: multiset<int>
+
+### sequent:
+
+|- multiset({1,1,1,1}) == multiset([1,1])
+
+### result:
+prove
+
+### translation:
+
+procedure Sequent()
+  ensures false;
+{
+}
