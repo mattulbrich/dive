@@ -402,9 +402,10 @@ public class TypeResolution extends DafnyTreeDefaultVisitor<DafnyTree, Void> {
         DafnyTree type = arg.accept(this, null);
 
         if (type.getType() != DafnyParser.SET &&
-                type.getType() != DafnyParser.SEQ) {
+                type.getType() != DafnyParser.SEQ &&
+                    type.getType() != DafnyParser.MULTISET) {
             exceptions.add(new DafnyException(
-                    "Only sets and sequences have a cardinality", t));
+                    "Only (multi)sets, sequences have a cardinality", t));
         }
 
         t.setExpressionType(INT_TYPE);

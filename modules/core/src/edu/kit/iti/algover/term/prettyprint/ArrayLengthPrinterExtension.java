@@ -37,7 +37,8 @@ public class ArrayLengthPrinterExtension implements PrettyPrintExtension {
         if (functionSymbol instanceof InstantiatedFunctionSymbol) {
             InstantiatedFunctionSymbol symbol = (InstantiatedFunctionSymbol) functionSymbol;
             FunctionSymbolFamily family = symbol.getFamily();
-            if (family == BuiltinSymbols.SEQ_LEN || family == BuiltinSymbols.CARD) {
+            if (family == BuiltinSymbols.SEQ_LEN || family == BuiltinSymbols.CARD ||
+                family == BuiltinSymbols.MULTI_CARD) {
                 return "|";
             }
         }
@@ -50,7 +51,8 @@ public class ArrayLengthPrinterExtension implements PrettyPrintExtension {
 
             FunctionSymbolFamily family = symbol.getFamily();
 
-            if (family == BuiltinSymbols.SEQ_LEN || family == BuiltinSymbols.CARD) {
+            if (family == BuiltinSymbols.SEQ_LEN || family == BuiltinSymbols.CARD ||
+                family == BuiltinSymbols.MULTI_CARD) {
                 return "|";
             }
 

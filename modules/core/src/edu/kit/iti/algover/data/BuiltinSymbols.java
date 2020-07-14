@@ -245,7 +245,7 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbolFamily SET_TO_MULTI_SET =
             new FunctionSymbolFamily(
-                    new FunctionSymbol("multiset", MSET1, SET1), 1);
+                    new FunctionSymbol("$set_to_multiset", MSET1, SET1), 1);
 
     public static final FunctionSymbolFamily MULTI_COUNT =
             new FunctionSymbolFamily(
@@ -290,7 +290,7 @@ public class BuiltinSymbols extends MapSymbolTable {
 
     public static final FunctionSymbolFamily SEQ_TO_MULTI_SET =
             new FunctionSymbolFamily(
-                    new FunctionSymbol("multiset", MSET1, SEQ1), 1);
+                    new FunctionSymbol("$seq_to_multiset", MSET1, SEQ1), 1);
 
 
     private static final Sort SET_OBJECTS = Sort.get("set", Sort.OBJECT);

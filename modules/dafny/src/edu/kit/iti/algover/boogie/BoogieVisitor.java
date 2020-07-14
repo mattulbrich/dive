@@ -112,7 +112,8 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         result.put(EMPTY_MULTI_SET.getName(), function("MultiSet#Empty"));
         result.put(MULTI_CARD.getBaseName(), function("MultiSet#Card"));
         result.put(MULTI_COUNT.getBaseName(), multisetElemCard());
-        result.put("multiset", toMultiset());
+        result.put(SET_TO_MULTI_SET.getBaseName(), toMultiset());
+        result.put(SEQ_TO_MULTI_SET.getBaseName(), toMultiset());
         // --- Sequents
         result.put(SEQ_LEN.getBaseName(), function("Seq#Length"));
         result.put(SEQ_GET.getBaseName(), function("Seq#Index"));

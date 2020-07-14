@@ -140,6 +140,7 @@ public class PrettyPrintTest {
     public String[][] parametersForTestADTExpressions() {
         return new String[][] {
             { "|sq|" }, { "|st|" }, { "st + st" }, { "sq + sq" },
+            { "|ms|" },
             { "{1, 2, 3}" }, { "[1, 2, 3]"},
             { "sq[0]" },
             { "{0} == {0}" },
@@ -179,6 +180,8 @@ public class PrettyPrintTest {
 
         st.addFunctionSymbol(new FunctionSymbol("sq", Sort.get("seq", Sort.INT)));
         st.addFunctionSymbol(new FunctionSymbol("st", Sort.get("set", Sort.INT)));
+
+        st.addFunctionSymbol(new FunctionSymbol("ms", Sort.get("multiset", Sort.INT)));
 
         st.addFunctionSymbol(new FunctionSymbol("o", C));
         st.addFunctionSymbol(new FunctionSymbol("C$$f", Sort.get("field", C, Sort.INT)));
