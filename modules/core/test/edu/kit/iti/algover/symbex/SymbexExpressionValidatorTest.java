@@ -23,10 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -53,6 +50,11 @@ public class SymbexExpressionValidatorTest {
                         "method m(a: seq<int>) ensures a[0] == 0 {}",
                         new int[]{0, 2, 0},
                         Arrays.asList("[][RT_IN_BOUNDS:(&& (<= 0 0) (< 0 (Length a)))]")
+                },
+                {
+                        "method m(a: multiset<object>) ensures a[null] == 0 {}",
+                        new int[]{0, 2, 0},
+                        Collections.emptyList()
                 },
                 {
                         "method m(x: int) ensures 1/x == 1 {}",

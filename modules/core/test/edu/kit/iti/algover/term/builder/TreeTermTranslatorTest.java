@@ -185,6 +185,7 @@ public class TreeTermTranslatorTest {
             { "iseq + iseq", "$seq_concat<int>(iseq, iseq)" },
             { "mod * mod", "$intersect<object>(mod, mod)" },
             { "mod + mod", "$union<object>(mod, mod)" },
+            { "mod - mod", "$set_minus<object>(mod, mod)" },
             { "cseq + dseq", "$seq_concat<object>(cseq, dseq)" },
             { "{}", "$empty" },
             { "{} == {1}", "$eq<set<int>>($empty, $set_add<int>(1, $empty))" },
@@ -199,6 +200,20 @@ public class TreeTermTranslatorTest {
             { "|mod|-1", "$minus($set_card<object>(mod), 1)"},
             { "iseq[1 := 1]", "$seq_upd<int>(iseq, 1, 1)" },
             { "iseq[42]", "$seq_get<int>(iseq, 42)" },
+
+            // Multisets
+            { "|mset|", "$multi_set_card<int>(mset)" },
+            { "multiset{1,2,3}", "$multi_set_add<int>(3, $multi_set_add<int>(2, $multi_set_add<int>(1, $multi_empty)))" },
+            { "mset + mset", "$multi_union<int>(mset, mset)" },
+            { "mset * mset", "$multi_intersect<int>(mset, mset)" },
+            { "mset - mset", "$multi_set_minus<int>(mset, mset)" },
+            { "multiset{}", "$multi_empty" },
+            { "multiset{} == multiset{1}", "$eq<multiset<int>>($multi_empty, $multi_set_add<int>(1, $multi_empty))" },
+            { "0 in mset", "$multi_set_in<int>(0, mset)" },
+            { "multiset(iseq)", "$seq_to_multiset<int>(iseq)" },
+            { "multiset(mod)", "$set_to_multiset<object>(mod)" },
+            { "mset[2]", "$multi_count<int>(2, mset)" },
+            { "multiset{c}[c]", "$multi_count<C>(c, $multi_set_add<C>(c, $multi_empty))" },
         };
     }
 
@@ -247,6 +262,7 @@ public class TreeTermTranslatorTest {
             { "c.g", "Field g not found in class C" },
             { "1.f", "field access only possible for class sorts" },
             { "1@loopHeap", "heap suffixes are only allowed for heap select terms" },
+            //{ "b1[c.f:=1]", "Heap updates must be applied to heaps" },
             { "b1[c.f:=1]", "The update operator may only be applied to heaps or sequences" },
             { "loopHeap[c := c]", "Heap updates must modify a heap location" },
             { "loopHeap[c.f := true]", "Unexpected argument sort for argument 4 to $store" },
@@ -287,6 +303,7 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("loopHeap", Sort.HEAP));
         map.add(new FunctionSymbol("mod", Sort.get("set", Sort.OBJECT)));
         map.add(new FunctionSymbol("iseq", Sort.get("seq", Sort.INT)));
+        map.add(new FunctionSymbol("mset", Sort.get("multiset", Sort.INT)));
         map.add(new FunctionSymbol("cseq", Sort.get("seq", Sort.getClassSort("C"))));
         map.add(new FunctionSymbol("dseq", Sort.get("seq", Sort.getClassSort("D"))));
         Project p = TestUtil.mockProject("class C { var f: int; function fct(i:int): int {0} }");

@@ -7,8 +7,6 @@
 
 -->
 <configuration>
-    <dafnyFile>selectionSort.dfy</dafnyFile>
-    <settings>
-      <entry><key>Default Script</key><value>boogie;</value></entry>
-    </settings>
+    <dafnyFile>mstest.dfy</dafnyFile>
+    <settings><entry><key>Default Script</key><value>boogie;</value></entry></settings>
 </configuration>

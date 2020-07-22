@@ -169,7 +169,16 @@ public class TermBuilder {
                         array.getSort().getArguments().get(0));
 
         return new ApplTerm(select, heap, array, index);
+    }
 
+    public Term msNumOccOf(Term msTerm, Term valueTerm) throws TermBuildException{
+        Sort seqSort = msTerm.getSort();
+        assert seqSort.getName().equals("multiset");
+        Sort elementSort = seqSort.getArguments().get(0);
+        FunctionSymbol msOcc =
+                symbolTable.getFunctionSymbol(BuiltinSymbols.MULTI_COUNT, elementSort);
+
+        return new ApplTerm(msOcc, valueTerm, msTerm);
     }
 
     public Term selectArray2(ApplTerm heap, Term array, Term index0, Term index1) throws TermBuildException {

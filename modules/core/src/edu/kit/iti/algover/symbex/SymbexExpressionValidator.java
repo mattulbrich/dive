@@ -339,8 +339,13 @@ public class SymbexExpressionValidator {
     }
 
     private void addIndexInRangeCheck(DafnyTree idx, @Nullable DafnyTree array,
-                                     String arrayLengthSuffix,
+                                      String arrayLengthSuffix,
                                       Function<DafnyTree, DafnyTree> wrapper) {
+        if(array.getExpressionType().getText().equals("multiset")) {
+            // multisets do not have indices when applied to [...]
+            return;
+        }
+
         SymbexPath bounds = new SymbexPath(state);
         DafnyTree check = ASTUtil.lessEqual(ASTUtil.intLiteral(0), idx);
         if (array != null) {
@@ -358,7 +363,8 @@ public class SymbexExpressionValidator {
             return;
         }
 
-        if (expression.getExpressionType().getText().equals("seq")) {
+        String typeText = expression.getExpressionType().getText();
+        if (typeText.equals("seq") || typeText.equals("multiset")) {
             // No check for seq, olny for array.
             return;
         }

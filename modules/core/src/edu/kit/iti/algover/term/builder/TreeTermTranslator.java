@@ -313,8 +313,8 @@ public class TreeTermTranslator {
                     return symbolTable.getFunctionSymbol(
                             BuiltinSymbols.SEQ_CONCAT, sort.getArgument(0));
                 case "multiset":
-                    // TODO
-                    throw new Error("IMPLEMENT ME!");
+                    return symbolTable.getFunctionSymbol(
+                            BuiltinSymbols.MULTI_UNION, sort.getArgument(0));
                 default:
                     throw new TermBuildException("'+' is not supported for these arguments");
                 }
@@ -325,7 +325,20 @@ public class TreeTermTranslator {
             if (tree.getChildCount() == 1) {
                 result = buildUnary(BuiltinSymbols.NEG, tree);
             } else {
-                result = buildBinary(BuiltinSymbols.MINUS, tree);
+                result = buildBinary(symmetricBinarySymbol(sort -> {
+                    switch(sort.getName()) {
+                    case "int":
+                        return BuiltinSymbols.MINUS;
+                    case "set":
+                        return symbolTable.getFunctionSymbol(
+                                BuiltinSymbols.SET_MINUS, sort.getArgument(0));
+                    case "multiset":
+                        return symbolTable.getFunctionSymbol(
+                                BuiltinSymbols.MULTI_SET_MINUS, sort.getArgument(0));
+                    default:
+                        throw new TermBuildException("'*' is not supported for these arguments");
+                    }
+                }), tree);
             }
             break;
 
@@ -346,8 +359,8 @@ public class TreeTermTranslator {
                     return symbolTable.getFunctionSymbol(
                             BuiltinSymbols.INTERSECT, sort.getArgument(0));
                 case "multiset":
-                    // TODO
-                    throw new Error("IMPLEMENT ME!");
+                    return symbolTable.getFunctionSymbol(
+                            BuiltinSymbols.MULTI_INTERSECT, sort.getArgument(0));
                 default:
                     throw new TermBuildException("'*' is not supported for these arguments");
                 }
@@ -361,6 +374,9 @@ public class TreeTermTranslator {
                 case "set":
                     return symbolTable.getFunctionSymbol(
                             BuiltinSymbols.SET_IN, y.getSort().getArgument(0));
+                case "multiset":
+                    return symbolTable.getFunctionSymbol(
+                            BuiltinSymbols.MULTI_SET_IN, y.getSort().getArgument(0));
                 default:
                     throw new Error("Not yet implemented");
                 }
@@ -404,8 +420,16 @@ public class TreeTermTranslator {
             result = buildSetExtension(tree);
             break;
 
+        case DafnyParser.MULTISETEX:
+            result = buildMultisetExtension(tree);
+            break;
+
         case DafnyParser.LISTEX:
             result = buildListExtension(tree);
+            break;
+
+        case DafnyParser.MULTISET:
+            result = buildMultiset(tree);
             break;
 
         case DafnyParser.ALL:
@@ -664,6 +688,21 @@ public class TreeTermTranslator {
                     return tb.seqGet(arrayTerm, indexTerm);
                 }
 
+            case "multiset":
+
+                if (tree.getChildCount() != 2) {
+                    throw new TermBuildException("Indexing multiset requires one index argument");
+                }
+
+                indexTree = tree.getChild(1);
+                if (indexTree.getType() == DafnyParser.DOTDOT) {
+                    return buildSubSequence(arrayTerm, indexTree);
+                } else {
+                    indexTerm = build(indexTree);
+                    return tb.msNumOccOf(arrayTerm, indexTerm);
+                }
+
+
 
         case "array2":
                 if (tree.getChildCount() != 3) {
@@ -818,6 +857,12 @@ public class TreeTermTranslator {
                     sort.getArguments().get(0));
             break;
 
+        case "multiset":
+            function = symbolTable.getFunctionSymbol(
+                    BuiltinSymbols.MULTI_CARD,
+                    sort.getArguments().get(0));
+            break;
+
         case "seq":
             function = symbolTable.getFunctionSymbol(
                     BuiltinSymbols.SEQ_LEN,
@@ -894,6 +939,30 @@ public class TreeTermTranslator {
     private Term buildSetExtension(DafnyTree tree) throws TermBuildException {
         return buildExtension(BuiltinSymbols.EMPTY_SET, BuiltinSymbols.SET_ADD, tree);
     }
+
+    private Term buildMultisetExtension(DafnyTree tree) throws TermBuildException {
+        return buildExtension(BuiltinSymbols.EMPTY_MULTI_SET, BuiltinSymbols.MULTI_SET_ADD, tree);
+    }
+
+    private Term buildMultiset(DafnyTree tree) throws TermBuildException {
+        Term arg = build(tree.getChild(0));
+        FunctionSymbol fs;
+        switch(arg.getSort().getName()) {
+        case "seq":
+            fs = symbolTable.getFunctionSymbol(BuiltinSymbols.SEQ_TO_MULTI_SET,
+                    arg.getSort().getArgument(0));
+            break;
+        case "set":
+            fs = symbolTable.getFunctionSymbol(BuiltinSymbols.SET_TO_MULTI_SET,
+                    arg.getSort().getArgument(0));
+            break;
+        default:
+            throw new TermBuildException("'multiset' can only be applied to sets and seqs");
+        }
+
+        return new ApplTerm(fs, arg);
+    }
+
 
     private Term buildIdentifier(DafnyTree tree) throws TermBuildException {
         String name = tree.toString();

@@ -4,9 +4,25 @@ dependencies {
     testImplementation project(':core').sourceSets.test.output
 }
 
-
 compileTestJava.dependsOn tasks.getByPath(':core:testClasses')
 
+sourceSets {
+    main {
+        resources {
+            srcDirs 'res', 'build/generated/res'
+        }
+    }
+}
 
+processResources.dependsOn("preparePrelude")
 
+task preparePrelude(type: Copy) {
+    from 'src'
+    include '**/*.bpl'
+    into 'build/generated/res'
+    filter { String line ->
+        def l = line.trim()
+        l.isEmpty() || l.startsWith("//") ? null : line.replaceAll("//.*", "")
+    }
+}
 

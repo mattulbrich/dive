@@ -1,0 +1,23 @@
+### decls:
+
+s: set<int>
+
+### sequent:
+
+5 in s |- s + {5} == s
+
+### result:
+prove
+
+### translation:
+
+const _s : Set (int);
+
+axiom $Is(_s, TSet(TInt));
+
+procedure Sequent()
+  ensures false;
+{
+  assume (_s[5]);
+  assume !(Set#Equal(Set#Union(_s, Set#UnionOne(Set#Empty(), 5)), _s));
+}

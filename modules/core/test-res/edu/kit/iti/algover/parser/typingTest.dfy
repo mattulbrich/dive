@@ -209,6 +209,8 @@ class C
    {
      var s2 := { 1, 2, 3 };
      var s3 := { 1 } + { 2 };
+     s3 := { 1 } * { 2 };
+     s3 := { 1 } - { 2 };
      var s4 := 1 in {  };
      var s5 := 2 !in {2};
    }
@@ -241,9 +243,10 @@ class C
      ensures s[0..] == s[..1] == s[0..1];
    { }
 
-   method extensions(l: seq<int>, s: set<int>)
+   method extensions(l: seq<int>, s: set<int>, ms: multiset<int>)
      requires l == [1,2,3]
      requires s == {1,2,3}
+     requires ms == multiset{1, 1, 2}
      ensures l != []
      ensures [] == []
      ensures s != {}
@@ -326,4 +329,20 @@ class C
       0
    }
 
+   method multisetTest()
+   {
+     var s2 := multiset{ 1, 2, 3 };
+     s2 := s2 + s2;
+     s2 := s2 * s2;
+     s2 := s2 - s2;
+     var b1 := 42 in s2;
+     var b2 := 2 !in s2;
+
+     s2 := multiset({1,2});
+     s2 := multiset([1,2]);
+
+     var count := s2[42];
+     var o: object;
+     var count2 := multiset{o,o}[o];
+   }
 }

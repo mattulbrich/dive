@@ -277,6 +277,7 @@ var:
 type:
     INT | BOOL | OBJECT
   | SET^ '<'! type '>'!
+  | MULTISET^ '<'! type '>'!
   | ARRAY^ '<'! type '>'!
   | SEQ^ '<'! type '>'!
   | ID^ ( '?'! )? ( '<'! type ( ','! type )* '>'! )?
@@ -541,7 +542,8 @@ atom_expr:
   | '('! expression ')'!
   | t='{' ( expression ( ',' expression )* )? '}' -> ^(SETEX[t] expression*)
   | t='[' ( expression ( ',' expression )* )? ']' -> ^(LISTEX[t] expression*)
-  | 'multiset' '{' expression ( ',' expression )* '}' -> ^(MULTISETEX expression+)
+  | t='multiset' '{' ( expression ( ',' expression )* )? '}' -> ^(MULTISETEX[t] expression*)
+  | 'multiset' '(' expression ')' -> ^('multiset' expression)
   ;
 
 schema_entity:

@@ -9,6 +9,7 @@ package edu.kit.iti.algover.swing.actions.proof;
 
 import edu.kit.iti.algover.swing.actions.BarAction;
 import edu.kit.iti.algover.swing.actions.BarManager.Initialisable;
+import edu.kit.iti.algover.swing.util.ExceptionDialog;
 import edu.kit.iti.algover.swing.util.Log;
 
 import javax.swing.*;
@@ -39,6 +40,7 @@ public class ReplayAction extends BarAction implements Initialisable {
             getDiveCenter().properties().onGoingProof.setValue(true);
             getDiveCenter().getMainController().getScriptCodeController().replay();
         } catch(Throwable ex) {
+            ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
             Log.log(Log.DEBUG, "Uncaught exception in replay");
             Log.stacktrace(Log.DEBUG, ex);
         } finally {
