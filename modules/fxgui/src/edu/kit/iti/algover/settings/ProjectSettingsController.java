@@ -5,7 +5,6 @@
  */
 package edu.kit.iti.algover.settings;
 
-import com.google.common.base.Charsets;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXRadioButton;
 import edu.kit.iti.algover.parser.DafnyException;
@@ -27,17 +26,13 @@ import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import edu.kit.iti.algover.settings.ProjectSettings.Property;
 import edu.kit.iti.algover.util.StringValidators.OptionStringValidator;
@@ -235,7 +230,7 @@ public class ProjectSettingsController implements ISettingsController {
 
     /**
      * Add contents to the SettingsView according to configuration
-     * and disable fields if neccessary
+     * and disable fields if necessary
      */
     private void addProjectContents() {
        // managerProperty().removeListener(projectManagerListener);
@@ -408,83 +403,50 @@ public class ProjectSettingsController implements ISettingsController {
      * Save current configuration.
      * @author M.Ulbrich
      * @modified S.Grebing
+     * @modified V.Springsklee
      *
      */
     @Override
-    public void save() throws IOException{
-        //validate
-        validationSupport.setErrorDecorationEnabled(true);
-        validationSupport.redecorate();
-        if(validationSupport.getValidationResult().getErrors().size() > 0){
-            StringBuilder errors = new StringBuilder();
-            validationSupport.getValidationResult().getErrors().forEach(validationMessage -> errors.append(validationMessage.getText()));
-            String text = errors.toString();
-            throw new IOException(text);
+    public void save() throws IOException {
+        validate();
 
-        } else {
-            String pathText = projectPath.getText();
-            Path pPath = Paths.get(pathText);
+        String pathText = projectPath.getText();
+        getConfig().setDafnyFiles(this.dafnyFiles.getItems());
+        getConfig().setLibFiles(this.libFiles.getItems());
 
-            getConfig().setDafnyFiles(this.dafnyFiles.getItems());
-            getConfig().setLibFiles(this.libFiles.getItems());
+        List<File> libFiles = getConfig().getLibFiles();
+        libFiles.addAll(this.internalLibFiles.getCheckModel().
+                getCheckedItems().filtered(file -> !libFiles.contains(file)));
 
-            getConfig().getLibFiles().addAll(this.internalLibFiles.getCheckModel().getCheckedItems());
-
-            Map<String, String> newProperties = new HashMap<>();
-            for (Pair<Supplier<String>, Property> value : validators) {
-                String v = value.fst.get();
-                if (v != null) {
-                    if (!v.trim().isEmpty()) {
-                        newProperties.put(value.snd.key, v);
-                    }
-                } else {
-                    Logger.getGlobal().severe("Saving unsuccessful, please select " + value.getSnd().key + " and try saving again.");
+        Map<String, String> newProperties = new HashMap<>();
+        for (Pair<Supplier<String>, Property> value : validators) {
+            String v = value.fst.get();
+            if (v != null) {
+                if (!v.trim().isEmpty()) {
+                    newProperties.put(value.snd.key, v);
                 }
+            } else {
+                Logger.getGlobal().severe("Saving unsuccessful, please select " + value.getSnd().key + " and try saving again.");
             }
+        }
 
-            getConfig().setSettings(newProperties);
-            File baseDir = new File(pathText);
-            getConfig().setBaseDir(baseDir);
+        getConfig().setSettings(newProperties);
+        File baseDir = new File(pathText);
+        getConfig().setBaseDir(baseDir);
 
-            //propagate configuration and save config
-            try {
-                if (saveAsXML) {
-                    File filename = new File(baseDir + File.separator + this.configFileName.getText());
-                    getConfig().setConfigFile(this.configFileName.getText());
-                    ConfigXMLLoader.saveConfigFile(getConfig(), filename);
-                    if (manager.get() != null) {
-                        manager.get().updateProject(getConfig());
-                    } else {
-                        XMLProjectManager.saveConfiguration(getConfig());
-                        manager.set(new XMLProjectManager(baseDir, this.configFileName.getText()));
-                    }
-                } else {
-                    String masterFile = this.masterFileName.getText();
-                    getConfig().setMasterFile(new File(baseDir + File.separator + masterFile));
-                    if (manager.get() != null) {
-                        manager.get().updateProject(getConfig());
-                    } else {
-                        DafnyProjectConfigurationChanger.saveConfiguration(getConfig(), getConfig().getMasterFile());
-                        manager.set(new DafnyProjectManager(getConfig().getMasterFile()));
-                    }
-                }
-                manager.get().reload(); //maybe removed?
-                manager.get().getConfiguration();  //maybe removed?
-
-            } catch (JAXBException e) {
-                String msg = "Could not save configuration file";
-                Logger.getGlobal().warning(msg);
-                e.printStackTrace();
-                ExceptionDialog ed = new ExceptionDialog(e);
-                ed.setHeaderText(msg);
-                ed.showAndWait();
-            } catch (IOException e) {
-                String msg = "Could not save project settings to file";
-                Logger.getGlobal().warning(msg);
-                e.printStackTrace();
-                ExceptionDialog ed = new ExceptionDialog(e);
-                ed.setHeaderText(msg);
-                ed.showAndWait();
+        try {
+            if(saveAsXML) {
+                projectConfigXML(baseDir);
+            } else {
+                projectConfigDafny(baseDir);
+            }
+        } catch (IOException e) {
+            String msg = "Could not save project settings to file";
+            Logger.getGlobal().warning(msg);
+            e.printStackTrace();
+            ExceptionDialog ed = new ExceptionDialog(e);
+            ed.setHeaderText(msg);
+            ed.showAndWait();
 
             } catch (FormatException | DafnyParserException | DafnyException e){
                 e.printStackTrace();
@@ -494,10 +456,83 @@ public class ProjectSettingsController implements ISettingsController {
                 ed.setHeaderText(msg);
                 ed.showAndWait();
 
+        }
+
+    }
+
+    private void projectConfigDafny(File baseDir) throws IOException, FormatException, DafnyException, DafnyParserException {
+        String masterFileNameStr = this.masterFileName.getText();
+        File masterFile = null;
+        if (masterFileNameStr.equals("")) {
+            if (!this.dafnyFiles.getItems().isEmpty()) {
+                masterFile = (this.dafnyFiles.getItems().get(0));
+            }
+        } else {
+            if (!masterFileNameStr.endsWith(".dfy")) {
+                masterFileNameStr += ".dfy";
+            }
+            masterFile = new File(baseDir + File.separator + masterFileNameStr);
+            if (!masterFile.exists()) {
+                masterFile.createNewFile();
             }
         }
 
+        if (masterFile == null) {
+            throw new IOException("Please add Dafny files to the project.");
+        }
 
+        getConfig().setMasterFile(masterFile);
+
+        if (manager.get() == null) {
+            manager.set(new DafnyProjectManager(getConfig().getMasterFile()));
+        }
+        manager.get().updateProject(getConfig());
+        manager.get().reload();
+    }
+
+    private void projectConfigXML(File baseDir) throws IOException, DafnyException, DafnyParserException, FormatException {
+        String configFileNameStr = this.configFileName.getText();
+        if (configFileNameStr.equals("")) {
+            configFileNameStr = getConfig().getConfigFile();
+        }
+        File configFile = new File(baseDir + File.separator + configFileNameStr);
+
+        if (!configFile.exists()) {
+            configFile.createNewFile();
+        }
+
+        try {
+            ConfigXMLLoader.saveConfigFile(getConfig(), configFile);
+        } catch (JAXBException e) {
+            String msg = "Could not save configuration file";
+            Logger.getGlobal().warning(msg);
+            e.printStackTrace();
+            ExceptionDialog ed = new ExceptionDialog(e);
+            ed.setHeaderText(msg);
+            ed.showAndWait();
+            throw new IOException(msg);
+        }
+
+        if (manager.get() != null) {
+            manager.get().updateProject(getConfig());
+        } else {
+            XMLProjectManager.saveConfiguration(getConfig());
+            manager.set(new XMLProjectManager(baseDir, configFileNameStr));
+        }
+
+        manager.get().updateProject(getConfig());
+        manager.get().reload();
+    }
+
+    private void validate() throws IOException {
+        validationSupport.setErrorDecorationEnabled(true);
+        validationSupport.redecorate();
+        if (validationSupport.getValidationResult().getErrors().size() > 0) {
+            StringBuilder errors = new StringBuilder();
+            validationSupport.getValidationResult().getErrors().forEach(validationMessage -> errors.append(validationMessage.getText()));
+            String text = errors.toString();
+            throw new IOException(text);
+        }
     }
 
     @Override
