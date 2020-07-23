@@ -105,7 +105,6 @@ public class LetSubstitutionRuleTest {
     }
 
     @Test
-    @Ignore
     public void testNameClash() throws Exception {
         testSubstitution(
                 parse("let x := i :: forall i :: i == x"),
