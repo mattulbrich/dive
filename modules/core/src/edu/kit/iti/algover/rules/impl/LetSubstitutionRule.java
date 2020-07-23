@@ -82,9 +82,7 @@ public class LetSubstitutionRule extends FocusProofRule {
         Term inner = targetLet.getTerm(0);
         Term result = inner.accept(new SubstitutionVisitor(), substitutionMap);
 
-        if (!AlphaNormalisation.isNormalised(result)) {
-            result = AlphaNormalisation.normalise(result);
-        }
+        result = AlphaNormalisation.normalise(result);
 
         return result;
     }
