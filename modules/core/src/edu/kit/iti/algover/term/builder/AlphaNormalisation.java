@@ -196,6 +196,7 @@ public class AlphaNormalisation {
             boolean changed = false;
             for (Pair<VariableTerm, Term> subst : letTerm.getSubstitutions()) {
                 VariableTerm newVar = mkNewVar(subst.getFst(), unbounds);
+                // (Valentin) Some Error. Variable must be bound to innermost let.
                 if (newVar != subst.fst) {
                     changed = true;
                     innerReplacements = innerReplacements.put(subst.fst, newVar);

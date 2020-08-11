@@ -89,6 +89,15 @@ public class LetSubstitutionRuleTest {
     }
 
     @Test
+    public void testOldState() throws Exception {
+        testSubstitution(
+                parse("let x := i :: let i := i + 1 :: i == (let i := x :: i)"),
+                parse("let i_1 := i + 1 :: i_1 == (let i := i :: i)")
+        );
+    }
+
+
+    @Test
     public void testLetQuantifier() throws Exception {
         testSubstitution(
                 parse("let x := 5 :: " +
@@ -119,7 +128,8 @@ public class LetSubstitutionRuleTest {
 
     /**
      * In Case of "$heap" and "$oldheap" substitution always the right heap must be chosen.
-     * Name clashes will occur. So AlphaNormalisation in the LetSubstitutionRule application
+     * Name clashes will occur. So AlphaNormalisation in the LetSubstitutionRule application is needed.
+     * AlphaNormalisation replaces inner let wrongfully. See @Link{AlphaNormalisationtest#testNormalise} last parameter
      * is necessary.
      * @throws Exception
      */

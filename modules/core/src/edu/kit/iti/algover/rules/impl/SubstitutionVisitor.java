@@ -128,7 +128,9 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
         for (Pair<VariableTerm, Term> pair : letTerm.getSubstitutions()) {
             VariableTerm var = pair.fst;
             Term letSubst = pair.snd;
-            Term letSubstChanged = letSubst.accept(this, substitutions); // No need to shadow yet
+            // No need to shadow yet.
+            // (Valentin) Why not?
+            Term letSubstChanged = letSubst.accept(this, substitutions);
             substitutedLetSubstitutions.add(new Pair<>(var, letSubstChanged));
 
             substitutionsChanged |= letSubst != letSubstChanged;
