@@ -103,8 +103,7 @@ public class AlphaNormalisationTest {
     @Test @Parameters
     public void testNormalise(String input, String expected) throws Exception {
         Term term = TermParser.parse(table, input);
-        Term term2 = term.accept(UNDERSCORE_REMOVER, null);
-        term = term2 == null ? term : term2;
+        term = term.accept(UNDERSCORE_REMOVER, null);
 
         Term result = AlphaNormalisation.normalise(term);
         Term expectedTerm = TermParser.parse(table, expected);
