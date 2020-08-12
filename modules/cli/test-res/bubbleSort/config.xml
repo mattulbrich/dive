@@ -7,8 +7,9 @@
 
 -->
 <configuration>
-    <dafnyFile>bubblesort.dfy</dafnyFile>
+  <!--  <dafnyFile>bubblesort.dfy</dafnyFile> -->
+    <dafnyFile>dummy.dfy</dafnyFile>
     <settings>
-      <entry><key>Default Script</key><value>boogie;</value></entry>
+      <entry><key>Default Script</key><value>z3;</value></entry>
     </settings>
 </configuration>

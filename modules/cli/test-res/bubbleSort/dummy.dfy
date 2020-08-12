@@ -1,0 +1,6 @@
+
+method Close()
+    ensures true
+{
+
+}
