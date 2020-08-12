@@ -74,7 +74,9 @@ public class AlphaNormalisationTest {
                   "let x_1 := [1] :: let x_2 := true :: let x_3 := 1 :: x_1[x_3] == x && x_2" },
                 { "let XXXx := 1 :: let XXx := [1] :: let Xx := 2 :: XXx[0] == Xx + XXXx",
                   "let x := 1 :: let x := [1] :: let x_1 := 2 :: x[0] == x_1 + x_1" },
-                { "let XXi := i + 1 :: XXi == (let Xi := i :: Xi)", "let i_1 := i + 1 :: i_1 == (let i := i :: i)"}
+                { "let XXi := i + 1 :: XXi == (let Xi := i :: Xi)", "let i_1 := i + 1 :: i_1 == (let i := i :: i)"},
+                { "let XXi := i + 1 :: XXi == i && (forall Xi :: 0 == Xi)",
+                  "let i_1 := $plus(i, 1) :: $and($eq<int>(i_1, i), (forall i:int :: $eq<int>(0, i)))"}
         };
     }
 

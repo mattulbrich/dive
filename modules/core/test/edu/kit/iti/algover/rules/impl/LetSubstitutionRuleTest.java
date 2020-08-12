@@ -116,7 +116,7 @@ public class LetSubstitutionRuleTest {
     }
 
     /**
-     * Conflicting Names must be resoluted with @Link{AlphaNormalisation} in newly created terms
+     * Conflicting Names must be resoluted with {@link AlphaNormalisation} in newly created terms
      * @throws Exception
      */
     @Test
@@ -129,7 +129,8 @@ public class LetSubstitutionRuleTest {
     /**
      * In Case of "$heap" and "$oldheap" substitution always the right heap must be chosen.
      * Name clashes will occur. So AlphaNormalisation in the LetSubstitutionRule application is needed.
-     * AlphaNormalisation replaces inner let wrongfully. See @Link{AlphaNormalisationtest#testNormalise} last parameter
+     * AlphaNormalisation replaces inner let wrongfully.
+     * See {@link edu.kit.iti.algover.term.builder.AlphaNormalisationTest#testNormalise(String, String)} last parameter
      * is necessary.
      * @throws Exception
      */
