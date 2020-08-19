@@ -57,6 +57,8 @@ public class LetSubstitutionRuleTest {
     private static Term parse(String str) throws Exception {
         BuiltinSymbols symbols = new BuiltinSymbols();
         symbols.addFunctionSymbol(new FunctionSymbol("i", Sort.INT));
+        symbols.addFunctionSymbol(new FunctionSymbol("a", Sort.get("array", Sort.INT)));
+
         return TermParser.parse(symbols, str);
     }
 
@@ -87,6 +89,15 @@ public class LetSubstitutionRuleTest {
     }
 
     @Test
+    public void testOldState() throws Exception {
+        testSubstitution(
+                parse("let x := i :: let i := i + 1 :: i == (let i := x :: i)"),
+                parse("let i_1 := i + 1 :: i_1 == (let i := i :: i)")
+        );
+    }
+
+
+    @Test
     public void testLetQuantifier() throws Exception {
         testSubstitution(
                 parse("let x := 5 :: " +
@@ -104,12 +115,40 @@ public class LetSubstitutionRuleTest {
         );
     }
 
+    /**
+     * Conflicting Names must be resoluted with {@link AlphaNormalisation} in newly created terms
+     * @throws Exception
+     */
     @Test
-    @Ignore
     public void testNameClash() throws Exception {
         testSubstitution(
                 parse("let x := i :: forall i :: i == x"),
                 parse("forall i_1 :: i_1 == i"));
+    }
+
+    /**
+     * In Case of "$heap" and "$oldheap" substitution always the right heap must be chosen.
+     * Name clashes will occur. So AlphaNormalisation in the LetSubstitutionRule application is needed.
+     * AlphaNormalisation replaces inner let wrongfully.
+     * See {@link edu.kit.iti.algover.term.builder.AlphaNormalisationTest#testNormalise(String, String)} last parameter
+     * is necessary.
+     * @throws Exception
+     */
+    @Test
+    public void testAlteredHeap() throws Exception {
+        testSubstitution(
+                parse("let $oldheap := $heap :: " +
+                        "let $heap := $heap[a[0] := a[0] + 1] :: " +
+                        "$array2seq<int>($heap, a)" +
+                        "  == (let $heap := $oldheap :: $array2seq<int>($heap, a))"),
+                // expect something like
+                parse("let $heap_1 := $heap[a[0] := a[0] + 1] ::" +
+                        " $array2seq<int>($heap_1, a) ==" +
+                        " (let $heap := $heap :: $array2seq<int>($heap, a))"));
+        /* This fails. The last last statement of the result is $array2seq<int>($heap_1, a))
+            So the sequences are creates with the array from the same heap.
+         */
+
     }
 
     // Substitution must be conflict-free, otherwise the semantics

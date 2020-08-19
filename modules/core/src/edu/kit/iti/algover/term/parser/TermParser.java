@@ -139,7 +139,7 @@ public class TermParser {
      *
      * @param parser DafnyParser
      * @param e      RecognitionException object
-     * @return DafynParserException
+     * @return DafnyParserException
      */
     private DafnyParserException generateDafnyParserException(DafnyParser parser, RecognitionException e) {
         String msg = parser.getErrorMessage(e, DafnyParser.tokenNames);

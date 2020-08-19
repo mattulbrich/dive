@@ -74,6 +74,9 @@ public class AlphaNormalisationTest {
                   "let x_1 := [1] :: let x_2 := true :: let x_3 := 1 :: x_1[x_3] == x && x_2" },
                 { "let XXXx := 1 :: let XXx := [1] :: let Xx := 2 :: XXx[0] == Xx + XXXx",
                   "let x := 1 :: let x := [1] :: let x_1 := 2 :: x[0] == x_1 + x_1" },
+                { "let XXi := i + 1 :: XXi == (let Xi := i :: Xi)", "let i_1 := i + 1 :: i_1 == (let i := i :: i)"},
+                { "let XXi := i + 1 :: XXi == i && (forall Xi :: 0 == Xi)",
+                  "let i_1 := $plus(i, 1) :: $and($eq<int>(i_1, i), (forall i:int :: $eq<int>(0, i)))"}
         };
     }
 
@@ -92,6 +95,7 @@ public class AlphaNormalisationTest {
     @Before
     public void setup() {
         this.table = new BuiltinSymbols();
+        table.addFunctionSymbol(new FunctionSymbol("i", Sort.INT));
         table.addFunctionSymbol(new FunctionSymbol("x", Sort.INT));
         table.addFunctionSymbol(new FunctionSymbol("f", Sort.INT, Sort.INT));
     }
@@ -100,7 +104,6 @@ public class AlphaNormalisationTest {
     public void testNormalise(String input, String expected) throws Exception {
         Term term = TermParser.parse(table, input);
         term = term.accept(UNDERSCORE_REMOVER, null);
-
 
         Term result = AlphaNormalisation.normalise(term);
         Term expectedTerm = TermParser.parse(table, expected);
