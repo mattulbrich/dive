@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.sequent;
 
 import edu.kit.iti.algover.Lookup;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -29,8 +30,7 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
     private TabPane view;
     private List<SequentController> controllers;
     private SequentActionListener listener;
-    private ProofNodeSelector activeNode;
-    private Proof activeProof;
+    private List<ProofNodeSelector> displayedNodes = new ArrayList<>();
     //The collection of prooftermrefs that should be highlighted
     private Set<ProofTermReferenceTarget> referenceTargetsToHighlight;
     private ProofTermReferenceTarget lastSelectedRefTarget;
@@ -62,10 +62,11 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
         lookup.register(this, ReferenceHighlightingHandler.class);
         lookup.register(this, SequentTabViewController.class);
 
+        PropertyManager.getInstance().currentProofNodeSelector.addListener(((observable, oldValue, newValue) -> this.viewProofNode(newValue)));
     }
 
     private List<ProofNodeSelector> getAllChildSelectors(ProofNodeSelector selector) {
-        Optional<ProofNode> parentNode = selector.optionalGet(activeProof);
+        Optional<ProofNode> parentNode = selector.optionalGet(PropertyManager.getInstance().currentProof.get());
         if(!parentNode.isPresent()) {
             return new ArrayList<>();
         }
@@ -79,27 +80,24 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
 
 
     public void viewProofNode(ProofNodeSelector proofNodeSelector) {
-
-
-        ProofNodeSelector oldParentSelector = activeNode.getParentSelector();
-        activeNode = proofNodeSelector;
+       ProofNodeSelector oldParentSelector = PropertyManager.getInstance().currentProofNodeSelector.get().getParentSelector();
+        ProofNodeSelector activeNode = proofNodeSelector;
         ProofNodeSelector parentSelector = activeNode.getParentSelector();
         if(parentSelector != null) {
-            if(parentSelector.equals(oldParentSelector)) {
-                view.getSelectionModel().select(activeNode.getPath()[activeNode.getPath().length - 1]);
+            if(displayedNodes.contains(proofNodeSelector)) {
+                view.getSelectionModel().select(displayedNodes.indexOf(proofNodeSelector));
                 return;
             }
             List<ProofNodeSelector> children = getAllChildSelectors(parentSelector);
-            if(children.size() == 0) {
-                showProofNodes(Collections.singletonList(parentSelector));
-            } else {
-                showProofNodes(getAllChildSelectors(parentSelector));
-            }
+            showProofNodes(children);
             view.getSelectionModel().select(activeNode.getPath()[activeNode.getPath().length - 1]);
+            displayedNodes = children;
         } else {
-            showProofNodes(new ArrayList<>(Collections.singletonList(proofNodeSelector)));
+            List<ProofNodeSelector> l = Collections.singletonList(proofNodeSelector);
+            showProofNodes(l);
+            displayedNodes = l;
         }
-
+        PropertyManager.getInstance().currentProofNodeSelector.set(activeNode);
     }
 
     private void showProofNodes(List<ProofNodeSelector> proofNodeSelectors) {
@@ -117,7 +115,7 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
     }
 
     private void updateTab(ProofNodeSelector selector, int idx) {
-        Optional<ProofNode> opt = selector.optionalGet(activeProof);
+        Optional<ProofNode> opt = selector.optionalGet(PropertyManager.getInstance().currentProof.get());
         String name = "default";
         if(opt.isPresent() && opt.get().getLabel() != null && !opt.get().getLabel().equals("")) {
             name = opt.get().getLabel();
@@ -127,9 +125,8 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
                 .stream()
                 .filter(proofTermReferenceTarget -> proofTermReferenceTarget.getProofNodeSelector().equals(selector))
                 .collect(Collectors.toSet());
-        controllers.get(idx).updateSequentController(selector, activeProof, collect);
+        controllers.get(idx).updateSequentController(selector, collect);
        /* controllers.get(idx).setActiveNode(selector);
-        controllers.get(idx).setActiveProof(activeProof);
         controllers.get(idx).viewProofNode(selector);*/
     }
 
@@ -149,9 +146,9 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
             view.getTabs().remove(1, view.getTabs().size());
         }
 
+        PropertyManager.getInstance().currentProof.set(proof);
         controllers.get(0).forceViewSequentForPVC(entity, proof);
-        activeNode = controllers.get(0).getActiveNodeSelector();
-        activeProof = controllers.get(0).getActiveProof();
+        PropertyManager.getInstance().currentProofNodeSelector.set(controllers.get(0).getActiveNodeSelector());
        // referenceGraph = controllers.get(0).getReferenceGraph();
     }
 
@@ -160,7 +157,7 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
     }
 
     private void onTabSelected(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
-        listener.onSwitchViewedNode(controllers.get(newValue.intValue()).getActiveNodeSelector());
+        PropertyManager.getInstance().currentProofNodeSelector.set(controllers.get(newValue.intValue()).getActiveNodeSelector());
     }
 
     public void viewReferences(Set<ProofTermReferenceTarget> proofTermReferenceTargetSet, ProofTermReferenceTarget selected){

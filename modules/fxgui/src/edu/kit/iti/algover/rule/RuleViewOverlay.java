@@ -8,21 +8,18 @@ package edu.kit.iti.algover.rule;
 import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
-import de.jensd.fx.glyphs.materialicons.MaterialIcon;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.util.RuleParameterDialog;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
-import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 
@@ -105,20 +102,20 @@ public class RuleViewOverlay extends AnchorPane {
             String on;
             try {
                 PrettyPrint pp = new PrettyPrint();
-                on = pp.print(selector.selectSubterm(listener.getCurrentProofNode().getSequent())).toString();
+                on = pp.print(selector.selectSubterm(PropertyManager.getInstance().currentProofNode.get().getSequent())).toString();
             } catch (RuleException e) {
                 on = null;
             }
 
             RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getSymbolTable(),
-                    listener.getCurrentProofNode().getSequent(), on);
+                    PropertyManager.getInstance().currentProofNode.get().getSequent(), on);
             d.setResizable(true);
             d.onShownProperty().addListener(e -> Platform.runLater(() -> d.setResizable(false)));
 
             d.showAndWait();
             if (d.getParameters() != null) {
                 try {
-                    application = application.getRule().makeApplication(listener.getCurrentProofNode(), d.getParameters());
+                    application = application.getRule().makeApplication(PropertyManager.getInstance().currentProofNode.get(), d.getParameters());
                     listener.onRuleApplication(this.application);
                 } catch (RuleException e) {
                     Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Application of ProofRule failed with given parameters.");

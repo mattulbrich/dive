@@ -21,6 +21,4 @@ public interface SequentActionListener {
 
     void onRemoveReferenceHighlighting();
 
-    void onSwitchViewedNode(ProofNodeSelector proofNodeSelector);
-
 }

@@ -7,6 +7,7 @@ package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
@@ -35,8 +36,6 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
-import java.util.prefs.PreferenceChangeEvent;
-import java.util.prefs.PreferenceChangeListener;
 import java.util.stream.Collectors;
 
 /**
@@ -76,6 +75,8 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         lookup.register(this, ReferenceHighlightingHandler.class);
 
         this.fontSizeProperty.setValue(MainController.systemprefs.getInt("FONT_SIZE_SCRIPT_EDITOR", 12));
+
+        PropertyManager.getInstance().currentProofNodeSelector.addListener(((observable, oldValue, newValue) -> this.setSelectedNode(newValue)));
 
         MainController.systemprefs.addPreferenceChangeListener(preferenceChangeEvent -> {
             int font_size_seq_view1 = preferenceChangeEvent.getNode().getInt("FONT_SIZE_SCRIPT_EDITOR", 12);
@@ -185,12 +186,12 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         // REVIEW This is kind of ugly. In the future this off-by-one fix has to be removed
         if (checkpoint.selector.optionalGet(proof).isEmpty()) {
             if(checkpoint.selector.getParentSelector() != null) {
-                this.listener.onSwitchViewedNode(checkpoint.selector.getParentSelector());
+                PropertyManager.getInstance().currentProofNodeSelector.set(checkpoint.selector.getParentSelector());
             } else {
-                this.listener.onSwitchViewedNode(checkpoint.selector);
+                PropertyManager.getInstance().currentProofNodeSelector.set(checkpoint.selector);
             }
         } else {
-            this.listener.onSwitchViewedNode(checkpoint.selector);
+            PropertyManager.getInstance().currentProofNodeSelector.set(checkpoint.selector);
         }
         showSelectedSelector(checkpoint);
         view.requestLayout();
