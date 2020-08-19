@@ -29,6 +29,7 @@ import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
+import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.settings.SettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
@@ -667,19 +668,19 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.applyRule(application);
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
-        sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
+        PropertyManager.getInstance().currentProof.get().setScriptTextAndInterpret(newScript);
         ruleApplicationController.resetConsideration();
         sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
-        if(sequentController.getActiveSequentController().getActiveProof().getFailException() == null) {
+        if(PropertyManager.getInstance().currentProof.get().getFailException() == null) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
         }
     }
 
     @Override
     public void onScriptSave() {
-        String pvcIdentifier = sequentController.getActiveSequentController().getActiveProof().getPVC().getIdentifier();
+        String pvcIdentifier = PropertyManager.getInstance().currentProof.get().getPVC().getIdentifier();
         try {
-            manager.saveProofScriptForPVC(pvcIdentifier, sequentController.getActiveSequentController().getActiveProof());
+            manager.saveProofScriptForPVC(pvcIdentifier, PropertyManager.getInstance().currentProof.get());
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved script " + pvcIdentifier + ".");
         } catch (IOException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving script.");
@@ -689,21 +690,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
 
     @Override
     public PVC getCurrentPVC() {
-        return sequentController.getActiveSequentController().getActiveProof().getPVC();
-    }
-
-    @Override
-    public ProofNode getCurrentProofNode() {
-        return sequentController.getActiveSequentController().getActiveNode();
-    }
-
-    /**
-     * when the user clicked somewhere in the proof script to change the proof node that should be viewed
-     */
-    @Override
-    public void onSwitchViewedNode(ProofNodeSelector proofNodeSelector) {
-        sequentController.viewProofNode(proofNodeSelector);
-        ruleApplicationController.getScriptController().setSelectedNode(proofNodeSelector);
+        return PropertyManager.getInstance().currentProof.get().getPVC();
     }
 
     public VBox getView() {

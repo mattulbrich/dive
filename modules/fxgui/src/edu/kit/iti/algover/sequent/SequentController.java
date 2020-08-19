@@ -10,6 +10,7 @@ import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
@@ -91,7 +92,6 @@ public class SequentController extends FxmlController {
      */
     private final SimpleObjectProperty<TermSelector> selectedTerm;
 
-    private Proof activeProof; // Maybe place it inside the Proof or PVC class instead
     private ProofNodeSelector activeNode;
     private ObservableList<Quadruple<TermSelector, String, Integer, String>> styles;
 
@@ -117,7 +117,6 @@ public class SequentController extends FxmlController {
     public SequentController(SequentActionListener listener, Lookup lookup) {
         super("SequentView.fxml");
         this.listener = listener;
-        this.activeProof = null;
         this.selectedReference = new SimpleObjectProperty<>(null);
         this.selectedReference.addListener((observable, oldValue, newValue) -> {
             if(newValue != null){
@@ -213,8 +212,8 @@ public class SequentController extends FxmlController {
      */
     public void viewSequentForPVC(PVCEntity pvcEntity, Proof proof) {
         PVC pvc = pvcEntity.getPVC();
-        if (activeProof == null || !activeProof.getPVCName().equals(pvc.getIdentifier())) {
-            activeProof = proof;
+        if (PropertyManager.getInstance().currentProof.get() == null || !PropertyManager.getInstance().currentProof.get().getPVCName().equals(pvc.getIdentifier())) {
+            PropertyManager.getInstance().currentProof.set(proof);
             activeNode = new ProofNodeSelector();
             updateSequent(getActiveNode().getSequent(), null);
         }
@@ -227,7 +226,7 @@ public class SequentController extends FxmlController {
      * @param proof the proof containing this pvc
      */
     public void forceViewSequentForPVC(PVCEntity entity, Proof proof) {
-        activeProof = null;
+        PropertyManager.getInstance().currentProof.set(null);
         viewSequentForPVC(entity, proof);
     }
 
@@ -237,15 +236,15 @@ public class SequentController extends FxmlController {
     public void tryMovingOnEx() {
         if (activeNode != null) {
             try {
-                ProofNode nodeBefore = activeNode.get(activeProof);
+                ProofNode nodeBefore = activeNode.get(PropertyManager.getInstance().currentProof.get());
                 while (nodeBefore.getChildren().size() > 0) {
                     ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
-                    ProofNode node = newActiveNode.get(activeProof);
+                    ProofNode node = newActiveNode.get(PropertyManager.getInstance().currentProof.get());
                     updateSequent(node.getSequent(), null);
                     activeNode = newActiveNode;
-                    nodeBefore = activeNode.get(activeProof);
+                    nodeBefore = activeNode.get(PropertyManager.getInstance().currentProof.get());
                 }
-                listener.onSwitchViewedNode(activeNode);
+                PropertyManager.getInstance().currentProofNodeSelector.set(activeNode);
             } catch (RuleException e) {
                 e.printStackTrace(); // should not happen, as long as the activeNode selector is correct
                 return;
@@ -270,7 +269,7 @@ public class SequentController extends FxmlController {
     public void viewProofApplicationPreview(ProofRuleApplication application) {
         if (application.getBranchInfo().size() > 0) {
             try {
-                updateSequent(activeNode.get(activeProof).getSequent(), application.getBranchInfo().get(0));
+                updateSequent(activeNode.get(PropertyManager.getInstance().currentProof.get()).getSequent(), application.getBranchInfo().get(0));
                 updateGoalTypeLabel();
             } catch (RuleException e) {
                 e.printStackTrace();
@@ -283,7 +282,7 @@ public class SequentController extends FxmlController {
      */
     public void resetProofApplicationPreview() {
         try {
-            updateSequent(activeNode.get(activeProof).getSequent(), null);
+            updateSequent(activeNode.get(PropertyManager.getInstance().currentProof.get()).getSequent(), null);
             updateGoalTypeLabel();
         } catch (RuleException e) {
             e.printStackTrace();
@@ -299,7 +298,7 @@ public class SequentController extends FxmlController {
         if(selector == null) {
             selector = proofNodeSelector;
         }
-        selector.optionalGet(activeProof).ifPresent(parentNode -> proofNodeSelector.optionalGet(activeProof).ifPresent(proofNode -> {
+        selector.optionalGet(PropertyManager.getInstance().currentProof.get()).ifPresent(parentNode -> proofNodeSelector.optionalGet(PropertyManager.getInstance().currentProof.get()).ifPresent(proofNode -> {
             activeNode = proofNodeSelector;
             BranchInfo branchInfo = null;
             ProofRuleApplication application = proofNode.getProofRuleApplication();
@@ -389,7 +388,7 @@ public class SequentController extends FxmlController {
 
     private void updateGoalTypeLabel() {
         try {
-            ProofNode node = activeNode.get(activeProof);
+            ProofNode node = activeNode.get(PropertyManager.getInstance().currentProof.get());
             if (node.getChildren().size() == 0) {
                 if (node.isClosed()) {
                     goalTypeLabel.setText("Closed Goal");
@@ -422,7 +421,7 @@ public class SequentController extends FxmlController {
         return listView -> new FormulaCell(selectedTerm, selectedReference, styles);
     }*/
 
-    private ProofTermReferenceTarget attachCurrentActiveProof(TermSelector selector) {
+    private ProofTermReferenceTarget attachCurrent(TermSelector selector) {
         if (activeNode != null) {
             return new ProofTermReferenceTarget(activeNode, selector);
         }
@@ -430,7 +429,7 @@ public class SequentController extends FxmlController {
     }
 
     private TermSelector termSelectorFromReference(ProofTermReferenceTarget reference) {
-        if (activeProof != null && reference.getProofNodeSelector() == activeNode) {
+        if (PropertyManager.getInstance().currentProof.get() != null && reference.getProofNodeSelector() == activeNode) {
             return reference.getTermSelector();
         } else {
             return null;
@@ -444,33 +443,24 @@ public class SequentController extends FxmlController {
 
     public ProofNode getActiveNode() {
         try {
-            return activeNode.get(activeProof);
+            return activeNode.get(PropertyManager.getInstance().currentProof.get());
         } catch (RuleException e) {
             throw new RuntimeException(e);
         }
     }
 
 
-    public Proof getActiveProof() {
-        return activeProof;
-    }
-
 
     public void setActiveNode(ProofNodeSelector pns) {
         activeNode = pns;
-    }
-
-    public void setActiveProof(Proof p) {
-        activeProof = p;
     }
 
     public ProofNodeSelector getActiveNodeSelector() {
         return activeNode;
     }
 
-    public void updateSequentController(ProofNodeSelector selector, Proof activeProof, Set<ProofTermReferenceTarget> collect) {
+    public void updateSequentController(ProofNodeSelector selector, Set<ProofTermReferenceTarget> collect) {
         this.setActiveNode(selector);
-        this.setActiveProof(activeProof);
         Set<TermSelector> filteredTargets = collect.stream().map(ProofTermReferenceTarget::getTermSelector).collect(Collectors.toSet());
         this.setHistoryHighlights(FXCollections.observableSet(filteredTargets));
         this.viewProofNode(selector);

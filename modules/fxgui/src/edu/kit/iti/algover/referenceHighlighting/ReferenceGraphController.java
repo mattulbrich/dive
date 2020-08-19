@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.referenceHighlighting;
 
 import edu.kit.iti.algover.Lookup;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.references.CodeReferenceTarget;
@@ -11,6 +12,7 @@ import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
+import edu.kit.iti.algover.settings.ProjectSettings;
 import org.controlsfx.dialog.ExceptionDialog;
 
 import java.util.Collection;
@@ -49,9 +51,7 @@ public class ReferenceGraphController {
             ed.showAndWait();
         }
 
-        SequentTabViewController sequentController = sequentTabViewControllers.iterator().next();
-
-        Proof activeProof = sequentController.getActiveSequentController().getActiveProof();
+        Proof activeProof = PropertyManager.getInstance().currentProof.get();
 
         if (selectedTarget != null) {
 
