@@ -666,11 +666,6 @@ public class MainController implements RuleApplicationListener {
         }
     }
 
-    @Override
-    public PVC getCurrentPVC() {
-        return PropertyManager.getInstance().currentProof.get().getPVC();
-    }
-
     public VBox getView() {
         return view;
     }
