@@ -107,7 +107,8 @@ public class RuleViewOverlay extends AnchorPane {
                 on = null;
             }
 
-            RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(), listener.getCurrentPVC().getSymbolTable(),
+            RuleParameterDialog d = new RuleParameterDialog(this.application.getRule(),
+                    PropertyManager.getInstance().currentProof.get().getPVC().getSymbolTable(),
                     PropertyManager.getInstance().currentProofNode.get().getSequent(), on);
             d.setResizable(true);
             d.onShownProperty().addListener(e -> Platform.runLater(() -> d.setResizable(false)));

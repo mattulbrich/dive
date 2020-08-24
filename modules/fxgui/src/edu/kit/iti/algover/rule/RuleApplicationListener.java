@@ -22,6 +22,4 @@ public interface RuleApplicationListener {
     void onResetRuleApplicationPreview();
 
     void onScriptSave();
-
-    PVC getCurrentPVC();
 }
