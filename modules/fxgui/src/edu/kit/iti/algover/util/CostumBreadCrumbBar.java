@@ -40,9 +40,11 @@ public class CostumBreadCrumbBar<T> extends HBox {
         List<MenuButton> l = new ArrayList<>();
         while (i != null) {
             MenuButton b = new MenuButton(getStringForTreeItem.apply(i));
+            b.setMnemonicParsing(false);
             if (i.getParent() != null) {
                 for (TreeItem<T> ch : i.getParent().getChildren()) {
                     MenuItem menuItem = new MenuItem(getStringForTreeItem.apply(ch));
+                    menuItem.setMnemonicParsing(false);
                     menuItem.setOnAction(action -> {
                         selectedCrumb.set(ch);
                         Platform.runLater(() -> setSelectedCrumb(ch));
@@ -57,8 +59,10 @@ public class CostumBreadCrumbBar<T> extends HBox {
 
         while (item.getChildren().size() > 0) {
             MenuButton b = new MenuButton(getStringForTreeItem.apply(item.getChildren().get(0)));
+            b.setMnemonicParsing(false);
             for (TreeItem<T> ch : item.getChildren()) {
                 MenuItem menuItem = new MenuItem(getStringForTreeItem.apply(ch));
+                menuItem.setMnemonicParsing(false);
                 menuItem.setOnAction(action -> {
                     selectedCrumb.set(ch);
                     Platform.runLater(() -> setSelectedCrumb(ch));
