@@ -6,14 +6,18 @@
 package edu.kit.iti.algover.rule;
 
 import com.jfoenix.controls.JFXMasonryPane;
+import edu.kit.iti.algover.PropertyManager;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.SingleSelectionModel;
+import javafx.scene.layout.StackPane;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -92,7 +96,7 @@ public class RuleGrid extends JFXMasonryPane {
 
         rules.clear();
         rules.addAll(allRules.stream().filter(
-                ruleView -> filterFunction.test(ruleView)
+                filterFunction::test
         ).collect(Collectors.toList()));
 
         //REVIEW this should better be done dynamically but since it does not update automatically this at least
@@ -107,15 +111,22 @@ public class RuleGrid extends JFXMasonryPane {
                 ruleView.setPrefHeight(80.0);
             }
         });
-        rules.stream().forEach(ruleView -> ruleView.requestLayout());
-        rules.stream().forEach(ruleView -> ruleView.autosize());
+        rules.stream().forEach(StackPane::requestLayout);
+        rules.stream().forEach(Node::autosize);
 
         Platform.runLater(() -> {
 
             ObservableList<Node> children = this.getChildren();
-            int size = children.size();
-            if(size > 0 ){
+            if(children.size() > 0 ){
                 children.clear();
+            }
+
+            if(rules.size() == 0) {
+                if(PropertyManager.getInstance().currentProofStatus.get() == ProofStatus.CLOSED) {
+                    children.add(new Label("The currently selected node is already closed."));
+                } else {
+                    children.add(new Label("No rules applicable."));
+                }
             }
 
             children.addAll(rules);
@@ -126,9 +137,7 @@ public class RuleGrid extends JFXMasonryPane {
 
         this.getChildren().clear();
         //sort rules according to active comparators
-        activeComparator.forEach(comparator -> {
-            Collections.sort(rules, comparator);
-        });
+        activeComparator.forEach(comparator -> Collections.sort(rules, comparator));
 
         this.getChildren().addAll(rules);
 

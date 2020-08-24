@@ -61,7 +61,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     /**
      * The insert position where the next command is inserted
      */
-    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0), "Observable Insert Position");
+    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty(new Position(1, 0), "Observable Insert Position");
     private Proof proof;
     private List<ProofNodeCheckpoint> checkpoints;
 
@@ -87,9 +87,11 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         view.fontsizeProperty().bind(fontSizeProperty);
 
-        this.scriptChanged.addListener(((observable, oldValue, newValue) -> {
-            if(newValue) {
+        PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
+            if(newValue == ProofStatus.CHANGED_SCRIPT) {
                 view.setStyle("-fx-background-color: #c4c1c9; -fx-font-size: "+fontSizeProperty.get()+"pt;");
+            } else if(newValue == ProofStatus.CLOSED) {
+                view.setStyle("-fx-background-color: #cefaae; -fx-font-size: "+fontSizeProperty.get()+"pt;");
             } else {
                 view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
             }
@@ -237,7 +239,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     private int computeCharIdxFromPosition(Position position, String text) {
         int charIdx = 0;
-        if(text == "") return 0;
+        if(text.equals("")) return 0;
         if(!text.contains("\n")) return text.length() - 1;
         for (int i = 0; i < position.getLineNumber() - 1; ++i) {
             charIdx += text.substring(0, text.indexOf('\n')).length() + 1;
@@ -519,7 +521,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     /**
      * Set the selected proof node in the ScriptView
-     * @param proofNodeSelector
+     * @param proofNodeSelector the selector for the proofNode to be selected
      */
     public void setSelectedNode(ProofNodeSelector proofNodeSelector) {
         if(!proofNodeSelector.equals(selectedNode)) {
