@@ -25,6 +25,7 @@ import javafx.beans.Observable;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyCode;
@@ -61,7 +62,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     /**
      * The insert position where the next command is inserted
      */
-    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty(new Position(1, 0), "Observable Insert Position");
+    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1, 0), "Observable Insert Position");
     private Proof proof;
     private List<ProofNodeCheckpoint> checkpoints;
 
