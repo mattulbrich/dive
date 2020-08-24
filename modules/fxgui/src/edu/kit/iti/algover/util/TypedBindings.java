@@ -21,7 +21,7 @@ public class TypedBindings {
      * @param <A> the type of the first ObjectProperty
      * @param <B> the type of the second ObjectProperty
      */
-    static public <A extends Object, B extends Object> void bind(ObjectProperty<A> a, ObjectProperty<B> b, Function<A, B> aToB, Function<B, A> bToA) {
+    static public <A extends Object, B extends Object> void bindBidirectional(ObjectProperty<A> a, ObjectProperty<B> b, Function<A, B> aToB, Function<B, A> bToA) {
         if(debug) {
             System.out.println("bind " + a + " and " + b);
         }
@@ -58,6 +58,32 @@ public class TypedBindings {
                     a.set(newA);
                     if(debug) {
                         System.out.println("new value for " + a + ": " + newA);
+                    }
+                }
+            }
+        }));
+    }
+
+    static public <A extends Object, B extends Object> void bind(ObjectProperty<A> a, ObjectProperty<B> b, Function<A, B> aToB) {
+        if(debug) {
+            System.out.println("bind " + a + " and " + b);
+        }
+        if(a == null || b == null) {
+            throw new RuntimeException("Cannot bind property that is null.");
+        }
+        a.addListener(((observable, oldValue, newValue) -> {
+            if(debug) {
+                System.out.println("observable = " + observable);
+            }
+            B newB = aToB.apply(a.get());
+            if(newB == null) {
+                if(b != null)
+                    b.setValue(null);
+            } else {
+                if (!newB.equals(b.get())) {
+                    b.set(newB);
+                    if(debug) {
+                        System.out.println("new value for " + b + ": " + newB);
                     }
                 }
             }

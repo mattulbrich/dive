@@ -23,27 +23,20 @@ import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceGraphController;
 import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.sequent.SequentActionListener;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
-import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.settings.SettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.ExceptionDialog;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
-import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -66,7 +59,7 @@ import static javafx.application.Platform.*;
 /**
  * Created by philipp on 27.06.17.
  */
-public class MainController implements SequentActionListener, RuleApplicationListener {
+public class MainController implements RuleApplicationListener {
 
     //system preferences
     public static final Preferences systemprefs = Preferences.userNodeForPackage(MainController.class);
@@ -102,7 +95,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         //this.browserController = new FileBasedBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
         this.editorController = new EditorController(executor, manager.getProject().getBaseDir().getAbsolutePath(), this.lookup);
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
-        this.sequentController = new SequentTabViewController(this, this.lookup);
+        this.sequentController = new SequentTabViewController(this.lookup);
         this.ruleApplicationController = new RuleApplicationController(executor, this, manager, this.lookup);
 
         this.referenceGraphController = new ReferenceGraphController(this.lookup);
@@ -154,6 +147,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         logger.addHandler(statusBarLoggingHandler);
         logger.setUseParentHandlers(false);
         logger.info("Project '" + manager.getName() + "' successfully loaded.");
+
+        //Add property listener
+        PropertyManager.getInstance().selectedTerm.addListener(((observable, oldValue, newValue) -> onClickSequentSubterm(newValue)));
 
         onClickRefresh(null);
     }
@@ -625,29 +621,10 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         }
     }
 
-    @Override
     public void onClickSequentSubterm(TermSelector selector) {
         if (selector != null) {
             timelineView.moveFrameRight();
-            ProofNode node = sequentController.getActiveSequentController().getActiveNode();
-            Sequent targetSequent = node.getSequent();
-            if (selector.isValidForSequent(targetSequent)) {
-                if (node != null) {
-                    ruleApplicationController.considerApplication(node, node.getSequent(), selector);
-                }
-            }
         }
-    }
-
-    @Override
-    public void onRequestReferenceHighlighting(ProofTermReferenceTarget termRef) {
-        this.referenceGraphController.highlightAllReferenceTargets(termRef);
-
-    }
-
-    @Override
-    public void onRemoveReferenceHighlighting() {
-        this.referenceGraphController.removeReferenceHighlighting();
     }
 
     @Override
@@ -669,6 +646,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
         PropertyManager.getInstance().currentProof.get().setScriptTextAndInterpret(newScript);
+        PropertyManager.getInstance().currentProofStatus.set(PropertyManager.getInstance().currentProof.get().getProofStatus());
         ruleApplicationController.resetConsideration();
         sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
         if(PropertyManager.getInstance().currentProof.get().getFailException() == null) {

@@ -11,6 +11,7 @@ import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
@@ -18,6 +19,7 @@ import edu.kit.iti.algover.rule.RuleApplicationListener;
 import edu.kit.iti.algover.script.ast.*;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.script.parser.PrettyPrinter;
+import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -90,6 +92,12 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
                 view.setStyle("-fx-background-color: #c4c1c9; -fx-font-size: "+fontSizeProperty.get()+"pt;");
             } else {
                 view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
+            }
+        }));
+
+        this.scriptChanged.addListener(((observable, oldValue, newValue) -> {
+            if(newValue) {
+                PropertyManager.getInstance().currentProofStatus.set(ProofStatus.CHANGED_SCRIPT);
             }
         }));
 
@@ -328,6 +336,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         observableInsertPosition.set(oldInsertPos);
         createVisualSelectors(checkpoints);
 
+        PropertyManager.getInstance().currentProofStatus.set(proof.getProofStatus());
         switchViewedNode();
         scriptChanged.set(false);
     }
