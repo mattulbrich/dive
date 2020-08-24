@@ -5,7 +5,9 @@
  */
 package edu.kit.iti.algover.rule;
 
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.FocusProofRule;
 import edu.kit.iti.algover.rules.ParameterDescription;
 import edu.kit.iti.algover.rules.Parameters;
@@ -86,7 +88,7 @@ public class RuleView extends StackPane {
     }
 
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
-        if(target.isClosed()) {
+        if(PropertyManager.getInstance().currentProofStatus.get() == ProofStatus.CLOSED) {
             application = ProofRuleApplicationBuilder.notApplicable(rule);
             setSelectable(false);
             renderApplication();
