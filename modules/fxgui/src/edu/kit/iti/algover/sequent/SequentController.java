@@ -37,13 +37,8 @@ import javafx.scene.layout.VBox;
 import org.controlsfx.control.ToggleSwitch;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.prefs.NodeChangeEvent;
-import java.util.prefs.NodeChangeListener;
-import java.util.prefs.PreferenceChangeEvent;
-import java.util.prefs.PreferenceChangeListener;
 import java.util.stream.Collectors;
 
 /**
@@ -66,7 +61,6 @@ import java.util.stream.Collectors;
  * at the same time? (I think this shouldnt become a problem for reasonably large sequents.
  */
 public class SequentController extends FxmlController {
-    private final SequentActionListener listener;
 
     @FXML
     private ScrollPane scrollPane;
@@ -81,16 +75,6 @@ public class SequentController extends FxmlController {
     @FXML
     private VBox succedentBox;
 
-    /**
-     * Whichever Term was clicked to reveal dependencies.
-     * (Currently set when control-clicking something on the sequent).
-     */
-    private final SimpleObjectProperty<TermSelector> selectedReference;
-
-    /**
-     * Whichever Term was clicked to apply rules to.
-     */
-    private final SimpleObjectProperty<TermSelector> selectedTerm;
 
     private ProofNodeSelector activeNode;
     private ObservableList<Quadruple<TermSelector, String, Integer, String>> styles;
@@ -112,21 +96,12 @@ public class SequentController extends FxmlController {
      * This loads the GUI from the .fxml resource file
      * <tt>res/edu/kit/iti/algover/sequent/SequentView.fxml</tt>.
      *
-     * @param listener
      */
-    public SequentController(SequentActionListener listener, Lookup lookup) {
+    public SequentController(Lookup lookup) {
         super("SequentView.fxml");
-        this.listener = listener;
-        this.selectedReference = new SimpleObjectProperty<>(null);
-        this.selectedReference.addListener((observable, oldValue, newValue) -> {
-            if(newValue != null){
-              listener.onRequestReferenceHighlighting(new ProofTermReferenceTarget(activeNode, newValue));
-            }
-        });
+        PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> updateGoalTypeLabel()));
 
-        this.selectedTerm = new SimpleObjectProperty<>(null);
         this.styles = FXCollections.observableArrayList();
-        this.selectedTerm.addListener((observable, oldValue, newValue) -> listener.onClickSequentSubterm(newValue));
 
         antecedentBox.setOnKeyPressed(this::handleOnKeyPressed);
         succedentBox.setOnKeyPressed(this::handleOnKeyPressed);
@@ -145,14 +120,14 @@ public class SequentController extends FxmlController {
         succedentBox.getChildren().forEach(node -> node.setOnKeyPressed(this::handleOnKeyPressed));
         /*antecedentBox.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
-                selectedTerm.set(null);
+                PropertyManager.getInstance().selectedTerm.set(null);
                 selectedReference.set(null);
                 listener.onRemoveReferenceHighlighting();
             }
         });
         succedentBox.setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ESCAPE) {
-                selectedTerm.set(null);
+                PropertyManager.getInstance().selectedTerm.set(null);
                 selectedReference.set(null);
                 listener.onRemoveReferenceHighlighting();
             }
@@ -176,13 +151,10 @@ public class SequentController extends FxmlController {
     }
     @FXML
     public void handleOnKeyPressed(KeyEvent event){
-
             if (event.getCode() == KeyCode.ESCAPE) {
-                selectedTerm.set(null);
-                selectedReference.set(null);
-                listener.onRemoveReferenceHighlighting();
+                PropertyManager.getInstance().selectedTerm.set(null);
+                PropertyManager.getInstance().selectedTermForReference.set(null);
             }
-
     }
     /**
      * Adds a style class for a certain Term.
@@ -251,9 +223,9 @@ public class SequentController extends FxmlController {
             }
             updateGoalTypeLabel();
         }
-        TermSelector ts = selectedTerm.get();
-        selectedTerm.setValue(null);
-        selectedTerm.setValue(ts);
+        TermSelector ts = PropertyManager.getInstance().selectedTerm.get();
+        PropertyManager.getInstance().selectedTerm.setValue(null);
+        PropertyManager.getInstance().selectedTerm.setValue(ts);
     }
 
 
@@ -309,8 +281,8 @@ public class SequentController extends FxmlController {
             }
             updateSequent(parentNode.getSequent(), branchInfo);
             updateGoalTypeLabel();
-            if(this.selectedTerm.get() == null || !this.selectedTerm.get().isValidForSequent(parentNode.getSequent())) {
-                this.selectedTerm.set(null);
+            if(PropertyManager.getInstance().selectedTerm.get() == null || !PropertyManager.getInstance().selectedTerm.get().isValidForSequent(parentNode.getSequent())) {
+                PropertyManager.getInstance().selectedTerm.set(null);
             }
         }));
     }
@@ -382,36 +354,34 @@ public class SequentController extends FxmlController {
                 formulas.add(new ViewFormula(formulas.size() - deletedFormulas, addition.getTerm(), ViewFormula.Type.ADDED, polarity, addition.getLabels()));
             }
         }
-        return formulas.stream().map(formula -> new FormulaCell(selectedTerm, selectedReference, styles, formula, showFormulaLabels, this.fontsizeProperty)).collect(Collectors.toList());
+        return formulas.stream().map(formula -> new FormulaCell(PropertyManager.getInstance().selectedTerm, PropertyManager.getInstance().selectedTermForReference, styles, formula, showFormulaLabels, this.fontsizeProperty)).collect(Collectors.toList());
 
     }
 
     private void updateGoalTypeLabel() {
-        try {
-            ProofNode node = activeNode.get(PropertyManager.getInstance().currentProof.get());
-            if (node.getChildren().size() == 0) {
-                if (node.isClosed()) {
-                    goalTypeLabel.setText("Closed Goal");
-                    goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK));
-                    goalTypeLabel.setStyle("-fx-text-fill: GREEN");
-                  //  Background b = new Background(new BackgroundFill(Color.rgb(22, 143, 43,0.5), null, null));
-                  //  antecedentBox.setBackground(b);
-                  //  succedentBox.setBackground(b);
+        if(PropertyManager.getInstance().currentProof.get() != null) {
+            if (PropertyManager.getInstance().currentProofStatus.get() == ProofStatus.CLOSED) {
+                goalTypeLabel.setText("Closed Goal");
+                goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.CHECK));
+                goalTypeLabel.setStyle("-fx-text-fill: GREEN");
+                //  Background b = new Background(new BackgroundFill(Color.rgb(22, 143, 43,0.5), null, null));
+                //  antecedentBox.setBackground(b);
+                //  succedentBox.setBackground(b);
 
 
-                } else {
-                    goalTypeLabel.setText("Open Goal");
-                    goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.BULLSEYE));
-                    goalTypeLabel.setStyle("-fx-text-fill: RED");
-                }
+            } else if(PropertyManager.getInstance().currentProofStatus.get() == ProofStatus.OPEN) {
+                goalTypeLabel.setText("Open Goal");
+                goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.BULLSEYE));
+                goalTypeLabel.setStyle("-fx-text-fill: RED");
+            } else if(PropertyManager.getInstance().currentProofStatus.get() == ProofStatus.CHANGED_SCRIPT) {
+                goalTypeLabel.setText("Script changed");
+                goalTypeLabel.setStyle("-fx-text-fill: GRAY");
+                goalTypeLabel.setGraphic(null);
             } else {
                 goalTypeLabel.setText("Node");
                 goalTypeLabel.setStyle("-fx-text-fill: GRAY");
                 goalTypeLabel.setGraphic(null);
             }
-        } catch (RuleException e) {
-            System.err.println("Invalid ProofNodeSelector generated");
-            e.printStackTrace();
         }
     }
 

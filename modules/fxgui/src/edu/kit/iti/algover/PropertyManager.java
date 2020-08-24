@@ -1,12 +1,9 @@
 package edu.kit.iti.algover;
 
-import edu.kit.iti.algover.proof.Proof;
-import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.settings.ProjectSettings;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.util.TypedBindings;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 
 /**
@@ -39,6 +36,24 @@ public class PropertyManager {
     private static PropertyManager instance;
 
     /**
+     * Whichever Term was clicked to apply rules to.
+     */
+    public final SimpleObjectProperty<TermSelector> selectedTerm = new SimpleObjectProperty<>();
+
+    /**
+     * Whichever Term was clicked to reveal dependencies.
+     * (Currently set when control-clicking something on the sequent).
+     */
+    public final SimpleObjectProperty<TermSelector> selectedTermForReference = new SimpleObjectProperty<>();
+
+    /**
+     * The proofStatus of the {@link PropertyManager#currentProof}. This property is automatically updated whenever the
+     * currentProof is changed. Note however that it is not automatically synchronized with the backend. Thus whenever
+     * the interpreter is called for the current proof this property has to be set again.
+     */
+    public final SimpleObjectProperty<ProofStatus> currentProofStatus = new SimpleObjectProperty<>();
+
+    /**
      * Provides the singleton for this class
      * @return an instance of this class
      */
@@ -50,7 +65,7 @@ public class PropertyManager {
     }
 
     private PropertyManager() {
-        TypedBindings.bind(currentProofNode, currentProofNodeSelector,
+        TypedBindings.bindBidirectional(currentProofNode, currentProofNodeSelector,
                 (proofNode -> new ProofNodeSelector(proofNode)),
                 proofNodeSelector -> {
                     try {
@@ -60,6 +75,14 @@ public class PropertyManager {
                     }
                     return null;
                 });
+        TypedBindings.bind(currentProof, currentProofStatus,
+                (proof -> {
+                    if(proof != null) {
+                        return proof.getProofStatus();
+                    } else {
+                        return ProofStatus.NON_EXISTING;
+                    }
+                }));
     }
 }
 

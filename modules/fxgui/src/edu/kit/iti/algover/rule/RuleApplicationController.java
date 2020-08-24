@@ -9,6 +9,7 @@ import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXToggleButton;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.Lookup;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
@@ -107,6 +108,11 @@ public class RuleApplicationController extends FxmlController implements Referen
             }
         });*/
 
+        PropertyManager.getInstance().selectedTerm.addListener(((observable, oldValue, newValue) -> considerApplication(
+                PropertyManager.getInstance().currentProofNode.get(),
+                PropertyManager.getInstance().currentProofNode.get().getSequent(),
+                PropertyManager.getInstance().selectedTerm.get()
+        )));
 
         logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         this.manager = manager;
@@ -125,17 +131,20 @@ public class RuleApplicationController extends FxmlController implements Referen
     }
 
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
-        try {
-            Term term = selector.selectSubterm(selection);
-            String prettyPrinted = new PrettyPrint().print(term, 60).toString();
-            termToConsider.setText(prettyPrinted);
-        } catch (RuleException e) {
-            e.printStackTrace();
+        if(target != null && selector != null) {
+            if (selector.isValidForSequent(selection)) {
+                try {
+                    Term term = selector.selectSubterm(selection);
+                    String prettyPrinted = new PrettyPrint().print(term, 60).toString();
+                    termToConsider.setText(prettyPrinted);
+                } catch (RuleException e) {
+                    e.printStackTrace();
+                }
+                ruleGrid.getAllRules().forEach(ruleView -> ruleView.considerApplication(target, selection, selector));
+
+                ruleGrid.filterRules();
+            }
         }
-        ruleGrid.getAllRules().forEach(ruleView -> ruleView.considerApplication(target, selection, selector));
-
-        ruleGrid.filterRules();
-
     }
 
     public void resetConsideration() {

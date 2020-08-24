@@ -33,8 +33,12 @@ public class ReferenceGraphController {
     private final Lookup lookup;
 
 
-    public ReferenceGraphController(Lookup lookup){
-         this.lookup = lookup;
+    public ReferenceGraphController(Lookup lookup) {
+        this.lookup = lookup;
+        PropertyManager.getInstance().selectedTermForReference.addListener(((observable, oldValue, newValue) -> {
+            this.highlightAllReferenceTargets(new ProofTermReferenceTarget(
+                    PropertyManager.getInstance().currentProofNodeSelector.get(), newValue));
+        }));
     }
 
     /**
@@ -43,12 +47,9 @@ public class ReferenceGraphController {
      * @param selectedTarget
      */
     public void highlightAllReferenceTargets(ProofTermReferenceTarget selectedTarget){
-        Collection<SequentTabViewController> sequentTabViewControllers = lookup.lookupAll(SequentTabViewController.class);
-
-        //this should not be possible
-        if(sequentTabViewControllers.size() < 1){
-            ExceptionDialog ed = new ExceptionDialog(new RuntimeException("Ambiguous SequentControllers, please reexecute the proof script."));
-            ed.showAndWait();
+        if(selectedTarget != null && selectedTarget.getTermSelector() == null) {
+            removeReferenceHighlighting();
+            return;
         }
 
         Proof activeProof = PropertyManager.getInstance().currentProof.get();
@@ -79,7 +80,6 @@ public class ReferenceGraphController {
             //scriptController.viewReferences(scriptReferenceTargetSet);
 
        } else {
-
            Logger.getGlobal().warning("Could not compute references.");
         }
         try {
