@@ -35,7 +35,8 @@ import org.controlsfx.validation.Validator;
 import java.util.Map;
 
 /**
- * Created by jklamroth on 6/12/18.
+ * This Dialog allows for entering values for parameters of rule applications.
+ * @author Jonas Klamroth (06/2018)
  */
 public class RuleParameterDialog extends Dialog<Void> {
     private Parameters parameters = new Parameters();

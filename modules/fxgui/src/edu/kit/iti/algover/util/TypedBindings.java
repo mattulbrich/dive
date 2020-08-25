@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 /**
  * This class provides the possibility to bind arbitrarily typed ObjectProperties
+ * @author Jonas Klamroth (08/2020)
  */
 public class TypedBindings {
     //allows for some debug output of created bindings
@@ -64,6 +65,15 @@ public class TypedBindings {
         }));
     }
 
+    /**
+     * This method allows to create a unidirectional binding between two ObjectProperties.
+     *
+     * @param a First property (of type A)
+     * @param b Second property (of type B)
+     * @param aToB A function to convert a value of type A to a value of type B
+     * @param <A> the type of the first ObjectProperty
+     * @param <B> the type of the second ObjectProperty
+     */
     static public <A extends Object, B extends Object> void bind(ObjectProperty<A> a, ObjectProperty<B> b, Function<A, B> aToB) {
         if(debug) {
             System.out.println("bind " + a + " and " + b);

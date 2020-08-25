@@ -9,6 +9,7 @@ import javafx.beans.property.SimpleObjectProperty;
 /**
  * This class holds all relevant properties for the FXGUI.
  * It is implemented as a Singleton so to access properties the getInstance() method is used.
+ * @author Jonas Klamroth (08/2020)
  */
 public class PropertyManager {
     /**

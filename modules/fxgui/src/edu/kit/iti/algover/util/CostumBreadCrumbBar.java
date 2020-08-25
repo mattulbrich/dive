@@ -20,7 +20,9 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * Created by jklamroth on 5/23/18.
+ * A breadcrumb bar consisting of several dropdown menus.
+ * The menus are automatically created based on a {@link TreeItem}.
+ * @author Jonas Klamroth (05/2018)
  */
 public class CostumBreadCrumbBar<T> extends HBox {
     ObjectProperty<TreeItem<T>> selectedCrumb;
