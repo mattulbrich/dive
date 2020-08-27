@@ -51,7 +51,7 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
         this.lookup = lookup;
         view = new TabPane();
         controllers = new ArrayList<>();
-        controllers.add(new SequentController(lookup));
+        controllers.add(new SequentController());
         view.getTabs().add(new Tab("default", controllers.get(0).getView()));
         view.getSelectionModel().selectedIndexProperty().addListener(this::onTabSelected);
         view.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
@@ -113,7 +113,7 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
     private void showProofNodes(List<ProofNodeSelector> proofNodeSelectors) {
         for(int i = 0; i < proofNodeSelectors.size(); ++i) {
             if(i >= view.getTabs().size()) {
-                controllers.add(new SequentController(lookup));
+                controllers.add(new SequentController());
                 view.getTabs().add(new Tab("default", controllers.get(i).getView()));
             }
             updateTab(proofNodeSelectors.get(i), i);
@@ -147,7 +147,7 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
     public void viewSequentForPVC(PVC pvc, Proof proof) {
         if(pvc != null && proof != null) {
             if (controllers.size() == 0) {
-                controllers.add(new SequentController(lookup));
+                controllers.add(new SequentController());
             } else {
                 controllers.removeAll(controllers.subList(1, controllers.size()));
             }

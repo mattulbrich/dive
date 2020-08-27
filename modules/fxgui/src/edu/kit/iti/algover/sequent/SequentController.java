@@ -8,13 +8,19 @@ package edu.kit.iti.algover.sequent;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.FxmlController;
-import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.PropertyManager;
-import edu.kit.iti.algover.browser.entities.PVCEntity;
-import edu.kit.iti.algover.proof.*;
+import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
-import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.rules.BranchInfo;
+import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.formulas.ViewFormula;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
@@ -86,8 +92,6 @@ public class SequentController extends FxmlController {
 
     private SimpleIntegerProperty fontsizeProperty = new SimpleIntegerProperty(12);
 
-    private Lookup lookup;
-
     /**
      * Builds the controller and GUI for the sequent view, that is the two ListViews of
      * {@link ProofFormula}s.
@@ -96,7 +100,7 @@ public class SequentController extends FxmlController {
      * <tt>res/edu/kit/iti/algover/sequent/SequentView.fxml</tt>.
      *
      */
-    public SequentController(Lookup lookup) {
+    public SequentController() {
         super("SequentView.fxml");
         PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> updateGoalTypeLabel()));
 
