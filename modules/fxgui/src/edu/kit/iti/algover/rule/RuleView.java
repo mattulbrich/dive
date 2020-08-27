@@ -8,15 +8,11 @@ package edu.kit.iti.algover.rule;
 import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofStatus;
-import edu.kit.iti.algover.rules.FocusProofRule;
-import edu.kit.iti.algover.rules.ParameterDescription;
-import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.util.ExceptionDialog;
@@ -38,7 +34,6 @@ public class RuleView extends StackPane {
     private final ProofRule rule;
 
     private ProofRuleApplication application;
-    private ProofRuleApplication exApplication;
     private TermSelector selection;
     private RuleViewOverlay applicationOverlay;
     private boolean selectable;

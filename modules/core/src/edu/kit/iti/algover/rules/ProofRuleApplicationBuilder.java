@@ -5,16 +5,15 @@
  */
 package edu.kit.iti.algover.rules;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import edu.kit.iti.algover.proof.Proof;
-import edu.kit.iti.algover.term.FunctionSymbol;
-import nonnull.NonNull;
-import nonnull.Nullable;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
+import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Util;
+import nonnull.NonNull;
+import nonnull.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is a builder (as in the builder pattern) for
@@ -69,6 +68,18 @@ public class ProofRuleApplicationBuilder {
         if(app.getNewFunctionSymbols() != null) {
             this.newFuctionSymbols = new ArrayList<>(app.getNewFunctionSymbols().asCollection());
         }
+    }
+
+    /**
+     * Create a new application indication "instatiation required".
+     *
+     * @param rule the rule to encapsulate
+     * @return the proof rule application holding instationtionRequired-applicable for the rule
+     */
+    public static ProofRuleApplication instantiationRequired(ProofRule rule) {
+        return new ProofRuleApplication(rule, BranchInfo.UNCHANGED,
+                Applicability.INSTANTIATION_REQUIRED, Parameters.EMPTY_PARAMETERS,
+                null, null, null);
     }
 
     /**
