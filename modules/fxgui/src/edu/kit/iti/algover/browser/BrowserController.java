@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.browser;
 
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.browser.entities.*;
 import edu.kit.iti.algover.dafnystructures.DafnyClass;
 import edu.kit.iti.algover.dafnystructures.DafnyDecl;
@@ -39,8 +40,6 @@ public abstract class BrowserController {
     private final BrowserTreeTable view;
     private Map<String, Proof> proofsByPVC;
 
-    private BrowserSelectionListener selectionListener;
-
     protected BrowserController(Project project, Map<String, Proof> proofsByPVC, PVCClickEditListener editListener) {
         this.project = project;
         this.proofsByPVC = proofsByPVC;
@@ -55,18 +54,14 @@ public abstract class BrowserController {
     private void createContextMenu(ContextMenu contextMenu) {
         MenuItem expandSubtree = new MenuItem("Expand Tree");
         expandSubtree.setOnAction(event -> {
-            if(selectionListener != null){
-                TreeItem<TreeTableEntity> selectedItem = getView().getSelectionModel().getSelectedItem();
-                expandCollapseTree(selectedItem, true);
-            }
+            TreeItem<TreeTableEntity> selectedItem = getView().getSelectionModel().getSelectedItem();
+            expandCollapseTree(selectedItem, true);
         });
 
         MenuItem collapseSubtree = new MenuItem("Collapse Tree");
         collapseSubtree.setOnAction(event -> {
-            if(selectionListener != null){
-                TreeItem<TreeTableEntity> selectedItem = getView().getSelectionModel().getSelectedItem();
-                expandCollapseTree(selectedItem, false);
-            }
+            TreeItem<TreeTableEntity> selectedItem = getView().getSelectionModel().getSelectedItem();
+            expandCollapseTree(selectedItem, false);
         });
 
 
@@ -150,13 +145,18 @@ public abstract class BrowserController {
         }
     }
 
+    private TreeTableEntity getEntityFromPVC(DafnyFile dafnyFile, PVC pvc) {
+        return new PVCEntity(proofsByPVC.get(pvc.getIdentifier()), pvc, dafnyFile);
+    }
+
     protected void onTreeItemSelected(
             ObservableValue<? extends TreeItem<TreeTableEntity>> value,
             TreeItem<TreeTableEntity> before,
             TreeItem<TreeTableEntity> item) {
         TreeTableEntity entity = entityFromTreeItem(item);
-        if (entity == null || selectionListener == null) return;
-        selectionListener.onBrowserItemSelected(entity);
+        if (entity == null) return;
+        PropertyManager.getInstance().currentFile.set(entity.getLocation());
+        PropertyManager.getInstance().currentPVC.set(entity.accept(new PVCGetterVisitor()));
     }
 
     protected TreeItem<TreeTableEntity> createTreeItem(TreeTableEntity entity) {
@@ -181,14 +181,6 @@ public abstract class BrowserController {
 
     public Project getProject() {
         return project;
-    }
-
-    public BrowserSelectionListener getSelectionListener() {
-        return selectionListener;
-    }
-
-    public void setSelectionListener(BrowserSelectionListener selectionListener) {
-        this.selectionListener = selectionListener;
     }
 
     public void onRefresh(Project project, Map<String, Proof> proofsByPVC) {

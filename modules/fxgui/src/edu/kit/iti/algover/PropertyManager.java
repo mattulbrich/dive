@@ -1,5 +1,8 @@
 package edu.kit.iti.algover;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
@@ -17,19 +20,36 @@ public class PropertyManager {
      * this selector is bound bidirectionally with {@link PropertyManager#currentProofNode} so updates to either one of
      * them will be mirrored by the other one
      */
-    public SimpleObjectProperty<ProofNodeSelector> currentProofNodeSelector = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<ProofNodeSelector> currentProofNodeSelector = new SimpleObjectProperty<>();
 
     /**
      * The {@link ProofNode} that is currently displayed in the sequent view
      * it is bound bidirectionally with {@link PropertyManager#currentProofNodeSelector} so updates to either one of
      * them will be mirrored by the other one
      */
-    public SimpleObjectProperty<ProofNode> currentProofNode = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<ProofNode> currentProofNode = new SimpleObjectProperty<>();
 
     /**
      * The proof that is currently displayed (corresponding to the selected PVC and seen in the Scriptview as script)
+     * This property is bound bidirectionally to the {@link PropertyManager#currentPVC}.
      */
-    public SimpleObjectProperty<Proof> currentProof = new SimpleObjectProperty<>();
+    public final SimpleObjectProperty<Proof> currentProof = new SimpleObjectProperty<>();
+
+    /**
+     * The PVC that is currently selected (via breadcrumbbar or via browser view).
+     * This property is bound bidirectionally to the {@link PropertyManager#currentProof}.
+     */
+    public final SimpleObjectProperty<PVC> currentPVC = new SimpleObjectProperty<>();
+
+    /**
+     * The file that is currently display in the editorview.
+     */
+    public final SimpleObjectProperty<DafnyFile> currentFile = new SimpleObjectProperty<>();
+
+    /**
+     * The currently loaded project.
+     */
+    public final SimpleObjectProperty<Project> currentProject = new SimpleObjectProperty<>();
 
     /**
      * The singleton instance
@@ -54,6 +74,8 @@ public class PropertyManager {
      */
     public final SimpleObjectProperty<ProofStatus> currentProofStatus = new SimpleObjectProperty<>();
 
+    public final SimpleObjectProperty<ProjectManager> projectManager = new SimpleObjectProperty<>();
+
     /**
      * Provides the singleton for this class
      * @return an instance of this class
@@ -76,6 +98,19 @@ public class PropertyManager {
                     }
                     return null;
                 });
+        TypedBindings.bindBidirectional(currentProof, currentPVC,
+                proof -> {
+                    if(proof != null) {
+                        return proof.getPVC();
+                    }
+                    return null;
+                },
+                pvc -> {
+                    if(pvc != null) {
+                        return projectManager.get().getProofForPVC(pvc.getIdentifier());
+                    }
+                    return null;
+                });
         TypedBindings.bind(currentProof, currentProofStatus,
                 (proof -> {
                     if(proof != null) {
@@ -83,7 +118,11 @@ public class PropertyManager {
                     } else {
                         return ProofStatus.NON_EXISTING;
                     }
-                }));
+                })
+        );
+        currentProof.addListener(((observable, oldValue, newValue) -> {
+            if(newValue != null && newValue.getProofRoot() == null) newValue.interpretScript();
+        }));
     }
 }
 

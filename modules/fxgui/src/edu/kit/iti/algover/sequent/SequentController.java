@@ -23,7 +23,6 @@ import edu.kit.iti.algover.util.Quadruple;
 import edu.kit.iti.algover.util.SubtermSelectorReplacementVisitor;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -179,27 +178,15 @@ public class SequentController extends FxmlController {
      * Fills the ListViews with the formulas in the very first sequent (from the root
      * of the {@link ProofNode} tree).
      *
-     * @param pvcEntity the PVC for which to show the root sequent
+     * @param pvc the PVC for which to show the root sequent
      * @param proof     the existing proof or proof stub for the pvc
      */
-    public void viewSequentForPVC(PVCEntity pvcEntity, Proof proof) {
-        PVC pvc = pvcEntity.getPVC();
-        if (PropertyManager.getInstance().currentProof.get() == null || !PropertyManager.getInstance().currentProof.get().getPVCName().equals(pvc.getIdentifier())) {
-            PropertyManager.getInstance().currentProof.set(proof);
+    public void viewSequentForPVC(PVC pvc, Proof proof) {
+        if (pvc != null && proof != null) {
             activeNode = new ProofNodeSelector();
             updateSequent(getActiveNode().getSequent(), null);
         }
-    }
-
-    /**
-     * Forces a update of the sequent even when the pvc is the same as before (shouldnt be used in normal cases)
-     *
-     * @param entity the PVC to be shown
-     * @param proof the proof containing this pvc
-     */
-    public void forceViewSequentForPVC(PVCEntity entity, Proof proof) {
-        PropertyManager.getInstance().currentProof.set(null);
-        viewSequentForPVC(entity, proof);
+        tryMovingOnEx();
     }
 
     /**

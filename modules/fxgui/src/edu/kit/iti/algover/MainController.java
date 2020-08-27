@@ -97,8 +97,10 @@ public class MainController implements RuleApplicationListener {
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
         this.sequentController = new SequentTabViewController(this.lookup);
         this.ruleApplicationController = new RuleApplicationController(executor, this, manager, this.lookup);
-
         this.referenceGraphController = new ReferenceGraphController(this.lookup);
+
+        PropertyManager.getInstance().projectManager.set(manager);
+        PropertyManager.getInstance().currentProject.set(manager.getProject());
 
         JFXButton saveButton = new JFXButton("Save", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
         JFXButton refreshButton = new JFXButton("Refresh", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.REFRESH));
@@ -140,7 +142,6 @@ public class MainController implements RuleApplicationListener {
         this.view = new VBox(toolbar, breadCrumbBar, timelineView, statusBar);
         VBox.setVgrow(timelineView, Priority.ALWAYS);
 
-        browserController.setSelectionListener(this::onSelectBrowserItem);
         createContextMenu();
         Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         statusBarLoggingHandler = new StatusBarLoggingHandler(statusBar);
@@ -150,6 +151,7 @@ public class MainController implements RuleApplicationListener {
 
         //Add property listener
         PropertyManager.getInstance().selectedTerm.addListener(((observable, oldValue, newValue) -> onClickSequentSubterm(newValue)));
+        PropertyManager.getInstance().currentPVC.addListener(((observable, oldValue, newValue) -> onSelectBrowserItem(newValue)));
 
         onClickRefresh(null);
     }
@@ -305,16 +307,12 @@ public class MainController implements RuleApplicationListener {
                                     + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
             //workaround for KDE systems and GTK based Desktops
             a.setResizable(true);
-            a.onShownProperty().addListener(e -> {
-                runLater(() -> a.setResizable(false));
-            });
+            a.onShownProperty().addListener(e -> runLater(() -> a.setResizable(false)));
             a.showAndWait();
             Logger.getGlobal().info("Successfully applied strategy and closed "
                     + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
         }));
-        t1.setOnCancelled($ -> runLater(() -> {
-            Logger.getGlobal().severe("Strategy was cancelled.");
-        }));
+        t1.setOnCancelled($ -> runLater(() -> Logger.getGlobal().severe("Strategy was cancelled.")));
         progressDialog.setHeaderText("Applying strategy to " + pvcNames.size() + " PVCs. Please wait.");
         progressDialog.setTitle("Applying strategy");
         progressDialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
@@ -330,6 +328,8 @@ public class MainController implements RuleApplicationListener {
                 PVC pvc = (PVC) item.getValue();
                 try {
                     DafnyFile file = (DafnyFile) item.getParent().getParent().getValue();
+                    PropertyManager.getInstance().currentFile.set(file);
+                    PropertyManager.getInstance().currentPVC.set(pvc);
                     timelineView.moveFrameLeft();
                     timelineView.moveFrameLeft();
                     onClickPVCEdit(new PVCEntity(manager.getProofForPVC(pvc.getIdentifier()), pvc, file));
@@ -341,17 +341,21 @@ public class MainController implements RuleApplicationListener {
                 }
             }
             if (item.getValue() instanceof DafnyFile) {
-                editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getValue());
+                PropertyManager.getInstance().currentFile.set((DafnyFile) item.getValue());
+                //editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getValue());
                 timelineView.moveFrameLeft();
                 timelineView.moveFrameLeft();
-                editorController.resetPVCSelection();
+                PropertyManager.getInstance().currentPVC.set(null);
+                //editorController.resetPVCSelection();
             }
             if (item.getValue() instanceof DafnyMethod) {
                 if (item.getParent().getValue() instanceof DafnyFile) {
-                    editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getParent().getValue());
+                    PropertyManager.getInstance().currentFile.set((DafnyFile) item.getParent().getValue());
+                    //editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getParent().getValue());
                     timelineView.moveFrameLeft();
                     timelineView.moveFrameLeft();
-                    editorController.resetPVCSelection();
+                    PropertyManager.getInstance().currentPVC.set(null);
+                    //editorController.resetPVCSelection();
                 }
             }
         });
@@ -531,18 +535,11 @@ public class MainController implements RuleApplicationListener {
     }
 
     public void onClickPVCEdit(PVCEntity entity) {
-        PVC pvc = entity.getPVC();
-        breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
-        editorController.viewFile(manager.getProject().getBaseDir(), entity.getLocation());
-        editorController.viewPVCSelection(pvc);
-        Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
-        // MU: currently proofs are not automatically interpreted and/or uptodate. Make sure they are.
-        if (proof.getProofStatus() == ProofStatus.NON_EXISTING || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
-            proof.interpretScript();
-        sequentController.viewSequentForPVC(entity, proof);
-        sequentController.getActiveSequentController().tryMovingOnEx();
+        //Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
+        //// MU: currently proofs are not automatically interpreted and/or uptodate. Make sure they are.
+        //if (proof.getProofStatus() == ProofStatus.NON_EXISTING || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
+        //    proof.interpretScript();
         ruleApplicationController.resetConsideration();
-        ruleApplicationController.getScriptController().setProof(proof);
         timelineView.moveFrameRight();
     }
 
@@ -590,34 +587,9 @@ public class MainController implements RuleApplicationListener {
         return "error";
     }
 
-    public void onSelectBrowserItem(TreeTableEntity treeTableEntity) {
-        DafnyFile file = treeTableEntity.getLocation();
-        if (file != null) {
-            editorController.viewFile(manager.getProject().getBaseDir(), file);
-            PVC pvc = treeTableEntity.accept(new PVCGetterVisitor());
-            if (pvc != null) {
-                editorController.viewPVCSelection(pvc);
-                breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
-            } else {
-                editorController.resetPVCSelection();
-                sequentController.getActiveSequentController().clear();
-            }
-        } else {
-            sequentController.getActiveSequentController().clear();
-        }
-    }
-
-    private TreeItem<Object> getTreeItemForPVC(PVC pvc) {
-        List<TreeItem<Object>> files = breadCrumbBar.getModel().getChildren();
-        List<TreeItem<Object>> methods = files.stream().flatMap(m -> m.getChildren().stream()).
-                collect(Collectors.toList());
-        List<TreeItem<Object>> pvcs = methods.stream().flatMap(m -> m.getChildren().stream()).
-                filter(p -> (p.getValue()).equals(pvc)).collect(Collectors.toList());
-        if (pvcs.size() == 1) {
-            return pvcs.get(0);
-        } else {
-            System.out.println("this shoudnt happen. couldnt select breadcrumbitem for pvc");
-            return null;
+    public void onSelectBrowserItem(PVC pvc) {
+        if (pvc != null) {
+            breadCrumbBar.setSelectedCrumb(pvc);
         }
     }
 

@@ -63,7 +63,6 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
      * The insert position where the next command is inserted
      */
     private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1, 0), "Observable Insert Position");
-    private Proof proof;
     private List<ProofNodeCheckpoint> checkpoints;
 
     private LayeredHighlightingRulev4 highlightingRules;
@@ -79,7 +78,6 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         this.fontSizeProperty.setValue(MainController.systemprefs.getInt("FONT_SIZE_SCRIPT_EDITOR", 12));
 
-        PropertyManager.getInstance().currentProofNodeSelector.addListener(((observable, oldValue, newValue) -> this.setSelectedNode(newValue)));
 
         MainController.systemprefs.addPreferenceChangeListener(preferenceChangeEvent -> {
             int font_size_seq_view1 = preferenceChangeEvent.getNode().getInt("FONT_SIZE_SCRIPT_EDITOR", 12);
@@ -88,6 +86,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         view.fontsizeProperty().bind(fontSizeProperty);
 
+        PropertyManager.getInstance().currentProofNodeSelector.addListener(((observable, oldValue, newValue) -> this.setSelectedNode(newValue)));
         PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
             if(newValue == ProofStatus.CHANGED_SCRIPT) {
                 view.setStyle("-fx-background-color: #c4c1c9; -fx-font-size: "+fontSizeProperty.get()+"pt;");
@@ -97,6 +96,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
                 view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
             }
         }));
+        PropertyManager.getInstance().currentProof.addListener(((observable, oldValue, newValue) -> setProof(newValue)));
 
         this.scriptChanged.addListener(((observable, oldValue, newValue) -> {
             if(newValue) {
@@ -158,14 +158,14 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         }
     }
 
-    public void setProof(Proof proof) {
-        this.proof = proof;
+    private void setProof(Proof proof) {
+        if(proof != null) {
+            this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
 
-        this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
-
-        view.replaceText(proof.getScript());
-        view.getUndoManager().forgetHistory();
-        runScript();
+            view.replaceText(proof.getScript());
+            view.getUndoManager().forgetHistory();
+            runScript();
+        }
     }
 
     private void onCaretPositionChanged(Observable observable) {
@@ -174,7 +174,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
         //insertPosition = checkpoint.caretPosition;
         observableInsertPosition.set(checkpoint.caretPosition);
-        this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        this.checkpoints = ProofNodeCheckpointsBuilder.build(PropertyManager.getInstance().currentProof.get());
         createVisualSelectors(this.checkpoints);
         //showSelectedSelector(checkpoint);
         switchViewedNode();
@@ -195,7 +195,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         // If the selector points to nowhere, its probably because the rule closed the proof and didn't generate
         // another child...
         // REVIEW This is kind of ugly. In the future this off-by-one fix has to be removed
-        if (checkpoint.selector.optionalGet(proof).isEmpty()) {
+        if (checkpoint.selector.optionalGet(PropertyManager.getInstance().currentProof.get()).isEmpty()) {
             if(checkpoint.selector.getParentSelector() != null) {
                 PropertyManager.getInstance().currentProofNodeSelector.set(checkpoint.selector.getParentSelector());
             } else {
@@ -312,12 +312,12 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         view.replaceText(pp.toString());
 
         proof.setScriptTextAndInterpret(pp.toString());*/
-            proof.setScriptTextAndInterpret(text);
+            PropertyManager.getInstance().currentProof.get().setScriptTextAndInterpret(text);
         } catch (ParseCancellationException | RecognitionException pce) {
             failException = pce;
         }
         if(failException == null) {
-            failException = proof.getFailException();
+            failException = PropertyManager.getInstance().currentProof.get().getFailException();
         }
 
 
@@ -334,12 +334,12 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         } else {
             Logger.getGlobal().info("Successfully ran script.");
         }
-        checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        checkpoints = ProofNodeCheckpointsBuilder.build(PropertyManager.getInstance().currentProof.get());
        // insertPosition = oldInsertPos;
         observableInsertPosition.set(oldInsertPos);
         createVisualSelectors(checkpoints);
 
-        PropertyManager.getInstance().currentProofStatus.set(proof.getProofStatus());
+        PropertyManager.getInstance().currentProofStatus.set(PropertyManager.getInstance().currentProof.get().getProofStatus());
         switchViewedNode();
         scriptChanged.set(false);
     }
@@ -358,8 +358,8 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
                 return;
             }
         }
-        ProofScript script = this.proof.getProofScript();
-        Statements newScript = insertCasesForStatement(proof.getProofRoot(), script.getBody());
+        ProofScript script = PropertyManager.getInstance().currentProof.get().getProofScript();
+        Statements newScript = insertCasesForStatement(PropertyManager.getInstance().currentProof.get().getProofRoot(), script.getBody());
         script.setBody(newScript);
         PrettyPrinter pp = new PrettyPrinter();
         script.accept(pp);
