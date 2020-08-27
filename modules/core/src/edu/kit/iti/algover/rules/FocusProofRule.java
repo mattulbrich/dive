@@ -37,7 +37,7 @@ public abstract class FocusProofRule extends AbstractProofRule {
     }
 
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
-        if(selection == null) {
+        if(selector == null) {
             return ProofRuleApplicationBuilder.notApplicable(this);
         }
 
