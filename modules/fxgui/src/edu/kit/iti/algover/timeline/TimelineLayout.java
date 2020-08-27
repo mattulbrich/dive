@@ -213,8 +213,7 @@ public class TimelineLayout extends HiddenSidesPane {
     private <T> Timeline createAnimation(WritableValue<T> parameter, T target) {
         KeyValue keyvalue = new KeyValue(parameter, target, Interpolator.EASE_BOTH);
         KeyFrame keyframe = new KeyFrame(Duration.millis(300), keyvalue);
-        Timeline tl = new Timeline(keyframe);
-        return tl;
+        return new Timeline(keyframe);
     }
 
 
@@ -231,9 +230,7 @@ public class TimelineLayout extends HiddenSidesPane {
      * Tell the TimelineView to move the frame to the right.
      *
      * @return true iff move was possible.
-     * @Deprecated Increment {@link TimelineLayout#framePosition}.
      */
-    @Deprecated
     public boolean moveFrameRight() {
         if (framePosition.greaterThanOrEqualTo(numViews.subtract(1)).get()) {
             return false;
@@ -246,9 +243,7 @@ public class TimelineLayout extends HiddenSidesPane {
      * Tell the TimelineView to move the frame to the left.
      *
      * @return true iff move was possible.
-     * @Deprecated Decrement {@link TimelineLayout#framePosition}.
      */
-    @Deprecated
     public boolean moveFrameLeft() {
         if (framePosition.get() < 1) {
             return false;
