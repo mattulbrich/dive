@@ -12,14 +12,17 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.layout.StackPane;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -95,9 +98,12 @@ public class RuleGrid extends JFXMasonryPane {
     public void filterRules(Predicate<RuleView> filterFunction) {
 
         rules.clear();
-        rules.addAll(allRules.stream().filter(
-                filterFunction::test
-        ).collect(Collectors.toList()));
+        //Proof rules should only be shown if the proofStatus is in a clean state and the proof is not yet closed
+        if(PropertyManager.getInstance().currentProofStatus.get() == ProofStatus.OPEN) {
+            rules.addAll(allRules.stream().filter(
+                    filterFunction::test
+            ).collect(Collectors.toList()));
+        }
 
         //REVIEW this should better be done dynamically but since it does not update automatically this at least
         //prevents that some arent shown at all
@@ -124,8 +130,11 @@ public class RuleGrid extends JFXMasonryPane {
             if(rules.size() == 0) {
                 if(PropertyManager.getInstance().currentProofStatus.get() == ProofStatus.CLOSED) {
                     children.add(new Label("The currently selected node is already closed."));
-                } else {
-                    children.add(new Label("No rules applicable."));
+                } else if(PropertyManager.getInstance().currentProofStatus.get() != ProofStatus.OPEN) {
+                    Label l = new Label("Unclean proof state. Please rerun the script.");
+                    l.setWrapText(true);
+                    l.setMinWidth(400.0);
+                    children.add(l);
                 }
             }
 

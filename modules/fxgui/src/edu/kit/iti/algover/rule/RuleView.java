@@ -5,13 +5,10 @@
  */
 package edu.kit.iti.algover.rule;
 
-import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
-import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
@@ -83,18 +80,11 @@ public class RuleView extends StackPane {
     }
 
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
-        if(PropertyManager.getInstance().currentProofStatus.get() == ProofStatus.CLOSED) {
-            application = ProofRuleApplicationBuilder.notApplicable(rule);
-            setSelectable(false);
-            renderApplication();
-            return;
-        }
         try {
             application = rule.considerApplication(target, selection, selector);
             this.selection = selector;
             setSelectable(application != null &&
-                    (application.getApplicability() == Applicability.APPLICABLE
-                    || application.getApplicability() == Applicability.INSTANTIATION_REQUIRED));
+                    application.getApplicability() != Applicability.NOT_APPLICABLE);
             renderApplication();
 //        }
             // No-focus Proof rules should ignore a selector
