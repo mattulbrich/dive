@@ -89,7 +89,12 @@ public class PropertyManager {
 
     private PropertyManager() {
         TypedBindings.bindBidirectional(currentProofNode, currentProofNodeSelector,
-                (proofNode -> new ProofNodeSelector(proofNode)),
+                (proofNode -> {
+                    if(proofNode != null) {
+                        new ProofNodeSelector(proofNode);
+                    }
+                    return null;
+                }),
                 proofNodeSelector -> {
                     try {
                         return proofNodeSelector.get(currentProof.get());
@@ -123,6 +128,8 @@ public class PropertyManager {
         currentProof.addListener(((observable, oldValue, newValue) -> {
             if(newValue != null && newValue.getProofRoot() == null) newValue.interpretScript();
         }));
+        currentPVC.addListener(((observable, oldValue, newValue) -> selectedTermForReference.set(null)));
+        currentPVC.addListener(((observable, oldValue, newValue) -> selectedTerm.set(null)));
     }
 }
 

@@ -14,8 +14,6 @@ import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
@@ -89,16 +87,9 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
         int fontSizeEditor = MainController.systemprefs.getInt("FONT_SIZE_EDITOR", 12);
         setStyle("-fx-font-size: "+fontSizeEditor+"pt;");
 
-        textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                rerenderHighlighting();
-                if (textIsSimilar(currentProofText, newValue)) {
-                    textChangedProperty.setValue(false);
-                } else {
-                    textChangedProperty.setValue(true);
-                }
-            }
+        textProperty().addListener((observable, oldValue, newValue) -> {
+            rerenderHighlighting();
+            textChangedProperty.setValue(!textIsSimilar(currentProofText, newValue));
         });
         replaceText(text);
         getUndoManager().forgetHistory();
@@ -112,13 +103,28 @@ public class DafnyCodeArea extends AsyncHighlightingCodeArea {
     private void handleEnterKey(KeyEvent t) {
         if(t.getCode() == KeyCode.ENTER) {
             int indentLevel = braceBalance(this.getText(0, this.getCaretPosition()));
-            indentLevel = (indentLevel > 0) ? indentLevel : 0;
+            indentLevel = Math.max(indentLevel, 0);
             this.insertText(this.getCaretPosition(), " ".repeat((tabWidth * indentLevel)));
 
             matchBracesCurrentPosition(indentLevel);
 
             t.consume();
         }
+    }
+
+    private int countLines(String s) {
+        String[] lines = s.split("\n");
+        return lines.length;
+    }
+
+    public void scrollToLine(int line) {
+        int numLines = countLines(this.getText());
+        float pos = ((float)line) / numLines;
+        //pos = 2.f;
+        double target = this.totalHeightEstimateProperty().getValue() * pos;
+        target -= 50.d;
+        this.scrollYToPixel(target);
+
     }
 
     private void handleTabPress(KeyEvent t) {

@@ -172,6 +172,7 @@ public class MainController implements RuleApplicationListener {
         //Add property listener
         PropertyManager.getInstance().selectedTerm.addListener(((observable, oldValue, newValue) -> onClickSequentSubterm(newValue)));
         PropertyManager.getInstance().currentPVC.addListener(((observable, oldValue, newValue) -> onSelectBrowserItem(newValue)));
+        PropertyManager.getInstance().selectedTermForReference.addListener(((observable, oldValue, newValue) -> timelineView.setFramePosition(1)));
 
         onClickRefresh(null);
     }

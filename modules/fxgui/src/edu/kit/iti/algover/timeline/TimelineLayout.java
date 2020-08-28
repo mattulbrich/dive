@@ -189,6 +189,10 @@ public class TimelineLayout extends HiddenSidesPane {
         });
     }
 
+    public void setFramePosition(int position) {
+        framePosition.set(position);
+    }
+
     /**
      * Update visibility of left and right buttons.
      *

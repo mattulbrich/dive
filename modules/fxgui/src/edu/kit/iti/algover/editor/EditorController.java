@@ -29,7 +29,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import org.antlr.runtime.Token;
 import org.controlsfx.dialog.ExceptionDialog;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
@@ -41,7 +40,15 @@ import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
@@ -283,6 +290,9 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
         view.getTabs().stream()
                 .map(tab -> codeAreaFromContent(tab.getContent()))
                 .forEach(DafnyCodeArea::rerenderHighlighting);
+        if(codeReferenceTargets.size() > 0) {
+            getFocusedCodeArea().scrollToLine(codeReferenceTargets.iterator().next().getStartToken().getLine());
+        }
     }
 
     public BooleanProperty anyFileChangedProperty() {
