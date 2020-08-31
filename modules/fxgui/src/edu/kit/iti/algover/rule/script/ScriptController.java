@@ -16,16 +16,24 @@ import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
-import edu.kit.iti.algover.script.ast.*;
+import edu.kit.iti.algover.script.ast.CallStatement;
+import edu.kit.iti.algover.script.ast.CaseStatement;
+import edu.kit.iti.algover.script.ast.CasesStatement;
+import edu.kit.iti.algover.script.ast.Expression;
+import edu.kit.iti.algover.script.ast.MatchExpression;
+import edu.kit.iti.algover.script.ast.Position;
+import edu.kit.iti.algover.script.ast.ProofScript;
+import edu.kit.iti.algover.script.ast.SimpleCaseStatement;
+import edu.kit.iti.algover.script.ast.Statement;
+import edu.kit.iti.algover.script.ast.Statements;
+import edu.kit.iti.algover.script.ast.StringLiteral;
 import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.script.parser.PrettyPrinter;
-import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyCode;
@@ -35,8 +43,11 @@ import javafx.scene.input.KeyEvent;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -525,14 +536,16 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
      * @param proofNodeSelector the selector for the proofNode to be selected
      */
     public void setSelectedNode(ProofNodeSelector proofNodeSelector) {
-        if(!proofNodeSelector.equals(selectedNode)) {
-            selectedNode = proofNodeSelector;
-            if (checkpoints != null) {
-                List<ProofNodeCheckpoint> potCheckpoints = checkpoints.stream().filter(ch -> ch.selector.equals(proofNodeSelector)).collect(Collectors.toList());
-                if (potCheckpoints.size() > 0) {
-                    Position insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
-                    observableInsertPosition.set(insertPosition);
-                    //switchViewedNode();
+        if(proofNodeSelector != null) {
+            if (!proofNodeSelector.equals(selectedNode)) {
+                selectedNode = proofNodeSelector;
+                if (checkpoints != null) {
+                    List<ProofNodeCheckpoint> potCheckpoints = checkpoints.stream().filter(ch -> ch.selector.equals(proofNodeSelector)).collect(Collectors.toList());
+                    if (potCheckpoints.size() > 0) {
+                        Position insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
+                        observableInsertPosition.set(insertPosition);
+                        //switchViewedNode();
+                    }
                 }
             }
         }

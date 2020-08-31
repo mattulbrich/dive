@@ -91,7 +91,7 @@ public class PropertyManager {
         TypedBindings.bindBidirectional(currentProofNode, currentProofNodeSelector,
                 (proofNode -> {
                     if(proofNode != null) {
-                        new ProofNodeSelector(proofNode);
+                        return new ProofNodeSelector(proofNode);
                     }
                     return null;
                 }),
