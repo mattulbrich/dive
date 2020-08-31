@@ -96,22 +96,24 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
 
 
     public void viewProofNode(ProofNodeSelector proofNodeSelector) {
-        ProofNodeSelector parentSelector = proofNodeSelector.getParentSelector();
-        if(parentSelector != null) {
-            if(displayedNodes.contains(proofNodeSelector)) {
-                view.getSelectionModel().select(displayedNodes.indexOf(proofNodeSelector));
-                return;
+        if(proofNodeSelector != null) {
+            ProofNodeSelector parentSelector = proofNodeSelector.getParentSelector();
+            if (parentSelector != null) {
+                if (displayedNodes.contains(proofNodeSelector)) {
+                    view.getSelectionModel().select(displayedNodes.indexOf(proofNodeSelector));
+                    return;
+                }
+                List<ProofNodeSelector> children = getAllChildSelectors(parentSelector);
+                showProofNodes(children);
+                view.getSelectionModel().select(proofNodeSelector.getPath()[proofNodeSelector.getPath().length - 1]);
+                displayedNodes = children;
+            } else {
+                List<ProofNodeSelector> l = Collections.singletonList(proofNodeSelector);
+                showProofNodes(l);
+                displayedNodes = l;
             }
-            List<ProofNodeSelector> children = getAllChildSelectors(parentSelector);
-            showProofNodes(children);
-            view.getSelectionModel().select(proofNodeSelector.getPath()[proofNodeSelector.getPath().length - 1]);
-            displayedNodes = children;
-        } else {
-            List<ProofNodeSelector> l = Collections.singletonList(proofNodeSelector);
-            showProofNodes(l);
-            displayedNodes = l;
+            PropertyManager.getInstance().currentProofNodeSelector.set(proofNodeSelector);
         }
-        PropertyManager.getInstance().currentProofNodeSelector.set(proofNodeSelector);
     }
 
     private void showProofNodes(List<ProofNodeSelector> proofNodeSelectors) {
