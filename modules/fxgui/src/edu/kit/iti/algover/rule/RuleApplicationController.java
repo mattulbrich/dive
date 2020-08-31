@@ -110,11 +110,14 @@ public class RuleApplicationController extends FxmlController implements Referen
                 PropertyManager.getInstance().currentProofNode.get().getSequent(),
                 PropertyManager.getInstance().selectedTerm.get()
         )));
-        PropertyManager.getInstance().currentProofNode.addListener(((observable, oldValue, newValue) -> considerApplication(
-                PropertyManager.getInstance().currentProofNode.get(),
-                PropertyManager.getInstance().currentProofNode.get().getSequent(),
-                PropertyManager.getInstance().selectedTerm.get()
-        )));
+        PropertyManager.getInstance().currentProofNode.addListener(((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                considerApplication(
+                        PropertyManager.getInstance().currentProofNode.get(),
+                        PropertyManager.getInstance().currentProofNode.get().getSequent(),
+                        PropertyManager.getInstance().selectedTerm.get());
+            }
+        }));
         PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
             if(PropertyManager.getInstance().currentProofNode.get() != null) {
                 considerApplication(

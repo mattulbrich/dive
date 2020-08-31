@@ -96,10 +96,12 @@ public class PropertyManager {
                     return null;
                 }),
                 proofNodeSelector -> {
-                    try {
-                        return proofNodeSelector.get(currentProof.get());
-                    } catch (RuleException e) {
-                        e.printStackTrace();
+                    if (proofNodeSelector != null) {
+                        try {
+                            return proofNodeSelector.get(currentProof.get());
+                        } catch (RuleException e) {
+                            e.printStackTrace();
+                        }
                     }
                     return null;
                 });

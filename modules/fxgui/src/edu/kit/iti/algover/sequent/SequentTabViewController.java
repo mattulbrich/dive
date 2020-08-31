@@ -60,7 +60,11 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
         lookup.register(this, ReferenceHighlightingHandler.class);
         lookup.register(this, SequentTabViewController.class);
 
-        PropertyManager.getInstance().currentProofNodeSelector.addListener(((observable, oldValue, newValue) -> this.viewProofNode(newValue)));
+        PropertyManager.getInstance().currentProofNodeSelector.addListener(((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                this.viewProofNode(newValue);
+            }
+        }));
         PropertyManager.getInstance().currentPVC.addListener(((observable, oldValue, newValue) -> {
             if(newValue == null) {
                 getActiveSequentController().clear();
