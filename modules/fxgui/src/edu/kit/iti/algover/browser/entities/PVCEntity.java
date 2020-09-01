@@ -136,17 +136,10 @@ public class PVCEntity extends TreeTableEntity {
     }
 
     private void changed(ObservableValue<edu.kit.iti.algover.proof.ProofStatus> observableValue, edu.kit.iti.algover.proof.ProofStatus oldValue, edu.kit.iti.algover.proof.ProofStatus newValue) {
-        System.out.println("Proof status changed from " + oldValue + " to " +  newValue);
-
         proofStatus.set(ProofStatus.from(newValue));
-
-        switch(proofStatus.get()) {
-            case PROVEN: provenChildrenProperty().set(1);
-        }
-
         if (proofStatus.get() == ProofStatus.PROVEN) {
             provenChildrenProperty().set(1);
-        } else if ( proofStatus.get() == ProofStatus.DIRTY){
+        } else {
             provenChildrenProperty().set(0);
         }
     }
