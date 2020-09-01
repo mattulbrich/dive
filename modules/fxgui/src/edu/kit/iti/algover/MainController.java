@@ -299,6 +299,7 @@ public class MainController implements RuleApplicationListener {
                             p.setScriptTextAndInterpret(oldScript + "boogie;");
                             if (p.getFailException() != null) {
                                 p.setScriptText(oldScript);
+                                p.interpretScript();
                                 failed++;
                             }
                         }
