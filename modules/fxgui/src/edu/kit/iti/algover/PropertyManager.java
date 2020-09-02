@@ -3,10 +3,15 @@ package edu.kit.iti.algover;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectManager;
-import edu.kit.iti.algover.proof.*;
+import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.util.TypedBindings;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 /**
@@ -15,6 +20,12 @@ import javafx.beans.property.SimpleObjectProperty;
  * @author Jonas Klamroth (08/2020)
  */
 public class PropertyManager {
+
+    public static final int BROWSER_VIEW = 0;
+    public static final int EDITOR_VIEW = 1;
+    public static final int SEQUENT_VIEW = 2;
+    public static final int RULE_VIEW = 3;
+
     /**
      * the {@link ProofNodeSelector} pointing to the {@link ProofNode} that is currently displayed in the sequent view
      * this selector is bound bidirectionally with {@link PropertyManager#currentProofNode} so updates to either one of
@@ -75,6 +86,8 @@ public class PropertyManager {
     public final SimpleObjectProperty<ProofStatus> currentProofStatus = new SimpleObjectProperty<>();
 
     public final SimpleObjectProperty<ProjectManager> projectManager = new SimpleObjectProperty<>();
+
+    public final SimpleIntegerProperty currentlyDisplayedView = new SimpleIntegerProperty(0);
 
     /**
      * Provides the singleton for this class

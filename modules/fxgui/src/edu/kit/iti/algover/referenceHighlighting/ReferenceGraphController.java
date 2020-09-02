@@ -2,20 +2,14 @@ package edu.kit.iti.algover.referenceHighlighting;
 
 import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.PropertyManager;
-import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
-import edu.kit.iti.algover.rule.RuleApplicationController;
-import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.sequent.SequentTabViewController;
-import edu.kit.iti.algover.settings.ProjectSettings;
 import org.controlsfx.dialog.ExceptionDialog;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,6 +52,9 @@ public class ReferenceGraphController {
 
             Set<ProofTermReferenceTarget> proofTermReferenceTargets = computeProofTermRefTargets(selectedTarget, activeProof);
             Set<CodeReferenceTarget> codeReferenceTargets = computeCodeRefTargets(selectedTarget, activeProof);
+            codeReferenceTargets = codeReferenceTargets.stream().
+                    filter(codeReferenceTarget -> codeReferenceTarget.getEndToken().getCharPositionInLine() >= 0).
+                    collect(Collectors.toSet());
             Set<ScriptReferenceTarget> scriptReferenceTargetSet = computeScriptRefTargets(selectedTarget, activeProof);
 
             //build the ReferenceObject
@@ -70,6 +67,12 @@ public class ReferenceGraphController {
             //call all handlers
             for (ReferenceHighlightingHandler referenceHighlightingHandler : lookup.lookupAll(ReferenceHighlightingHandler.class)) {
                 referenceHighlightingHandler.handleReferenceHighlighting(referenceObj);
+            }
+
+            if(codeReferenceTargets.size() > 0) {
+                PropertyManager.getInstance().currentlyDisplayedView.set(1);
+            } else if(scriptReferenceTargetSet.size() > 0) {
+                PropertyManager.getInstance().currentlyDisplayedView.set(2);
             }
             // editorController.viewReferences(codeReferenceTargets);
             // sequentController.viewReferences(proofTermReferenceTargets, selectedTarget);
