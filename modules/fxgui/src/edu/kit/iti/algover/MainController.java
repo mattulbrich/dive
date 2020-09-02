@@ -172,7 +172,8 @@ public class MainController implements RuleApplicationListener {
         //Add property listener
         PropertyManager.getInstance().selectedTerm.addListener(((observable, oldValue, newValue) -> onClickSequentSubterm(newValue)));
         PropertyManager.getInstance().currentPVC.addListener(((observable, oldValue, newValue) -> onSelectBrowserItem(newValue)));
-        PropertyManager.getInstance().selectedTermForReference.addListener(((observable, oldValue, newValue) -> timelineView.setFramePosition(1)));
+        PropertyManager.getInstance().selectedTermForReference.addListener(((observable, oldValue, newValue) ->
+                PropertyManager.getInstance().framePosition.set(1)));
 
         onClickRefresh(null);
     }
@@ -352,8 +353,7 @@ public class MainController implements RuleApplicationListener {
                     DafnyFile file = (DafnyFile) item.getParent().getParent().getValue();
                     PropertyManager.getInstance().currentFile.set(file);
                     PropertyManager.getInstance().currentPVC.set(pvc);
-                    timelineView.moveFrameLeft();
-                    timelineView.moveFrameLeft();
+                    PropertyManager.getInstance().framePosition.set(0);
                     onClickPVCEdit(new PVCEntity(manager.getProofForPVC(pvc.getIdentifier()), pvc, file));
                 } catch (NullPointerException e) {
                     Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
@@ -365,8 +365,7 @@ public class MainController implements RuleApplicationListener {
             if (item.getValue() instanceof DafnyFile) {
                 PropertyManager.getInstance().currentFile.set((DafnyFile) item.getValue());
                 //editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getValue());
-                timelineView.moveFrameLeft();
-                timelineView.moveFrameLeft();
+                PropertyManager.getInstance().framePosition.set(0);
                 PropertyManager.getInstance().currentPVC.set(null);
                 //editorController.resetPVCSelection();
             }
@@ -374,8 +373,7 @@ public class MainController implements RuleApplicationListener {
                 if (item.getParent().getValue() instanceof DafnyFile) {
                     PropertyManager.getInstance().currentFile.set((DafnyFile) item.getParent().getValue());
                     //editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getParent().getValue());
-                    timelineView.moveFrameLeft();
-                    timelineView.moveFrameLeft();
+                    PropertyManager.getInstance().framePosition.set(0);
                     PropertyManager.getInstance().currentPVC.set(null);
                     //editorController.resetPVCSelection();
                 }
@@ -550,10 +548,7 @@ public class MainController implements RuleApplicationListener {
     }
 
     private void showStartTimeLineConfiguration() {
-        boolean moveLeftPosible = true;
-        while(moveLeftPosible){
-            moveLeftPosible = timelineView.moveFrameLeft();
-        }
+        PropertyManager.getInstance().framePosition.set(0);
     }
 
     public void onClickPVCEdit(PVCEntity entity) {
@@ -617,7 +612,7 @@ public class MainController implements RuleApplicationListener {
 
     public void onClickSequentSubterm(TermSelector selector) {
         if (selector != null) {
-            timelineView.moveFrameRight();
+            PropertyManager.getInstance().framePosition.set(2);
         }
     }
 

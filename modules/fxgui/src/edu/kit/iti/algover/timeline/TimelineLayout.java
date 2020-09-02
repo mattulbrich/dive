@@ -5,6 +5,8 @@
  */
 package edu.kit.iti.algover.timeline;
 
+import edu.kit.iti.algover.PropertyManager;
+import edu.kit.iti.algover.settings.ProjectSettings;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -26,7 +28,7 @@ import org.controlsfx.control.HiddenSidesPane;
  * Created by philipp on 10.07.17.
  * updated by Valentin on 03.03.20.
  *
- * @author philipp and Valentin
+ * @author philipp
  */
 public class TimelineLayout extends HiddenSidesPane {
 
@@ -40,11 +42,7 @@ public class TimelineLayout extends HiddenSidesPane {
      * Holds the items of a TimelineView
      */
     private final ListProperty<Node> nodes;
-    /**
-     * Representing the current position of the timeline.
-     * Currently only set in this class.
-     */
-    private final SimpleIntegerProperty framePosition;
+
     /**
      * Number of views in the {@link TimelineLayout}.
      */
@@ -80,7 +78,6 @@ public class TimelineLayout extends HiddenSidesPane {
             throw new IllegalArgumentException("Need at least to nodes for a timeline layout");
         }
         this.numViews = new SimpleIntegerProperty(1);
-        this.framePosition = new SimpleIntegerProperty(0);
 
         ObservableList<Node> nodeList = FXCollections.observableArrayList(nodes);
         this.nodes = new SimpleListProperty<Node>(nodeList);
@@ -96,7 +93,7 @@ public class TimelineLayout extends HiddenSidesPane {
         this.configureActionHandling();
         // Auxiliary method to set up listener on framePosition property.
         // passed as parameter. May be retrieved from state holding class in the future.
-        this.configureFramePositionChangeListener(this.framePosition);
+        configureFramePositionChangeListener(PropertyManager.getInstance().framePosition);
 
         this.updateFrame(0);
     }
@@ -111,9 +108,11 @@ public class TimelineLayout extends HiddenSidesPane {
         this.setTriggerDistance(HOVER_AREA);
 
         this.widthProperty().addListener(newWidth -> {
-            if (framePosition.get() % 2 == 1 && viewPane.isScreenDividerOff()) {
-                viewPane.resetDividerPositions(framePosition.get(), framePosition.get() - 1);
-                viewPane.resetDividerPositions(framePosition.get() - 1, framePosition.get());
+            if (PropertyManager.getInstance().framePosition.get() % 2 == 1 && viewPane.isScreenDividerOff()) {
+                viewPane.resetDividerPositions(PropertyManager.getInstance().framePosition.get(),
+                        PropertyManager.getInstance().framePosition.get() - 1);
+                viewPane.resetDividerPositions(PropertyManager.getInstance().framePosition.get() - 1,
+                        PropertyManager.getInstance().framePosition.get());
             }
         });
     }
@@ -162,8 +161,10 @@ public class TimelineLayout extends HiddenSidesPane {
      * Add listeners for reacting to state properties. Set Listeners for user interaction.
      */
     private void configureActionHandling() {
-        this.goLeft.setOnAction(actionEvent -> framePosition.set(framePosition.get() - 1));
-        this.goRight.setOnAction(actionEvent -> framePosition.set(framePosition.get() + 1));
+        this.goLeft.setOnAction(actionEvent ->
+                PropertyManager.getInstance().framePosition.set(PropertyManager.getInstance().framePosition.get() - 1));
+        this.goRight.setOnAction(actionEvent ->
+                PropertyManager.getInstance().framePosition.set(PropertyManager.getInstance().framePosition.get() + 1));
 
         // Key listening. May be moved to global Controls class
         setOnKeyPressed(event -> {
@@ -175,22 +176,18 @@ public class TimelineLayout extends HiddenSidesPane {
                     moveFrameLeft();
                     event.consume();
                 } else if (event.getCode() == KeyCode.DIGIT1) {
-                    framePosition.set(0);
+                    PropertyManager.getInstance().framePosition.set(0);
                     event.consume();
                 } else if (event.getCode() == KeyCode.DIGIT2) {
-                    framePosition.set(1);
+                    PropertyManager.getInstance().framePosition.set(1);
                     event.consume();
                 } else if (event.getCode() == KeyCode.DIGIT3) {
-                    framePosition.set(2);
+                    PropertyManager.getInstance().framePosition.set(2);
                     event.consume();
                 }
             }
 
         });
-    }
-
-    public void setFramePosition(int position) {
-        framePosition.set(position);
     }
 
     /**
@@ -236,10 +233,10 @@ public class TimelineLayout extends HiddenSidesPane {
      * @return true iff move was possible.
      */
     public boolean moveFrameRight() {
-        if (framePosition.greaterThanOrEqualTo(numViews.subtract(1)).get()) {
+        if (PropertyManager.getInstance().framePosition.get() >= numViews.get() ){
             return false;
         }
-        framePosition.set(framePosition.get() + 1);
+        PropertyManager.getInstance().framePosition.set(PropertyManager.getInstance().framePosition.get() + 1);
         return true;
     }
 
@@ -249,11 +246,11 @@ public class TimelineLayout extends HiddenSidesPane {
      * @return true iff move was possible.
      */
     public boolean moveFrameLeft() {
-        if (framePosition.get() < 1) {
+        if (PropertyManager.getInstance().framePosition.get() < 1) {
             return false;
         }
 
-        framePosition.set(framePosition.get() - 1);
+        PropertyManager.getInstance().framePosition.set(PropertyManager.getInstance().framePosition.get() - 1);
         return true;
     }
 }

@@ -7,6 +7,8 @@ import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.util.TypedBindings;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 /**
@@ -77,6 +79,11 @@ public class PropertyManager {
     public final SimpleObjectProperty<ProjectManager> projectManager = new SimpleObjectProperty<>();
 
     /**
+     * Representing the current position of the timeline.
+     */
+    public final IntegerProperty framePosition = new SimpleIntegerProperty(0);
+
+    /**
      * Provides the singleton for this class
      * @return an instance of this class
      */
@@ -128,7 +135,7 @@ public class PropertyManager {
                 })
         );
         currentProof.addListener(((observable, oldValue, newValue) -> {
-            if(newValue != null && newValue.getProofRoot() == null) newValue.interpretScript();
+            newValue.interpretScript();
         }));
         currentPVC.addListener(((observable, oldValue, newValue) -> selectedTermForReference.set(null)));
         currentPVC.addListener(((observable, oldValue, newValue) -> selectedTerm.set(null)));
