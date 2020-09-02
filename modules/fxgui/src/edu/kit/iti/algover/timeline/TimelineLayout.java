@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.timeline;
 
+import edu.kit.iti.algover.PropertyManager;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -97,6 +98,7 @@ public class TimelineLayout extends HiddenSidesPane {
         // Auxiliary method to set up listener on framePosition property.
         // passed as parameter. May be retrieved from state holding class in the future.
         this.configureFramePositionChangeListener(this.framePosition);
+        this.framePosition.bindBidirectional(PropertyManager.getInstance().currentlyDisplayedView);
 
         this.updateFrame(0);
     }
@@ -189,10 +191,6 @@ public class TimelineLayout extends HiddenSidesPane {
         });
     }
 
-    public void setFramePosition(int position) {
-        framePosition.set(position);
-    }
-
     /**
      * Update visibility of left and right buttons.
      *
@@ -235,6 +233,7 @@ public class TimelineLayout extends HiddenSidesPane {
      *
      * @return true iff move was possible.
      */
+    @Deprecated
     public boolean moveFrameRight() {
         if (framePosition.greaterThanOrEqualTo(numViews.subtract(1)).get()) {
             return false;
@@ -248,6 +247,7 @@ public class TimelineLayout extends HiddenSidesPane {
      *
      * @return true iff move was possible.
      */
+    @Deprecated
     public boolean moveFrameLeft() {
         if (framePosition.get() < 1) {
             return false;
