@@ -48,7 +48,7 @@ public class TimelineLayout extends HiddenSidesPane {
     private final SimpleIntegerProperty numViews;
 
     /**
-tor     * The Pane that holds a SplitPane with displayed nodes. An displays
+     * The Pane that holds a SplitPane with displayed nodes. An displays
      * only two at a time.
      */
     private MultiViewSplitPane viewPane;
