@@ -81,7 +81,7 @@ public class PropertyManager {
     /**
      * Representing the current position of the timeline.
      */
-    public final IntegerProperty framePosition = new SimpleIntegerProperty(0);
+    public final IntegerProperty currentlyDisplayedView = new SimpleIntegerProperty(0);
 
     /**
      * Provides the singleton for this class

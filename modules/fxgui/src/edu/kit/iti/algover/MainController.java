@@ -37,6 +37,7 @@ import edu.kit.iti.algover.sequent.SequentTabViewController;
 import edu.kit.iti.algover.settings.SettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
+import edu.kit.iti.algover.timeline.TimelineFactory;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.ExceptionDialog;
@@ -88,6 +89,7 @@ public class MainController implements RuleApplicationListener {
 
     private final ProjectManager manager;
     private final ExecutorService executor;
+
     private final TimelineLayout timelineView;
     private final VBox view;
 
@@ -152,12 +154,10 @@ public class MainController implements RuleApplicationListener {
         ContextMenu contextMenu = new ContextMenu();
         statusBar.setContextMenu(contextMenu);
 
-        this.timelineView = new TimelineLayout(
-                browserController.getView(),
-                editorController.getView(),
-                sequentController.getView(),
-                ruleApplicationController.getRuleApplicationView());
-        timelineView.setDividerPosition(0.2);
+        this.timelineView = TimelineFactory.getDefaultTimeLineLayout(browserController,
+                editorController,
+                sequentController,
+                ruleApplicationController);
 
         this.view = new VBox(toolbar, breadCrumbBar, timelineView, statusBar);
         VBox.setVgrow(timelineView, Priority.ALWAYS);
@@ -173,7 +173,7 @@ public class MainController implements RuleApplicationListener {
         PropertyManager.getInstance().selectedTerm.addListener(((observable, oldValue, newValue) -> onClickSequentSubterm(newValue)));
         PropertyManager.getInstance().currentPVC.addListener(((observable, oldValue, newValue) -> onSelectBrowserItem(newValue)));
         PropertyManager.getInstance().selectedTermForReference.addListener(((observable, oldValue, newValue) ->
-                PropertyManager.getInstance().framePosition.set(1)));
+                PropertyManager.getInstance().currentlyDisplayedView.set(1)));
 
         onClickRefresh(null);
     }
@@ -353,7 +353,7 @@ public class MainController implements RuleApplicationListener {
                     DafnyFile file = (DafnyFile) item.getParent().getParent().getValue();
                     PropertyManager.getInstance().currentFile.set(file);
                     PropertyManager.getInstance().currentPVC.set(pvc);
-                    PropertyManager.getInstance().framePosition.set(0);
+                    PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.BROWSER_EDITOR);
                     onClickPVCEdit(new PVCEntity(manager.getProofForPVC(pvc.getIdentifier()), pvc, file));
                 } catch (NullPointerException e) {
                     Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
@@ -365,7 +365,7 @@ public class MainController implements RuleApplicationListener {
             if (item.getValue() instanceof DafnyFile) {
                 PropertyManager.getInstance().currentFile.set((DafnyFile) item.getValue());
                 //editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getValue());
-                PropertyManager.getInstance().framePosition.set(0);
+                PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.BROWSER_EDITOR);
                 PropertyManager.getInstance().currentPVC.set(null);
                 //editorController.resetPVCSelection();
             }
@@ -373,7 +373,7 @@ public class MainController implements RuleApplicationListener {
                 if (item.getParent().getValue() instanceof DafnyFile) {
                     PropertyManager.getInstance().currentFile.set((DafnyFile) item.getParent().getValue());
                     //editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getParent().getValue());
-                    PropertyManager.getInstance().framePosition.set(0);
+                    PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.BROWSER_EDITOR);
                     PropertyManager.getInstance().currentPVC.set(null);
                     //editorController.resetPVCSelection();
                 }
@@ -548,7 +548,7 @@ public class MainController implements RuleApplicationListener {
     }
 
     private void showStartTimeLineConfiguration() {
-        PropertyManager.getInstance().framePosition.set(0);
+        PropertyManager.getInstance().currentlyDisplayedView.set(0);
     }
 
     public void onClickPVCEdit(PVCEntity entity) {
@@ -557,7 +557,7 @@ public class MainController implements RuleApplicationListener {
         //if (proof.getProofStatus() == ProofStatus.NON_EXISTING || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
         //    proof.interpretScript();
         ruleApplicationController.resetConsideration();
-        timelineView.moveFrameRight();
+        PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.EDITOR_SEQUENT);
     }
 
     /**
@@ -612,7 +612,7 @@ public class MainController implements RuleApplicationListener {
 
     public void onClickSequentSubterm(TermSelector selector) {
         if (selector != null) {
-            PropertyManager.getInstance().framePosition.set(2);
+            PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.SEQUENT_RULE);
         }
     }
 
