@@ -134,11 +134,38 @@ public class PropertyManager {
                     }
                 })
         );
+
+        TypedBindings.bind(currentProof, currentProofNode,
+                (proof -> {
+                    if (proof != null) {
+                        return proof.getProofRoot();
+                    }
+                    return null;
+                })
+        );
+
         currentProof.addListener(((observable, oldValue, newValue) -> {
             newValue.interpretScript();
         }));
+
+
+
         currentPVC.addListener(((observable, oldValue, newValue) -> selectedTermForReference.set(null)));
         currentPVC.addListener(((observable, oldValue, newValue) -> selectedTerm.set(null)));
+
+        selectedTerm.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                if (!newValue.isValidForSequent(currentProofNode.get().getSequent())) {
+                    selectedTerm.set(oldValue);
+                }
+            }
+        });
+
+        currentProofNode.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && selectedTerm.get() != null && !selectedTerm.get().isValidForSequent(newValue.getSequent())) {
+                selectedTerm.set(null);
+            }
+        });
     }
 }
 
