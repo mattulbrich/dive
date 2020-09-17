@@ -51,6 +51,8 @@ subprojects {
         compile group: 'com.google.guava', name: 'guava', version: '27.1-jre'
 
         compile name: 'nonnull-runtime'
+        compile group: 'com.j2html', name: 'j2html', version: '1.4.0'
+
 
         testCompile 'junit:junit:4.12'
         testCompile group: 'org.hamcrest', name: 'hamcrest', version: '2.1'
