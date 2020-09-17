@@ -217,7 +217,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
                 PropertyManager.getInstance().currentProofNodeSelector.set(checkpoint.selector);
             }
         } else {
-            PropertyManager.getInstance().currentProofNodeSelector.set(checkpoint.selector);
+                PropertyManager.getInstance().currentProofNodeSelector.set(checkpoint.selector);
         }
         showSelectedSelector(checkpoint);
         view.requestLayout();
@@ -273,8 +273,8 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     public void onAsyncScriptTextChanged(String text) {
         resetExceptionRendering();
 
-        /*ProofScript ps = Facade.getAST(text);
-        PrettyPrinter pp = new PrettyPrinter();
+        ProofScript ps = Facade.getAST(text);
+        /*PrettyPrinter pp = new PrettyPrinter();
         ps.accept(pp);
 
         view.replaceText(pp.toString());
@@ -383,7 +383,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     }
 
     /**@
-     * recursivly inserts all missing case statements in the given script
+     * recursively inserts all missing case statements in the given script
      *
      * @param pn the proofnode for which the cases should be inserted
      * @param stmts the current script that should be extended by the missing case statements
