@@ -93,7 +93,7 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
     @Override
     public Void visit(VariableTerm variable, Void arg) {
         printer.setStyle(Style.VARIABLE);
-        printer.append(variable.getName());
+        pp.getVariablePrettyPrintExtension().print(variable, this);
         printer.resetPreviousStyle();
         return arg;
     }
@@ -223,7 +223,10 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
 
         List<VariableTerm> receivers = Util.map(assignments, Pair::getFst);
         printer.setStyle(Style.VARIABLE);
-        printer.append(Util.commatize(receivers));
+        for (VariableTerm vt:
+             receivers) {
+            vt.accept(this, null);
+        }
         printer.resetPreviousStyle();
 
         printer.append(" :=").breakBlock(1, 0);

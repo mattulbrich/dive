@@ -207,7 +207,7 @@ public class PrettyPrintTest {
     }
 
     @Test
-    public void testDecrSubscript() throws DafnyParserException, DafnyException {
+    public void testVarSubscript() throws DafnyParserException, DafnyException {
 
         st.addFunctionSymbol(new FunctionSymbol("i", Sort.INT));
         st.addFunctionSymbol(new FunctionSymbol("i_1", Sort.INT));
@@ -215,7 +215,7 @@ public class PrettyPrintTest {
         Term parsed = TermParser.parse(st, "let $decr_1 := i :: let i := i_1 - 1 :: i_1 > 0");
         AnnotatedString printed = new PrettyPrint().print(parsed);
 
-        assertEquals("$decr\u2081", printed.toString());
+        assertEquals("let $decr\u2081 := i :: let i := i₁ - 1 :: i₁ > 0", printed.toString());
     }
 
     @Test @Parameters
