@@ -145,7 +145,8 @@ public class PropertyManager {
         );
 
         currentProof.addListener(((observable, oldValue, newValue) -> {
-            newValue.interpretScript();
+            if (newValue != null)
+                newValue.interpretScript();
         }));
 
 

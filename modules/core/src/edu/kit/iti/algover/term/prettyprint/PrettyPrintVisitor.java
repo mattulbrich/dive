@@ -223,10 +223,14 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
 
         List<VariableTerm> receivers = Util.map(assignments, Pair::getFst);
         printer.setStyle(Style.VARIABLE);
-        for (VariableTerm vt:
-             receivers) {
-            vt.accept(this, null);
+
+        for (int i = 0; i < receivers.size(); i++) {
+            receivers.get(i).accept(this, null);
+            if (i + 1 < receivers.size()) {
+                printer.append(", ");
+            }
         }
+
         printer.resetPreviousStyle();
 
         printer.append(" :=").breakBlock(1, 0);

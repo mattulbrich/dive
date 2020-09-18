@@ -1,3 +1,11 @@
+// ---- Automatically generated settings ----
+//> settings {
+//>    "KeY Timeout" = "10",
+//>    "Dafny Timeout" = "5",
+//>    "SMT Timeout" = "10",
+//>    "Sequent Generation Type" = "ssa"
+//> }
+// ---- End of settings ----
 
 class Node {
   var value: int

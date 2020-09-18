@@ -216,10 +216,10 @@ public class SSASequenter implements PVCSequenter {
         assert fsymb.getArity() == 0;
         String name = fsymb.getName();
         int index = 1;
-        while(symbolTable.getFunctionSymbol(name + "_" + index) != null) {
+        while(symbolTable.getFunctionSymbol(name + "#" + index) != null) {
             index ++;
         }
-        return new FunctionSymbol(name + "_" + index, fsymb.getResultSort());
+        return new FunctionSymbol(name + "#" + index, fsymb.getResultSort());
     }
 }
 

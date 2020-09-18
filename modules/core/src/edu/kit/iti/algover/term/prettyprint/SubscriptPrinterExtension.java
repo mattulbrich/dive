@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 public class SubscriptPrinterExtension implements PrettyPrintExtension, VariablePrettyPrintExtension {
 
-    private static final String SUBSCRIPT_PATTERN = "(.*)_([0-9]+)";
+    private static final String SUBSCRIPT_PATTERN = "(.*)_([0-9]+)(.*)";
     private static final int SUBSCRIPT_BASE = 0x2080;
 
     @Override
@@ -51,6 +51,8 @@ public class SubscriptPrinterExtension implements PrettyPrintExtension, Variable
             for (int i = 0; i < index.length(); i++) {
                  sb.append((char)(SUBSCRIPT_BASE + index.charAt(i) - '0'));
             }
+            sb.append(matcher.group(3));
+
             visitor.getPrinter().append(sb.toString());
         } else {
             // This should never happen!
