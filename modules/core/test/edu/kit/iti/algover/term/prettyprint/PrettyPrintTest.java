@@ -215,7 +215,21 @@ public class PrettyPrintTest {
         Term parsed = TermParser.parse(st, "let $decr_1 := i :: let i := i_1 - 1 :: i_1 > 0");
         AnnotatedString printed = new PrettyPrint().print(parsed);
 
-        assertEquals("let $decr\u2081 := i :: let i := i₁ - 1 :: i₁ > 0", printed.toString());
+        assertEquals("let $decr\u2081 := i :: let i := i\u2081 - 1 :: i\u2081 > 0", printed.toString());
+    }
+
+    @Test
+    public void testMultiLevelIndexing01() throws DafnyParserException, DafnyException {
+        st.addFunctionSymbol(new FunctionSymbol("i", Sort.INT));
+        st.addFunctionSymbol(new FunctionSymbol("i_1", Sort.INT));
+        st.addFunctionSymbol(new FunctionSymbol("$decr_1_1", Sort.INT));
+
+        Term parsed = TermParser.parse(st, "$decr_1_1 ==  i_1 - i - 1");
+        AnnotatedString printed = new PrettyPrint().print(parsed);
+
+        assertEquals("($decr\u2081)\u2081 == i\u2081 - i - 1", printed.toString());
+
+
     }
 
     @Test @Parameters
