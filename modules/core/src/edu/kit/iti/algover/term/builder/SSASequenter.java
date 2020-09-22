@@ -42,7 +42,8 @@ import java.util.Map;
  *
  * @author Mattias Ulbrich
  *
- * @divedoc "VC generation/Single Static Assignment"
+ * @divedoc "VC generation/Single Static Assignment" * as equalities on the sequent. Thus, the same variable x may occur under
+
  *
  * <h2>Verification conditions with single static assignment (SSA)</h2>
  *
@@ -216,10 +217,10 @@ public class SSASequenter implements PVCSequenter {
         assert fsymb.getArity() == 0;
         String name = fsymb.getName();
         int index = 1;
-        while(symbolTable.getFunctionSymbol(name + "#" + index) != null) {
+        while(symbolTable.getFunctionSymbol(name + "_" + index) != null) {
             index ++;
         }
-        return new FunctionSymbol(name + "#" + index, fsymb.getResultSort());
+        return new FunctionSymbol(name + "_" + index, fsymb.getResultSort());
     }
 }
 

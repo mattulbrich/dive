@@ -12,23 +12,19 @@ import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.VariableTerm;
 
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SubscriptPrinterExtension implements PrettyPrintExtension, VariablePrettyPrintExtension {
+public class SubscriptPrinterExtension implements PrettyPrintExtension {
 
-    private static final String SUBSCRIPT_PATTERN = "(.*)_([0-9]+)(.*)";
+    private static final String SUBSCRIPT_PATTERN = "(.*)_([0-9]+)";
     private static final int SUBSCRIPT_BASE = 0x2080;
 
     @Override
     public boolean canPrint(FunctionSymbol functionSymbol) {
         return functionSymbol.getArity() == 0
                 && functionSymbol.getName().matches(SUBSCRIPT_PATTERN);
-    }
-
-    @Override
-    public boolean canPrint(VariableTerm variable) {
-        return variable.getName().matches(SUBSCRIPT_PATTERN);
     }
 
     @Override
@@ -49,33 +45,15 @@ public class SubscriptPrinterExtension implements PrettyPrintExtension, Variable
             StringBuilder sb = new StringBuilder(matcher.group(1));
             String index = matcher.group(2);
             for (int i = 0; i < index.length(); i++) {
-                 sb.append((char)(SUBSCRIPT_BASE + index.charAt(i) - '0'));
-            }
-            sb.append(matcher.group(3));
-
-            visitor.getPrinter().append(sb.toString());
-        } else {
-            // This should never happen!
-            // TODO Add logging
-            visitor.getPrinter().append(name);
-        }
-    }
-
-
-    public void print(VariableTerm variable, PrettyPrintVisitor visitor) {
-        String name = variable.getName();
-        Matcher matcher = Pattern.compile(SUBSCRIPT_PATTERN).matcher(name);
-        if (matcher.matches()) {
-            StringBuilder sb = new StringBuilder(matcher.group(1));
-            String index = matcher.group(2);
-            for (int i = 0; i < index.length(); i++) {
-                sb.append((char)(SUBSCRIPT_BASE + index.charAt(i) - '0'));
+                sb.append((char) (SUBSCRIPT_BASE + index.charAt(i) - '0'));
             }
             visitor.getPrinter().append(sb.toString());
         } else {
             // This should never happen!
             // TODO Add logging
+            Logger.getGlobal().info("Could not PrettyPrint Term: " + application + ". With " + this.getClass());
             visitor.getPrinter().append(name);
         }
     }
+
 }

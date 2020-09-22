@@ -19,7 +19,7 @@ public interface VariablePrettyPrintExtension {
      * Do the actual pretty printing for a given application term.
      *
      * @param variable        the term to pretty print.
-     * @param prettyPrintVisitor the visitor can be used for call backs for subterms.
+     * @param visitor the visitor can be used for call backs for subterms.
      */
-    void print(@NonNull VariableTerm variable, @NonNull PrettyPrintVisitor prettyPrintVisitor);
+    void print(@NonNull VariableTerm variable, @NonNull PrettyPrintVisitor visitor);
 }

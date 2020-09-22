@@ -93,7 +93,18 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
     @Override
     public Void visit(VariableTerm variable, Void arg) {
         printer.setStyle(Style.VARIABLE);
-        pp.getVariablePrettyPrintExtension().print(variable, this);
+
+        // TODO maybe move to pretty printer, similar to FunctionSymbol;
+
+        VariablePrettyPrintExtension ppe = pp.getVariablePrettyPrint();
+
+        if (ppe == null || !ppe.canPrint(variable)) {
+            printer.append(variable.getName());
+        } else {
+            ppe.print(variable, this);
+        }
+
+
         printer.resetPreviousStyle();
         return arg;
     }
@@ -222,7 +233,6 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
         printer.beginBlock(0);
 
         List<VariableTerm> receivers = Util.map(assignments, Pair::getFst);
-        printer.setStyle(Style.VARIABLE);
 
         for (int i = 0; i < receivers.size(); i++) {
             receivers.get(i).accept(this, null);
@@ -230,8 +240,6 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
                 printer.append(", ");
             }
         }
-
-        printer.resetPreviousStyle();
 
         printer.append(" :=").breakBlock(1, 0);
 

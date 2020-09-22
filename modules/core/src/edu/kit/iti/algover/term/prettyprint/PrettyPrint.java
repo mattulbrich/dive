@@ -20,7 +20,6 @@ import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
 import edu.kit.iti.algover.util.Util;
 import nonnull.NonNull;
@@ -75,7 +74,8 @@ public class PrettyPrint {
     Map<FunctionSymbol, PrettyPrintExtension> responsibleExtensions =
             new HashMap<>();
 
-    private final VariablePrettyPrintExtension variablePrettyPrintExtension = new SubscriptPrinterExtension();
+    @NonNull VariablePrettyPrintExtension variablePrettyPrint = new RecursiveSubscriptPrinterExtension();
+
     /**
      * whether or not in-/prefix operators are printed as such.
      */
@@ -368,7 +368,8 @@ public class PrettyPrint {
         }
     }
 
-    public VariablePrettyPrintExtension getVariablePrettyPrintExtension() {
-        return variablePrettyPrintExtension;
+    public VariablePrettyPrintExtension getVariablePrettyPrint() {
+        return variablePrettyPrint;
     }
+
 }
