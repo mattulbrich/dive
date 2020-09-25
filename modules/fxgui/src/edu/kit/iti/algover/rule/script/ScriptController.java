@@ -97,7 +97,11 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         view.fontsizeProperty().bind(fontSizeProperty);
 
-        PropertyManager.getInstance().currentProofNodeSelector.addListener(((observable, oldValue, newValue) -> this.setSelectedNode(newValue)));
+        PropertyManager.getInstance().currentProofNodeSelector.addListener(((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                this.setSelectedNode(newValue);
+            }
+        }));
         PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
             if(newValue == ProofStatus.CHANGED_SCRIPT) {
                 view.setStyle("-fx-background-color: #c4c1c9; -fx-font-size: "+fontSizeProperty.get()+"pt;");

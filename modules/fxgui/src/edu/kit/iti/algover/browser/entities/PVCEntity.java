@@ -7,12 +7,15 @@ package edu.kit.iti.algover.browser.entities;
 
 import de.jensd.fx.glyphs.GlyphIcons;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.script.ScriptLanguageParser;
 import edu.kit.iti.algover.util.ObservableValue;
+import edu.kit.iti.algover.util.TypedBindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.paint.Color;
@@ -103,6 +106,7 @@ public class PVCEntity extends TreeTableEntity {
         // TODO: In the future somehow update this Property as soon as updates are found
         proof.addProofStatusListener(this::changed);
         this.proofStatus = new SimpleObjectProperty<>(ProofStatus.from(proof.getProofStatus()));
+
         if (proofStatus.get() == ProofStatus.PROVEN) {
             provenChildrenProperty().set(1);
         }
@@ -132,7 +136,7 @@ public class PVCEntity extends TreeTableEntity {
     }
 
     private void changed(ObservableValue<edu.kit.iti.algover.proof.ProofStatus> observableValue, edu.kit.iti.algover.proof.ProofStatus oldValue, edu.kit.iti.algover.proof.ProofStatus newValue) {
-        proofStatus.setValue(ProofStatus.from(newValue));
+        proofStatus.set(ProofStatus.from(newValue));
         if (proofStatus.get() == ProofStatus.PROVEN) {
             provenChildrenProperty().set(1);
         } else {
