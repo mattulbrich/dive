@@ -629,7 +629,7 @@ public class MainController implements RuleApplicationListener {
         // script has to be parsed and rebuilt completely.
         ruleApplicationController.applyRule(application);
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
-        String newScript = ruleApplicationController.getScriptView().getText();
+        String newScript = "";
         PropertyManager.getInstance().currentProof.get().setScriptTextAndInterpret(newScript);
         PropertyManager.getInstance().currentProofStatus.set(PropertyManager.getInstance().currentProof.get().getProofStatus());
         ruleApplicationController.resetConsideration();
