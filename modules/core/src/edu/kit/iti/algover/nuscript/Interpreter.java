@@ -27,9 +27,11 @@ import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
 import edu.kit.iti.algover.rules.RuleApplicator;
 import edu.kit.iti.algover.rules.TermParameter;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.Util;
 import org.antlr.v4.runtime.Token;
 
@@ -175,6 +177,14 @@ public class Interpreter {
             switch (value.getType()) {
             case ScriptParser.STRING_LITERAL:
                 obj = Util.stripQuotes(value.getText());
+                break;
+
+            case ScriptParser.SELECTOR_LITERAL:
+                try {
+                    obj = new TermParameter(new TermSelector(value.getText()), node.getSequent());
+                } catch (FormatException e) {
+                    throw new ScriptException("Illegal selector literal", e, param, node);
+                }
                 break;
 
             case ScriptParser.FALSE:
