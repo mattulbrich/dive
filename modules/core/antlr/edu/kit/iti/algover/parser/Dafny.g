@@ -158,16 +158,25 @@ CARD: '|';
 LENGTH: 'Length' ('0' .. '9')*;
 ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
 
-// Is resolved by a syntactic sugar visitor: ResolveUnicodeVisitor!
+
+ID : ( ('a' .. 'z' | 'A' .. 'Z' | '_')
+       ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9')* ) ( '_'  ( '0' .. '9' ))*;
+
+LOGIC_ID : ( ID | ( '$' ) ( ID ) );
+
 UNICODE_INDEXED_ID : ( ID | LOGIC_ID ) ('\u2080' .. '\u2089')+;
 
-ID : ('a' .. 'z' | 'A' .. 'Z' | '_' )
-     ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
 
-LOGIC_ID : ('a' .. 'z' | 'A' .. 'Z' | '_' | '$')
-           ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '$')*;
+// Is resolved by a syntactic sugar visitor: ResolveUnicodeVisitor!
+// UNICODE_INDEXED_ID : ( ID | LOGIC_ID ) ('\u2080' .. '\u2089')+;
 
-SCHEMA_ID : '?' ID;
+// ID : ('a' .. 'z' | 'A' .. 'Z' | '_' )
+//     ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
+
+// LOGIC_ID : ('a' .. 'z' | 'A' .. 'Z' | '_' | '$')
+//           ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '$')*;
+
+ SCHEMA_ID : '?' ID;
 
 
 INT_LIT : ('0' .. '9' ) ('0' .. '9' | '_')*;

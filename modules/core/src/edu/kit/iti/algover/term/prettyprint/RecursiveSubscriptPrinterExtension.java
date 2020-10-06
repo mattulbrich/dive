@@ -54,7 +54,7 @@ public class RecursiveSubscriptPrinterExtension implements PrettyPrintExtension,
     private String prettyPrintSubscriptString(String termRep) {
         Pattern pattern = Pattern.compile(SUBSCRIPT_PATTERN);
         Matcher matcher = pattern.matcher(termRep);
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
 
         List<String> indices = new ArrayList<>();
 
@@ -63,7 +63,7 @@ public class RecursiveSubscriptPrinterExtension implements PrettyPrintExtension,
         int level = 0;
         while (matcher.matches()) {
             String index = matcher.group(2);
-            StringBuilder indexBuilder = new StringBuilder("");
+            StringBuilder indexBuilder = new StringBuilder();
             for (int i = 0; i < index.length(); i++) {
                 indexBuilder.append((char) (SUBSCRIPT_BASE + index.charAt(i) - '0'));
             }

@@ -49,7 +49,7 @@ public class SyntacticSugarVistor {
                     new ChainedRelationsVisitor(),
                     new QuantifierGuardRemovalVisitor(),
                     new ImplicitlyTypedVariableVisitor(),
-                    new ResolveUnicodeVisitor()
+                    new RecursiveResolveUnicodeVisitor()
                 );
 
         visitDeep(t, visitors);

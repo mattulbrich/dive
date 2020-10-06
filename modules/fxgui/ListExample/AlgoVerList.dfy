@@ -3,7 +3,7 @@
 //>    "KeY Timeout" = "10",
 //>    "Dafny Timeout" = "5",
 //>    "SMT Timeout" = "10",
-//>    "Sequent Generation Type" = "ssa"
+//>    "Sequent Generation Type" = "ass-simp"
 //> }
 // ---- End of settings ----
 
@@ -58,8 +58,8 @@ class List {
   
   //currently inserting at position 0 is not supported (but should be an easy extension)
   method insertAt(pos: int, value: int)
-    requires 0 <= pos < |seqq| && Valid()
-    ensures seqq == old(seqq[..pos] + [value] + seqq[pos..]) 
+    requires 1 <= pos < |seqq| && Valid()
+    ensures seqq == old(seqq[..pos]) + [value] + old(seqq[pos..]) 
     ensures Valid()
     modifies footprint
   {
@@ -78,6 +78,7 @@ class List {
     node.next := newNode;
     nodeseqq := nodeseqq[..pos] + [newNode] + nodeseqq[pos..];
     seqq := seqq[..pos] + [value] + seqq[pos..];
+    assert seqq == old(seqq[..pos]) + [value] + old(seqq[pos..]);
   }
   
   method removeAt(pos: int)
@@ -127,17 +128,5 @@ class List {
         idx := idx + 1;
       }
       v := node.value;
-  }
-}
-
-class Node {
-  var value: int
-  var next: Node
-
-  method Init(value: int, next : Node) 
-    modifies this;
-  {
-    this.value := value;
-    this.next := next;
   }
 }
