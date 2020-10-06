@@ -25,7 +25,7 @@ method selectionSort(a: seq<int>) returns (r: seq<int>)
 //      invariant asBag(a) == asBag(r)
     decreases |r| - y
     {
-      if a[y] < a[m]
+      if r[y] < r[m]
       {
         m := y;
       }
