@@ -133,6 +133,7 @@ public class Sort {
         BUILTIN_SORT_NAMES.add(OBJECT.getName());
         BUILTIN_SORT_NAMES.add(NULL.getName());
         BUILTIN_SORT_NAMES.add("set");
+        BUILTIN_SORT_NAMES.add("multiset");
         BUILTIN_SORT_NAMES.add("seq");
         BUILTIN_SORT_NAMES.add("array");
         BUILTIN_SORT_NAMES.add("array2");

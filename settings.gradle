@@ -6,10 +6,13 @@ project(":cli").projectDir=file("modules/cli")
 
 include 'core'
 project(":core").projectDir=file("modules/core")
+
 include 'dafny'
 project(":dafny").projectDir=file("modules/dafny")
 
 include 'fxgui'
 project(":fxgui").projectDir=file("modules/fxgui")
 
+include 'swing'
+project(":swing").projectDir=file("modules/swing")
 

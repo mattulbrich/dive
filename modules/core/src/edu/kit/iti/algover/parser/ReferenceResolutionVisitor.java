@@ -449,6 +449,37 @@ public class ReferenceResolutionVisitor
         return null;
     }
 
+    @Override
+    public Void visitASSIGN(DafnyTree t, Mode mode) {
+        super.visitASSIGN(t, mode);
+        for (int i = 0; i < t.getChildCount() - 1; i++) {
+            DafnyTree lhs = t.getChild(i);
+            if (lhs.getType() == DafnyParser.ID) {
+                DafnyTree ref = lhs.getDeclarationReference();
+                Tree refParent = ref.getParent();
+                if (refParent.getType() == DafnyParser.ARGS) {
+                    exceptions.add(new DafnyException("Assignment to method parameter " + lhs
+                            + " not allowed", t));
+                }
+            }
+            if (lhs.getType() == DafnyParser.ARRAY_ACCESS) {
+                DafnyTree ref = lhs.getChild(0).getDeclarationReference();
+                if(ref != null) {
+                    Tree refParent = ref.getParent();
+                    if (refParent.getType() == DafnyParser.ARGS) {
+                        if (ref.getFirstChildWithType(DafnyParser.TYPE).getChild(0).getType() == DafnyParser.SEQ) {
+                            exceptions.add(new DafnyException("Assignment to method parameter " +
+                                    ref.getChild(0)
+                                    + " not allowed", t));
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     /*
      * Do not visit the label name.
      *
@@ -476,7 +507,8 @@ public class ReferenceResolutionVisitor
             }
         }
 
-        identifierMap.put(id, t);
+        // bugfix: This is too early and does not discover "var y:=y;"
+        // identifierMap.put(id, t);
         // bugfix #44
         DafnyTree ty = t.getFirstChildWithType(DafnyParser.TYPE);
         if(ty != null) {
@@ -485,6 +517,7 @@ public class ReferenceResolutionVisitor
         if (t.getLastChild().getType() != DafnyParser.TYPE) {
             t.getLastChild().accept(this, Mode.EXPR);
         }
+        identifierMap.put(id, t);
         return null;
     }
 

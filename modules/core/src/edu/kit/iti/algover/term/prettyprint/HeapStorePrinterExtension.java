@@ -35,14 +35,14 @@ public class HeapStorePrinterExtension implements PrettyPrintExtension {
 
     @Override
     public int getLeftPrecedence(ApplTerm application) {
-        // TODO this is relevant
-        return 0;
+        // This is a very high number since it is a postfix suffix
+        return 1000;
     }
 
     @Override
     public int getRightPrecedence(ApplTerm application) {
-        // TODO this is relevant
-        return 0;
+        // This is a very high number since it is a postfix suffix
+        return 1000;
     }
 
     @Override

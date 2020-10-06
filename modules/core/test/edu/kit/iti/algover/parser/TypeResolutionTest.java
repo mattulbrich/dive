@@ -5,6 +5,9 @@
  */
 package edu.kit.iti.algover.parser;
 
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectBuilder;
@@ -58,6 +61,9 @@ public class TypeResolutionTest {
         for (DafnyMethod method : project.getClass("C").getMethods()) {
             result.add(new Object[] { method.getName(), project });
         }
+        for (DafnyFunction function : project.getClass("C").getFunctions()) {
+            result.add(new Object[] { function.getName(), project });
+        }
         // result = Collections.singletonList(new Object[] { "quantifiers", project});
         return result;
     }
@@ -67,7 +73,10 @@ public class TypeResolutionTest {
     public void testVisitMethod(String method, Project project) throws Exception {
         List<DafnyException> exceptions = new ArrayList<>();
         TypeResolution tr = new TypeResolution(exceptions);
-        DafnyMethod m = project.getClass("C").getMethod(method);
+        DafnyDecl m = project.getClass("C").getMethod(method);
+        if (m == null) {
+            m = project.getClass("C").getFunction(method);
+        }
         assertNotNull(m);
         m.getRepresentation().accept(tr, null);
 

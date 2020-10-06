@@ -37,6 +37,38 @@ import java.util.Map;
  * </pre>
  *
  * @author Mattias Ulbrich
+ *
+ * @divedoc "VC generation/Simplified Updates"
+ *
+ * <h2>Sequent Generation with Simplified Updates</h2>
+ *
+ * <p><b>Name: <tt>ass-simp</tt></b></p>
+ *
+ * <p>This sequent generation is similar to the
+ * <a href="dive:/VC generation/Updates">generator with updates</a>.
+ * The difference is that the <tt>let</tt>-cascades generated are simplified.</p>
+ * <p>It removes all let-assignments which are irrelevant. An assignment is called
+ * invariant if the assigned variable does not occur in the matrix of the
+ * let-term.
+ *
+ * <p> For example: In the term
+ * <pre>
+ *     let x,y,z:=1,2,3 :: let a,b:=x,y :: a > 0
+ * </pre>
+ * z is irrelevant since it does never occur. x and y occur in the assignments
+ * of the second (inner) let. However, since b is irrelevant, the assignment to
+ * y is also irrelevant. This sequenter would return the following term (reduced
+ * to the relevant assignments) as result:
+ * <pre>
+ *     let x := 1 :: let a := x :: a > 0.
+ * </pre>
+ *
+ * <p>
+ *     settings {
+ *         "Sequent Generation Type" = "ass-simp"
+ *     }
+ * </p>
+ *
  */
 public class SimplifiedUpdateSequenter extends UpdateSequenter {
 

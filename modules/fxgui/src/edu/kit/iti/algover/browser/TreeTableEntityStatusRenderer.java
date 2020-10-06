@@ -7,6 +7,7 @@ package edu.kit.iti.algover.browser;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.browser.entities.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -103,6 +104,7 @@ public class TreeTableEntityStatusRenderer implements TreeTableEntityVisitor<Voi
         gearButton.setTooltip(new Tooltip("Edit or start Proof"));
         gearButton.setOnAction(event -> {
             if (engagedListener != null) {
+                PropertyManager.getInstance().currentPVC.setValue(entity.accept(new PVCGetterVisitor()));
                 engagedListener.onEngageEntity(entity);
             }
         });

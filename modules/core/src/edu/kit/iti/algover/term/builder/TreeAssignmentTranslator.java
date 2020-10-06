@@ -121,7 +121,7 @@ public class TreeAssignmentTranslator {
 
     public ImmutableList<Pair<FunctionSymbol, Term>> translateToLinear(ImmutableList<DafnyTree> assignments) throws TermBuildException {
         ImmutableList<Pair<FunctionSymbol, Term>> result = ImmutableList.nil();
-        for (DafnyTree ass : assignments.reverse()) {
+        for (DafnyTree ass : assignments) {
             result = result.append(translateAssignment(ass));
         }
         return result;

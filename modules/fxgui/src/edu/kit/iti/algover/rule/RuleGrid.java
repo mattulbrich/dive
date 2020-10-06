@@ -6,16 +6,23 @@
 package edu.kit.iti.algover.rule;
 
 import com.jfoenix.controls.JFXMasonryPane;
+import edu.kit.iti.algover.PropertyManager;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.SingleSelectionModel;
+import javafx.scene.layout.StackPane;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -91,9 +98,12 @@ public class RuleGrid extends JFXMasonryPane {
     public void filterRules(Predicate<RuleView> filterFunction) {
 
         rules.clear();
-        rules.addAll(allRules.stream().filter(
-                ruleView -> filterFunction.test(ruleView)
-        ).collect(Collectors.toList()));
+        //Proof rules should only be shown if the proofStatus is in a clean state and the proof is not yet closed
+        if(PropertyManager.getInstance().currentProofStatus.get() == ProofStatus.OPEN) {
+            rules.addAll(allRules.stream().filter(
+                    filterFunction::test
+            ).collect(Collectors.toList()));
+        }
 
         //REVIEW this should better be done dynamically but since it does not update automatically this at least
         //prevents that some arent shown at all
@@ -107,15 +117,25 @@ public class RuleGrid extends JFXMasonryPane {
                 ruleView.setPrefHeight(80.0);
             }
         });
-        rules.stream().forEach(ruleView -> ruleView.requestLayout());
-        rules.stream().forEach(ruleView -> ruleView.autosize());
+        rules.stream().forEach(StackPane::requestLayout);
+        rules.stream().forEach(Node::autosize);
 
         Platform.runLater(() -> {
 
             ObservableList<Node> children = this.getChildren();
-            int size = children.size();
-            if(size > 0 ){
+            if(children.size() > 0 ){
                 children.clear();
+            }
+
+            if(rules.size() == 0) {
+                if(PropertyManager.getInstance().currentProofStatus.get() == ProofStatus.CLOSED) {
+                    children.add(new Label("The currently selected node is already closed."));
+                } else if(PropertyManager.getInstance().currentProofStatus.get() != ProofStatus.OPEN) {
+                    Label l = new Label("Unclean proof state. Please rerun the script.");
+                    l.setWrapText(true);
+                    l.setMinWidth(400.0);
+                    children.add(l);
+                }
             }
 
             children.addAll(rules);
@@ -126,9 +146,7 @@ public class RuleGrid extends JFXMasonryPane {
 
         this.getChildren().clear();
         //sort rules according to active comparators
-        activeComparator.forEach(comparator -> {
-            Collections.sort(rules, comparator);
-        });
+        activeComparator.forEach(comparator -> Collections.sort(rules, comparator));
 
         this.getChildren().addAll(rules);
 

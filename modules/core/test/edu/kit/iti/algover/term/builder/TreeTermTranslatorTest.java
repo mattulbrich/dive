@@ -185,6 +185,7 @@ public class TreeTermTranslatorTest {
             { "iseq + iseq", "$seq_concat<int>(iseq, iseq)" },
             { "mod * mod", "$intersect<object>(mod, mod)" },
             { "mod + mod", "$union<object>(mod, mod)" },
+            { "mod - mod", "$set_minus<object>(mod, mod)" },
             { "cseq + dseq", "$seq_concat<object>(cseq, dseq)" },
             { "{}", "$empty" },
             { "{} == {1}", "$eq<set<int>>($empty, $set_add<int>(1, $empty))" },
@@ -196,6 +197,23 @@ public class TreeTermTranslatorTest {
             { "iseq[0..2]", "$seq_sub<int>(iseq, 0, 2)" },
             { "iseq[..2]", "$seq_sub<int>(iseq, 0, 2)" },
             { "iseq[1..]", "$seq_sub<int>(iseq, 1, $seq_len<int>(iseq))" },
+            { "|mod|-1", "$minus($set_card<object>(mod), 1)"},
+            { "iseq[1 := 1]", "$seq_upd<int>(iseq, 1, 1)" },
+            { "iseq[42]", "$seq_get<int>(iseq, 42)" },
+
+            // Multisets
+            { "|mset|", "$multi_set_card<int>(mset)" },
+            { "multiset{1,2,3}", "$multi_set_add<int>(3, $multi_set_add<int>(2, $multi_set_add<int>(1, $multi_empty)))" },
+            { "mset + mset", "$multi_union<int>(mset, mset)" },
+            { "mset * mset", "$multi_intersect<int>(mset, mset)" },
+            { "mset - mset", "$multi_set_minus<int>(mset, mset)" },
+            { "multiset{}", "$multi_empty" },
+            { "multiset{} == multiset{1}", "$eq<multiset<int>>($multi_empty, $multi_set_add<int>(1, $multi_empty))" },
+            { "0 in mset", "$multi_set_in<int>(0, mset)" },
+            { "multiset(iseq)", "$seq_to_multiset<int>(iseq)" },
+            { "multiset(mod)", "$set_to_multiset<object>(mod)" },
+            { "mset[2]", "$multi_count<int>(2, mset)" },
+            { "multiset{c}[c]", "$multi_count<C>(c, $multi_set_add<C>(c, $multi_empty))" },
         };
     }
 
@@ -244,7 +262,8 @@ public class TreeTermTranslatorTest {
             { "c.g", "Field g not found in class C" },
             { "1.f", "field access only possible for class sorts" },
             { "1@loopHeap", "heap suffixes are only allowed for heap select terms" },
-            { "b1[c.f:=1]", "Heap updates must be applied to heaps" },
+            //{ "b1[c.f:=1]", "Heap updates must be applied to heaps" },
+            { "b1[c.f:=1]", "The update operator may only be applied to heaps or sequences" },
             { "loopHeap[c := c]", "Heap updates must modify a heap location" },
             { "loopHeap[c.f := true]", "Unexpected argument sort for argument 4 to $store" },
             { "iseq + mod", "No common supertype for seq<int> and set<object>" },
@@ -255,6 +274,13 @@ public class TreeTermTranslatorTest {
             { "fresh(1)", "fresh can only be applied to objects, not to int"},
             { "|1|", "Unsupported sort for |...|: int" },
             { "1@$heap", "heap suffixes are only allowed for heap select terms" },
+            { "b1 + true", "'+' is not supported for these arguments" },
+            { "b1 <= true", "'<=' is not supported for these arguments" },
+            { "b1 * true", "'*' is not supported for these arguments" },
+            { "i1.f()", "Function application to a non-class sort: int" },
+            { "c.unknown()", "No function symbol unknown defined in class C" },
+            { "iseq[1,2]", "Indexing seq requires one index argument" },
+
         };
     }
 
@@ -286,6 +312,7 @@ public class TreeTermTranslatorTest {
         map.add(new FunctionSymbol("loopHeap", Sort.HEAP));
         map.add(new FunctionSymbol("mod", Sort.get("set", Sort.OBJECT)));
         map.add(new FunctionSymbol("iseq", Sort.get("seq", Sort.INT)));
+        map.add(new FunctionSymbol("mset", Sort.get("multiset", Sort.INT)));
         map.add(new FunctionSymbol("cseq", Sort.get("seq", Sort.getClassSort("C"))));
         map.add(new FunctionSymbol("dseq", Sort.get("seq", Sort.getClassSort("D"))));
         Project p = TestUtil.mockProject("class C { var f: int; function fct(i:int): int {0} }");
@@ -386,6 +413,7 @@ public class TreeTermTranslatorTest {
         symbTable.addFunctionSymbol(new FunctionSymbol("idx_095", Sort.INT));
         symbTable.addFunctionSymbol(new FunctionSymbol("idx_1", Sort.INT));
         symbTable.addFunctionSymbol(new FunctionSymbol("idx_1_2", Sort.INT));
+        symbTable.addFunctionSymbol(new FunctionSymbol("$internal_42", Sort.INT));
 
         TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
 
@@ -413,9 +441,14 @@ public class TreeTermTranslatorTest {
             Term term = ttt.build(t);
             assertEquals(term, sterm);
         }
-
-
-
+        {
+            DafnyTree s = parse("$internal\u2084\u2082", true);
+            SyntacticSugarVistor.visit(s);
+            Term sterm = ttt.build(s);
+            DafnyTree t = parse("$internal_42", true);
+            Term term = ttt.build(t);
+            assertEquals(term, sterm);
+        }
     }
 
     // Moved to TreeAssignmentTranslatorTest

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+    This file is part of DIVE.
+
+    Copyright (C) 2015-2019 Karlsruhe Institute of Technology
+
+-->
+<configuration>
+  <!--  <dafnyFile>bubblesort.dfy</dafnyFile> -->
+    <dafnyFile>dummy.dfy</dafnyFile>
+    <settings>
+      <entry><key>Default Script</key><value>z3;</value></entry>
+    </settings>
+</configuration>

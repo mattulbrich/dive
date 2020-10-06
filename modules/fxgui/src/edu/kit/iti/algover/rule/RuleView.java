@@ -6,15 +6,10 @@
 package edu.kit.iti.algover.rule;
 
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.FocusProofRule;
-import edu.kit.iti.algover.rules.ParameterDescription;
-import edu.kit.iti.algover.rules.Parameters;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
-import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermParameter;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.util.ExceptionDialog;
@@ -36,7 +31,6 @@ public class RuleView extends StackPane {
     private final ProofRule rule;
 
     private ProofRuleApplication application;
-    private ProofRuleApplication exApplication;
     private TermSelector selection;
     private RuleViewOverlay applicationOverlay;
     private boolean selectable;
@@ -90,8 +84,7 @@ public class RuleView extends StackPane {
             application = rule.considerApplication(target, selection, selector);
             this.selection = selector;
             setSelectable(application != null &&
-                    (application.getApplicability() == Applicability.APPLICABLE
-                    || application.getApplicability() == Applicability.INSTANTIATION_REQUIRED));
+                    application.getApplicability() != Applicability.NOT_APPLICABLE);
             renderApplication();
 //        }
             // No-focus Proof rules should ignore a selector

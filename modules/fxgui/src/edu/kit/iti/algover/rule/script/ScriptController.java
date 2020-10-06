@@ -7,19 +7,35 @@ package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
-import edu.kit.iti.algover.nuscript.Position;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST;
-import edu.kit.iti.algover.nuscript.parser.Scripts;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
+import edu.kit.iti.algover.script.ast.CallStatement;
+import edu.kit.iti.algover.script.ast.CaseStatement;
+import edu.kit.iti.algover.script.ast.CasesStatement;
+import edu.kit.iti.algover.script.ast.Expression;
+import edu.kit.iti.algover.script.ast.MatchExpression;
+import edu.kit.iti.algover.script.ast.Position;
+import edu.kit.iti.algover.script.ast.ProofScript;
+import edu.kit.iti.algover.script.ast.SimpleCaseStatement;
+import edu.kit.iti.algover.script.ast.Statement;
+import edu.kit.iti.algover.script.ast.Statements;
+import edu.kit.iti.algover.script.ast.StringLiteral;
+import edu.kit.iti.algover.script.parser.Facade;
+import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.beans.Observable;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -27,13 +43,13 @@ import javafx.scene.input.KeyEvent;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
-import java.util.prefs.PreferenceChangeEvent;
-import java.util.prefs.PreferenceChangeListener;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +58,7 @@ import java.util.stream.Collectors;
 public class ScriptController implements ScriptViewListener, ReferenceHighlightingHandler {
     KeyCombination saveShortcut = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
     KeyCombination runShortcut = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
+    KeyCombination insertCasesShortcut = new KeyCodeCombination(KeyCode.I, KeyCombination.CONTROL_DOWN);
     KeyCombination reloadAndExecuteShortcut = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN);
 
     private final ScriptView view;
@@ -50,13 +67,13 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     private Lookup lookup;
 
     private SimpleIntegerProperty fontSizeProperty = new SimpleIntegerProperty(12);
+    private SimpleBooleanProperty scriptChanged = new SimpleBooleanProperty(false);
 
 
     /**
      * The insert position where the next command is inserted
      */
-    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1,0), "Observable Insert Position");
-    private Proof proof;
+    private SimpleObjectProperty<Position> observableInsertPosition = new SimpleObjectProperty<Position>(new Position(1, 0), "Observable Insert Position");
     private List<ProofNodeCheckpoint> checkpoints;
 
     private LayeredHighlightingRulev4 highlightingRules;
@@ -72,6 +89,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         this.fontSizeProperty.setValue(MainController.systemprefs.getInt("FONT_SIZE_SCRIPT_EDITOR", 12));
 
+
         MainController.systemprefs.addPreferenceChangeListener(preferenceChangeEvent -> {
             int font_size_seq_view1 = preferenceChangeEvent.getNode().getInt("FONT_SIZE_SCRIPT_EDITOR", 12);
             fontSizeProperty.set(font_size_seq_view1);
@@ -79,6 +97,27 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         view.fontsizeProperty().bind(fontSizeProperty);
 
+        PropertyManager.getInstance().currentProofNodeSelector.addListener(((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                this.setSelectedNode(newValue);
+            }
+        }));
+        PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
+            if(newValue == ProofStatus.CHANGED_SCRIPT) {
+                view.setStyle("-fx-background-color: #c4c1c9; -fx-font-size: "+fontSizeProperty.get()+"pt;");
+            } else if(newValue == ProofStatus.CLOSED) {
+                view.setStyle("-fx-background-color: #cefaae; -fx-font-size: "+fontSizeProperty.get()+"pt;");
+            } else {
+                view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
+            }
+        }));
+        PropertyManager.getInstance().currentProof.addListener(((observable, oldValue, newValue) -> setProof(newValue)));
+
+        this.scriptChanged.addListener(((observable, oldValue, newValue) -> {
+            if(newValue) {
+                PropertyManager.getInstance().currentProofStatus.set(ProofStatus.CHANGED_SCRIPT);
+            }
+        }));
 
         view.setHighlightingRule(this.highlightingRules);
 
@@ -129,16 +168,19 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         if (runShortcut.match(keyEvent)) {
             runScript();
         }
+        if (insertCasesShortcut.match(keyEvent)) {
+            onInsertCases();
+        }
     }
 
-    public void setProof(Proof proof) {
-        this.proof = proof;
+    private void setProof(Proof proof) {
+        if(proof != null) {
+            this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
 
-        this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
-
-        view.replaceText(proof.getScriptText());
-        view.getUndoManager().forgetHistory();
-        runScript();
+            view.replaceText(proof.getScript());
+            view.getUndoManager().forgetHistory();
+            runScript();
+        }
     }
 
     private void onCaretPositionChanged(Observable observable) {
@@ -147,7 +189,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
         //insertPosition = checkpoint.caretPosition;
         observableInsertPosition.set(checkpoint.caretPosition);
-        this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        this.checkpoints = ProofNodeCheckpointsBuilder.build(PropertyManager.getInstance().currentProof.get());
         createVisualSelectors(this.checkpoints);
         //showSelectedSelector(checkpoint);
         switchViewedNode();
@@ -168,14 +210,14 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         // If the selector points to nowhere, its probably because the rule closed the proof and didn't generate
         // another child...
         // REVIEW This is kind of ugly. In the future this off-by-one fix has to be removed
-        if (checkpoint.selector.optionalGet(proof).isEmpty()) {
+        if (checkpoint.selector.optionalGet(PropertyManager.getInstance().currentProof.get()).isEmpty()) {
             if(checkpoint.selector.getParentSelector() != null) {
-                this.listener.onSwitchViewedNode(checkpoint.selector.getParentSelector());
+                PropertyManager.getInstance().currentProofNodeSelector.set(checkpoint.selector.getParentSelector());
             } else {
-                this.listener.onSwitchViewedNode(checkpoint.selector);
+                PropertyManager.getInstance().currentProofNodeSelector.set(checkpoint.selector);
             }
         } else {
-            this.listener.onSwitchViewedNode(checkpoint.selector);
+            PropertyManager.getInstance().currentProofNodeSelector.set(checkpoint.selector);
         }
         showSelectedSelector(checkpoint);
         view.requestLayout();
@@ -252,8 +294,8 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         //neuberechnen -> User
         //onCaretPositionChanged(null);
 
-          view.setStyle("-fx-background-color: #c4c1c9; -fx-font-size: "+fontSizeProperty.get()+"pt;");
-          //view.resetGutter();
+          scriptChanged.set(true);
+          view.resetGutter();
           view.requestLayout();
 
     }
@@ -283,13 +325,13 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
                 e.printStackTrace();
             }
 
-            proof.setScriptTextAndInterpret(text);
+        proof.setScriptTextAndInterpret(pp.toString());*/
+            PropertyManager.getInstance().currentProof.get().setScriptTextAndInterpret(text);
         } catch (ParseCancellationException | RecognitionException pce) {
             failException = pce;
         }
-
-        if(failException == null && proof.getFailures().size() > 0) {
-            failException = proof.getFailures().get(0);
+        if(failException == null) {
+            failException = PropertyManager.getInstance().currentProof.get().getFailException();
         }
 
 
@@ -306,20 +348,129 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         } else {
             Logger.getGlobal().info("Successfully ran script.");
         }
-        checkpoints = ProofNodeCheckpointsBuilder.build(proof);
+        checkpoints = ProofNodeCheckpointsBuilder.build(PropertyManager.getInstance().currentProof.get());
        // insertPosition = oldInsertPos;
         observableInsertPosition.set(oldInsertPos);
         createVisualSelectors(checkpoints);
 
+        PropertyManager.getInstance().currentProofStatus.set(PropertyManager.getInstance().currentProof.get().getProofStatus());
         switchViewedNode();
-        view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
+        scriptChanged.set(false);
     }
 
     @Override
-    public String onInsertCases() {
-        System.out.println("TODO insert cases");
-        return "TODO";
+    public void onInsertCases() {
+        if(scriptChanged.get()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+        "Do you want to run the script now?");
+            alert.setTitle("Run script.");
+            alert.setHeaderText("In order to insert missing case statements the script has to be run first.");
+            alert.showAndWait();
+            if(alert.getResult() == ButtonType.OK) {
+                runScript();
+            } else {
+                return;
+            }
+        }
+        ProofScript script = PropertyManager.getInstance().currentProof.get().getProofScript();
+        Statements newScript = insertCasesForStatement(PropertyManager.getInstance().currentProof.get().getProofRoot(), script.getBody());
+        script.setBody(newScript);
+        PrettyPrinter pp = new PrettyPrinter();
+        script.accept(pp);
+        view.replaceText(pp.toString());
+        runScript();
+    }
 
+    /**@
+     * recursivly inserts all missing case statements in the given script
+     *
+     * @param pn the proofnode for which the cases should be inserted
+     * @param stmts the current script that should be extended by the missing case statements
+     * @return a new script containing all necessary case statements
+     */
+    private Statements insertCasesForStatement(ProofNode pn, Statements stmts) {
+        if(stmts.size() == 0) {
+            return stmts;
+        }
+        Statements result = new Statements();
+        for (int i = 0; i < stmts.size() - 1; ++i) {
+            if(stmts.get(i) instanceof CallStatement) {
+                result.add(stmts.get(i));
+            } else {
+                Logger.getGlobal().warning("Only the last statement may be a cases-statement.");
+                return stmts;
+            }
+            if((pn.getChildren() != null && pn.getChildren().size() == 1)) {
+                    pn = pn.getChildren().get(0);
+            } else if (stmts.size() - 2 != i) {
+                Logger.getGlobal().warning("Script has unexpected number of children at some point.");
+                return stmts;
+            }
+        }
+        Statement st = stmts.get(stmts.size() - 1);
+        if(pn.getChildren().size() == 1 && st instanceof CallStatement) {
+            result.add(st);
+        } else if (pn.getChildren().size() > 1 && st instanceof CasesStatement) {
+                result.add(createCasesForNode(pn, ((CasesStatement) st).getCases()));
+        } else if (pn.getChildren().size() > 1 && !(st instanceof CasesStatement)) {
+            result.add(st);
+            result.add(createCasesForNode(pn));
+        }
+
+        return result;
+    }
+
+    /**@
+     * Creates all cases for the given proofnode except the ones given in cases
+     *
+     * @param pn the proofnode for which the cases should be created
+     * @param cases the cases that already exist
+     * @return a case statement containing all necesarry cases
+     */
+    private Statement createCasesForNode(ProofNode pn, List<CaseStatement> cases) {
+        CasesStatement res = new CasesStatement();
+        for(ProofNode p : pn.getChildren()) {
+            boolean found = false;
+            for(CaseStatement caze : cases) {
+                if(!(caze instanceof SimpleCaseStatement)) {
+                    throw new UnsupportedOperationException("Creating cases for non simple Casestatements currently " +
+                            "not supported.");
+                }
+                SimpleCaseStatement scs = (SimpleCaseStatement)caze;
+                //apparently some guards are string literals and some are MathcExpressions...
+                if(scs.getGuard() instanceof StringLiteral) {
+                    String caseString = scs.getGuard().getText();
+                    caseString = caseString.replaceAll("\"", "");
+                    if (caseString.equals(p.getLabel())) {
+                        Statements statements = insertCasesForStatement(p, scs.getBody());
+                        scs.setBody(statements);
+                        res.getCases().add(scs);
+                        found = true;
+                    }
+                } else if (scs.getGuard() instanceof MatchExpression) {
+                    Expression pattern =  ((MatchExpression) scs.getGuard()).getPattern();
+                    String caseString = pattern.getText();
+                    caseString = caseString.replaceAll("\"", "");
+                    if(caseString.equals(p.getLabel())) {
+                        Statements statements = insertCasesForStatement(p, scs.getBody());
+                        scs.setBody(statements);
+                        res.getCases().add(scs);
+                        found = true;
+                    }
+                }
+            }
+            if(!found) {
+                SimpleCaseStatement c = new SimpleCaseStatement();
+                c.setGuard(new StringLiteral(p.getLabel()));
+                c.setBody(new Statements());
+                res.getCases().add(c);
+            }
+        }
+        return res;
+    }
+
+    private Statement createCasesForNode(ProofNode pn) {
+        return createCasesForNode(pn, new ArrayList<>());
     }
 
     /**
@@ -385,17 +536,19 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     /**
      * Set the selected proof node in the ScriptView
-     * @param proofNodeSelector
+     * @param proofNodeSelector the selector for the proofNode to be selected
      */
     public void setSelectedNode(ProofNodeSelector proofNodeSelector) {
-        if(!proofNodeSelector.equals(selectedNode)) {
-            selectedNode = proofNodeSelector;
-            if (checkpoints != null) {
-                List<ProofNodeCheckpoint> potCheckpoints = checkpoints.stream().filter(ch -> ch.selector.equals(proofNodeSelector)).collect(Collectors.toList());
-                if (potCheckpoints.size() > 0) {
-                    Position insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
-                    observableInsertPosition.set(insertPosition);
-                    //switchViewedNode();
+        if(proofNodeSelector != null) {
+            if (!proofNodeSelector.equals(selectedNode)) {
+                selectedNode = proofNodeSelector;
+                if (checkpoints != null) {
+                    List<ProofNodeCheckpoint> potCheckpoints = checkpoints.stream().filter(ch -> ch.selector.equals(proofNodeSelector)).collect(Collectors.toList());
+                    if (potCheckpoints.size() > 0) {
+                        Position insertPosition = potCheckpoints.get(potCheckpoints.size() - 1).caretPosition;
+                        observableInsertPosition.set(insertPosition);
+                        //switchViewedNode();
+                    }
                 }
             }
         }
@@ -438,6 +591,6 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
     @Override
     public void removeReferenceHighlighting() {
-        //view.getGutterAnnotations().forEach(gutterAnnotation -> {gutterAnnotation.setProofNodeIsReferenced(false);});
+        view.getGutterAnnotations().forEach(gutterAnnotation -> gutterAnnotation.setProofNodeIsReferenced(false));
     }
 }

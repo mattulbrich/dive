@@ -20,6 +20,7 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 
@@ -40,6 +41,37 @@ import java.util.Map;
  * different names x, x_1, x_2, etc.
  *
  * @author Mattias Ulbrich
+ *
+ * @divedoc "VC generation/Single Static Assignment"
+ *
+ * <h2>Verification conditions with single static assignment (SSA)</h2>
+ *
+ * <p><b>Name: <tt>ssa</tt></b></p>
+ *
+ * <p>This generator is conceptually different from the others. While the others
+ * formulate assignments within formulas (with inlining or various forms of
+ * let-expressions), this generation generates equalities for all assignments,
+ * and uses intermediate variables to denote intermediate states.</p>
+ *
+ * For example, the program
+ * <pre>
+ *     a := 1; a := a + 1; assert a > 0;
+ * </pre>
+ * would generally be translated into
+ * <pre>
+ *     a_1 = 1,
+ *     a_2 = a_1 + 1
+ *   |-
+ *     a_2 > 0
+ * </pre>
+ *
+ *
+ * <p>If you want to use this for verification condition, add to your input file:</p>
+ * <pre>
+ *     settings {
+ *        "Sequent Generation Type" = "ssa"
+ *     }
+ * </pre>
  */
 public class SSASequenter implements PVCSequenter {
 
@@ -59,6 +91,8 @@ public class SSASequenter implements PVCSequenter {
 
         try {
             TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
+            // old and fresh need this $oldheap variable
+            // ttt.bindVariable(TreeTermTranslator.OLD_HEAP_VAR);
             SSAInstantiationVisitor visitor = new SSAInstantiationVisitor(ttt.getReferenceMap());
 
             // JK: REVIEW maybe use set here?
@@ -71,7 +105,6 @@ public class SSASequenter implements PVCSequenter {
 
             // from a bug.
             assert endMapping.size() == pathThroughProgram.getAssignmentHistory().size();
-
 
             for (PathConditionElement element : pathThroughProgram.getPathConditions()) {
                 assert isPrefix(element.getAssignmentHistory(), pathThroughProgram.getAssignmentHistory());
@@ -87,7 +120,6 @@ public class SSASequenter implements PVCSequenter {
             AssertionElement assertion = pathThroughProgram.getProofObligations().getLast();
             ProofFormula succedent = createProofFormula(endMapping, ttt,
                     assertion.getExpression(), "Assertion", visitor);
-//            return new Sequent(antecedent, Collections.singletonList(succedent));
             Sequent sequent = new Sequent(antecedent, Collections.singletonList(succedent));
 
             if(referenceMap != null) {
@@ -96,7 +128,12 @@ public class SSASequenter implements PVCSequenter {
             return sequent;
 
         }  catch(TermBuildException tbe) {
-            throw new DafnyException(tbe.getLocation(), tbe);
+            DafnyTree tree = tbe.getLocation();
+            if (tree == null) {
+                // We have little to go by otherwise. ...
+                tree = pathThroughProgram.getMethod();
+            }
+            throw new DafnyException(tree, tbe);
         }
     }
 
@@ -133,7 +170,7 @@ public class SSASequenter implements PVCSequenter {
         TreeAssignmentTranslator tat = new TreeAssignmentTranslator(ttt);
 
         ImmutableList<Pair<FunctionSymbol, Term>> assignments =
-                tat.translateToLinear(assignmentHistory).reverse();
+                tat.translateToLinear(assignmentHistory);
         ImmutableList<Pair<FunctionSymbol, FunctionSymbol>> mapping =
                 ImmutableList.nil();
 
@@ -166,18 +203,13 @@ public class SSASequenter implements PVCSequenter {
             ApplTerm assignmentGoal = new ApplTerm(fsymbNew);
             tat.getReferenceMap().put(assignmentGoal, assignmentTree.getChild(0));
 
-            ApplTerm ssa_eq = tb.eq(assignmentGoal, replaced);
-            tat.getReferenceMap().put(ssa_eq, assignmentTree);
-            antecedent.add(new ProofFormula(ssa_eq,
+            ApplTerm ssaEq = tb.eq(assignmentGoal, replaced);
+            tat.getReferenceMap().put(ssaEq, assignmentTree);
+            antecedent.add(new ProofFormula(ssaEq,
                     SequenterUtil.PATH_LABEL));
         }
 
         return mapping;
-    }
-
-    private void addOldHeap(SymbolTable symbolTable) {
-        FunctionSymbol oldHeap = new FunctionSymbol("$oldheap", Sort.HEAP);
-        symbolTable.addFunctionSymbol(oldHeap);
     }
 
     private FunctionSymbol createNextFunctionSymbol(FunctionSymbol fsymb, SymbolTable symbolTable) {
@@ -191,8 +223,16 @@ public class SSASequenter implements PVCSequenter {
     }
 }
 
+/**
+ * This replaces references to program variables by their instance according to SSA progress.
+ *
+ * x may be replaces by x_3 if x_3 was the most recently assignment to x.
+ */
 class SSAInstantiationVisitor extends ReplacementVisitor<ImmutableList<Pair<FunctionSymbol, FunctionSymbol>>> {
 
+    /**
+     * References are tracked into this map.
+     */
     private Map<Term, DafnyTree> refMap;
 
     public SSAInstantiationVisitor(Map<Term, DafnyTree> refMap) {

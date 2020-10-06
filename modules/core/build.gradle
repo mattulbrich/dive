@@ -24,23 +24,23 @@ sourceSets {
 
 dependencies {
 
-    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
-    compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.4.0-b180830.0438'
-    compile group: 'com.sun.xml.bind', name: 'jaxb-core', version: '2.3.0.1'
+    api group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
+    api group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.4.0-b180830.0438'
+    api group: 'com.sun.xml.bind', name: 'jaxb-core', version: '2.3.0.1'
 
-    compile group: 'com.io7m.jpplib', name: 'com.io7m.jpplib', version: '0.8.0'
-    compile group: 'com.io7m.jpplib', name: 'com.io7m.jpplib.core', version: '0.8.0'
-    compile group: 'com.io7m.jpplib', name: 'com.io7m.jpplib.demo', version: '0.8.0'
+    api group: 'com.io7m.jpplib', name: 'com.io7m.jpplib', version: '0.8.0'
+    api group: 'com.io7m.jpplib', name: 'com.io7m.jpplib.core', version: '0.8.0'
+    api group: 'com.io7m.jpplib', name: 'com.io7m.jpplib.demo', version: '0.8.0'
     // jpplib uses slf4j. Unless the following is specified, a nasty error message
     // will occur.
-    compile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.21'
+    api group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.21'
 
     antlr3 group: 'org.antlr', name: 'antlr', version: '3.5.2'
-    compile group: 'org.antlr', name: 'antlr-runtime', version: '3.5.2'
-    compile group: 'org.antlr', name: 'stringtemplate', version: '3.2'
+    api group: 'org.antlr', name: 'antlr-runtime', version: '3.5.2'
+    api group: 'org.antlr', name: 'stringtemplate', version: '3.2'
 
     antlr4 "org.antlr:antlr4:4.7.1"
-    compile "org.antlr:antlr4-runtime:4.7.1"
+    api "org.antlr:antlr4-runtime:4.7.1"
 
 
 }
@@ -49,7 +49,7 @@ dependencies {
 //buildVisitor.inputs.files=file("$projectDir/gen/Dafny.tokens")
 
 task runAntlr3(type:JavaExec) {
-    println "Building Dafny Parser"
+    doFirst { println "Building Dafny Parser" }
 
     inputs.files "antlr/edu/kit/iti/algover/parser/Dafny.g"
     classpath { configurations.antlr3.getAsPath()}
@@ -72,7 +72,7 @@ test {
 }
 
 task runAntlr4(type:JavaExec) {
-    println "Building Script Parser"
+    doFirst { println "Building Script Parser" }
 
     inputs.files configurations.antlr4
     inputs.file "src/edu/kit/iti/algover/script/ScriptLanguage.g4"
@@ -112,6 +112,33 @@ compileJava.dependsOn runAntlr3
 compileJava.dependsOn buildVisitor
 // compileJava.dependsOn runAntlr4
 compileJava.dependsOn runAntlr4Nu
+
+
+
+task DiveDoclet(type: JavaCompile) {
+    source = ["$rootDir/tools"]
+    include "DiveDoclet.java"
+    println source
+    destinationDir = file("$buildDir/tools")
+    sourceCompatibility = "1.7"
+    targetCompatibility = "1.7"
+    options.compilerArgs = []
+    classpath = project.objects.fileCollection()
+}
+
+task referenceManual(type: Javadoc) {
+    dependsOn(DiveDoclet)
+
+    source sourceSets.main.java
+
+    classpath = sourceSets.main.runtimeClasspath
+    destinationDir = file("$buildDir/resources/main/edu/kit/iti/algover")
+
+    options.doclet "DiveDoclet"
+    options.docletpath file("$buildDir/tools")
+    options.windowTitle()
+    // options.showFromPrivate()
+}
 
 
 /*

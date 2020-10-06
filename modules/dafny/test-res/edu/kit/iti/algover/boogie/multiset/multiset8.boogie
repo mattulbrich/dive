@@ -1,0 +1,18 @@
+### decls:
+
+s: multiset<int>
+
+### sequent:
+
+|- multiset({1,1,1,1}) == multiset{1}
+
+### result:
+prove
+
+### translation:
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(MultiSet#Equal(MultiSet#FromSet(Set#UnionOne(Set#UnionOne(Set#UnionOne(Set#UnionOne(Set#Empty(), 1), 1), 1), 1)), MultiSet#UnionOne(MultiSet#Empty(), 1)));
+}

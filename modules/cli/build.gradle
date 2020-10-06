@@ -5,9 +5,9 @@ plugins{
 }
 
 dependencies {
- compile project(":core")
- compile project(":dafny")
- testCompile project(':core').sourceSets.test.output
+ implementation project(":core")
+ implementation project(":dafny")
+ testImplementation project(':core').sourceSets.test.output
 }
 
 compileTestJava.dependsOn tasks.getByPath(':core:testClasses')

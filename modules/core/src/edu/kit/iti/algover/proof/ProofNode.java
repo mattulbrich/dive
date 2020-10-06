@@ -64,10 +64,9 @@ public class ProofNode {
      */
     private final @NonNull Sequent sequent;
 
-
     /**
      * The label a rule application has given this Node on application.
-     * (see {@link BranchInfo#label}).
+     * (see {@link BranchInfo#getLabel()}).
      * null for the root.
      */
     private final @Nullable String label;

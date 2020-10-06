@@ -1,16 +1,15 @@
 package edu.kit.iti.algover.referenceHighlighting;
 
 import edu.kit.iti.algover.Lookup;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.references.CodeReferenceTarget;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.sequent.SequentTabViewController;
 import org.controlsfx.dialog.ExceptionDialog;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,8 +26,12 @@ public class ReferenceGraphController {
     private final Lookup lookup;
 
 
-    public ReferenceGraphController(Lookup lookup){
-         this.lookup = lookup;
+    public ReferenceGraphController(Lookup lookup) {
+        this.lookup = lookup;
+        PropertyManager.getInstance().selectedTermForReference.addListener(((observable, oldValue, newValue) -> {
+            this.highlightAllReferenceTargets(new ProofTermReferenceTarget(
+                    PropertyManager.getInstance().currentProofNodeSelector.get(), newValue));
+        }));
     }
 
     /**
@@ -37,22 +40,20 @@ public class ReferenceGraphController {
      * @param selectedTarget
      */
     public void highlightAllReferenceTargets(ProofTermReferenceTarget selectedTarget){
-        Collection<SequentTabViewController> sequentTabViewControllers = lookup.lookupAll(SequentTabViewController.class);
-
-        //this should not be possible
-        if(sequentTabViewControllers.size() < 1){
-            ExceptionDialog ed = new ExceptionDialog(new RuntimeException("Ambiguous SequentControllers, please reexecute the proof script."));
-            ed.showAndWait();
+        if(selectedTarget != null && selectedTarget.getTermSelector() == null) {
+            removeReferenceHighlighting();
+            return;
         }
 
-        SequentTabViewController sequentController = sequentTabViewControllers.iterator().next();
-
-        Proof activeProof = sequentController.getActiveSequentController().getActiveProof();
+        Proof activeProof = PropertyManager.getInstance().currentProof.get();
 
         if (selectedTarget != null) {
 
             Set<ProofTermReferenceTarget> proofTermReferenceTargets = computeProofTermRefTargets(selectedTarget, activeProof);
             Set<CodeReferenceTarget> codeReferenceTargets = computeCodeRefTargets(selectedTarget, activeProof);
+            codeReferenceTargets = codeReferenceTargets.stream().
+                    filter(codeReferenceTarget -> codeReferenceTarget.getEndToken().getCharPositionInLine() >= 0).
+                    collect(Collectors.toSet());
             Set<ScriptReferenceTarget> scriptReferenceTargetSet = computeScriptRefTargets(selectedTarget, activeProof);
 
             //build the ReferenceObject
@@ -66,6 +67,12 @@ public class ReferenceGraphController {
             for (ReferenceHighlightingHandler referenceHighlightingHandler : lookup.lookupAll(ReferenceHighlightingHandler.class)) {
                 referenceHighlightingHandler.handleReferenceHighlighting(referenceObj);
             }
+
+            if(codeReferenceTargets.size() > 0) {
+                PropertyManager.getInstance().currentlyDisplayedView.set(1);
+            } else if(scriptReferenceTargetSet.size() > 0) {
+                PropertyManager.getInstance().currentlyDisplayedView.set(2);
+            }
             // editorController.viewReferences(codeReferenceTargets);
             // sequentController.viewReferences(proofTermReferenceTargets, selectedTarget);
             //Collection<RuleApplicationController> ruleApplicationControllers = lookup.lookupAll(RuleApplicationController.class);
@@ -75,7 +82,6 @@ public class ReferenceGraphController {
             //scriptController.viewReferences(scriptReferenceTargetSet);
 
        } else {
-
            Logger.getGlobal().warning("Could not compute references.");
         }
         try {

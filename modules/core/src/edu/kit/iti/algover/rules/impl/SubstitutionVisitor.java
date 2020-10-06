@@ -1,11 +1,10 @@
-/**
+/*
  * This file is part of DIVE.
  *
  * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
  */
 package edu.kit.iti.algover.rules.impl;
 
-import de.uka.ilkd.pp.NoExceptions;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
@@ -18,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Visitor for applying substitutions on Terms. Carefully handles shadowing of variables:
@@ -130,7 +128,9 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
         for (Pair<VariableTerm, Term> pair : letTerm.getSubstitutions()) {
             VariableTerm var = pair.fst;
             Term letSubst = pair.snd;
-            Term letSubstChanged = letSubst.accept(this, substitutions); // No need to shadow yet
+            // No need to shadow yet.
+            // (Valentin) Why not?
+            Term letSubstChanged = letSubst.accept(this, substitutions);
             substitutedLetSubstitutions.add(new Pair<>(var, letSubstChanged));
 
             substitutionsChanged |= letSubst != letSubstChanged;
@@ -178,3 +178,54 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
         return shallowCopied;
     }
 }
+
+//    /*
+//     * If the variable is in the substitution map then return the substitution.
+//     * Return null (unchanged) otherwise.
+//     */
+//    @Override
+//    public Term visit(VariableTerm variableTerm, Map<String, Term> map) throws TermBuildException {
+//        return map.get(variableTerm.getName());
+//    }
+//
+//    @Override
+//    public Term visit(LetTerm letTerm, Map<String, Term> arg) throws TermBuildException {
+//        // The visitor needs a copy of the map as it may temporarily modified
+//        return super.visit(letTerm, new HashMap<>(arg));
+//    }
+//
+//    @Override
+//    public VariableTerm visitLetTarget(VariableTerm variableTerm, Map<String, Term> arg) throws TermBuildException {
+//        return visitBoundVariable(variableTerm, arg);
+//    }
+//
+//    @Override
+//    public Term visit(QuantTerm quantTerm, Map<String, Term> arg) throws TermBuildException {
+//        // The visitor needs a copy of the map as it may temporarily modified
+//        return super.visit(quantTerm, new HashMap<>(arg));
+//    }
+//
+//    @Override
+//    public VariableTerm visitBoundVariable(VariableTerm variableTerm, Map<String, Term> arg) throws TermBuildException {
+//
+//        arg.remove(variableTerm.getName());
+//
+//        Set<String> freeVarsName = FreeVarVisitor.findFreeVars(arg.values()).stream().
+//                map(VariableTerm::getName).collect(Collectors.toSet());
+//
+//        if (!freeVarsName.contains(variableTerm.getName())) {
+//            return null;
+//        }
+//
+//        VariableTerm newVarTerm = variableTerm;
+//        int variant = 1;
+//        do {
+//            newVarTerm = new VariableTerm(variableTerm.getName() + "_" + variant,
+//                    variableTerm.getSort());
+//            variant ++;
+//        } while (freeVarsName.contains(newVarTerm.getName()));
+//
+//        arg.put(variableTerm.getName(), newVarTerm);
+//
+//        return newVarTerm;
+//    }

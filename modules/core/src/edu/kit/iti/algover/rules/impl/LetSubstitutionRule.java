@@ -10,6 +10,8 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.term.builder.AlphaNormalisation;
+import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.match.Matching;
 import edu.kit.iti.algover.term.match.SequentMatcher;
 import edu.kit.iti.algover.util.ImmutableList;
@@ -56,18 +58,44 @@ public class LetSubstitutionRule extends FocusProofRule {
         ProofRuleApplicationBuilder builder = new ProofRuleApplicationBuilder(this);
 
         builder.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
-        builder.newBranch().addReplacement(selector, applyLetSubstitution(targetLet));
+
+        Term sub = targetLet;
+
+        try {
+            sub = applyLetSubstitution(targetLet);
+        } catch (TermBuildException e) {
+            e.printStackTrace();
+            throw new RuleException(e);
+            // TODO handle exception
+        }
+        builder.newBranch().addReplacement(selector, sub);
 
         return builder.build();
     }
 
-    private static Term applyLetSubstitution(LetTerm targetLet) throws RuleException {
+    private static Term applyLetSubstitution(LetTerm targetLet) throws RuleException, TermBuildException {
         Map<String, Term> substitutionMap =
                 targetLet.getSubstitutions()
                         .stream()
                         .collect(Collectors.toMap(pair -> pair.fst.getName(), pair -> pair.snd));
 
         Term inner = targetLet.getTerm(0);
-        return inner.accept(new SubstitutionVisitor(), substitutionMap);
+        Term result = inner.accept(new SubstitutionVisitor(), substitutionMap);
+
+        result = AlphaNormalisation.normalise(result);
+
+        return result;
     }
 }
+
+/*
+  towards bugfixing this:
+
+  try {
+            Term result = inner.accept(new SubstitutionVisitor(), substitutionMap);
+            result = AlphaNormalisation.normalise(result);
+            return result;
+        } catch (TermBuildException e) {
+            throw new RuleException(e);
+        }
+ */

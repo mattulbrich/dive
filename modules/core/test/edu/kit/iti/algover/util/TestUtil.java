@@ -19,6 +19,7 @@ import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Function;
@@ -34,6 +35,8 @@ import edu.kit.iti.algover.project.ProjectBuilder;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.Test;
 import org.junit.Assert;
 
 import static org.junit.Assert.*;
@@ -53,7 +56,7 @@ public class TestUtil {
      */
     @TestInfrastructure
     public static final boolean VERBOSE =
-            Boolean.getBoolean("algover.verbose");
+            Boolean.getBoolean("dive.verbose");
 
     public static String beautify(DafnyTree tree) {
         return beautify(tree, DafnyTree::toString);
@@ -297,7 +300,7 @@ public class TestUtil {
     }
 
 
-    public static Matcher<Object> isContainedIn(List<?> list) {
+    public static Matcher<Object> isContainedIn(Collection<?> list) {
         return new BaseMatcher<Object>() {
             @Override
             public boolean matches(Object o) {
@@ -307,6 +310,34 @@ public class TestUtil {
             @Override
             public void describeTo(Description description) {
                 description.appendText("contained in " + list);
+            }
+        };
+    }
+
+    public static <E> TypeSafeMatcher<Collection<E>> contains(E o) {
+        return new TypeSafeMatcher<Collection<E>>() {
+            @Override
+            protected boolean matchesSafely(Collection<E> coll) {
+                return coll.contains(o);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("contains " + o);
+            }
+        };
+    }
+
+    public static Matcher<Collection<?>> isEmpty() {
+        return new BaseMatcher<Collection<?>>() {
+            @Override
+            public boolean matches(Object o) {
+                return ((Collection)o).isEmpty();
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("is empty");
             }
         };
     }

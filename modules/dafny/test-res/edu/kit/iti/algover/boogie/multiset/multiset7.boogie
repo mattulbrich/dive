@@ -1,0 +1,18 @@
+### decls:
+
+s: multiset<int>
+
+### sequent:
+
+|- multiset{4,3,2,1,1,2,3,4} == multiset([1,2,3,4,4,3,2,1])
+
+### result:
+prove
+
+### translation:
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(MultiSet#Equal(MultiSet#UnionOne(MultiSet#UnionOne(MultiSet#UnionOne(MultiSet#UnionOne(MultiSet#UnionOne(MultiSet#UnionOne(MultiSet#UnionOne(MultiSet#UnionOne(MultiSet#Empty(), 4), 3), 2), 1), 1), 2), 3), 4), MultiSet#FromSeq(Seq#Build(Seq#Build(Seq#Build(Seq#Build(Seq#Build(Seq#Build(Seq#Build(Seq#Build(Seq#Empty(), 1), 2), 3), 4), 4), 3), 2), 1))));
+}

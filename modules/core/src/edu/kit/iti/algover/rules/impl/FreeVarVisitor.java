@@ -14,6 +14,7 @@ import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.Util;
+import nonnull.NonNull;
 
 import java.util.Deque;
 import java.util.HashSet;
@@ -76,13 +77,25 @@ public class FreeVarVisitor extends DefaultTermVisitor<Void, Void, NoExceptions>
         return null;
     }
 
+    /**
+     * Find all free variables in a collection of  terms.
+     *
+     * @param terms a collection of terms to scan
+     * @return a freshly created set of variable terms
+     */
     public static Set<VariableTerm> findFreeVars(Iterable<Term> terms) {
         FreeVarVisitor visitor = new FreeVarVisitor();
         terms.forEach(x->x.accept(visitor, null));
         return visitor.freeVars;
     }
 
-    public static Set<VariableTerm> findFreeVars(Term term) {
+    /**
+     * Find all free variables in a term.
+     *
+     * @param term the term to scan
+     * @return a freshly created set of variable terms
+     */
+    public static Set<VariableTerm> findFreeVars(@NonNull Term term) {
         FreeVarVisitor visitor = new FreeVarVisitor();
         term.accept(visitor, null);
         return visitor.freeVars;

@@ -1,0 +1,6 @@
+(FUNCTION functionWithContract (ARGS (VAR c (TYPE C))) (RETURNS int)
+    (requires true[bool])
+    (decreases (FIELD_ACCESS c[C] intfield)[int])
+    (reads c[C] ({ c[C])[set<C>])
+    (reads c[C])
+    0[int])[scc_29]

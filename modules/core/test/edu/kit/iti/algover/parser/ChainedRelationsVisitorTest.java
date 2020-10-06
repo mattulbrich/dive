@@ -5,10 +5,12 @@
  */
 package edu.kit.iti.algover.parser;
 
+import edu.kit.iti.algover.KnownRegression;
 import edu.kit.iti.algover.util.TestUtil;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 
 import java.io.ByteArrayInputStream;
@@ -89,6 +91,15 @@ public class ChainedRelationsVisitorTest {
         System.out.println(t.toStringTree());
     }
 
+    @Test
+    public void testNotTooEager() throws IOException, DafnyParserException, DafnyException {
+        String s = "method m(x:int) ensures (x<5) == (x-5<0) {}";
+        DafnyTree t = ParserTest.parseFile(new ByteArrayInputStream(s.getBytes()));
+
+        String expected = t.toStringTree();
+        SyntacticSugarVistor.visitDeep(t, new ChainedRelationsVisitor());
+        assertEquals(expected, t.toStringTree());
+    }
 
     @Test
     public void testEq() throws IOException, DafnyParserException, DafnyException {

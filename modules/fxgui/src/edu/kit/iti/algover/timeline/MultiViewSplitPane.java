@@ -19,6 +19,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 
 /**
  * Created by Valentin on 03.03.2020
@@ -74,26 +75,28 @@ public class MultiViewSplitPane extends Pane {
      */
     public MultiViewSplitPane(final Node... nodes) {
         this.splitPane = new SplitPane();
-        this.splitPane.prefHeightProperty().bind(this.heightProperty());
+        this.getChildren().setAll(this.splitPane);
 
         this.splitPane.getItems().setAll(nodes);
         // pad to even number
         if (nodes.length % 2 != 0) {
             this.splitPane.getItems().add(new Pane());
         }
-        this.getChildren().setAll(this.splitPane);
 
         this.positionOfNode = new ReadOnlyDoubleWrapper[this.splitPane.getItems().size()];
 
         this.windowSizeMultiple = (this.splitPane.getItems().size() / 2);
         this.screenDividers = new double[this.windowSizeMultiple];
+
+        this.splitPane.prefHeightProperty().bind(this.heightProperty());
         this.splitPane.prefWidthProperty().bind(this.widthProperty().multiply(this.windowSizeMultiple));
 
+        this.positionOfNode = new ReadOnlyDoubleWrapper[this.splitPane.getItems().size()];
         this.bindNodePositions();
-        dividerLinking = createDividerLinking();
 
-        this.dividerScreenMultiple();
+        this.dividerLinking = createDividerLinking();
 
+        dividerScreenMultiple();
     }
 
     /**
@@ -162,7 +165,7 @@ public class MultiViewSplitPane extends Pane {
      * Link dividers. Add specified ChangeListeners to position property of SplitPane.Divider objects
      * specified in {@link MultiViewSplitPane#dividerLinking}.
      */
-    private void linkDividerPositions() {
+    public void linkDividerPositions() {
         if (dividersLinked) {
             return;
         }
@@ -229,21 +232,32 @@ public class MultiViewSplitPane extends Pane {
         ObservableList<SplitPane.Divider> dividers = this.splitPane.getDividers();
         // Even indexed dividers are only linked upon frame change
         linkDividerPositions();
-        // if the even indexed dividers are reset
-        if (oldPos % 2 == 0) {
-            // A bit hacky: the value is required to change, for listener to be triggered
-            // Very hacky: not resetting it seems to prevent a repaint bug in FormulaCell.
-            // That is why it is shifted in different directions in each call.
-            dividers.get(oldPos).setPosition(dividers.get(oldPos).getPosition()
-                    +0.0005 * alternateDividerShiftFactor);
-            alternateDividerShiftFactor *= (-1);
-        } else { // if the odd indexed, fixed dividers are reset
+
+        // if the odd indexed dividers are reset
+        if (oldPos % 2 == 1) {
             double desired = this.screenDividers[oldPos / 2];
             double delta = dividers.get(oldPos).getPosition() - desired;
             dividers.get(oldPos).setPosition(desired);
             dividers.get(newPos).setPosition(dividers.get(newPos).getPosition() - delta);
+
+            alternateDividerShiftFactor *= (-1);
         }
+
+        // A bit hacky: the divider position is required to change for ChangeListener to be triggered
+        // Very hacky: not resetting it seems to prevent JavaFX repaint bug for the individual nodes.
+        dividers.get(oldPos).setPosition(dividers.get(oldPos).getPosition()
+                +0.00051 * alternateDividerShiftFactor);
+
         unlinkDividerPositions();
+    }
+
+    public boolean isScreenDividerOff() {
+        for (int i = 0; 2 * i + 1 < this.splitPane.getDividers().size(); i++){
+            if (this.splitPane.getDividers().get(2 * i + 1).getPosition() != this.screenDividers[i]) {
+                return true;
+            } // else continue;
+        }
+        return false;
     }
 
     /**

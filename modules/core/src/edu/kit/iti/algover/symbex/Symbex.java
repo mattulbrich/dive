@@ -7,6 +7,7 @@ package edu.kit.iti.algover.symbex;
 
 import edu.kit.iti.algover.ProgramDatabase;
 import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
+import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParser;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -748,6 +749,15 @@ public class Symbex {
                 break;
 
             case DafnyParser.ARRAY_ACCESS:
+                DafnyTree arrayLike = receiver.getChild(0);
+                if(arrayLike.getExpressionType().getType() == DafnyParser.SEQ &&
+                      arrayLike.getDeclarationReference().getType() == DafnyParser.VAR) {
+                    vars.add(arrayLike.getDeclarationReference());
+                } else {
+                    vars.add(HEAP_VAR);
+                }
+                break;
+
             case DafnyParser.FIELD_ACCESS:
                 vars.add(HEAP_VAR);
                 break;
@@ -857,8 +867,16 @@ public class Symbex {
         }
 
         try {
-            result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"),
-                    ModifiesListResolver.resolve(modifies)));
+            DafnyTree mod = ModifiesListResolver.resolve(modifies);
+            DafnyTree freshObj = ASTUtil.call(BuiltinSymbols.FRESH_OBJECTS.getName(),
+                    ASTUtil.id(BuiltinSymbols.HEAP.getName()));
+            if (mod.getType() == DafnyParser.SETEX && mod.getChildCount() == 0) {
+                mod = freshObj;
+            } else {
+                mod = ASTUtil.plus(mod, freshObj);
+            }
+
+            result.addAssignment(ASTUtil.assign(ASTUtil.builtInVar("$mod"), mod));
         } catch (DafnyException e) {
             // Thanks to TypeResolver, this should never occur.
             throw new RuntimeException(e);

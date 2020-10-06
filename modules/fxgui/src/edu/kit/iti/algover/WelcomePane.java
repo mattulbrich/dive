@@ -45,10 +45,7 @@ import org.w3c.dom.ls.LSOutput;
 
 import javax.swing.text.html.ImageView;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -91,7 +88,8 @@ public class WelcomePane {
         if(opendirectly != null && !opendirectly.isEmpty()){
             File absoluteFile = new File(opendirectly.get(0)).getAbsoluteFile();
             try {
-                createAndExecuteMainController(absoluteFile, createProjectManager(absoluteFile));
+                createAndExecuteMainController(absoluteFile,
+                        ProjectManager.fromFile(absoluteFile));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -190,7 +188,7 @@ public class WelcomePane {
             Tooltip.install(item.getContent(), new Tooltip(recentFile));
             item.setOnAction(ev -> {
                 try {
-                    ProjectManager pm = createProjectManager(file);
+                    ProjectManager pm = ProjectManager.fromFile(file);
                     createAndExecuteMainController(file, pm);
                 } catch (Exception e) {
                     // This will probably crash the app
@@ -205,7 +203,7 @@ public class WelcomePane {
     }
 
     private void loadExample(ActionEvent event){
-        File exampleFile = new File("ListExample" + File.separator + "AlgoVerList.dfy");
+        File exampleFile = new File( "ListExample" + File.separator + "AlgoVerList.dfy").getAbsoluteFile();
         if(!exampleFile.exists()) {
             try {
                 InputStream is = getClass().getResourceAsStream("AlgoVerList.dfy");
@@ -225,7 +223,7 @@ public class WelcomePane {
         }
 
         try {
-            ProjectManager pm = createProjectManager(exampleFile);
+            ProjectManager pm = ProjectManager.fromFile(exampleFile);
             createAndExecuteMainController(exampleFile, pm);
         } catch (Exception e) {
             // This will probably crash the app
@@ -245,7 +243,7 @@ public class WelcomePane {
         try {
             projectFile = constructFileChooser();
             if(projectFile != null) {
-                manager = createProjectManager(projectFile);
+                manager = ProjectManager.fromFile(projectFile);
                 // TODO Maybe don't do this initially (might hurt UX, when there are a lot of proofs)
                 // manager.getAllProofs().values().forEach(proof -> proof.interpretScript());
 
@@ -363,10 +361,8 @@ public class WelcomePane {
                     } else {
                         manager = new DafnyProjectManager(config.getMasterFile());
                     }
-                    createAndExecuteMainController(config.getBaseDir(), manager);
-
                 } catch (IOException e) {
-                    Logger.getGlobal().warning("Invalid settings set, please review.");
+                    Logger.getGlobal().warning("Invalid settings set, please review. " + e.getMessage());
                 } catch (DafnyParserException e) {
                     Logger.getGlobal().severe("Project could not be created");
                     e.printStackTrace();
@@ -374,6 +370,8 @@ public class WelcomePane {
                     Logger.getGlobal().severe("Project could not be created");
                     e.printStackTrace();
                 }
+
+                createAndExecuteMainController(config.getMasterFile(), manager);
 
 
             });
@@ -435,27 +433,14 @@ public class WelcomePane {
 
         double width = screenSize.getWidth();
         double height = screenSize.getHeight();
-        width=1000;
+        width = 1000;
         height = 1000;
         substage.setWidth(width);
         substage.setHeight(height);
         substage.setTitle("DIVE - " + projectFile);
-        substage.setMinWidth(350);
+        substage.setMinWidth(500);
         substage.setMinHeight(350);
         substage.show();
-    }
-
-    private ProjectManager createProjectManager(File projectFile) throws FormatException, IOException, DafnyParserException {
-        ProjectManager manager;
-        if (projectFile.getName().endsWith(".xml")) {
-            // Read all PVCs and update GUId
-            manager = new XMLProjectManager(projectFile.getParentFile(), projectFile.getName());
-        } else if (projectFile.getName().endsWith(".dfy")) {
-            manager = new DafnyProjectManager(projectFile);
-        } else {
-            throw new IllegalArgumentException("AlgoVer supports only .dfy and .xml files.");
-        }
-        return manager;
     }
 
 }

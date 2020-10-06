@@ -6,10 +6,17 @@
 package edu.kit.iti.algover.util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -397,6 +404,18 @@ public final class Util {
         return "\"" + string + "\"";
     }
 
+    public static <A, B, E extends Exception> Function<A, B> runtimeException(FunctionWithException<A,B,E> f) {
+        return a -> {
+            try {
+                return f.apply(a);
+            } catch (RuntimeException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        };
+    }
+
     /**
      * A wrapper class for the collection framework. It renders an array into an
      * immutable list.
@@ -478,6 +497,91 @@ public final class Util {
             return indexOf(o) != -1;
         }
 
+    }
+
+    /**
+     * Read the content behind a URL into a string.
+     *
+     * A buffer in the content length of the content of the url is created, the
+     * entire content read in one go and the result used to create a String
+     * object.
+     *
+     * The default character encoding is used to decode the string.
+     *
+     * This only works for resources whose size is less than
+     * {@value Integer#MAX_VALUE}.
+     *
+     * TODO Does this really always work? Possibly add a loop!
+     *
+     * @param url
+     *            the url to be read, must be readable
+     *
+     * @return a string holding the content of the url.
+     *
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public static String readURLAsString(URL url) throws IOException {
+        URLConnection conn = url.openConnection();
+
+        long length = conn.getContentLength();
+        byte[] buffer = new byte[(int)length];
+        InputStream f = null;
+        try {
+            f = conn.getInputStream();
+            int count = f.read(buffer);
+            assert count == length;
+            return new String(buffer);
+        } finally {
+            if(f != null) {
+                f.close();
+            }
+        }
+    }
+
+   /**
+     * Read a file into a string.
+     *
+     * A buffer in the length of the file is created, the entire content read in
+     * one go and the result used to create a String object.
+     *
+     * The default character encoding is used to decode the string.
+     *
+     * This only works for files whose size is less than {@value Integer#MAX_VALUE}.
+     *
+     * TODO Does this really always work? Possibly add a loop!
+     *
+     * @param file
+     *            the file to be read, must be readable
+     *
+     * @return a string holding the content of the file.
+     *
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public static @NonNull String readFileAsString(@NonNull File file) throws java.io.IOException{
+        long length = file.length();
+        byte[] buffer = new byte[(int)length];
+        try(FileInputStream f = new FileInputStream(file)) {
+            int count = f.read(buffer);
+            assert count == length;
+            return new String(buffer);
+        }
+    }
+
+    /**
+     * Save a string to a file.
+     *
+     * Default character encoding is used.
+     *
+     * @param string String to save
+     * @param file file to write to
+     * @throws IOException if file cannot be written or no access.
+     */
+    public static void saveStringAsFile(@NonNull String string, @NonNull File file) throws IOException {
+        try (FileWriter fw = new FileWriter(file)) {
+            fw.write(string);
+        }
     }
 
     /**

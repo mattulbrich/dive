@@ -92,6 +92,7 @@ public class AlgoVerService {
     public @NonNull List<Proof> runVerification()
             throws DafnyParserException, IOException, DafnyException, FormatException {
         ProjectManager pm = getProjectManager();
+        pm.reload();
         List<PVC> allPVCs = pm.getAllPVCs().getContents();
         List<Proof> allProofs = new ArrayList<>();
         for (PVC pvc : allPVCs) {
@@ -140,8 +141,8 @@ public class AlgoVerService {
             if(verbosityLevel > 1) {
                 System.err.println(proof.proofToString());
 
-                if (proof.getFailException() != null) {
-                    proof.getFailException().printStackTrace();
+                if (proof.getFailures() != null) {
+                    proof.getFailures().forEach(Throwable::printStackTrace);
                 }
             }
         }

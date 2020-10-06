@@ -5,7 +5,6 @@
  */
 package edu.kit.iti.algover.rule.script;
 
-
 public interface ScriptViewListener {
 
     void onScriptSave();
@@ -14,5 +13,5 @@ public interface ScriptViewListener {
 
     void runScript();
 
-    String onInsertCases();
+    void onInsertCases();
 }

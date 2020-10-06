@@ -15,6 +15,12 @@ import edu.kit.iti.algover.term.Sequent;
 
 import java.util.Map;
 
+/**
+ * Use an PVC builder to construct a {@link PVC}.
+ *
+ * It is passed to the constructor {@link PVC#PVC(PVCBuilder)}
+ * where the elements are read.
+ */
 public interface PVCBuilder {
 
     SymbexPath getPathThroughProgram();

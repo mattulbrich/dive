@@ -6,7 +6,7 @@
 package edu.kit.iti.algover.editor;
 
 import edu.kit.iti.algover.Lookup;
-import edu.kit.iti.algover.MainController;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.project.ProjectBuilder;
 import edu.kit.iti.algover.proof.PVC;
@@ -21,8 +21,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -31,7 +29,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import org.antlr.runtime.Token;
 import org.controlsfx.dialog.ExceptionDialog;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
@@ -43,7 +40,15 @@ import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
@@ -74,7 +79,6 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
     private BooleanProperty anyFileChangedProperty;
     private List<String> changedFiles;
     private String baseDir;
-    private Set<CodeReferenceTarget> codeReferenceTargets = new HashSet<>();
 
     private String recentSelectedTab;
 
@@ -96,6 +100,13 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
         lookup.register(this, ReferenceHighlightingHandler.class);
         lookup.register(this, EditorController.class);
 
+        PropertyManager.getInstance().currentFile.addListener(((observable, oldValue, newValue) -> viewFile(
+                PropertyManager.getInstance().currentProject.get().getBaseDir(),
+                newValue
+        )));
+        PropertyManager.getInstance().currentPVC.addListener(((observable, oldValue, newValue) -> viewPVCSelection(
+                newValue
+        )));
     }
 
     private void handleShortcuts(KeyEvent keyEvent) {
@@ -126,11 +137,13 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
      * @param dafnyFile the file to be viewed to the user
      */
     public void viewFile(File baseDir, DafnyFile dafnyFile) {
-        File file = new File(dafnyFile.getFilename());
-        if (!file.isAbsolute() && !file.toString().startsWith("$dive/")) {
-            file = new File(baseDir, dafnyFile.getFilename());
+        if(baseDir != null && dafnyFile != null) {
+            File file = new File(dafnyFile.getFilename());
+            if (!file.isAbsolute() && !file.toString().startsWith("$dive/")) {
+                file = new File(baseDir, dafnyFile.getFilename());
+            }
+            viewFile(file.toString());
         }
-        viewFile(file.toString());
     }
 
     public void viewFile(String fileName) {
@@ -160,9 +173,7 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
 
                 ExceptionDialog exdlg = new ExceptionDialog(e);
                 exdlg.setResizable(true);
-                exdlg.onShownProperty().addListener(evt -> {
-                    Platform.runLater(() -> exdlg.setResizable(false));
-                });
+                exdlg.onShownProperty().addListener(evt -> Platform.runLater(() -> exdlg.setResizable(false)));
                 exdlg.showAndWait();
             }
         }
@@ -183,6 +194,10 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
      * @param pvc the PVC to use for highlighting
      */
     public void viewPVCSelection(PVC pvc) {
+        if(pvc == null) {
+            resetPVCSelection();
+            return;
+        }
         highlightingLayers.setLayer(PVC_LAYER, new PVCHighlightingRule(pvc));
 
         view.getTabs().stream()
@@ -201,16 +216,13 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
             return;
         }
 
-        highlightingLayers.setLayer(ERROR_LAYER, new HighlightingRule() {
-            @Override
-            public Collection<String> handleToken(Token token, Collection<String> syntaxClasses) {
-                int tokenLine = token.getLine();
-                int tokenCol = token.getCharPositionInLine();
-                if (tokenLine == line && col <= tokenCol && tokenCol < endCol) {
-                    return Collections.singleton("error");
-                }
-                return syntaxClasses;
+        highlightingLayers.setLayer(ERROR_LAYER, (token, syntaxClasses) -> {
+            int tokenLine = token.getLine();
+            int tokenCol = token.getCharPositionInLine();
+            if (tokenLine == line && col <= tokenCol && tokenCol < endCol) {
+                return Collections.singleton("error");
             }
+            return syntaxClasses;
         });
 
         viewFile(filename);
@@ -219,12 +231,7 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
     }
 
     public void resetExceptionLayer() {
-        highlightingLayers.setLayer(ERROR_LAYER, new HighlightingRule() {
-            @Override
-            public Collection<String> handleToken(Token token, Collection<String> syntaxClasses) {
-                return syntaxClasses;
-            }
-        });
+        highlightingLayers.setLayer(ERROR_LAYER, (token, syntaxClasses) -> syntaxClasses);
     }
 
     private void onTextChanged(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -236,11 +243,7 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
             changedFiles.remove(selectedTab.getText());
             selectedTab.setText(selectedTab.getText().substring(0, selectedTab.getText().length() - 1));
         }
-        if (changedFiles.size() == 0) {
-            anyFileChangedProperty.setValue(false);
-        } else {
-            anyFileChangedProperty.setValue(true);
-        }
+        anyFileChangedProperty.setValue(changedFiles.size() != 0);
         resetExceptionLayer();
     }
 
@@ -281,11 +284,13 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
      * @param codeReferenceTargets code references to highlight
      */
     public void viewReferences(Set<CodeReferenceTarget> codeReferenceTargets) {
-        this.codeReferenceTargets = codeReferenceTargets;
         highlightingLayers.setLayer(REFERENCE_LAYER, new ReferenceHighlightingRule(codeReferenceTargets));
         view.getTabs().stream()
                 .map(tab -> codeAreaFromContent(tab.getContent()))
                 .forEach(DafnyCodeArea::rerenderHighlighting);
+        if(codeReferenceTargets.size() > 0) {
+            getFocusedCodeArea().scrollToLine(codeReferenceTargets.iterator().next().getStartToken().getLine());
+        }
     }
 
     public BooleanProperty anyFileChangedProperty() {
@@ -308,7 +313,7 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
 
     @Override
     public void saveAllFiles() {
-        view.getTabs().stream().forEach(tab -> saveFileForTab(tab));
+        view.getTabs().stream().forEach(this::saveFileForTab);
     }
 
     private void saveFileForTab(Tab tab) {
@@ -384,7 +389,7 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
         //close all tabs and remove them from the view
         removeTabsInView(tabsInView, tabs);
         //iterate through the list of files and open files again
-        filenames.forEach(s -> viewFile(s));
+        filenames.forEach(this::viewFile);
         selectRecentTab();
     }
 
@@ -415,7 +420,7 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
     /**
      * Refresh the current tab view by first saving the order of the last opened tabs, then opening only those tabs that
      * are passed in the list of dafnyfiles trying to restore the order
-     * @param dafnyFiles
+     * @param dafnyFiles the list of files that should be displayed
      */
     public void refreshTabView(List<DafnyFile> dafnyFiles) {
         saveRecentSelectedTab();
@@ -437,7 +442,7 @@ public class EditorController implements DafnyCodeAreaListener, ReferenceHighlig
             }
         }
         if(!passedDfyFiles.isEmpty()){
-            passedDfyFiles.forEach(file -> viewFile(file));
+            passedDfyFiles.forEach(this::viewFile);
         }
 
         if(tabsByFile.containsKey(this.recentSelectedTab)){

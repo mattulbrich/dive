@@ -1,5 +1,5 @@
 (method quantifiers ARGS
-  (ensures (forall i (TYPE int) (== i[int] i[int])[bool]))
-  (ensures (exists x (TYPE int) (== x[int] 0[int])[bool]))
+  (ensures (forall i (TYPE int) (== i[int] i[int])[bool])[bool])
+  (ensures (exists x (TYPE int) (== x[int] 0[int])[bool])[bool])
   (ensures (let (VAR x y) 1[int] true[bool] (&& y[bool] (> x[int] 0[int])[bool])[bool]))
   BLOCK)[scc_10]

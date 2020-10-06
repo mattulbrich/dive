@@ -21,7 +21,7 @@ import nonnull.Nullable;
  * The Class LetInlineVisitor walks over a term and reduces all {@link LetTerm}s
  * by replacing the bound variables by their replacement in the argument term.
  *
- * The resulting Term does not have {@link LetTerm}s embedded anymore.
+ * The resulting Term does not contain any more {@link LetTerm}s.
  *
  * The static method {@link #inline(Term)} can be used as entry point.
  *
@@ -67,6 +67,10 @@ public class LetInlineVisitor extends
         if (result == null) {
             result = term;
         }
+
+        // because of this test case we have to apply normalisation:
+        // "let x:= i :: forall i :: x == i" ==> "forall i_1 :: i == i_1"
+        result = AlphaNormalisation.normalise(result);
 
         return result;
     }

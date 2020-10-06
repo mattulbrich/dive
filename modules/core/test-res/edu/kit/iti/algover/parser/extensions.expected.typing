@@ -1,9 +1,11 @@
 (method
  extensions
  (ARGS (VAR l (TYPE (seq int)))
-       (VAR s (TYPE (set int))))
+       (VAR s (TYPE (set int)))
+       (VAR ms (TYPE (multiset int))))
  (requires (== l[seq<int>] ([ 1[int] 2[int] 3[int])[seq<int>])[bool])
  (requires (== s[set<int>] ({ 1[int] 2[int] 3[int])[set<int>])[bool])
+ (requires (== ms[multiset<int>] (multiset 1[int] 1[int] 2[int])[multiset<int>])[bool])
  (ensures (!= l[seq<int>] [[seq<$nothing>])[bool])
  (ensures (== [[seq<$nothing>] [[seq<$nothing>])[bool])
  (ensures (!= s[set<int>] {[set<$nothing>])[bool])

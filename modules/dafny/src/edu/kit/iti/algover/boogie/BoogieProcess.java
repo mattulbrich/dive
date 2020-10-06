@@ -87,7 +87,9 @@ public class BoogieProcess {
         Path tmpFile = Files.createTempFile("dive-", ".bpl");
 
         // which is deleted unless required
-        if(!KEEP_BPL) {
+        if(KEEP_BPL) {
+            System.err.println("Boogie output under: " + tmpFile);
+        } else {
             tmpFile.toFile().deleteOnExit();
         }
 

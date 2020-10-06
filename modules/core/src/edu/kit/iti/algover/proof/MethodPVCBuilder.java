@@ -38,6 +38,9 @@ import edu.kit.iti.algover.util.TreeUtil;
 /**
  * Builder for {@link PVC} from a {@link DafnyMethod} and a {@link SymbexPath}.
  *
+ * Despite its name, this class can also be used for PVC generated for
+ * {@link edu.kit.iti.algover.dafnystructures.DafnyFunction}s.
+ *
  * This class is not ready for multi-threading.
  *
  * @author Created by sarah on 8/18/16.
@@ -46,7 +49,11 @@ import edu.kit.iti.algover.util.TreeUtil;
  */
 public class MethodPVCBuilder implements PVCBuilder {
 
+    /**
+     * The project to which the PVC belongs
+     */
     private final Project project;
+
     /**
      * Path through program which represents state of this pvc
      */
@@ -62,16 +69,30 @@ public class MethodPVCBuilder implements PVCBuilder {
      */
     private DafnyDecl declaration;
 
+    /**
+     * The table to be used when proving the PVC
+     */
     private SymbolTable symbolTable;
 
+    /**
+     * The sequent of the proof root node
+     */
     private Sequent sequent;
 
+    /**
+     * References from this sequent to entitities in the program.
+     * This is based on objects not on references
+     */
     private Map<TermSelector, DafnyTree> referenceMap;
 
+    /**
+     * Create a new instance
+     * @param project project to use
+     */
     public MethodPVCBuilder(Project project) {
         this.project = project;
         if(project != null) {
-            this.sequenter = findSequenter(project.getSettings().getString(ProjectSettings.SEQUENTER));
+            this.sequenter = findSequenter(project.getSettings().getString(ProjectSettings.SEQUENTER_PROP.key));
         }
     }
 
@@ -151,11 +172,13 @@ public class MethodPVCBuilder implements PVCBuilder {
     public void ensureSequentExists() {
         if(sequent == null) {
             try {
-                this.referenceMap = new HashMap<TermSelector, DafnyTree>();
+                this.referenceMap = new HashMap<>();
                 this.sequent =
                         sequenter.translate(pathThroughProgram, getSymbolTable(), referenceMap);
             } catch (DafnyException e) {
-            	e.getTree().setFilename(declaration.getFilename());
+                if (e.getTree() != null) {
+                    e.getTree().setFilename(declaration.getFilename());
+                }
                 throw new RuntimeException(e);
             }
         }

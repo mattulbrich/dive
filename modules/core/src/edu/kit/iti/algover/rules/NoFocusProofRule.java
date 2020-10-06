@@ -23,6 +23,10 @@ public abstract class NoFocusProofRule extends AbstractProofRule {
     }
 
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
+        if(selector == null) {
+            return ProofRuleApplicationBuilder.instantiationRequired(this);
+        }
+
         try {
             Parameters params = new Parameters();
             ProofRuleApplication result = makeApplication(target, params);

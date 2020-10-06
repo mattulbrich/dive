@@ -9,61 +9,77 @@ import com.jfoenix.controls.JFXButton;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import edu.kit.iti.algover.browser.BrowserController;
-import edu.kit.iti.algover.browser.callvisualization.CallVisualizationDialog;
 import edu.kit.iti.algover.browser.FlatBrowserController;
 import edu.kit.iti.algover.browser.TreeTableEntityContextMenuStrategyHelper;
+import edu.kit.iti.algover.browser.callvisualization.CallVisualizationDialog;
 import edu.kit.iti.algover.browser.callvisualization.CallVisualizationModel;
 import edu.kit.iti.algover.browser.entities.DafnyEntityGetterVisitor;
 import edu.kit.iti.algover.browser.entities.PVCEntity;
-import edu.kit.iti.algover.browser.entities.PVCGetterVisitor;
 import edu.kit.iti.algover.browser.entities.TreeTableEntity;
-import edu.kit.iti.algover.dafnystructures.*;
+import edu.kit.iti.algover.dafnystructures.DafnyClass;
+import edu.kit.iti.algover.dafnystructures.DafnyDecl;
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.dafnystructures.DafnyFunction;
+import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.ProjectManager;
+import edu.kit.iti.algover.proof.PVC;
+import edu.kit.iti.algover.proof.PVCCollection;
+import edu.kit.iti.algover.proof.Proof;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceGraphController;
-import edu.kit.iti.algover.proof.*;
-import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
-import edu.kit.iti.algover.rules.*;
-import edu.kit.iti.algover.sequent.SequentActionListener;
+import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
 import edu.kit.iti.algover.settings.SettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
-import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.ExceptionDialog;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
-import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.TreeItem;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.controlsfx.control.StatusBar;
 import org.controlsfx.dialog.ProgressDialog;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
-import java.util.stream.Collectors;
 
-import static javafx.application.Platform.*;
+import static javafx.application.Platform.runLater;
 
 /**
  * Created by philipp on 27.06.17.
  */
-public class MainController implements SequentActionListener, RuleApplicationListener {
+public class MainController implements RuleApplicationListener {
 
     //system preferences
     public static final Preferences systemprefs = Preferences.userNodeForPackage(MainController.class);
@@ -80,6 +96,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
     private final EditorController editorController;
     private final SequentTabViewController sequentController;
     private final RuleApplicationController ruleApplicationController;
+    //is actually not unused
     private final ReferenceGraphController referenceGraphController;
     private final ToolBar toolbar;
     private final StatusBar statusBar;
@@ -99,10 +116,12 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         //this.browserController = new FileBasedBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
         this.editorController = new EditorController(executor, manager.getProject().getBaseDir().getAbsolutePath(), this.lookup);
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
-        this.sequentController = new SequentTabViewController(this, this.lookup);
+        this.sequentController = new SequentTabViewController(lookup);
         this.ruleApplicationController = new RuleApplicationController(executor, this, manager, this.lookup);
-
         this.referenceGraphController = new ReferenceGraphController(this.lookup);
+
+        PropertyManager.getInstance().projectManager.set(manager);
+        PropertyManager.getInstance().currentProject.set(manager.getProject());
 
         JFXButton saveButton = new JFXButton("Save", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
         JFXButton refreshButton = new JFXButton("Refresh", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.REFRESH));
@@ -144,13 +163,16 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         this.view = new VBox(toolbar, breadCrumbBar, timelineView, statusBar);
         VBox.setVgrow(timelineView, Priority.ALWAYS);
 
-        browserController.setSelectionListener(this::onSelectBrowserItem);
         createContextMenu();
         Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         statusBarLoggingHandler = new StatusBarLoggingHandler(statusBar);
         logger.addHandler(statusBarLoggingHandler);
         logger.setUseParentHandlers(false);
         logger.info("Project '" + manager.getName() + "' successfully loaded.");
+
+        //Add property listener
+        PropertyManager.getInstance().selectedTerm.addListener(((observable, oldValue, newValue) -> onClickSequentSubterm(newValue)));
+        PropertyManager.getInstance().currentPVC.addListener(((observable, oldValue, newValue) -> onSelectBrowserItem(newValue)));
 
         onClickRefresh(null);
     }
@@ -278,6 +300,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                             p.setScriptTextAndInterpret(oldScript + "boogie;");
                             if (!p.getFailures().isEmpty()) {
                                 p.setScriptText(oldScript);
+                                p.interpretScript();
                                 failed++;
                             }
                         }
@@ -307,16 +330,12 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                                     + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
             //workaround for KDE systems and GTK based Desktops
             a.setResizable(true);
-            a.onShownProperty().addListener(e -> {
-                runLater(() -> a.setResizable(false));
-            });
+            a.onShownProperty().addListener(e -> runLater(() -> a.setResizable(false)));
             a.showAndWait();
             Logger.getGlobal().info("Successfully applied strategy and closed "
                     + t1.valueProperty().get() + " of " + pvcNames.size() + " PVCs.");
         }));
-        t1.setOnCancelled($ -> runLater(() -> {
-            Logger.getGlobal().severe("Strategy was cancelled.");
-        }));
+        t1.setOnCancelled($ -> runLater(() -> Logger.getGlobal().severe("Strategy was cancelled.")));
         progressDialog.setHeaderText("Applying strategy to " + pvcNames.size() + " PVCs. Please wait.");
         progressDialog.setTitle("Applying strategy");
         progressDialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
@@ -332,8 +351,9 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 PVC pvc = (PVC) item.getValue();
                 try {
                     DafnyFile file = (DafnyFile) item.getParent().getParent().getValue();
-                    timelineView.moveFrameLeft();
-                    timelineView.moveFrameLeft();
+                    PropertyManager.getInstance().currentFile.set(file);
+                    PropertyManager.getInstance().currentPVC.set(pvc);
+                    PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.SEQUENT_VIEW);
                     onClickPVCEdit(new PVCEntity(manager.getProofForPVC(pvc.getIdentifier()), pvc, file));
                 } catch (NullPointerException e) {
                     Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
@@ -343,17 +363,19 @@ public class MainController implements SequentActionListener, RuleApplicationLis
                 }
             }
             if (item.getValue() instanceof DafnyFile) {
-                editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getValue());
-                timelineView.moveFrameLeft();
-                timelineView.moveFrameLeft();
-                editorController.resetPVCSelection();
+                PropertyManager.getInstance().currentFile.set((DafnyFile) item.getValue());
+                //editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getValue());
+                PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.EDITOR_VIEW);
+                PropertyManager.getInstance().currentPVC.set(null);
+                //editorController.resetPVCSelection();
             }
             if (item.getValue() instanceof DafnyMethod) {
                 if (item.getParent().getValue() instanceof DafnyFile) {
-                    editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getParent().getValue());
-                    timelineView.moveFrameLeft();
-                    timelineView.moveFrameLeft();
-                    editorController.resetPVCSelection();
+                    PropertyManager.getInstance().currentFile.set((DafnyFile) item.getParent().getValue());
+                    //editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getParent().getValue());
+                    PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.EDITOR_VIEW);
+                    PropertyManager.getInstance().currentPVC.set(null);
+                    //editorController.resetPVCSelection();
                 }
             }
         });
@@ -500,7 +522,7 @@ public class MainController implements SequentActionListener, RuleApplicationLis
             breadCrumbBar.setSelectedCrumb(ti);
             editorController.resetPVCSelection();
             sequentController.getActiveSequentController().clear();
-            showStartTimeLineConfiguration();
+            PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.BROWSER_VIEW);
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloaded project.");
         });
 
@@ -525,34 +547,24 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         executor.execute(t);
     }
 
-    private void showStartTimeLineConfiguration() {
-        boolean moveLeftPosible = true;
-        while(moveLeftPosible){
-            moveLeftPosible = timelineView.moveFrameLeft();
-        }
-    }
-
     public void onClickPVCEdit(PVCEntity entity) {
-        PVC pvc = entity.getPVC();
-        breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
-        editorController.viewFile(manager.getProject().getBaseDir(), entity.getLocation());
-        editorController.viewPVCSelection(pvc);
-        Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
-        // MU: currently proofs are not automatically interpreted and/or uptodate. Make sure they are.
-        if (proof.getProofStatus() == ProofStatus.DIRTY || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
-            proof.interpretScript();
-        sequentController.viewSequentForPVC(entity, proof);
-        sequentController.getActiveSequentController().tryMovingOnEx();
+        //Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
+        //// MU: currently proofs are not automatically interpreted and/or uptodate. Make sure they are.
+        //if (proof.getProofStatus() == ProofStatus.NON_EXISTING || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
+        //    proof.interpretScript();
+        PropertyManager.getInstance().currentPVC.set(entity.getPVC());
         ruleApplicationController.resetConsideration();
-        ruleApplicationController.getScriptController().setProof(proof);
-        timelineView.moveFrameRight();
+        PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.SEQUENT_VIEW);
     }
 
     /**
      * Refresh all GUI contents including the tabs in the DafnyCode Tab Pane
      */
-    public void reloadWholeGUIcontents(){
-        editorController.refreshTabView(manager.getProject().getDafnyFiles());
+    public void reloadWholeGUIcontents() {
+        //editorController.refreshTabView(manager.getProject().getDafnyFiles()); will open another editor
+        // tab with same file
+        // use instead
+        editorController.reloadAllOpenFiles();
         refreshHelper();
     }
 
@@ -589,60 +601,16 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         return "error";
     }
 
-    public void onSelectBrowserItem(TreeTableEntity treeTableEntity) {
-        DafnyFile file = treeTableEntity.getLocation();
-        if (file != null) {
-            editorController.viewFile(manager.getProject().getBaseDir(), file);
-            PVC pvc = treeTableEntity.accept(new PVCGetterVisitor());
-            if (pvc != null) {
-                editorController.viewPVCSelection(pvc);
-                breadCrumbBar.setSelectedCrumb(getTreeItemForPVC(pvc));
-            } else {
-                editorController.resetPVCSelection();
-                sequentController.getActiveSequentController().clear();
-            }
-        } else {
-            sequentController.getActiveSequentController().clear();
+    public void onSelectBrowserItem(PVC pvc) {
+        if (pvc != null) {
+            breadCrumbBar.setSelectedCrumb(pvc);
         }
     }
 
-    private TreeItem<Object> getTreeItemForPVC(PVC pvc) {
-        List<TreeItem<Object>> files = breadCrumbBar.getModel().getChildren();
-        List<TreeItem<Object>> methods = files.stream().flatMap(m -> m.getChildren().stream()).
-                collect(Collectors.toList());
-        List<TreeItem<Object>> pvcs = methods.stream().flatMap(m -> m.getChildren().stream()).
-                filter(p -> (p.getValue()).equals(pvc)).collect(Collectors.toList());
-        if (pvcs.size() == 1) {
-            return pvcs.get(0);
-        } else {
-            System.out.println("this shoudnt happen. couldnt select breadcrumbitem for pvc");
-            return null;
-        }
-    }
-
-    @Override
     public void onClickSequentSubterm(TermSelector selector) {
         if (selector != null) {
-            timelineView.moveFrameRight();
-            ProofNode node = sequentController.getActiveSequentController().getActiveNode();
-            Sequent targetSequent = node.getSequent();
-            if (selector.isValidForSequent(targetSequent)) {
-                if (node != null) {
-                    ruleApplicationController.considerApplication(node, node.getSequent(), selector);
-                }
-            }
+            PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.SEQUENT_VIEW);
         }
-    }
-
-    @Override
-    public void onRequestReferenceHighlighting(ProofTermReferenceTarget termRef) {
-        this.referenceGraphController.highlightAllReferenceTargets(termRef);
-
-    }
-
-    @Override
-    public void onRemoveReferenceHighlighting() {
-        this.referenceGraphController.removeReferenceHighlighting();
     }
 
     @Override
@@ -663,43 +631,25 @@ public class MainController implements SequentActionListener, RuleApplicationLis
         ruleApplicationController.applyRule(application);
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         String newScript = ruleApplicationController.getScriptView().getText();
-        sequentController.getActiveSequentController().getActiveProof().setScriptTextAndInterpret(newScript);
+        PropertyManager.getInstance().currentProof.get().setScriptTextAndInterpret(newScript);
+        PropertyManager.getInstance().currentProofStatus.set(PropertyManager.getInstance().currentProof.get().getProofStatus());
         ruleApplicationController.resetConsideration();
         sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
-        if(sequentController.getActiveSequentController().getActiveProof().getFailures().isEmpty()) {
+        if(PropertyManager.getInstance().currentProof.get().getFailException() == null) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
         }
     }
 
     @Override
     public void onScriptSave() {
-        String pvcIdentifier = sequentController.getActiveSequentController().getActiveProof().getPVC().getIdentifier();
+        String pvcIdentifier = PropertyManager.getInstance().currentProof.get().getPVC().getIdentifier();
         try {
-            manager.saveProofScriptForPVC(pvcIdentifier, sequentController.getActiveSequentController().getActiveProof());
+            manager.saveProofScriptForPVC(pvcIdentifier, PropertyManager.getInstance().currentProof.get());
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved script " + pvcIdentifier + ".");
         } catch (IOException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving script.");
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public PVC getCurrentPVC() {
-        return sequentController.getActiveSequentController().getActiveProof().getPVC();
-    }
-
-    @Override
-    public ProofNode getCurrentProofNode() {
-        return sequentController.getActiveSequentController().getActiveNode();
-    }
-
-    /**
-     * when the user clicked somewhere in the proof script to change the proof node that should be viewed
-     */
-    @Override
-    public void onSwitchViewedNode(ProofNodeSelector proofNodeSelector) {
-        sequentController.viewProofNode(proofNodeSelector);
-        ruleApplicationController.getScriptController().setSelectedNode(proofNodeSelector);
     }
 
     public VBox getView() {

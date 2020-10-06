@@ -1,0 +1,16 @@
+### decls:
+
+### sequent:
+|- true, false, 1 == -2
+
+### result:
+prove
+
+### translation:
+procedure Sequent()
+  ensures false;
+{
+  assume !(true);
+  assume !(false);
+  assume !((1 == -(2)));
+}

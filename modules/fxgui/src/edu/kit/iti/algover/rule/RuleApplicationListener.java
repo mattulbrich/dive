@@ -21,11 +21,5 @@ public interface RuleApplicationListener {
 
     void onResetRuleApplicationPreview();
 
-    void onSwitchViewedNode(ProofNodeSelector selector);
-
     void onScriptSave();
-
-    PVC getCurrentPVC();
-
-    ProofNode getCurrentProofNode();
 }

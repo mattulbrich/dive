@@ -210,7 +210,6 @@ public class Proof {
         } catch(Exception ex) {
             this.failures = Collections.singletonList(ex);
             this.scriptAST = null;
-
             proofStatus.setValue(ProofStatus.FAILING);
             return;
         }

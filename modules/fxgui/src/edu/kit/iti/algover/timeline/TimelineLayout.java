@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.timeline;
 
+import edu.kit.iti.algover.PropertyManager;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -97,6 +98,7 @@ public class TimelineLayout extends HiddenSidesPane {
         // Auxiliary method to set up listener on framePosition property.
         // passed as parameter. May be retrieved from state holding class in the future.
         this.configureFramePositionChangeListener(this.framePosition);
+        this.framePosition.bindBidirectional(PropertyManager.getInstance().currentlyDisplayedView);
 
         this.updateFrame(0);
     }
@@ -109,6 +111,13 @@ public class TimelineLayout extends HiddenSidesPane {
         this.setAnimationDelay(Duration.ZERO);
         this.setAnimationDuration(Duration.millis(100));
         this.setTriggerDistance(HOVER_AREA);
+
+        this.widthProperty().addListener(newWidth -> {
+            if (framePosition.get() % 2 == 1 && viewPane.isScreenDividerOff()) {
+                viewPane.resetDividerPositions(framePosition.get(), framePosition.get() - 1);
+                viewPane.resetDividerPositions(framePosition.get() - 1, framePosition.get());
+            }
+        });
     }
 
     /**
@@ -206,8 +215,7 @@ public class TimelineLayout extends HiddenSidesPane {
     private <T> Timeline createAnimation(WritableValue<T> parameter, T target) {
         KeyValue keyvalue = new KeyValue(parameter, target, Interpolator.EASE_BOTH);
         KeyFrame keyframe = new KeyFrame(Duration.millis(300), keyvalue);
-        Timeline tl = new Timeline(keyframe);
-        return tl;
+        return new Timeline(keyframe);
     }
 
 
@@ -224,7 +232,6 @@ public class TimelineLayout extends HiddenSidesPane {
      * Tell the TimelineView to move the frame to the right.
      *
      * @return true iff move was possible.
-     * @Deprecated Increment {@link TimelineLayout#framePosition}.
      */
     @Deprecated
     public boolean moveFrameRight() {
@@ -239,7 +246,6 @@ public class TimelineLayout extends HiddenSidesPane {
      * Tell the TimelineView to move the frame to the left.
      *
      * @return true iff move was possible.
-     * @Deprecated Decrement {@link TimelineLayout#framePosition}.
      */
     @Deprecated
     public boolean moveFrameLeft() {

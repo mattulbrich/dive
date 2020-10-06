@@ -3,6 +3,8 @@
          (var s2 (TYPE (seq int)))
          (:= s2[seq<int>] s1[seq<int>])
          (:= (ARRAY_ACCESS s2[seq<int>] 0[int])[int] 0[int])
-         (:= (ARRAY_ACCESS s1[seq<int>] 1[int])[int]
-             (ARRAY_ACCESS s2[seq<int>] 1[int])[int])
+         (:= (ARRAY_ACCESS s2[seq<int>] 1[int])[int]
+             (ARRAY_ACCESS s1[seq<int>] 1[int])[int])
+         (:= s2[seq<int>]
+             (UPDATE s1[seq<int>] 0[int] 42[int])[seq<int>])
          (var l (TYPE int) (| s1[seq<int>])[int])))[scc_9]

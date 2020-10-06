@@ -160,6 +160,8 @@ public final class XMLProjectManager extends AbstractProjectManager {
                     .filter(dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename()))
                     .collect(Collectors.toList());
 
+            assert dfyFiles.size() <= 1;
+
             if(dfyFiles.isEmpty()) {
                 throw new IOException("Could not find Dafny file for pvc: " + pvc.toString());
             }
@@ -172,7 +174,7 @@ public final class XMLProjectManager extends AbstractProjectManager {
             try {
                 script = loadScriptForPVC(pvc.getIdentifier());
             } catch (FileNotFoundException ex) {
-                script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT);
+                script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT_PROP.key);
             }
 
             p.setScriptText(script);

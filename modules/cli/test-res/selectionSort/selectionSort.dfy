@@ -1,7 +1,12 @@
+
+settings {
+  "Default Script" = "boogie;"
+}
+
 method selectionSort(a: seq<int>) returns (r: seq<int>)
   ensures forall i: int :: forall j:int ::
        0 <= i < j < |r| ==> r[i] <= r[j]
-//  ensures asBag(a) == asBag(r)
+  ensures multiset(a) == multiset(r)
 {
   r := a;
   
@@ -12,7 +17,7 @@ method selectionSort(a: seq<int>) returns (r: seq<int>)
        0 <= i < j < x ==> r[i] <= r[j]
     invariant label above: x == 0 ||
           (forall k:int :: x <= k < |r| ==> r[x-1] <= r[k])
-//     invariant label bag: asBag(a) == asBag(r)
+    invariant multiset(a) == multiset(r)
     decreases |r| - x
   {
 
@@ -22,10 +27,10 @@ method selectionSort(a: seq<int>) returns (r: seq<int>)
       invariant label yInBounds: x <= y <= |r|
       invariant label mInBounds: x <= m <= y && m < |r|
       invariant label mIsMin: forall l: int :: x <= l < y ==> r[m] <= r[l]
-//      invariant asBag(a) == asBag(r)
+      invariant multiset(a) == multiset(r)
     decreases |r| - y
     {
-      if a[y] < a[m]
+      if r[y] < r[m]
       {
         m := y;
       }

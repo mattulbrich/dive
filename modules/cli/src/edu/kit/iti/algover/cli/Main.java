@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * This is the entry point of AlgoVer when used as a command line tool.
+ * This is the entry point of DIVE when used as a command line tool.
  *
  * Run the tool with "-help" or refer to {@link #prepareCommandLine()} to
  * find out about the command line options.

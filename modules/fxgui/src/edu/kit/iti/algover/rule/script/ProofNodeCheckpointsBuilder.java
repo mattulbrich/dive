@@ -25,7 +25,41 @@ public class ProofNodeCheckpointsBuilder {
         collect(node, pns, result);
         result.add(0, new ProofNodeCheckpoint(pns, new Position(0, 0), new Position(0, 0)));
 
-        return result;
+    @Override
+    @SuppressWarnings("unchecked") // REVIEW: Repair this as soon as the scripts are correctly generically treated
+    public Void visit(SimpleCaseStatement simpleCaseStatement) {
+        int selectedChildIdx = -1;
+        for (int i = 0; lastHandledNodes.size() > 0 && i < lastHandledNodes.get(inCase - 1).getChildren().size(); ++i) {
+            //TODO only label matching no sequent matching supported as of yet
+            if(simpleCaseStatement.getGuard() instanceof MatchExpression) {
+                if (simpleCaseStatement.getGuard().getText().
+                        substring(6, simpleCaseStatement.getGuard().getText().length() - 1).
+                        equals(lastHandledNodes.get(inCase - 1).getChildren().get(i).getLabel())) {
+                    selectedChildIdx = i;
+                }
+            } else if(simpleCaseStatement.getGuard() instanceof StringLiteral) {
+                if (simpleCaseStatement.getGuard().getText().
+                        substring(1, simpleCaseStatement.getGuard().getText().length() - 1).
+                        equals(lastHandledNodes.get(inCase - 1).getChildren().get(i).getLabel())) {
+                    selectedChildIdx = i;
+                }
+            } else {
+                throw new UnsupportedOperationException("Only string labels for case matches supported.");
+            }
+
+        }
+        if (selectedChildIdx != -1) {
+            ProofNodeSelector selector = new ProofNodeSelector(lastHandledSelectors.get(inCase - 1), selectedChildIdx);
+            Position position = simpleCaseStatement.getStartPosition();
+            Position guardPosition = simpleCaseStatement.getGuard().getEndPosition();
+            Position caretPosition = new Position(position.getLineNumber() + 1, 2);
+            checkpoints.add(new ProofNodeCheckpoint(selector, position, caretPosition));
+        }
+        // TODO: Find out how to get a ProofNodeSelector out of a specific case (rudimentary solution above)
+        // (so that you can click inside an empty case to see what it's sequent state looks like)
+        // (same for the CaseStatement visit)
+        simpleCaseStatement.getBody().forEach(statement -> statement.accept(this));
+        return null;
     }
 
     private static void collect(ProofNode node, ProofNodeSelector pns, List<ProofNodeCheckpoint> result) {

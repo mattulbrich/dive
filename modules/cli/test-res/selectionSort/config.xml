@@ -9,6 +9,6 @@
 <configuration>
     <dafnyFile>selectionSort.dfy</dafnyFile>
     <settings>
-      <entry><key>Default Script</key><value>z3;</value></entry>
+      <entry><key>Default Script</key><value>boogie;</value></entry>
     </settings>
 </configuration>

@@ -50,6 +50,7 @@ public class ParserTest {
                 { "../symbex/whileWithAnon.dfy" },
                 { "../symbex/havoc.dfy" },
                 { "../symbex/runtimeAssert.dfy" },
+                { "../symbex/functions.dfy" },
                 { "fields.dfy" },
                 { "../dafnystructures/declTest.dfy" },
                 { "referenceTest.dfy" },

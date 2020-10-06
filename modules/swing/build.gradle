@@ -1,0 +1,41 @@
+
+/*
+ * This file is part of AlgoVer.
+ *
+ * Copyright (C) 2015-2018 Karlsruhe Institute of Technology
+ *
+ */
+
+plugins {
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
+}
+
+dependencies {
+    implementation project(":core")
+    implementation project(":cli")
+    runtime project(":dafny")
+    implementation 'com.fifesoft:rsyntaxtextarea:3.0.3'
+    implementation 'com.formdev:flatlaf:0.35'
+    testImplementation project(':core').sourceSets.test.output
+}
+
+compileTestJava.dependsOn tasks.getByPath(':core:testClasses')
+
+run {
+    dependsOn tasks.getByPath(':core:classes')
+    mainClassName = 'edu.kit.iti.algover.swing.Main'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task swing {
+    dependsOn('run')
+}
+
+
+license {
+    header file("COMBINED_HEADER")
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    include "$projectDir/src/**/*.java"
+    exclude "$projectDir/gen/**/*.java"
+}

@@ -1,0 +1,22 @@
+### decls:
+
+s: set<int>
+
+### sequent:
+
+42 !in s |- |s| + 1 == |s + {42}|
+
+### result:
+prove
+
+### translation:
+const _s : Set (int);
+
+axiom $Is(_s, TSet(TInt));
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((_s[42]));
+  assume !(((Set#Card(_s) + 1) == Set#Card(Set#Union(_s, Set#UnionOne(Set#Empty(), 42)))));
+}

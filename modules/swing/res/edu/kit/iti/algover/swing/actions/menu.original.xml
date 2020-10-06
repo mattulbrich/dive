@@ -1,0 +1,398 @@
+<!--
+#
+# This file is part of This file is part of
+#    ivil - Interactive Verification on Intermediate Language
+#
+# Copyright (C) 2009 Universitaet Karlsruhe, Germany
+#    written by Mattias Ulbrich
+#
+# The system is protected by the GNU General Public License.
+# See LICENSE.TXT for details.
+#
+-->
+<barmanager>
+
+    <!-- If no package name given, assume the following prefix -->
+	<package>de.uka.iti.pseudo.gui.actions</package>
+
+	<!-- THE MAIN WINDOW -->
+	<prover>
+		
+		<toolbar onlyIcons="true">
+				proof.auto proof.pruneLast SEPARATOR
+				prover.openInEditor SEPARATOR 
+				file.loadProb file.loadProof file.saveProof SEPARATOR
+				proof.stepInstr proof.stepSource smt.active smt.patient 
+				proof.conjecture proof.snapshots
+		</toolbar>
+
+		<menubar>
+			prover.fileMenu prover.editorMenu prover.proofMenu prover.settingsMenu prover.experimentalMenu
+		</menubar>
+
+		<fileMenu text="File" mnemonic="F">
+			file.sampleBrowser file.loadProb file.loadURLProb file.reloadProb file.recentProb file.loadProof file.saveProof 
+			SEPARATOR general.close general.exit
+		</fileMenu>
+		
+		<editorMenu text="Editor" mnemonic="E">
+			prover.openInEditor editor.new editor.open	
+		</editorMenu>
+
+		<proofMenu text="Proof" mnemonic="P">
+			proof.prune proof.pruneLast proof.auto proof.autoSubtree proof.reintroduceHiddenTerm proof.axiom proof.conjecture proof.decProc
+			proof.snapshots	SEPARATOR proof.stepInstr proof.stepSource
+		</proofMenu>
+		
+		<settingsMenu text="Settings" mnemonic="S">
+			settings.verbosity settings.showNumbers settings.showProgramTrace prover.settingsMenu.prettyPrintingMenu smt.activation
+			smt.keepwindowopen settings.autoDnD settings.stepContinueWithoutProgram
+		    <prettyPrintingMenu text="Pretty printing" mnemonic="P">
+		    	SUBMENU settings.pp.typed settings.pp.fix settings.pp.mod
+		    </prettyPrintingMenu>
+        </settingsMenu>
+        
+        <experimentalMenu text="Experimental" mnemonic="X">
+           experimental.exportSMT experimental.exportEnv file.reloadAndReprove
+           experimental.saveDock
+        </experimentalMenu>
+        
+	</prover>
+	
+	<!-- THE STARTUP WINDOW -->
+	<startup>
+		<menubar>
+			startup.fileMenu	
+		</menubar>
+		<fileMenu text="File" mnemonic="F">
+			file.sampleBrowser SEPARATOR file.loadProb file.loadURLProb file.reloadProb file.recentProb SEPARATOR editor.open editor.new 
+			SEPARATOR general.exit	
+		</fileMenu>
+	</startup>
+	
+	<!-- THE EDITOR WINDOW -->
+	<editor>
+		<toolbar onlyIcons="true">
+			editor.loadAsProblem SEPARATOR 
+  			editor.new editor.open editor.save SEPARATOR 
+			editor.copy editor.cut editor.paste SEPARATOR
+			editor.findDialog	
+		</toolbar>
+		
+		<menubar>
+			editor.fileMenu editor.proverMenu editor.editMenu editor.settingsMenu editor.helpMenu		
+		</menubar>
+		
+		<fileMenu text="File" mnemonic="F">
+			editor.new editor.open editor.save editor.saveAs SEPARATOR general.close general.exit	
+		</fileMenu>
+		
+		<proverMenu text="Prover" mnemonic="P">
+			editor.loadAsProblem file.loadProb
+		</proverMenu> 
+		
+		<editMenu text="Edit" mnemonic="E">
+			editor.copy editor.cut editor.paste 
+			SEPARATOR editor.undo editor.redo
+			SEPARATOR editor.toggleComment
+			editor.findDialog
+		</editMenu>
+		
+		<settingsMenu text="Settings" mnemonic="S">
+			editor.settings.lineWrap editor.settings.syntaxHighlighting editor.settings.syntaxChecking
+		    editor.settings.syntaxChecker
+		</settingsMenu>
+		
+		<helpMenu text="Help" mnemonic="H">
+		        editor.help.referenceManual
+		</helpMenu>
+		
+		<popup>
+			editor.popup.jumpToErrorLine editor.popup.openErrorFile
+		    SEPARATOR editor.copy editor.cut editor.paste
+			SEPARATOR editor.undo editor.redo
+			SEPARATOR editor.toggleComment
+		</popup>
+		
+		<errorpopup>
+			editor.popup.jumpToErrorLine editor.popup.openErrorFile
+		</errorpopup>
+	</editor>
+	
+	<!--
+	  ===== ACTIONS ======
+	-->
+	<editor>
+		<popup>
+			<jumpToErrorLine>ACTION PopupOpenErrorLine</jumpToErrorLine>
+			<openErrorFile>ACTION PopupOpenErrorFile</openErrorFile>
+		</popup>
+		
+		<!--img/bullet_orange.png ? -->
+		
+		<save>ACTION editor/SaveEditorAction
+            <icon>img/page_white_text_save.png</icon>
+            <text>Save</text>
+            <accelerator>control S</accelerator>
+            <tooltip>save the edited file</tooltip>
+            <mnemonic>S</mnemonic>
+        </save> 
+		<saveAs>ACTION editor/SaveAsEditorAction
+            <icon>img/page_white_text_save.png</icon>
+            <text>Save As ...</text>
+            <tooltip>save the edited file under a new name</tooltip>
+            <mnemonic>A</mnemonic>
+        </saveAs>
+		<new>ACTION editor/NewEditorAction
+            <icon>img/page_white_text_new.png</icon>
+        </new>
+		<open>ACTION editor/OpenEditorAction
+            <icon>img/page_white_text_edit.png</icon>
+        </open>
+		<loadAsProblem>ACTION editor/LoadEditedProblemAction
+		<tooltip>open the currently edited problem in a new prover window</tooltip>
+		<accelerator>control R</accelerator>
+            <icon>img/link_go.png</icon>
+        </loadAsProblem>
+		
+		<toggleComment text="Toggle comment on selection" icon="img/comment.png" mnemonic="M">
+			COMMAND RSTA.ToggleCommentAction
+			<tooltip>Switch on or off the comments for the selected area</tooltip>
+		</toggleComment>
+		
+		<copy text="Copy" tooltip="Copy to clipboard" icon="img/page_white_copy.png">
+			COMMAND copy-to-clipboard
+		</copy>
+		
+		<cut text="Cut" tooltip="Cut to clipboard" icon="img/cut_red.png">
+			COMMAND cut-to-clipboard
+		</cut>
+		
+		<paste text="Paste" tooltip="Paste from clipboard" icon="img/page_white_paste.png">
+			COMMAND cut-to-clipboard
+		</paste>
+		
+		<undo text="Undo" tooltip="Undo last edit change" icon="img/arrow_undo.png">
+			COMMAND RTA.UndoAction	
+		</undo>
+		
+		<redo text="Redo" tooltip="Redo last edit change undone" icon="img/arrow_redo.png">
+			COMMAND RTA.RedoAction	
+		</redo>
+		
+		<findDialog text="Search...">
+			ACTION editor/OpenSearchDialogAction
+			<tooltip>Search in the editor pane</tooltip>
+			<icon>img/find.png</icon>
+			<accelerator>control F</accelerator>
+		</findDialog>
+		
+		<settings>
+			<lineWrap>TOGGLE_ACTION editor/EditorPropertyAction lineWrap
+				<text>Wrap long lines</text>
+				<tooltip>break long lines for display</tooltip>
+			</lineWrap>
+			<syntaxChecking>TOGGLE_ACTION editor/EditorPropertyAction syntaxCheck
+				<text>Syntax checking</text>
+				<tooltip>automatically check for syntax errors every 500ms</tooltip>
+			</syntaxChecking>
+            <syntaxHighlighting>TOGGLE_ACTION editor/EditorPropertyAction syntaxHighlight
+                <text>Syntax highlighting</text>
+                <tooltip>mark up ivil syntax in the edited file</tooltip>
+            </syntaxHighlighting>
+            <syntaxChecker>COMPONENT de.uka.iti.pseudo.gui.editor.SyntaxCheckerChooser</syntaxChecker>
+		</settings>
+		<help>
+		   <referenceManual >ACTION editor/ReferenceManualAction
+		       <text>Show reference manual</text>
+		   </referenceManual>
+		</help>
+	</editor>
+
+	<prover>
+		<openInEditor>ACTION editor/OpenCurrentInEditorAction
+		    <icon>img/page_white_text_edit.png</icon>
+		</openInEditor>
+	</prover>
+	
+	<file>
+	       <sampleBrowser>ACTION io/SampleBrowserAction
+	               <tooltip>Show a collection of samples provided with the tool</tooltip>
+	               <mnemonic>B</mnemonic>
+	               <text>Samples ...</text>
+	       </sampleBrowser>
+		<loadProb>ACTION io/LoadProblemAction
+			<tooltip>open a proof obligation in a new window</tooltip>
+			<accelerator>control O</accelerator>
+			<mnemonic>O</mnemonic>
+			<text>Load problem ...</text>
+			<icon>img/page_white_text.png</icon>
+		</loadProb>
+		<loadURLProb>ACTION io/LoadProblemURLAction
+			<tooltip>open a proof obligation from a URL in a new window</tooltip>
+			<mnemonic>U</mnemonic>
+			<text>Load problem from URL ...</text>
+			<icon>img/page_white_world.png</icon></loadURLProb>
+		<reloadProb>ACTION io/ReloadProblemAction
+			<tooltip>reload the last problem file into a new window</tooltip>
+			<mnemonic>R</mnemonic>
+			<accelerator>control R</accelerator>
+			<text>Reload problem</text>
+			<icon>img/page_white_green_text.png</icon>
+		</reloadProb>
+		<reloadAndReprove>ACTION io/ReloadAndReproveProblemAction
+			<tooltip>reload the problem of the current frame into a 
+			   new frame and replay this proof.</tooltip>
+			<mnemonic>L</mnemonic>
+			<accelerator>control shift R</accelerator>
+			<text>Reload and reprove problem</text>
+		</reloadAndReprove>
+		<recentProb>COMPONENT RecentProblemsMenu</recentProb>
+		<loadProof>ACTION io/LoadProofAction
+			<tooltip>load a proof to the currently active problem</tooltip>
+			<text>Load proof ...</text>
+			<mnemonic>P</mnemonic>
+			<icon>img/page.png</icon>
+		</loadProof>
+		<saveProof>ACTION io/SaveProofAction
+			<tooltip>save a proof to the currently active problem</tooltip>
+			<text>Save proof ...</text>
+			<accelerator>control S</accelerator>
+			<mnemonic>S</mnemonic>
+			<icon>img/page_save.png</icon>
+		</saveProof>
+	</file>
+
+	<proof>
+		<prune>ACTION proof/PruneAction
+			<icon>img/cut.png</icon>
+		</prune>
+		<pruneLast>ACTION proof/PruneLastAction
+			<icon>img/cut_undo.png</icon>
+		</pruneLast>
+		<auto>ACTION auto/AutoProofAction</auto>
+		<autoSubtree>ACTION auto/AutoProofSubtreeAction</autoSubtree>
+		<reintroduceHiddenTerm>ACTION sequent/ReintroduceHiddenTermAction
+			<icon>img/book_next_grey.png</icon>
+		</reintroduceHiddenTerm>
+		<axiom>ACTION InsertAxiomAction</axiom>
+		<conjecture>ACTION ConjectureAction
+			<icon>img/lightbulb_add.png</icon>
+		</conjecture>
+		<decProc>TODO Decision Procedure</decProc>
+		<stepInstr>ACTION auto/StepInstructionAction
+			<icon>img/control_play.png</icon>
+		</stepInstr>
+		<stepSource>ACTION auto/StepSourceAction
+			<icon>img/control_fastforward.png</icon>
+		</stepSource>
+		<snapshots>ACTION SnapshotManagerAction</snapshots>
+		<contextExtensions>COMPONENT de.uka.iti.pseudo.gui.actions.proof.ContextExtensionsMenu
+		      <params>proof</params> <!-- "sequent" in sequent view -->
+		</contextExtensions>	    
+	</proof>
+
+	<smt>
+		<active>ACTION SMTBackgroundAction</active>
+		<activation>TOGGLE_ACTION ProofCenterPropertyAction pseudo.smt.background
+			<mnemonic>B</mnemonic>
+			<text>Background SMT</text>
+			<tooltip>Activate background SMT solver</tooltip>
+		</activation>
+		<keepwindowopen>TOGGLE_ACTION ProofCenterPropertyAction pseudo.smt.keepwindowopen
+			<text>Keep SMT window open</text>
+			<tooltip>Keep the SMT solver status window open after completion</tooltip>
+			<mnemonic>W</mnemonic>
+		</keepwindowopen>
+		<patient>ACTION SMTPatientAction
+			<icon>img/smt_patient.png</icon>
+			<tooltip>Run constraint solver with longer timeout</tooltip>
+			<text>Run SMT solver patiently</text>
+		</patient>
+	</smt>
+
+	<settings>
+		<verbosity>ACTION view/VerbosityAction</verbosity>
+        <showNumbers>TOGGLE_ACTION view/ShowNumbersInTreeAction</showNumbers>
+        <showProgramTrace>TOGGLE_ACTION view/ShowProgramTraceAction</showProgramTrace>
+        <autoDnD>TOGGLE_ACTION UseHighestPriorityDragAndDropAction</autoDnD>
+		<pp>
+			<typed>TOGGLE_ACTION view/PrettyPrintTypedRadioAction</typed>
+			<fix>TOGGLE_ACTION view/PrettyPrintFixedRadioAction</fix>
+			<mod>TOGGLE_ACTION view/PrettyPrintPluginsRadioAction</mod>
+		</pp>
+		<stepContinueWithoutProgram>
+			TOGGLE_ACTION ProofCenterPropertyAction pseudo.step.continueWithoutProgram
+		    <text>Continue without program</text>
+		    <tooltip>Continue automitic proving on branches w/o program</tooltip>
+		</stepContinueWithoutProgram>
+	</settings>
+	
+	<experimental>
+		<exportSMT>ACTION experiments/ExportSMTAction
+			<text>Export SMT of current node</text>
+		</exportSMT>
+		<exportEnv>ACTION experiments/ExportEnvironmentAction
+			<text>Export the current environment</text>	
+		</exportEnv>
+		<saveDock>ACTION experiments/SaveDockAction
+                        <text>Save docking</text>
+                        <tooltip>Save the state of the docking windows to a file</tooltip>
+                </saveDock>
+                <loadDock>ACTION experiments/LoadDockAction
+                        <text>Load docking</text>
+                        <tooltip>Load the state of the docking windows from a file</tooltip>
+                </loadDock>
+	</experimental>  
+		
+	<general>
+		<close>ACTION CloseAction
+			<mnemonic>C</mnemonic>
+			<tooltip>Closes the current window</tooltip>
+			<accelerator>control W</accelerator>
+			<text>Close</text>
+			<icon>img/bullet_orange.png</icon>
+		</close>
+		<exit>ACTION ExitAction</exit>
+	</general>
+	
+	<!--
+	  === COMPONENT MENUS ===
+	-->
+	<proofComponent>
+		<popup>
+			proofComponent.expandHere proofComponent.expandAll settings.verbosity 
+			SEPARATOR proof.prune proof.conjecture proof.auto proof.autoSubtree
+			SEPARATOR proof.contextExtensions
+		</popup>
+		<expandHere>ACTION view/ExpandProofTreeBelowAction
+		    <icon>img/bullet_toggle_plus.png</icon>
+		</expandHere>
+		<expandAll>ACTION view/FullyExpandProofTreeAction
+		    <icon>img/bullet_toggle_2plus.png</icon>
+		</expandAll>
+	</proofComponent>
+	
+	<termComponent>
+		<popup>
+			termComponent.showInfo termComponent.jumpToIntroduction
+			termComponent.autoHere proof.axiom termComponent.reintroduceHiddenTerm
+			SEPARATOR
+			termComponent.copy termComponent.copyPretty
+			SEPARATOR
+			termComponent.contextExtensions
+		</popup>
+		<showInfo>ACTION sequent/ShowTermInformation</showInfo>
+		<jumpToIntroduction>ACTION sequent/JumpToIntroductionAction</jumpToIntroduction>
+        <autoHere>TODO Apply automatic rules here </autoHere>
+        <reintroduceHiddenTerm>ACTION sequent/ReintroduceHiddenTermAction
+            <icon>img/book_next_grey.png</icon>
+        </reintroduceHiddenTerm>
+        <copy>ACTION sequent/CopyTerm</copy>
+        <copyPretty>ACTION sequent/CopyPrettyTerm</copyPretty>
+        <contextExtensions>COMPONENT de.uka.iti.pseudo.gui.actions.proof.ContextExtensionsMenu
+             <params>term</params> <!-- "proof" in proof view -->
+        </contextExtensions> 
+	</termComponent>
+
+</barmanager>

@@ -23,10 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -53,6 +50,11 @@ public class SymbexExpressionValidatorTest {
                         "method m(a: seq<int>) ensures a[0] == 0 {}",
                         new int[]{0, 2, 0},
                         Arrays.asList("[][RT_IN_BOUNDS:(&& (<= 0 0) (< 0 (Length a)))]")
+                },
+                {
+                        "method m(a: multiset<object>) ensures a[null] == 0 {}",
+                        new int[]{0, 2, 0},
+                        Collections.emptyList()
                 },
                 {
                         "method m(x: int) ensures 1/x == 1 {}",
@@ -92,6 +94,13 @@ public class SymbexExpressionValidatorTest {
                         new int[]{0, 2, 0},
                         Arrays.asList("[][RT_NONNULL:(!= a null)]",
                                 "[][RT_IN_BOUNDS:(&& (<= 0 1) (< 1 (Length a)))]",
+                                "[][RT_IN_BOUNDS:(&& (<= 0 2) (< 2 (Length a)))]")
+                },
+
+                {
+                        "method m(a: array<int>, x:int) ensures a[..2] == [] {}",
+                        new int[]{0, 2, 0},
+                        Arrays.asList("[][RT_NONNULL:(!= a null)]",
                                 "[][RT_IN_BOUNDS:(&& (<= 0 2) (< 2 (Length a)))]")
                 },
 
@@ -226,6 +235,14 @@ public class SymbexExpressionValidatorTest {
                                 "[][RT_DIV0:(ALL y x (TYPE int) (!= y 0))]",
                                 "[][RT_DIV0:(ALL y x (TYPE int) (!= x 0))]")
                 },
+                // for new seq update, revealed a bug
+                {
+                        "method m(s: seq<int>) ensures s[0:=0][0] == 0 {}",
+                        new int[]{0, 2, 0},
+                        Arrays.asList(
+                                "[][RT_IN_BOUNDS:(&& (<= 0 0) (< 0 (Length s)))]",
+                                "[][RT_IN_BOUNDS:(&& (<= 0 0) (< 0 (Length (UPDATE s 0 0))))]")
+                }
                 };
     }
 

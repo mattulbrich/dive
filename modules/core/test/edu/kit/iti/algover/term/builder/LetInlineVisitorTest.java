@@ -42,6 +42,8 @@ public class LetInlineVisitorTest {
               "0+1+1 > 0"},
             { "let x := 0 :: let x := x + 1 :: forall x :: let x := x + 1 :: x > 0",
               "forall x :: x+1 > 0"},
+            // suspected problem with name hiding; was a bug.
+            { "let x:= i :: forall i :: x == i", "forall i_1 :: i == i_1" },
         };
     }
 
@@ -57,6 +59,7 @@ public class LetInlineVisitorTest {
         Term inlined =  LetInlineVisitor.inline(inputTerm);
 
         assertEquals(expectTerm, inlined);
+        assertTrue(AlphaNormalisation.isNormalised(inlined));
     }
 
     @Test

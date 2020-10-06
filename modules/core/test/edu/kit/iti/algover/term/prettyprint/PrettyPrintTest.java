@@ -79,6 +79,18 @@ public class PrettyPrintTest {
             { "! !b1" },
             { "!(b1 && b1)" },
             { "1 != 2" },
+            { "b1 && (b1 && b1)" },
+            { "b1 && b1 && b1" },
+        };
+    }
+
+    public Object[][] parametersForTestWithLinebreak() {
+        return new Object[][] {
+            { "b1 && b1", "   b1\n&& b1", 5 },
+            { "(b1 && b1) && b1", "   b1\n&& b1\n&& b1", 5 },
+            { "(b1 || b1) || b1", "   b1\n|| b1\n|| b1", 5 },
+            { "b1 && (b1 && b1)", "   b1\n&& (   b1\n    && b1)", 7 },
+            { "b1 || b1 && b1",   "   b1\n||    b1\n   && b1", 7 }
         };
     }
 
@@ -108,6 +120,7 @@ public class PrettyPrintTest {
             { "a[0] + 1" }, { "1 + a[0]" },
             { "1 + o.f@h2"}, { "o.f@h2 + 1"},
             { "1 + a[0]@h2"}, { "a[0]@h2 + 1"},
+            { "a[0]@h2[o.f := 5] == a[0]@h2" },
         };
     }
 
@@ -127,8 +140,11 @@ public class PrettyPrintTest {
     public String[][] parametersForTestADTExpressions() {
         return new String[][] {
             { "|sq|" }, { "|st|" }, { "st + st" }, { "sq + sq" },
+            { "|ms|" },
             { "{1, 2, 3}" }, { "[1, 2, 3]"},
             { "sq[0]" },
+            { "{0} == {0}" },
+            { "[0] == [0]" },
         };
     }
 
@@ -165,6 +181,8 @@ public class PrettyPrintTest {
         st.addFunctionSymbol(new FunctionSymbol("sq", Sort.get("seq", Sort.INT)));
         st.addFunctionSymbol(new FunctionSymbol("st", Sort.get("set", Sort.INT)));
 
+        st.addFunctionSymbol(new FunctionSymbol("ms", Sort.get("multiset", Sort.INT)));
+
         st.addFunctionSymbol(new FunctionSymbol("o", C));
         st.addFunctionSymbol(new FunctionSymbol("C$$f", Sort.get("field", C, Sort.INT)));
     }
@@ -195,6 +213,17 @@ public class PrettyPrintTest {
         AnnotatedString printed = new PrettyPrint().print(parsed);
 
         assertEquals(input, printed.toString());
+    }
+
+    @Test @Parameters
+    public void testWithLinebreak(String input, String expected, Integer linewidth)
+             throws DafnyParserException, DafnyException {
+
+        Term parsed = TermParser.parse(st, input);
+        PrettyPrint pp = new PrettyPrint();
+        AnnotatedString printed = pp.print(parsed, linewidth);
+
+        assertEquals(expected, printed.toString());
     }
 
     @Test @Parameters
@@ -287,17 +316,17 @@ public class PrettyPrintTest {
      * substitutions as subterms
      */
 
-    @Test @Ignore
+    @Test
     public void testAnnotations2() throws Exception {
         Term t = TermParser.parse(st, "let var x := i1 + i1 :: (x == i1)");
         AnnotatedString as = new PrettyPrint().print(t);
-        assertEquals("let x := i1 + i1 :: i1 = i1)", as.toString());
-        assertEquals("[Element[begin=8;end=15;attr=1], " +
-                "Element[begin=8;end=10;attr=1.0], " +
-                "Element[begin=13;end=15;attr=1.1], " +
-                "Element[begin=17;end=26;attr=0], " +
-                "Element[begin=18;end=20;attr=0.0], " +
-                "Element[begin=23;end=25;attr=0.1]]", as.describeAllElements());
+        assertEquals("let x := i1 + i1 :: x == i1", as.toString());
+        assertEquals("[Element[begin=9;end=16;attr=1], " +
+                "Element[begin=9;end=11;attr=1.0], " +
+                "Element[begin=14;end=16;attr=1.1], " +
+                "Element[begin=20;end=27;attr=0], " +
+                "Element[begin=20;end=21;attr=0.0], " +
+                "Element[begin=25;end=27;attr=0.1]]", as.describeAllElements());
 
     }
 

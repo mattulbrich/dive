@@ -1,0 +1,22 @@
+### decls:
+
+s: multiset<int>
+
+### sequent:
+
+5 in s |- | s + multiset{5,5} | == |s| + 2
+
+### result:
+prove
+
+### translation:
+const _s : MultiSet (int);
+
+axiom $Is(_s, TMultiSet(TInt));
+
+procedure Sequent()
+  ensures false;
+{
+  assume (_s[5] > 0);
+  assume !((MultiSet#Card(MultiSet#Union(_s, MultiSet#UnionOne(MultiSet#UnionOne(MultiSet#Empty(), 5), 5))) == (MultiSet#Card(_s) + 2)));
+}

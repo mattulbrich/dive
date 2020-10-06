@@ -19,7 +19,7 @@ tokens {
   ARRAY_ACCESS;
   NOETHER_LESS;
   WILDCARD;
-  HEAP_UPDATE;
+  UPDATE;
   TYPED_SCHEMA;
 }
 
@@ -62,6 +62,14 @@ tokens {
   public void setSchemaMode(boolean b) { this.schemaMode = b; }
 }
 
+
+@lexer::members {
+  @Override
+  public void reportError(RecognitionException e) {
+    throw new RuntimeException(e);
+  }
+}
+
 // exit upon first error
 @rulecatch {
   catch (RecognitionException e) {
@@ -83,6 +91,7 @@ FALSE: 'false';
 FREE: 'free';
 FRESH: 'fresh';
 FUNCTION: 'function';
+GHOST: 'ghost';
 IF: 'if';
 IN : 'in';
 INCLUDE : 'include';
@@ -150,7 +159,7 @@ LENGTH: 'Length' ('0' .. '9')*;
 ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
 
 // Is resolved by a syntactic sugar visitor: ResolveUnicodeVisitor!
-UNICODE_INDEXED_ID : ID ('\u2080' .. '\u2089')+;
+UNICODE_INDEXED_ID : ( ID | LOGIC_ID ) ('\u2080' .. '\u2089')+;
 
 ID : ('a' .. 'z' | 'A' .. 'Z' | '_' )
      ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
@@ -182,6 +191,10 @@ ALGOVER_COMMENT: '//>'                { $channel = HIDDEN; };
 SINGLELINE_COMMENT: '//' ( ~('>'|'\r'|'\n') ~('\r' | '\n')* )?
                                          { $channel = HIDDEN; };
 MULTILINE_COMMENT: '/*' .* '*/'          { $channel = HIDDEN; };
+
+MULTILINE_COMMENT_BEGIN: '/*' ~('\n')* EOF { $channel = HIDDEN; };
+
+UNKNOWN_CHARACTER: .;
 
 label:
   'label'^ ID ':'!
@@ -219,7 +232,7 @@ clazz:
   ;
 
 method:
-  ( 'ghost' )?
+  ( GHOST )?
   tok = ('method' | 'lemma')
   ID '(' vars? ')'
   ( returns_ )?
@@ -247,7 +260,7 @@ function:
   ;
 
 field:
-  ( 'ghost' )? 'var' ID ':' typeRef (';')?
+  ( GHOST )? 'var' ID ':' typeRef (';')?
     -> ^(FIELD ID typeRef)
   ;
 
@@ -264,9 +277,10 @@ var:
 type:
     INT | BOOL | OBJECT
   | SET^ '<'! type '>'!
+  | MULTISET^ '<'! type '>'!
   | ARRAY^ '<'! type '>'!
   | SEQ^ '<'! type '>'!
-  | ID^ ( '<'! type ( ','! type )* '>'! )?
+  | ID^ ( '?'! )? ( '<'! type ( ','! type )* '>'! )?
   ;
 
 typeRef:
@@ -314,9 +328,9 @@ block:
     decl : 'int' ID (',' ID)* -> ^('int' ID)+ ;
 */
 varDecl:
-    VAR ID ( ',' ID )+ ':' typeRef ';' -> ^(VAR ID typeRef)+
-  | VAR^ ID ( ':'! typeRef (':='! (expression | new_expression))?
-           | ':='! (expression | new_expression) ) ';'!
+    ( GHOST )? VAR ID ( ',' ID )+ ':' typeRef ';' -> ^(VAR ID typeRef)+
+  | ( GHOST! )? VAR^ ID ( ':'! typeRef (':='! (expression | new_expression))?
+                       | ':='! (expression | new_expression) ) ';'!
   ;
 
 statements:
@@ -386,9 +400,14 @@ ids:
 //
 // ---------------- Sequents ... entry point for logic
 //
+// Since |- does not make sense for Length expressions (|-a|),
+// we give it syntactic priority here. The grammar would not
+// be unique otherwise. Having a token '|-' would disallow '|a|-1'
+// which occurs rather often.
 
 sequent:
-  ante=expressions? '|-' succ=expressions? EOF -> ^(SEQ ^(BLOCK $ante?) ^(BLOCK $succ?))
+    ('|' '-') => '|' '-' succ=expressions? EOF -> ^(SEQ ^(BLOCK) ^(BLOCK $succ?))
+  | ante=expressions '|' '-' succ=expressions? EOF -> ^(SEQ ^(BLOCK $ante?) ^(BLOCK $succ?))
   ;
 
 //
@@ -472,7 +491,7 @@ usual_or_logic_id_or_this:
 
 postfix_expr:
   ( atom_expr -> atom_expr )   // see ANTLR ref. page 175
-  ( '[' expression ( {logicMode}? ':=' expression ']'     -> ^( HEAP_UPDATE $postfix_expr expression expression )
+  ( '[' expression ( ':=' expression ']'     -> ^( UPDATE $postfix_expr expression expression )
                    | ( ',' expression )* ']' -> ^( ARRAY_ACCESS $postfix_expr expression+ )
                    | '..' expression? ']' -> ^( ARRAY_ACCESS $postfix_expr ^('..' expression+))
                    )
@@ -523,7 +542,8 @@ atom_expr:
   | '('! expression ')'!
   | t='{' ( expression ( ',' expression )* )? '}' -> ^(SETEX[t] expression*)
   | t='[' ( expression ( ',' expression )* )? ']' -> ^(LISTEX[t] expression*)
-  | 'multiset' '{' expression ( ',' expression )* '}' -> ^(MULTISETEX expression+)
+  | t='multiset' '{' ( expression ( ',' expression )* )? '}' -> ^(MULTISETEX[t] expression*)
+  | 'multiset' '(' expression ')' -> ^('multiset' expression)
   ;
 
 schema_entity:

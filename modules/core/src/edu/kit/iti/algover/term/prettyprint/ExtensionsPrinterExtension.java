@@ -20,7 +20,8 @@ public class ExtensionsPrinterExtension implements PrettyPrintExtension {
     @Override
     public boolean canPrint(FunctionSymbol functionSymbol) {
         return  isInstanceOf(functionSymbol, BuiltinSymbols.SET_ADD) ||
-                isInstanceOf(functionSymbol, BuiltinSymbols.SEQ_CONS);
+                isInstanceOf(functionSymbol, BuiltinSymbols.SEQ_CONS) ||
+                isInstanceOf(functionSymbol, BuiltinSymbols.MULTI_SET_ADD);
     }
 
     private boolean isInstanceOf(FunctionSymbol functionSymbol, FunctionSymbolFamily family) {
@@ -34,14 +35,14 @@ public class ExtensionsPrinterExtension implements PrettyPrintExtension {
 
     @Override
     public int getLeftPrecedence(ApplTerm application) {
-        return 0;
-        // TODO find out!
+        // very high number since it starts with an unambigouous token ']'
+        return 1000;
     }
 
     @Override
     public int getRightPrecedence(ApplTerm application) {
-        return 0;
-        // TODO find out
+        // very high number since it ends with an unambigouous token ']'
+        return 1000;
     }
 
     @Override
@@ -76,6 +77,9 @@ public class ExtensionsPrinterExtension implements PrettyPrintExtension {
         } else if (fs.equals(BuiltinSymbols.SEQ_EMPTY)) {
             open = "[";
             close = "]";
+        } else if (fs.equals(BuiltinSymbols.EMPTY_MULTI_SET)) {
+            open = "multiset{";
+            close = "}";
         } else {
             prettyPrintVisitor.printApplication(application);
             return;

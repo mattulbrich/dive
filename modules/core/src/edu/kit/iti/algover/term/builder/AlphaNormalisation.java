@@ -175,7 +175,7 @@ public class AlphaNormalisation {
             unbounds = unbounds.remove(boundVar);
             VariableTerm newBoundVar = mkNewVar(boundVar, unbounds);
             if (newBoundVar == boundVar) {
-                return super.visit(quantTerm, replacements);
+                return super.visit(quantTerm, replacements.removeKey(boundVar));
             } else {
                 // There is a name clash!
                 Term matrix = quantTerm.getTerm(0).accept(this, replacements.put(boundVar, newBoundVar));
@@ -195,7 +195,9 @@ public class AlphaNormalisation {
             boolean changed = false;
             for (Pair<VariableTerm, Term> subst : letTerm.getSubstitutions()) {
                 VariableTerm newVar = mkNewVar(subst.getFst(), unbounds);
-                if (newVar != subst.fst) {
+                if (newVar == subst.fst) {
+                    innerReplacements = innerReplacements.removeKey(subst.fst);
+                } else {
                     changed = true;
                     innerReplacements = innerReplacements.put(subst.fst, newVar);
                 }

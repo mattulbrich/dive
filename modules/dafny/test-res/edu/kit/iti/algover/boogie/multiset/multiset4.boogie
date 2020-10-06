@@ -1,0 +1,21 @@
+### decls:
+
+s: multiset<int>
+
+### sequent:
+
+|- s * s == s
+
+### result:
+prove
+
+### translation:
+const _s : MultiSet (int);
+
+axiom $Is(_s, TMultiSet(TInt));
+
+procedure Sequent()
+  ensures false;
+{
+  assume !(MultiSet#Equal(MultiSet#Intersection(_s, _s), _s));
+}

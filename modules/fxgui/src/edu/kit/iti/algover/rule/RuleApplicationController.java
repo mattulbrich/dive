@@ -6,22 +6,22 @@
 package edu.kit.iti.algover.rule;
 
 import com.jfoenix.controls.JFXRadioButton;
-import com.jfoenix.controls.JFXToggleButton;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.Lookup;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.rule.script.ScriptController;
 import edu.kit.iti.algover.rule.script.ScriptView;
-import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.rules.ProofRule;
+import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.RuleException;
+import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
-import edu.kit.iti.algover.util.ExceptionDialog;
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -29,10 +29,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.HBox;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
-import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -107,6 +105,28 @@ public class RuleApplicationController extends FxmlController implements Referen
             }
         });*/
 
+        PropertyManager.getInstance().selectedTerm.addListener(((observable, oldValue, newValue) -> considerApplication(
+                PropertyManager.getInstance().currentProofNode.get(),
+                PropertyManager.getInstance().currentProofNode.get().getSequent(),
+                PropertyManager.getInstance().selectedTerm.get()
+        )));
+        PropertyManager.getInstance().currentProofNode.addListener(((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                considerApplication(
+                        PropertyManager.getInstance().currentProofNode.get(),
+                        PropertyManager.getInstance().currentProofNode.get().getSequent(),
+                        PropertyManager.getInstance().selectedTerm.get());
+            }
+        }));
+        PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
+            if(PropertyManager.getInstance().currentProofNode.get() != null) {
+                considerApplication(
+                        PropertyManager.getInstance().currentProofNode.get(),
+                        PropertyManager.getInstance().currentProofNode.get().getSequent(),
+                        PropertyManager.getInstance().selectedTerm.get()
+                );
+            }
+        }));
 
         logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         this.manager = manager;
@@ -125,17 +145,22 @@ public class RuleApplicationController extends FxmlController implements Referen
     }
 
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
-        try {
-            Term term = selector.selectSubterm(selection);
-            String prettyPrinted = new PrettyPrint().print(term, 60).toString();
-            termToConsider.setText(prettyPrinted);
-        } catch (RuleException e) {
-            e.printStackTrace();
+        if(target != null) {
+            if (selector != null && selector.isValidForSequent(selection)) {
+                try {
+                    Term term = selector.selectSubterm(selection);
+                    String prettyPrinted = new PrettyPrint().print(term, 60).toString();
+                    termToConsider.setText(prettyPrinted);
+                } catch (RuleException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                termToConsider.setText("");
+            }
+            ruleGrid.getAllRules().forEach(ruleView -> ruleView.considerApplication(target, selection, selector));
+
+            ruleGrid.filterRules();
         }
-        ruleGrid.getAllRules().forEach(ruleView -> ruleView.considerApplication(target, selection, selector));
-
-        ruleGrid.filterRules();
-
     }
 
     public void resetConsideration() {

@@ -49,6 +49,9 @@ public abstract class DefaultFocusProofRule extends AbstractProofRule {
 
     @Override
     public final ProofRuleApplication considerApplication(ProofNode target, Sequent selection, TermSelector selector) throws RuleException {
+        if(selector == null) {
+            return ProofRuleApplicationBuilder.notApplicable(this);
+        }
 
         try {
             Parameters params = new Parameters();

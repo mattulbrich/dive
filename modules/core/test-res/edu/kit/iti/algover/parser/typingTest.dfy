@@ -176,7 +176,9 @@ class C
 
       s2 := s1;
       s2[0] := 0;
-      s1[1] := s2[1];
+      s2[1] := s1[1];
+
+      s2 := s1[0 := 42];
 
       var l := |s1|;
    }
@@ -206,7 +208,11 @@ class C
      modifies { this, a }
    {
      var s2 := { 1, 2, 3 };
-    // var s3 := { 1 } + { 2 };
+     var s3 := { 1 } + { 2 };
+     s3 := { 1 } * { 2 };
+     s3 := { 1 } - { 2 };
+     var s4 := 1 in {  };
+     var s5 := 2 !in {2};
    }
 
    method arrays2() {
@@ -237,9 +243,10 @@ class C
      ensures s[0..] == s[..1] == s[0..1];
    { }
 
-   method extensions(l: seq<int>, s: set<int>)
+   method extensions(l: seq<int>, s: set<int>, ms: multiset<int>)
      requires l == [1,2,3]
      requires s == {1,2,3}
+     requires ms == multiset{1, 1, 2}
      ensures l != []
      ensures [] == []
      ensures s != {}
@@ -305,4 +312,37 @@ class C
       setC := { null };
    }
 
+   method subset(a: set<object>, b: set<C>)  returns (r: bool)
+   {
+      r := b <= a;
+      r := b < a;
+      r := a >= b;
+      r := a > b;
+   }
+
+   function functionWithContract(c: C) : int
+      reads c, {c}
+      reads c
+      decreases c.intfield
+      requires true
+   {
+      0
+   }
+
+   method multisetTest()
+   {
+     var s2 := multiset{ 1, 2, 3 };
+     s2 := s2 + s2;
+     s2 := s2 * s2;
+     s2 := s2 - s2;
+     var b1 := 42 in s2;
+     var b2 := 2 !in s2;
+
+     s2 := multiset({1,2});
+     s2 := multiset([1,2]);
+
+     var count := s2[42];
+     var o: object;
+     var count2 := multiset{o,o}[o];
+   }
 }

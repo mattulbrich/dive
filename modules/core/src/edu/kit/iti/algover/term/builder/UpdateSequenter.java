@@ -32,7 +32,21 @@ import edu.kit.iti.algover.util.Util;
 
 /**
  * Update sequencer are a family of different sequent translation algorithms
- * that result in a let-cascade modelling the history assignments.
+ * that result in a let-cascade modelling the history of assignments.
+ *
+ * The method {@link #postProcess(ProofFormula, Map)} discerns the different members
+ * of the family. They modify the original let-cascade according to their needs.
+ *
+ * @divedoc "VC generation/Updates"
+ *
+ * <h2>Sequent Generation with updates for assignments</h2>
+ *
+ * <p><b>Name: <tt>ass-seq</tt></b></p>
+ *
+ * <p>Update sequencer is sequent production following the principle of weakest
+ * preconditions. Assignments are not done by substitution however, but translated
+ * as <tt>let</tt>-expressions, such that the result is a let-cascade modelling
+ * the history of assignments.</p>
  *
  * For example, the program
  * <pre>
@@ -43,8 +57,13 @@ import edu.kit.iti.algover.util.Util;
  *     let a:=1 :: let a:=a+1 :: a > 0
  * </pre>
  *
- * The method {@link #postProcess(ProofFormula, Map)} discerns the different members
- * of the family. They modify the original let-cascade according to their needs.
+ *
+ * <p>If you want to use this for verification condition, add to your input file:</p>
+ * <pre>
+ *     settings {
+ *        "Sequent Generation Type" = "ass-seq"
+ *     }
+ * </pre>
  *
  * @author Mattias Ulbrich
  */
