@@ -42,13 +42,16 @@ public class RuleController extends MouseAdapter {
 
         result.setBorder(BorderFactory.createEtchedBorder());
         result.setBackground(Color.white);
-        result.add(new JLabel(proofRule.getName()));
+        JLabel name = new JLabel(proofRule.getName());
+        result.add(name);
+        name.addMouseListener(this);
         JLabel params = new JLabel(makeParamString());
         params.setFont(LIGHT_FONT);
         params.setForeground(Color.GRAY);
         result.add(params);
         result.putClientProperty(IndentationLayout.INDENTED_PROPERTY, true);
         result.addMouseListener(this);
+        params.addMouseListener(this);
         return result;
     }
 
