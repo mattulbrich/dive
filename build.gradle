@@ -46,13 +46,13 @@ subprojects {
     }
 
     dependencies {
-        compile group: 'com.google.guava', name: 'guava', version: '27.1-jre'
+        implementation group: 'com.google.guava', name: 'guava', version: '27.1-jre'
 
-        compile name: 'nonnull-runtime'
+        implementation name: 'nonnull-runtime'
 
-        testCompile 'junit:junit:4.12'
-        testCompile group: 'org.hamcrest', name: 'hamcrest', version: '2.1'
-        testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
+        testImplementation 'junit:junit:4.12'
+        testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.1'
+        testImplementation group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
 
         checkstyle group: 'com.puppycrawl.tools', name: 'checkstyle', version: '8.21'
 
