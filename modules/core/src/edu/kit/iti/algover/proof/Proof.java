@@ -304,15 +304,6 @@ public class Proof {
         return sb.toString();
     }
 
-
-
-    /**
-     * This method invalidates this proof object, sets the status to dirty
-     */
-    public void invalidate() {
-        this.proofStatus.setValue(ProofStatus.DIRTY);
-    }
-
     /**
      * Save the old script and the old proof for comparison when reloading
      */

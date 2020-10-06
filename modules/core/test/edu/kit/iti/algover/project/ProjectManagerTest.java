@@ -140,15 +140,16 @@ public class ProjectManagerTest {
         proof2.interpretScript();
         TestUtil.assertNoException(proof.getFailures());
         System.out.println(proof2.getPVCName() + ": " + proof2.getReferenceGraph());
-        pm.getAllProofs().forEach((s1, proof1) -> {
+       /* pm.getAllProofs().forEach((s1, proof1) -> {
             proof1.invalidate();
-        });
+        });*/
         Proof proofAfter = pm.getProofForPVC(testPVCm1Post);
 
 
         System.out.println(proofAfter.getScriptText().toString());
         Assert.assertNotNull(proofAfter.getScriptText());
-        Assert.assertEquals("Proof is not loaded yet", ProofStatus.DIRTY, proof.getProofStatus());
+        Assert.assertEquals("Proof is not loaded yet",
+                ProofStatus.NON_EXISTING, proof.getProofStatus());
 
         pm.saveProject();
         //Assert.assertEquals(Status.DIRTY, proof.getStatus());
