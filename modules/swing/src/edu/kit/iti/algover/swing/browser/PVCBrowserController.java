@@ -155,7 +155,7 @@ public class PVCBrowserController {
                 } else if (oneOrange) {
                     this.status = ProofStatus.OPEN;
                 } else {
-                    this.status = ProofStatus.DIRTY;
+                    // TODO TODO this.status = ProofStatus.DIRTY;
                 }
 
             }

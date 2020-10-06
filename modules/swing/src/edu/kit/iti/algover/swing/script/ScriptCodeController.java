@@ -203,7 +203,7 @@ public class ScriptCodeController {
             }
 
             documentChangeListenerActive = false;
-            textArea.setText(proof.getScript());
+            textArea.setText(proof.getScriptText());
             documentChangeListenerActive = true;
             textArea.setCaretPosition(0);
             setProofState(proof);
@@ -218,8 +218,10 @@ public class ScriptCodeController {
 
         Highlighter highlighter = textArea.getHighlighter();
         highlighter.removeAllHighlights();
-        Exception exc = proof.getFailException();
-        if (exc != null) {
+        List<Exception> failures = proof.getFailures();
+        if (failures != null && !failures.isEmpty()) {
+            // TODO Deal with several failures ?!
+            Exception exc = failures.get(0);
             diveCenter.getMainController().setStatus(exc);
             ExceptionReportInfo report = ExceptionDetails.extractReportInfo(exc);
             if (report.getLine() >= 0) {
@@ -290,10 +292,6 @@ public class ScriptCodeController {
         case CLOSED:
             label.setText("Proof successfully closed.");
             label.setBackground(SUCCESS_BACKGROUND);
-            break;
-        case DIRTY:
-            label.setText("Proof has not been replayed since (re)loading.");
-            label.setBackground(DIRTY_BACKGROUND);
             break;
         case NON_EXISTING:
             label.setText("There is no proof, yet.");

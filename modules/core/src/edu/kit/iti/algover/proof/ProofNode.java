@@ -45,7 +45,6 @@ public class ProofNode {
      * Null if root
      *
      * Can be set after construction.
-     * TODO Making this final is pretty easy if RuleApplicator takes the command as argument
      */
     private final @Nullable Command command;
 
