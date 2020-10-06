@@ -1284,6 +1284,28 @@ public class SymbexTest {
                 path.getAssignmentHistory().map(DafnyTree::toStringTree).toString());
     }
 
+    // bug: sequence updates were not captured as assignments!
+    @Test
+    public void testSequenceUpdate() throws Exception {
+        Symbex symbex = new Symbex();
+        Project p = TestUtil.mockProject("" +
+                "class C { var f: seq<int>;" +
+                "  method m() ensures true { " +
+                "  var r, s: seq<int>; while(true) { " +
+                "    r[0]:=42; s:= r; f[0]:=23;" +
+                "}}}");
+        List<SymbexPath> result = symbex.symbolicExecution(
+                p.getClass("C").getMethod("m").getRepresentation());
+        SymbexPath path = result.get(2);
+        assertEquals(AssertionType.POST, path.getCommonProofObligationType());
+        assertThat(Util.map(path.getAssignmentHistory(), DafnyTree::toStringTree),
+                TestUtil.contains("(ASSIGN s WILDCARD)"));
+        assertThat(Util.map(path.getAssignmentHistory(), DafnyTree::toStringTree),
+                TestUtil.contains("(ASSIGN $heap (CALL $anon (ARGS $heap $mod $aheap_1)))"));
+        assertThat(Util.map(path.getAssignmentHistory(), DafnyTree::toStringTree),
+                TestUtil.contains("(ASSIGN r WILDCARD)"));
+    }
+
     @Test
     public void testCrossClass() throws Exception {
         InputStream stream = getClass().getResourceAsStream("crossClass.dfy");

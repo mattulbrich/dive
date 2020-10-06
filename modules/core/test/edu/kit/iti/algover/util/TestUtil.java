@@ -43,6 +43,7 @@ import edu.kit.iti.algover.project.ProjectBuilder;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -315,6 +316,20 @@ public class TestUtil {
             @Override
             public void describeTo(Description description) {
                 description.appendText("contained in " + list);
+            }
+        };
+    }
+
+    public static <E> TypeSafeMatcher<Collection<E>> contains(E o) {
+        return new TypeSafeMatcher<Collection<E>>() {
+            @Override
+            protected boolean matchesSafely(Collection<E> coll) {
+                return coll.contains(o);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("contains " + o);
             }
         };
     }
