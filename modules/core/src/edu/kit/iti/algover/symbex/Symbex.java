@@ -749,6 +749,15 @@ public class Symbex {
                 break;
 
             case DafnyParser.ARRAY_ACCESS:
+                DafnyTree arrayLike = receiver.getChild(0);
+                if(arrayLike.getExpressionType().getType() == DafnyParser.SEQ &&
+                      arrayLike.getDeclarationReference().getType() == DafnyParser.VAR) {
+                    vars.add(arrayLike.getDeclarationReference());
+                } else {
+                    vars.add(HEAP_VAR);
+                }
+                break;
+
             case DafnyParser.FIELD_ACCESS:
                 vars.add(HEAP_VAR);
                 break;
