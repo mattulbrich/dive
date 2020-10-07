@@ -403,4 +403,14 @@ public class BuiltinSymbols extends MapSymbolTable {
         }
     }
 
+    /**
+     * This is a version of the symbol table that itself is not to be extended
+     * (other than by resolving builtin symbols).
+     */
+    public static class NonAdding extends BuiltinSymbols {
+        @Override
+        public SymbolTable addFunctionSymbol(FunctionSymbol symb) {
+            throw new Error("This is a symbol table that must not be added to");
+        }
+    }
 }

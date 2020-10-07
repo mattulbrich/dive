@@ -56,11 +56,11 @@ public class DafnyRule extends FocusProofRule {
         this(method, name, st, rt, requiresTerms, RulePolarity.BOTH);
     }
 
-    // REVIEW Some documentation (what is rt?)
-    public DafnyRule(DafnyMethod method, String name, @NonNull Term st, @NonNull Term rt, List<Pair<Term, String>> requiresTerms, RulePolarity polarity) {
+    public DafnyRule(DafnyMethod method, String name, @NonNull Term searchTerm,
+                     @NonNull Term replaceTerm, List<Pair<Term, String>> requiresTerms, RulePolarity polarity) {
         this.name = name;
-        searchTerm = st;
-        replaceTerm = rt;
+        this.searchTerm = searchTerm;
+        this.replaceTerm = replaceTerm;
         this.polarity = polarity;
         this.requiresTerms = requiresTerms;
         this.method = method;
@@ -75,6 +75,13 @@ public class DafnyRule extends FocusProofRule {
         return method;
     }
 
+    public Term getSearchTerm() {
+        return searchTerm;
+    }
+
+    public Term getReplaceTerm() {
+        return replaceTerm;
+    }
 
     @Override
     public ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {

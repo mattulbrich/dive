@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -68,7 +67,7 @@ public class DafnyRuleUtil {
                 }
 
                 try {
-                    result.add(generateRule(method));
+                    result.add(generateRule(method, project.getBaseSymbolTable()));
                 } catch (DafnyRuleException e) {
                     throw new DafnyException(method.getRepresentation(), e);
                 }
@@ -81,6 +80,8 @@ public class DafnyRuleUtil {
 
     /**
      * Creates a DafnyRule for a given file.
+     *
+     * Seems to be limited to usage in testing.
      *
      * @param fileName path to the file
      * @return the created DafnyRule
@@ -113,7 +114,7 @@ public class DafnyRuleUtil {
             throw new DafnyRuleException("DafnyRuleFiles may only contain EXACTLY one method but found " + methods.size() + ".");
         }
         DafnyMethod method = (DafnyMethod)methods.toArray()[0];
-        return generateRule(method);
+        return generateRule(method, new BuiltinSymbols());
     }
 
 
@@ -126,12 +127,13 @@ public class DafnyRuleUtil {
      * additional branch when applying the DafnyRule (except the condition is met trivially).
      *
      * @param method the DafnyMethod
+     * @param baseSymbolTable
      * @return the generated rule
      * @throws DafnyRuleException if DafnyMethod doesn´t meet requirements for DafnyRule-creation which are:
      *                              - exactly 1 ensures clause
      *                              - ensures clause is either a implication or a aquivalence
      */
-    private static DafnyRule generateRule(DafnyMethod method) throws DafnyRuleException {
+    private static DafnyRule generateRule(DafnyMethod method, SymbolTable baseSymbolTable) throws DafnyRuleException {
         String name;
         SymbolTable symbolTable;
         DafnyRule.RulePolarity polarity = DafnyRule.RulePolarity.BOTH;
@@ -139,8 +141,6 @@ public class DafnyRuleUtil {
         // REVIEW How do we deal with name clashes? What if a lemma is called "cut" or "case"?
         // One idea: prefix the name with "lemma_" or "l_". Alternatives?
         name = method.getName();
-
-
 
         List<DafnyTree> ensuresClauses = method.getEnsuresClauses();
         if(ensuresClauses.size() != 1) {
@@ -164,7 +164,7 @@ public class DafnyRuleUtil {
             throw  new DafnyRuleException("DafnyRules have to contain an equality or implication.");
         }
 
-        symbolTable = makeSymbolTable(method.getRepresentation());
+        symbolTable = makeSymbolTable(method.getRepresentation(), baseSymbolTable);
         TreeTermTranslator ttt = new TreeTermTranslator(symbolTable);
         Term st = null;
         Term rt = null;
@@ -219,7 +219,7 @@ public class DafnyRuleUtil {
      * @return Symboltable containing all variable declarations and builtin function symbols
      * Author: Mattias Ulbrich
      */
-    private static SymbolTable makeSymbolTable(DafnyTree tree) {
+    private static SymbolTable makeSymbolTable(DafnyTree tree, SymbolTable baseTable) {
 
         Collection<FunctionSymbol> map = new ArrayList<>();
         programVars = new ArrayList<>();
@@ -231,7 +231,7 @@ public class DafnyRuleUtil {
             programVars.add(name);
         }
 
-        MapSymbolTable st = new MapSymbolTable(new BuiltinSymbols(), map);
+        MapSymbolTable st = new MapSymbolTable(baseTable, map);
         return st;
     }
 

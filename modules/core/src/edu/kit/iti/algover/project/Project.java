@@ -16,6 +16,8 @@ import edu.kit.iti.algover.dafnystructures.DafnyDeclPVCCollector;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
+import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
@@ -122,10 +124,13 @@ public final class Project {
 
     /**
      * A collection of all lemmas available in this project.
-     *
      */
     private Collection<ProofRule> lemmaProofRules;
 
+    /**
+     * The foundational basic symbol collection for the project.
+     */
+    private final SymbolTable baseSymbolTable = new BuiltinSymbols.NonAdding();
 
     /**
      * Constructor can only be called using a ProjectBuilder
@@ -258,6 +263,16 @@ public final class Project {
         return result;
     }
 
+    /**
+     * Get the symbol table containing all base symbols (in contrast to symbols specific to PVCs or
+     * added while applying rules).
+     *
+     * This is centralised for the Project to avoid that several copies of (e.g.) equality are
+     * around.
+     */
+    public SymbolTable getBaseSymbolTable() {
+        return baseSymbolTable;
+    }
 
     /**
      * Gets a class from this project by name.
