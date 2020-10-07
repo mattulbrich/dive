@@ -2,6 +2,11 @@ package edu.kit.iti.algover.nuscript;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST.Case;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST.Cases;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST.Statement;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.Project;
@@ -188,5 +193,28 @@ public class InterpreterTest {
         assertThat(exc, Matchers.instanceOf(ScriptException.class));
         assertThat(exc.getMessage(),
                 Matchers.equalToIgnoringCase("Unknown script command unknownCommand"));
+    }
+
+    @Test
+    public void testProofNodeAssignment() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 && b1 { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+
+        proof.setScriptText("skip; andRight on='|-_'; cases { case \"case 1\": fake; }");
+        proof.interpretScript();
+
+        Command skip = (Command) proof.getProofScript().getStatements().get(0);
+        assertEquals("skip", skip.getCommand().getText());
+        assertSame(proof.getProofRoot(), skip.getProofNode());
+
+        Command andRight = (Command) proof.getProofScript().getStatements().get(1);
+        assertEquals("andRight", andRight.getCommand().getText());
+        assertSame(proof.getProofRoot().getChildren().get(0), andRight.getProofNode());
+
+        Command innerSkip = (Command) ((Cases)proof.getProofScript().getStatements().get(2)).getCases().get(0).getStatements().get(0);
+        assertEquals("fake", innerSkip.getCommand().getText());
+        assertSame(proof.getProofRoot().getChildren().get(0).getChildren().get(0), innerSkip.getProofNode());
+
     }
 }

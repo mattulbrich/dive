@@ -10,6 +10,7 @@ package edu.kit.iti.algover.nuscript.ast;
 import edu.kit.iti.algover.nuscript.Position;
 import edu.kit.iti.algover.nuscript.ScriptException;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.SingleCaseContext;
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.util.Conditional;
 import edu.kit.iti.algover.util.FunctionWithException;
 import edu.kit.iti.algover.util.Util;
@@ -19,6 +20,7 @@ import org.antlr.v4.runtime.Token;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -90,9 +92,9 @@ public abstract class ScriptAST {
     public abstract static class Statement extends ScriptAST {
         // poor man's version of a visitor....
         // should there be more cases in the future consider using a proper visitor.
-        public <R> R visit(
-                FunctionWithException<Command, R, ScriptException> commandFct,
-                FunctionWithException<Cases, R, ScriptException> casesFct) throws ScriptException {
+        public <R, Ex extends Exception> R visit(
+                FunctionWithException<Command, R, Ex> commandFct,
+                FunctionWithException<Cases, R, Ex> casesFct) throws Ex {
             if (this instanceof Command) {
                 Command command = (Command) this;
                 return commandFct.apply(command);
@@ -107,6 +109,7 @@ public abstract class ScriptAST {
     public static class Command extends Statement {
         private Token command;
         private List<Parameter> parameters = new ArrayList<>();
+        private ProofNode proofNode;
 
         public void setCommand(Token command) {
             this.command = command;
@@ -133,6 +136,14 @@ public abstract class ScriptAST {
                 p.print(writer, indentation);
             }
             writer.append(";");
+        }
+
+        public ProofNode getProofNode() {
+            return proofNode;
+        }
+
+        public void setProofNode(ProofNode proofNode) {
+            this.proofNode = proofNode;
         }
     }
 
@@ -187,6 +198,7 @@ public abstract class ScriptAST {
     public static class Case extends ScriptAST {
         private Token label;
         private List<Statement> statements = new LinkedList<>();
+        private ProofNode proofNode;
 
         public void setLabel(Token label) {
             this.label = label;
@@ -200,11 +212,19 @@ public abstract class ScriptAST {
             statements.add(stmt);
         }
 
+        public void addStatements(Collection<? extends Statement> stmts) {
+            statements.addAll(stmts);
+        }
+
         public <R> void visit(FunctionWithException<Command, R, ScriptException> commandFct,
                               FunctionWithException<Cases, R, ScriptException> casesFct) throws ScriptException {
             for (Statement statement : statements) {
                 statement.visit(commandFct, casesFct);
             }
+        }
+
+        public List<Statement> getStatements() {
+            return statements;
         }
 
         @Override
@@ -216,6 +236,14 @@ public abstract class ScriptAST {
                 writer.append("\n");
                 statement.print(writer, indentation);
             }
+        }
+
+        public void setProofNode(ProofNode node) {
+            this.proofNode = node;
+        }
+
+        public ProofNode getProofNode() {
+            return proofNode;
         }
     }
 

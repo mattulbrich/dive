@@ -66,7 +66,7 @@ public class ASTVisitor extends ScriptBaseVisitor<ScriptAST> {
         Case result = new Case();
         result.setLabel(ctx.label);
         for (StatementContext stm : ctx.statement()) {
-            result.addStatement((Command) stm.accept(this));
+            result.addStatement((Statement) stm.accept(this));
         }
         result.setRangeFrom(ctx);
         return result;

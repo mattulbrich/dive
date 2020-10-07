@@ -99,6 +99,7 @@ public class Interpreter {
     private Void interpretCases(Cases cases) throws ScriptException {
         for (Case cas : cases.getCases()) {
             ProofNode node = findCase(cas);
+            cas.setProofNode(node);
             if (node == null) {
                 throw new ScriptException("Unknown label \"" + cas.getLabel().getText() + "\"", cas, node);
             }
@@ -134,6 +135,7 @@ public class Interpreter {
         }
 
         ProofNode node = currentNodes.get(0);
+        command.setProofNode(node);
 
         String commandName = command.getCommand().getText();
         ProofRule rule = knownRules.get(commandName);
