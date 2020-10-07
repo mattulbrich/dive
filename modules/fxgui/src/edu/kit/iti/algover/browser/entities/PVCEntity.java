@@ -85,8 +85,6 @@ public class PVCEntity extends TreeTableEntity {
                     return UNPROVEN;
                 case FAILING:
                     return SCRIPT_FAILING;
-                case DIRTY:
-                    return DIRTY;
                 case CHANGED_SCRIPT:
                     return DIRTY; // TODO Maybe improve these mappings
                 case NON_EXISTING:

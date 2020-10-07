@@ -8,6 +8,16 @@ package edu.kit.iti.algover.rule.script;
 import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.PropertyManager;
+import edu.kit.iti.algover.nuscript.Position;
+import edu.kit.iti.algover.nuscript.ScriptPrettyPrinter;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST.Case;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST.Cases;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST.Script;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST.Statement;
+import edu.kit.iti.algover.nuscript.parser.ScriptParser;
+import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
@@ -16,20 +26,8 @@ import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
-import edu.kit.iti.algover.script.ast.CallStatement;
-import edu.kit.iti.algover.script.ast.CaseStatement;
-import edu.kit.iti.algover.script.ast.CasesStatement;
-import edu.kit.iti.algover.script.ast.Expression;
-import edu.kit.iti.algover.script.ast.MatchExpression;
-import edu.kit.iti.algover.script.ast.Position;
-import edu.kit.iti.algover.script.ast.ProofScript;
-import edu.kit.iti.algover.script.ast.SimpleCaseStatement;
-import edu.kit.iti.algover.script.ast.Statement;
-import edu.kit.iti.algover.script.ast.Statements;
-import edu.kit.iti.algover.script.ast.StringLiteral;
-import edu.kit.iti.algover.script.parser.Facade;
-import edu.kit.iti.algover.script.parser.PrettyPrinter;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.Util;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -40,9 +38,11 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -177,7 +177,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         if(proof != null) {
             this.checkpoints = ProofNodeCheckpointsBuilder.build(proof);
 
-            view.replaceText(proof.getScript());
+            view.replaceText(proof.getScriptText());
             view.getUndoManager().forgetHistory();
             runScript();
         }
@@ -325,13 +325,15 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
                 e.printStackTrace();
             }
 
-        proof.setScriptTextAndInterpret(pp.toString());*/
             PropertyManager.getInstance().currentProof.get().setScriptTextAndInterpret(text);
         } catch (ParseCancellationException | RecognitionException pce) {
             failException = pce;
         }
+
         if(failException == null) {
-            failException = PropertyManager.getInstance().currentProof.get().getFailException();
+            List<Exception> failures = PropertyManager.getInstance().currentProof.get().getFailures();
+            if(failures != null && failures.size() > 0)
+                failException = failures.get(0);
         }
 
 
@@ -372,29 +374,28 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
                 return;
             }
         }
-        ProofScript script = PropertyManager.getInstance().currentProof.get().getProofScript();
-        Statements newScript = insertCasesForStatement(PropertyManager.getInstance().currentProof.get().getProofRoot(), script.getBody());
-        script.setBody(newScript);
-        PrettyPrinter pp = new PrettyPrinter();
-        script.accept(pp);
-        view.replaceText(pp.toString());
+        Script script = PropertyManager.getInstance().currentProof.get().getProofScript();
+        List<Statement> newScript = insertCasesForStatement(PropertyManager.getInstance().currentProof.get().getProofRoot(), script.getStatements());
+        CharSequence newText = ScriptPrettyPrinter.print(newScript);
+        view.replaceText(newText.toString());
         runScript();
     }
 
-    /**@
+    /**
      * recursivly inserts all missing case statements in the given script
      *
      * @param pn the proofnode for which the cases should be inserted
      * @param stmts the current script that should be extended by the missing case statements
      * @return a new script containing all necessary case statements
      */
-    private Statements insertCasesForStatement(ProofNode pn, Statements stmts) {
+    // MU: Adapted the existing code to nuscript. But it does not seem to be recursive at all.
+    private List<Statement> insertCasesForStatement(ProofNode pn, List<Statement> stmts) {
         if(stmts.size() == 0) {
             return stmts;
         }
-        Statements result = new Statements();
+        List<Statement> result = new ArrayList<>();
         for (int i = 0; i < stmts.size() - 1; ++i) {
-            if(stmts.get(i) instanceof CallStatement) {
+            if(stmts.get(i) instanceof Command) {
                 result.add(stmts.get(i));
             } else {
                 Logger.getGlobal().warning("Only the last statement may be a cases-statement.");
@@ -408,11 +409,11 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
             }
         }
         Statement st = stmts.get(stmts.size() - 1);
-        if(pn.getChildren().size() == 1 && st instanceof CallStatement) {
+        if(pn.getSuccessors().size() == 1 && st instanceof Command) {
             result.add(st);
-        } else if (pn.getChildren().size() > 1 && st instanceof CasesStatement) {
-                result.add(createCasesForNode(pn, ((CasesStatement) st).getCases()));
-        } else if (pn.getChildren().size() > 1 && !(st instanceof CasesStatement)) {
+        } else if (pn.getChildren().size() > 1 && st instanceof Cases) {
+                result.add(createCasesForNode(pn, ((Cases) st).getCases()));
+        } else if (pn.getChildren().size() > 1 && !(st instanceof Cases)) {
             result.add(st);
             result.add(createCasesForNode(pn));
         }
@@ -427,42 +428,23 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
      * @param cases the cases that already exist
      * @return a case statement containing all necesarry cases
      */
-    private Statement createCasesForNode(ProofNode pn, List<CaseStatement> cases) {
-        CasesStatement res = new CasesStatement();
+    private Statement createCasesForNode(ProofNode pn, List<Case> cases) {
+        Cases res = new Cases();
         for(ProofNode p : pn.getChildren()) {
             boolean found = false;
-            for(CaseStatement caze : cases) {
-                if(!(caze instanceof SimpleCaseStatement)) {
-                    throw new UnsupportedOperationException("Creating cases for non simple Casestatements currently " +
-                            "not supported.");
-                }
-                SimpleCaseStatement scs = (SimpleCaseStatement)caze;
+            for(Case caze : cases) {
                 //apparently some guards are string literals and some are MathcExpressions...
-                if(scs.getGuard() instanceof StringLiteral) {
-                    String caseString = scs.getGuard().getText();
-                    caseString = caseString.replaceAll("\"", "");
+                    String caseString = Util.stripQuotes(caze.getLabel().getText());
                     if (caseString.equals(p.getLabel())) {
-                        Statements statements = insertCasesForStatement(p, scs.getBody());
-                        scs.setBody(statements);
-                        res.getCases().add(scs);
+                        List<Statement> statements = insertCasesForStatement(p, caze.getStatements());
+                        caze.addStatements(statements);
+                        res.getCases().add(caze);
                         found = true;
                     }
-                } else if (scs.getGuard() instanceof MatchExpression) {
-                    Expression pattern =  ((MatchExpression) scs.getGuard()).getPattern();
-                    String caseString = pattern.getText();
-                    caseString = caseString.replaceAll("\"", "");
-                    if(caseString.equals(p.getLabel())) {
-                        Statements statements = insertCasesForStatement(p, scs.getBody());
-                        scs.setBody(statements);
-                        res.getCases().add(scs);
-                        found = true;
-                    }
-                }
             }
             if(!found) {
-                SimpleCaseStatement c = new SimpleCaseStatement();
-                c.setGuard(new StringLiteral(p.getLabel()));
-                c.setBody(new Statements());
+                Case c = new Case();
+                c.setLabel(new CommonToken(ScriptParser.STRING_LITERAL, "\"" + p.getLabel() + "\""));
                 res.getCases().add(c);
             }
         }

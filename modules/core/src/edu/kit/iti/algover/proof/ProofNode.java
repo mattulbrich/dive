@@ -171,7 +171,7 @@ public class ProofNode {
      * @return an immutable view to the list of children, null if not yet fully expanded
      * @see #getSuccessors()
      */
-    public List<ProofNode> getChildren() {
+    public @Nullable List<ProofNode> getChildren() {
         return children == null ? null : Collections.unmodifiableList(children);
     }
 
@@ -180,7 +180,7 @@ public class ProofNode {
      * While the children reference may be null, this will always return a valid object reference.
      * In case of children==null, it returns an empty list.
      *
-     * @return an immutable view to the list of children, null if not yet fully expanded
+     * @return an immutable view to the list of children, empty if not yet fully expanded
      * @see #getChildren()
      */
     public List<ProofNode> getSuccessors() {
