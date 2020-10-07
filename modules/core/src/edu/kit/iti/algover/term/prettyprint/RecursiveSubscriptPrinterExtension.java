@@ -54,43 +54,27 @@ public class RecursiveSubscriptPrinterExtension implements PrettyPrintExtension,
     private String prettyPrintSubscriptString(String termRep) {
         Pattern pattern = Pattern.compile(SUBSCRIPT_PATTERN);
         Matcher matcher = pattern.matcher(termRep);
+
         StringBuilder sb = new StringBuilder();
 
-        List<String> indices = new ArrayList<>();
-
         String inner = "";
+        StringBuilder indicesBuilder = new StringBuilder();
+        boolean firstIndex = true;
 
-        int level = 0;
         while (matcher.matches()) {
-            String index = matcher.group(2);
-            StringBuilder indexBuilder = new StringBuilder();
-            for (int i = 0; i < index.length(); i++) {
-                indexBuilder.append((char) (SUBSCRIPT_BASE + index.charAt(i) - '0'));
-            }
-            indices.add(level, indexBuilder.toString());
             inner = matcher.group(1);
+            String index = matcher.group(2);
+            if (!firstIndex) {
+                indicesBuilder.insert(0, '_');
+            }
+            firstIndex = false;
+            for (char c : index.toCharArray()) {
+                indicesBuilder.insert(0, (char) (c + SUBSCRIPT_BASE - '0'));
+            }
             matcher = pattern.matcher(inner);
-            level++;
         }
 
-        if (level == 0) {
-            // This should never happen!
-            Logger.getGlobal().info("Could not PrettyPrint Term: " + termRep + ". With " + this.getClass());
-            return termRep;
-        }
-
-        sb.append("(".repeat(level - 1));
-
-        sb.append(inner);
-
-        for (int i = 0; i < level -1; i++) {
-            sb.append(indices.get(i));
-            sb.append(")");
-        }
-
-        sb.append(indices.get(level - 1));
-
-        return sb.toString();
+        return inner + indicesBuilder.toString();
     }
 
 }

@@ -16,8 +16,13 @@ public class ResolveUnicodeVisitor extends DafnyTreeDefaultVisitor<Void, Void> {
         int i = chars.length() - 1;
         StringBuilder sb = new StringBuilder();
         char c = chars.charAt(i);
-        while(0x2080 <= c && c <= 0x2089) {
-            sb.insert(0, (char)(c - 0x2080 + '0'));
+        while(0x2080 <= c && c <= 0x2089 || c == '_') {
+            if (c == '_') {
+                sb.insert(0, c);
+            } else {
+                sb.insert(0, (char) (c - 0x2080 + '0'));
+            }
+
             i--;
             c = chars.charAt(i);
         }
