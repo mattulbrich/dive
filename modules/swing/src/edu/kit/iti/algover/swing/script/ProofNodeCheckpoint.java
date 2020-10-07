@@ -6,6 +6,8 @@
  */
 package edu.kit.iti.algover.swing.script;
 
+import edu.kit.iti.algover.nuscript.ScriptException;
+import edu.kit.iti.algover.nuscript.ast.ScriptAST;
 import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
@@ -14,7 +16,9 @@ import nonnull.NonNull;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An pointer to a caharacter position within the proof script area.
@@ -49,8 +53,6 @@ public class ProofNodeCheckpoint {
          */
         CLOSED,
     }
-
-    ;
 
     /**
      * The proof node to which this checkpoint refers
@@ -115,14 +117,18 @@ public class ProofNodeCheckpoint {
      * @return a freshly created, modifiable list
      */
     public static @DeepNonNull  List<ProofNodeCheckpoint> extractCheckpoints(@NonNull Proof proof) {
-        ProofNode root = proof.getProofRoot();
-        List<ProofNodeCheckpoint> checkpoints = new ArrayList<>();
-        if (root != null) {
-            // checkpoints.add(new ProofNodeCheckpoint(root, 0, 0, Type.CALL));
-            build(root, checkpoints);
+
+        ProofNodeCheckpointBuilder builder = new ProofNodeCheckpointBuilder(proof);
+
+        if (builder.canCollect()) {
+            builder.collectCheckpoints();
+            return builder.getCheckpoints();
+        } else {
+            return List.of();
         }
-        return checkpoints;
     }
+
+
 
     private static void build(ProofNode node, List<ProofNodeCheckpoint> checkpoints) {
 
@@ -147,17 +153,21 @@ public class ProofNodeCheckpoint {
                 }
             }
         } else {
-            checkpoints.add(ProofNodeCheckpoint.endOf(command, node, Type.OPEN));
+            if (command == null) {
+                checkpoints.add(new ProofNodeCheckpoint(node, 1,1, Type.OPEN));
+            } else {
+                checkpoints.add(ProofNodeCheckpoint.endOf(command, node, Type.OPEN));
+            }
         }
     }
 
-    private static ProofNodeCheckpoint endOf(Command cmd, ProofNode node, Type type) {
+    static ProofNodeCheckpoint endOf(ScriptAST cmd, ProofNode node, Type type) {
         Token token = cmd.getEndToken();
         return new ProofNodeCheckpoint(node, token.getLine(),
                 token.getCharPositionInLine() + token.getText().length() + 1, type);
     }
 
-    private static ProofNodeCheckpoint beginOf(Command cmd, ProofNode node, Type type) {
+    static ProofNodeCheckpoint beginOf(ScriptAST cmd, ProofNode node, Type type) {
         Token token = cmd.getBeginToken();
         return new ProofNodeCheckpoint(node, token.getLine(),
                 token.getCharPositionInLine() + 1, type);

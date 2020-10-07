@@ -222,6 +222,7 @@ public class ScriptCodeController {
         if (failures != null && !failures.isEmpty()) {
             // TODO Deal with several failures ?!
             Exception exc = failures.get(0);
+            Log.stacktrace(exc);
             diveCenter.getMainController().setStatus(exc);
             ExceptionReportInfo report = ExceptionDetails.extractReportInfo(exc);
             if (report.getLine() >= 0) {

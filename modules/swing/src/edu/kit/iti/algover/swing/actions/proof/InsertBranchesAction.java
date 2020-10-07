@@ -50,7 +50,7 @@ public class InsertBranchesAction extends BarAction implements Initialisable {
 
         StringBuilder sb = new StringBuilder("\ncases {\n");
         for (ProofNode child : cp.getProofNode().getChildren()) {
-            sb.append("  case match \"" + child.getLabel() + "\": \n");
+            sb.append("  case \"" + child.getLabel() + "\": \n");
         }
         sb.append("}\n");
         return sb.toString();
