@@ -22,13 +22,10 @@ import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -227,8 +224,6 @@ public class PrettyPrintTest {
         AnnotatedString printed = new PrettyPrint().print(parsed);
 
         assertEquals("$decr\u2089\u2081_\u2089\u2081 == i\u2081 - i - 1", printed.toString());
-
-
     }
 
     @Test @Parameters
