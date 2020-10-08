@@ -221,12 +221,12 @@ public class PrettyPrintTest {
     public void testMultiLevelIndexing() throws DafnyParserException, DafnyException {
         st.addFunctionSymbol(new FunctionSymbol("i", Sort.INT));
         st.addFunctionSymbol(new FunctionSymbol("i_1", Sort.INT));
-        st.addFunctionSymbol(new FunctionSymbol("$decr_1_1", Sort.INT));
+        st.addFunctionSymbol(new FunctionSymbol("$decr_91_91", Sort.INT));
 
-        Term parsed = TermParser.parse(st, "$decr_1_1 ==  i_1 - i - 1");
+        Term parsed = TermParser.parse(st, "$decr_91_91 ==  i_1 - i - 1");
         AnnotatedString printed = new PrettyPrint().print(parsed);
 
-        assertEquals("$decr\u2081_\u2081 == i\u2081 - i - 1", printed.toString());
+        assertEquals("$decr\u2089\u2081_\u2089\u2081 == i\u2081 - i - 1", printed.toString());
 
 
     }
