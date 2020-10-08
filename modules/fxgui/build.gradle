@@ -35,6 +35,8 @@ dependencies {
     implementation name: 'swingx-all-1.6.4'*/
     implementation group: 'com.jfoenix', name: 'jfoenix', version: '9.0.8'
 
+    compile group: 'com.j2html', name: 'j2html', version: '1.4.0'
+
     // actually only needed at runtime, but who cares ...
     testImplementation project(':core').sourceSets.test.output
 }

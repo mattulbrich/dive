@@ -13,8 +13,7 @@ import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
-import edu.kit.iti.algover.rule.script.ScriptController;
-import edu.kit.iti.algover.rule.script.ScriptView;
+import edu.kit.iti.algover.rule.script.BlocklyController;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
@@ -29,7 +28,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
-import org.fxmisc.flowless.VirtualizedScrollPane;
+import javafx.scene.web.WebView;
 
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
@@ -53,11 +52,11 @@ public class RuleApplicationController extends FxmlController implements Referen
 
 
 
-    private final ScriptView scriptView;
+    private final WebView scriptView;
 
     private final RuleApplicationListener listener;
 
-    private final ScriptController scriptController;
+    private final BlocklyController scriptController;
 
     private final Logger logger;
 
@@ -69,7 +68,7 @@ public class RuleApplicationController extends FxmlController implements Referen
     public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener, ProjectManager manager, Lookup lookup) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
-        this.scriptController = new ScriptController(executor, listener, lookup);
+        this.scriptController = new BlocklyController();
         this.scriptView = scriptController.getView();
         lookup.register(this, RuleApplicationController.class);
         lookup.register(this, ReferenceHighlightingHandler.class);
@@ -135,8 +134,7 @@ public class RuleApplicationController extends FxmlController implements Referen
             addProofRule(rule);
         }
         ruleGrid.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
-        VirtualizedScrollPane<ScriptView> proofScriptPane = new VirtualizedScrollPane<>(scriptView);
-        splitPane.getItems().add(0, proofScriptPane);
+        splitPane.getItems().add(0, scriptView);
 
     }
 
@@ -185,11 +183,11 @@ public class RuleApplicationController extends FxmlController implements Referen
         return ruleGrid;
     }
 
-    public ScriptView getScriptView() {
+    public WebView getScriptView() {
         return scriptView;
     }
 
-    public ScriptController getScriptController() {
+    public BlocklyController getScriptController() {
         return scriptController;
     }
 
