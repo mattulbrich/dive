@@ -405,6 +405,8 @@ public class TreeTermTranslatorTest {
         symbTable.addFunctionSymbol(new FunctionSymbol("idx_1", Sort.INT));
         symbTable.addFunctionSymbol(new FunctionSymbol("idx_1_2", Sort.INT));
         symbTable.addFunctionSymbol(new FunctionSymbol("$internal_42", Sort.INT));
+        symbTable.addFunctionSymbol(new FunctionSymbol("$internal_1_1", Sort.INT));
+        symbTable.addFunctionSymbol(new FunctionSymbol("$internal_42_47", Sort.INT));
 
         TreeTermTranslator ttt = new TreeTermTranslator(symbTable);
 
@@ -437,6 +439,22 @@ public class TreeTermTranslatorTest {
             SyntacticSugarVistor.visit(s);
             Term sterm = ttt.build(s);
             DafnyTree t = parse("$internal_42", true);
+            Term term = ttt.build(t);
+            assertEquals(term, sterm);
+        }
+        {
+            DafnyTree s = parse("$internal\u2081_\u2081", true);
+            SyntacticSugarVistor.visit(s);
+            Term sterm = ttt.build(s);
+            DafnyTree t = parse("$internal_1_1", true);
+            Term term = ttt.build(t);
+            assertEquals(term, sterm);
+        }
+        {
+            DafnyTree s = parse("$internal\u2084\u2082_\u2084\u2087", true);
+            SyntacticSugarVistor.visit(s);
+            Term sterm = ttt.build(s);
+            DafnyTree t = parse("$internal_42_47", true);
             Term term = ttt.build(t);
             assertEquals(term, sterm);
         }

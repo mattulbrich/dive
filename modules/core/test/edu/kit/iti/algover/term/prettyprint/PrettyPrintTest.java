@@ -22,13 +22,10 @@ import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -204,6 +201,29 @@ public class PrettyPrintTest {
         AnnotatedString printed = new PrettyPrint().print(parsed);
 
         assertEquals("idx\u2089\u2081", printed.toString());
+    }
+
+    public void testVarSubscript() throws DafnyParserException, DafnyException {
+
+        st.addFunctionSymbol(new FunctionSymbol("i", Sort.INT));
+        st.addFunctionSymbol(new FunctionSymbol("i_1", Sort.INT));
+
+        Term parsed = TermParser.parse(st, "let $decr_1 := i :: let i := i_1 - 1 :: i_1 > 0");
+        AnnotatedString printed = new PrettyPrint().print(parsed);
+
+        assertEquals("let $decr\u2081 := i :: let i := i\u2081 - 1 :: i\u2081 > 0", printed.toString());
+    }
+
+    @Test
+    public void testMultiLevelIndexing() throws DafnyParserException, DafnyException {
+        st.addFunctionSymbol(new FunctionSymbol("i", Sort.INT));
+        st.addFunctionSymbol(new FunctionSymbol("i_1", Sort.INT));
+        st.addFunctionSymbol(new FunctionSymbol("$decr_91_91", Sort.INT));
+
+        Term parsed = TermParser.parse(st, "$decr_91_91 ==  i_1 - i - 1");
+        AnnotatedString printed = new PrettyPrint().print(parsed);
+
+        assertEquals("$decr\u2089\u2081_\u2089\u2081 == i\u2081 - i - 1", printed.toString());
     }
 
     @Test @Parameters
