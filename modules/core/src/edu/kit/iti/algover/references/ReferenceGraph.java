@@ -10,7 +10,7 @@ import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST;
+import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
@@ -23,15 +23,12 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
-import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import org.antlr.runtime.Token;
 
-import java.io.File;
 import java.util.*;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**

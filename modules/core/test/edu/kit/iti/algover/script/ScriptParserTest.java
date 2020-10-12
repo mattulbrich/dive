@@ -6,19 +6,8 @@
 package edu.kit.iti.algover.script;
 
 
-import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Statement;
-import edu.kit.iti.algover.nuscript.parser.ScriptParser;
+import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.parser.Scripts;
-import edu.kit.iti.algover.parser.DafnyFileParser;
-import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.term.Sequent;
-import edu.kit.iti.algover.util.InterpreterUtils;
-import edu.kit.iti.algover.util.TestUtil;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -28,9 +17,7 @@ import org.junit.runners.Parameterized.Parameter;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

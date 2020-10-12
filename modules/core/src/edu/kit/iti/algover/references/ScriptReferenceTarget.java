@@ -1,6 +1,6 @@
 package edu.kit.iti.algover.references;
 
-import edu.kit.iti.algover.nuscript.ast.ScriptAST;
+import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.proof.PVC;
 
 /**

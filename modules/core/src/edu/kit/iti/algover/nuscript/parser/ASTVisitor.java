@@ -7,13 +7,13 @@
 
 package edu.kit.iti.algover.nuscript.parser;
 
-import edu.kit.iti.algover.nuscript.ast.ScriptAST;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Case;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Cases;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Parameter;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Script;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Statement;
+import edu.kit.iti.algover.nuscript.ScriptAST;
+import edu.kit.iti.algover.nuscript.ScriptAST.Case;
+import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
+import edu.kit.iti.algover.nuscript.ScriptAST.Command;
+import edu.kit.iti.algover.nuscript.ScriptAST.Parameter;
+import edu.kit.iti.algover.nuscript.ScriptAST.Script;
+import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.CasesStmtContext;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.CommandStmtContext;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.ParameterContext;
@@ -22,6 +22,11 @@ import edu.kit.iti.algover.nuscript.parser.ScriptParser.SingleCaseContext;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.StatementContext;
 import org.antlr.v4.runtime.CommonToken;
 
+/**
+ * A visitor that translates a concrete parser syntax tree to an abstract syntax tree.
+ *
+ * @author Mattias Ulbrich
+ */
 public class ASTVisitor extends ScriptBaseVisitor<ScriptAST> {
     @Override
     public Script visitScript(ScriptContext ctx) {

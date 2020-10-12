@@ -2,11 +2,8 @@ package edu.kit.iti.algover.nuscript;
 
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Case;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Cases;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Statement;
+import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
+import edu.kit.iti.algover.nuscript.ScriptAST.Command;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.project.Project;
@@ -20,9 +17,7 @@ import edu.kit.iti.algover.util.TestUtil;
 import org.antlr.runtime.RecognitionException;
 import org.hamcrest.Matchers;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.util.ArrayList;

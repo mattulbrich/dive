@@ -7,14 +7,20 @@
 
 package edu.kit.iti.algover.nuscript;
 
-import edu.kit.iti.algover.nuscript.ast.ScriptAST;
 import edu.kit.iti.algover.proof.ProofNode;
 import nonnull.NonNull;
 
+/**
+ * Exception thrown during interpretation of a script.
+ *
+ * Instances have a pointer to an instance of the script ast.
+ *
+ * @author Mattias Ulbrich
+ */
 public class ScriptException extends Exception {
 
-    private final ScriptAST scriptAST;
-    private final ProofNode proofNode;
+    private final @NonNull ScriptAST scriptAST;
+    private final @NonNull ProofNode proofNode;
 
     public ScriptException(String message, @NonNull ScriptAST ast, @NonNull ProofNode proofNode) {
         super(message);
@@ -34,11 +40,11 @@ public class ScriptException extends Exception {
         this.proofNode = proofNode;
     }
 
-    public ScriptAST getScriptAST() {
+    public @NonNull ScriptAST getScriptAST() {
         return scriptAST;
     }
 
-    public ProofNode getProofNode() {
+    public @NonNull ProofNode getProofNode() {
         return proofNode;
     }
 }

@@ -7,11 +7,11 @@
 
 package edu.kit.iti.algover.nuscript;
 
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Case;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Cases;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Parameter;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Script;
+import edu.kit.iti.algover.nuscript.ScriptAST.Case;
+import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
+import edu.kit.iti.algover.nuscript.ScriptAST.Command;
+import edu.kit.iti.algover.nuscript.ScriptAST.Parameter;
+import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser;
 import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.parser.DafnyException;
@@ -33,6 +33,7 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.Util;
+import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
@@ -41,19 +42,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Interpreter {
+/**
+ * This class implements an interpreter for proof scripts.
+ */
+public final class Interpreter {
 
+    /** Used for debugging */
     private static final boolean VERBOSE = false;
 
+    /** The set of avaiable rules for this particular proof */
     private final Map<String, ProofRule> knownRules;
+
+    /** The freshly created proof root */
     private final ProofNode rootNode;
+
+    /** The proof object provided to the constructor */
     private final Proof proof;
+
+    /** The reference graph used to track references */
     private final ReferenceGraph referenceGraph;
 
+    /** current open goals, change during interpretation */
     private List<ProofNode> currentNodes;
 
+    /** A collection of exceptions that arise during interpretation */
     private final List<Exception> failures = new ArrayList<>();
 
+    /**
+     * Construct a new interpreter.
+     *
+     * @param proof the non-null proof to which the script refers.
+     */
     public Interpreter(Proof proof) {
         this.referenceGraph = proof.getReferenceGraph();
         this.rootNode = ProofNode.createRoot(proof.getPVC());
@@ -61,16 +80,27 @@ public class Interpreter {
         this.knownRules = makeKnownRules();
     }
 
-    private Map<String, ProofRule> makeKnownRules() {
-        Map<String, ProofRule> result = new HashMap<>();
-        PVC pvc = rootNode.getPVC();
-        Collection<ProofRule> allRules = pvc.getProject().getProofRules(pvc);
-        for (ProofRule rule : allRules) {
-            result.put(rule.getName(), rule);
+    /**
+     * Interpret the script given as argument.
+     * Exceptions are taken down in {@link #failures} and are not reported here.
+     *
+     * @param scriptText the non-null scriptText to be interpreted
+     */
+    public void interpret(String scriptText) {
+        try {
+            Script script = Scripts.parseScript(scriptText);
+            interpret(script);
+        } catch (RecognitionException rex) {
+            failures.add(rex);
         }
-        return result;
     }
 
+    /**
+     * Interpret the script given as argument.
+     * Exceptions are taken down in {@link #failures} and are not reported here.
+     *
+     * @param script the non-null script to be interpreted
+     */
     public void interpret(Script script) {
         currentNodes = singleList(rootNode);
         try {
@@ -82,6 +112,28 @@ public class Interpreter {
             // This exception has been thrown to indicate an error during execution.
             // It has been taken down and added to the corresponding proof node.
         }
+    }
+
+    public ProofNode getRootNode() {
+        return rootNode;
+    }
+
+    public boolean hasFailure() {
+        return !failures.isEmpty();
+    }
+
+    public List<Exception> getFailures() {
+        return failures;
+    }
+
+    private Map<String, ProofRule> makeKnownRules() {
+        Map<String, ProofRule> result = new HashMap<>();
+        PVC pvc = rootNode.getPVC();
+        Collection<ProofRule> allRules = pvc.getProject().getProofRules(pvc);
+        for (ProofRule rule : allRules) {
+            result.put(rule.getName(), rule);
+        }
+        return result;
     }
 
     /**
@@ -230,22 +282,5 @@ public class Interpreter {
 
         }
         return result;
-    }
-
-    public void interpret(String scriptText) throws ScriptException {
-        Script script = Scripts.parseScript(scriptText);
-        interpret(script);
-    }
-
-    public ProofNode getRootNode() {
-        return rootNode;
-    }
-
-    public boolean hasFailure() {
-        return !failures.isEmpty();
-    }
-
-    public List<Exception> getFailures() {
-        return failures;
     }
 }

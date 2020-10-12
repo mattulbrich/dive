@@ -1,19 +1,15 @@
 package edu.kit.iti.algover.swing.script;
 
-import edu.kit.iti.algover.nuscript.ScriptException;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Case;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Cases;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Statement;
+import edu.kit.iti.algover.nuscript.ScriptAST.Case;
+import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
+import edu.kit.iti.algover.nuscript.ScriptAST.Command;
+import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.swing.script.ProofNodeCheckpoint.Type;
-import edu.kit.iti.algover.util.FunctionWithException;
 
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ProofNodeCheckpointBuilder {
     private final Proof proof;

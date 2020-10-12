@@ -8,8 +8,7 @@
 package edu.kit.iti.algover.nuscript.parser;
 
 import edu.kit.iti.algover.nuscript.BailOutErrorStrategy;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Script;
+import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.ScriptContext;
 import nonnull.NonNull;
 import org.antlr.v4.runtime.CharStream;
@@ -67,7 +66,7 @@ public final class Scripts {
      * @return the parsing result
      * @throws RecognitionException if parsing fails (caution! unchecked exception)
      */
-    public static @NonNull Script parseScript(@NonNull String string) {
+    public static @NonNull Script parseScript(@NonNull String string) throws RecognitionException {
         return parseScript(CharStreams.fromString(string));
     }
 

@@ -1,5 +1,10 @@
 grammar Script;
 
+/**
+ * A new simplified parser for DIVE scripts.
+ *
+ * @author Mattias Ulbrich
+ */
 
 script
     :   statement* EOF

@@ -6,7 +6,7 @@
 package edu.kit.iti.algover.util;
 
 import edu.kit.iti.algover.nuscript.ScriptException;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST;
+import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
@@ -14,10 +14,8 @@ import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.InputMismatchException;
 import java.util.List;
 
 /**

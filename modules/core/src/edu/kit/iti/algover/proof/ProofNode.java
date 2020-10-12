@@ -7,12 +7,9 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
+import edu.kit.iti.algover.nuscript.ScriptAST.Command;
 import edu.kit.iti.algover.rules.BranchInfo;
-import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
-import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.term.Sequent;
 import nonnull.NonNull;
 import nonnull.Nullable;

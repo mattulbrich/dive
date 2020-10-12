@@ -5,11 +5,8 @@
  *
  */
 
-package edu.kit.iti.algover.nuscript.ast;
+package edu.kit.iti.algover.nuscript;
 
-import edu.kit.iti.algover.nuscript.Position;
-import edu.kit.iti.algover.nuscript.ScriptException;
-import edu.kit.iti.algover.nuscript.parser.ScriptParser.SingleCaseContext;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.util.Conditional;
 import edu.kit.iti.algover.util.FunctionWithException;
@@ -18,34 +15,48 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
+/**
+ * This class is the base class for the abstract syntax tree of the new script parser.
+ *
+ * There are: entire scripts, commands, parameters cases-statements, a single case,
+ *
+ * @author Mattias Ulbrich
+ */
 public abstract class ScriptAST {
 
-    private Token end;
+    /** The first token of this AST elements */
     private Token begin;
 
+    /** The last token of this AST elements */
+    private Token end;
+
+    /**
+     * Extract the beginning and end of this AST from a parsing context.
+     * @param ctx the non-null rule context to extract from
+     */
     public void setRangeFrom(ParserRuleContext ctx) {
         this.begin = ctx.start;
         this.end = ctx.stop;
     }
 
+    /**
+     * The the first token of this AST
+     * @return the non-null first token
+     */
     public Token getBeginToken() {
         return begin;
     }
 
-    public Position getPosition() {
-        return new Position(begin.getLine(), begin.getCharPositionInLine());
-    }
-
+    /**
+     * The the last token of this AST
+     * @return the non-null first token
+     */
     public Token getEndToken() {
         return end;
     }
@@ -62,19 +73,45 @@ public abstract class ScriptAST {
         }
     }
 
+    /**
+     * Print the AST (such that it can be parsed again) to a writer
+     * @param writer a non-null object to write to
+     * @param indentation the level of indentation for the spaces in the line
+     * @throws IOException if writing fails
+     */
     public abstract void print(Appendable writer, int indentation) throws IOException;
 
-    public static class Script extends ScriptAST {
-        private List<Statement> statements = new LinkedList<>();
+    /**
+     * This class captures an entire script -- which is essentially a list of statements.
+     */
+    public static final class Script extends ScriptAST {
+
+        /** The sequence of statements in the script */
+        private final List<Statement> statements = new LinkedList<>();
+
         public List<Statement> getStatements() {
             return statements;
         }
+
+        /**
+         * Ad a single statement to the list of statements.
+         *
+         * @param stmt, a non-null statement
+         */
         public void addStatement(Statement stmt) {
             statements.add(stmt);
         }
 
-        public <R> void visit(FunctionWithException<Command, R, ScriptException> commandFct,
-                FunctionWithException<Cases, R, ScriptException> casesFct) throws ScriptException {
+        /**
+         * run a visitation on all statements of the script in natural order.
+         *
+         * @param commandFct the function to apply to all {@link Command} objects.
+         * @param casesFct the function to apply to all {@link Cases} objects.
+         * @param <R> the result type of the functions
+         * @param <Ex> the result that may be thrown by the functions
+         */
+        public <R, Ex extends Exception> void visit(FunctionWithException<Command, R, Ex> commandFct,
+                FunctionWithException<Cases, R, Ex> casesFct) throws Ex {
             for (Statement statement : statements) {
                 statement.visit(commandFct, casesFct);
             }
@@ -89,26 +126,40 @@ public abstract class ScriptAST {
         }
     }
 
+    /**
+     * This abstract class captures a single statement: either a command or a "cases".
+     */
     public abstract static class Statement extends ScriptAST {
-        // poor man's version of a visitor....
-        // should there be more cases in the future consider using a proper visitor.
-        public <R, Ex extends Exception> R visit(
+
+        /**
+         * A poor man's version of a visitor which takes two functions that react to
+         * commands and cases respectively.
+         *
+         * Should there be more statement types in the future, consider using a proper visitor.
+         *
+         * @param commandFct the function to apply to a {@link Command} object.
+         * @param casesFct the function to apply to a {@link Cases} object.
+         * @param <R> the result type of the function
+         * @param <Ex> the result that may be thrown by the function
+         */
+        public abstract <R, Ex extends Exception> R visit(
                 FunctionWithException<Command, R, Ex> commandFct,
-                FunctionWithException<Cases, R, Ex> casesFct) throws Ex {
-            if (this instanceof Command) {
-                Command command = (Command) this;
-                return commandFct.apply(command);
-            } else {
-                Cases cases = (Cases)this;
-                return casesFct.apply(cases);
-            }
-        }
+                FunctionWithException<Cases, R, Ex> casesFct) throws Ex;
 
     }
 
-    public static class Command extends Statement {
+    /**
+     * This class captures a single command: command name and parameters.
+     */
+    public static final class Command extends Statement {
+
+        /** The actual command name token */
         private Token command;
-        private List<Parameter> parameters = new ArrayList<>();
+
+        /** The list of all parameters to the command */
+        private final List<Parameter> parameters = new ArrayList<>();
+
+        /** A pointer to the proof node to which this command is applied */
         private ProofNode proofNode;
 
         public void setCommand(Token command) {
@@ -138,6 +189,10 @@ public abstract class ScriptAST {
             writer.append(";");
         }
 
+        /**
+         * Return the proof node to which this command is applied
+         * @return a pointer into the proof to which this AST refers.
+         */
         public ProofNode getProofNode() {
             return proofNode;
         }
@@ -145,10 +200,27 @@ public abstract class ScriptAST {
         public void setProofNode(ProofNode proofNode) {
             this.proofNode = proofNode;
         }
+
+        @Override
+        public <R, Ex extends Exception> R
+                visit(FunctionWithException<Command, R, Ex> commandFct,
+                      FunctionWithException<Cases, R, Ex> casesFct) throws Ex {
+            return commandFct.apply(this);
+        }
     }
 
+    /**
+     * This class captures a single parameter to a command. Consists of a name and a value.
+     * The value type can differ.
+     */
     public static class Parameter extends ScriptAST {
+
+        /** The name of the parameter. This may be null if ommitted in the script! */
         private Token name;
+
+        /** The value assigned to the parameter. Not null. The
+         * type of the token may be divers.
+         */
         private Token value;
 
         public void setName(Token name) {
@@ -169,12 +241,16 @@ public abstract class ScriptAST {
 
         @Override
         public void print(Appendable writer, int indentation) throws IOException {
-            writer.append(name.getText() + "=" + value.getText());
+            writer.append(name.getText()).append("=").append(value.getText());
         }
     }
 
+    /**
+     * This class captures a cases statements which essentially consists
+     * of a collection of {@link Case} objects.
+     */
     public static class Cases extends Statement {
-        private List<Case> cases = new LinkedList<>();
+        private final List<Case> cases = new LinkedList<>();
 
         public void addCase(Case cas) {
             cases.add(cas);
@@ -186,18 +262,34 @@ public abstract class ScriptAST {
 
         @Override
         public void print(Appendable writer, int indentation) throws IOException {
-            writer.append(Util.duplicate("  ", indentation) + "cases {");
+            writer.append(Util.duplicate("  ", indentation)).append("cases {");
             for (Case cas : cases) {
                 writer.append("\n");
                 cas.print(writer, indentation);
             }
-            writer.append("\n" + Util.duplicate("  ", indentation) + "}");
+            writer.append("\n").append(Util.duplicate("  ", indentation)).append("}");
+        }
+
+        @Override
+        public <R, Ex extends Exception> R
+                visit(FunctionWithException<Command, R, Ex> commandFct,
+                      FunctionWithException<Cases, R, Ex> casesFct) throws Ex {
+            return casesFct.apply(this);
         }
     }
 
+    /**
+     * This class captures a single case in a cases statements.
+     * This is comprised by a set of statements.
+     */
     public static class Case extends ScriptAST {
+        /** The label of the case of type STRING_LITERAL */
         private Token label;
-        private List<Statement> statements = new LinkedList<>();
+
+        /** The list of statements of this case */
+        private final List<Statement> statements = new LinkedList<>();
+
+        /** The node to which the head of the case points */
         private ProofNode proofNode;
 
         public void setLabel(Token label) {

@@ -7,7 +7,7 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.nuscript.Interpreter;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Script;
+import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.references.ReferenceGraph;

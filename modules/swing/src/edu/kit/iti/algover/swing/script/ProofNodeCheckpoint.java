@@ -6,19 +6,15 @@
  */
 package edu.kit.iti.algover.swing.script;
 
-import edu.kit.iti.algover.nuscript.ScriptException;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
+import edu.kit.iti.algover.nuscript.ScriptAST;
+import edu.kit.iti.algover.nuscript.ScriptAST.Command;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import org.antlr.v4.runtime.Token;
 
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * An pointer to a caharacter position within the proof script area.

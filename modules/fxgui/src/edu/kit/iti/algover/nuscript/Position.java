@@ -36,6 +36,8 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 
 /**
+ * This is legacy from the old script parser.
+ *
  * @author Alexander Weigl
  */
 public class Position implements Comparable<Position> {

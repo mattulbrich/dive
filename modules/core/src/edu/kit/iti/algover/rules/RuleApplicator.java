@@ -6,7 +6,7 @@
 package edu.kit.iti.algover.rules;
 
 
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
+import edu.kit.iti.algover.nuscript.ScriptAST.Command;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.Sequent;

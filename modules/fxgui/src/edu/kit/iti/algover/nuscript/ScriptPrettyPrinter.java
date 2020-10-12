@@ -1,15 +1,22 @@
 package edu.kit.iti.algover.nuscript;
 
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Case;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Cases;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Command;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Parameter;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Script;
-import edu.kit.iti.algover.nuscript.ast.ScriptAST.Statement;
+import edu.kit.iti.algover.nuscript.ScriptAST.Case;
+import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
+import edu.kit.iti.algover.nuscript.ScriptAST.Command;
+import edu.kit.iti.algover.nuscript.ScriptAST.Parameter;
+import edu.kit.iti.algover.nuscript.ScriptAST.Script;
+import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
 import edu.kit.iti.algover.util.Util;
 
 import java.util.List;
 
+/**
+ *
+ * @deprecated It seems the print method can do this already ...
+ *
+ * see {@link ScriptAST#print(Appendable, int)}
+ */
+@Deprecated
 public class ScriptPrettyPrinter {
 
     public static CharSequence print(Script script) {
