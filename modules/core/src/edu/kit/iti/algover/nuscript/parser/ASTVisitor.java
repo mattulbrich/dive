@@ -8,12 +8,14 @@
 package edu.kit.iti.algover.nuscript.parser;
 
 import edu.kit.iti.algover.nuscript.ScriptAST;
+import edu.kit.iti.algover.nuscript.ScriptAST.ByClause;
 import edu.kit.iti.algover.nuscript.ScriptAST.Case;
 import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
 import edu.kit.iti.algover.nuscript.ScriptAST.Command;
 import edu.kit.iti.algover.nuscript.ScriptAST.Parameter;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
+import edu.kit.iti.algover.nuscript.parser.ScriptParser.ByClauseContext;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.CasesStmtContext;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.CommandStmtContext;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.ParameterContext;
@@ -21,6 +23,7 @@ import edu.kit.iti.algover.nuscript.parser.ScriptParser.ScriptContext;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.SingleCaseContext;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.StatementContext;
 import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
  * A visitor that translates a concrete parser syntax tree to an abstract syntax tree.
@@ -45,14 +48,17 @@ public class ASTVisitor extends ScriptBaseVisitor<ScriptAST> {
         int unnamedCounter = 1;
         for (ParameterContext p : ctx.parameter()) {
             Parameter parameter = (Parameter) p.accept(this);
-            if (parameter.getName() == null) {
-                parameter.setName(new CommonToken(ScriptLexer.ID, "#" + unnamedCounter));
-                unnamedCounter ++;
-            }
+//            if (parameter.getName() == null) {
+//                parameter.setName(new CommonToken(ScriptLexer.ID, "#" + unnamedCounter));
+//                unnamedCounter ++;
+//            }
             result.addParameter(parameter);
 
         }
         result.setRangeFrom(ctx);
+        if (ctx.byClause() != null) {
+            result.setByClause(visitByClause(ctx.byClause()));
+        }
         return result;
     }
 
@@ -83,6 +89,19 @@ public class ASTVisitor extends ScriptBaseVisitor<ScriptAST> {
         result.setName(ctx.pname);
         result.setValue(ctx.expr.start);
         result.setRangeFrom(ctx);
+        return result;
+    }
+
+    @Override
+    public ByClause visitByClause(ByClauseContext ctx) {
+        ByClause result = new ByClause();
+        if (ctx.commandStmt() != null) {
+            result.addStatement((Statement)ctx.commandStmt().accept(this));
+        } else {
+            for (StatementContext stm : ctx.statement()) {
+                result.addStatement((Statement)stm.accept(this));
+            }
+        }
         return result;
     }
 }

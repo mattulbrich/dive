@@ -7,6 +7,7 @@
 
 package edu.kit.iti.algover.nuscript;
 
+import edu.kit.iti.algover.nuscript.ScriptAST.ByClause;
 import edu.kit.iti.algover.nuscript.ScriptAST.Case;
 import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
 import edu.kit.iti.algover.nuscript.ScriptAST.Command;
@@ -35,6 +36,7 @@ import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.Util;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -90,7 +92,7 @@ public final class Interpreter {
         try {
             Script script = Scripts.parseScript(scriptText);
             interpret(script);
-        } catch (RecognitionException rex) {
+        } catch (RecognitionException | ParseCancellationException rex) {
             failures.add(rex);
         }
     }
@@ -106,11 +108,7 @@ public final class Interpreter {
         try {
             script.visit(this::interpretCommand, this::interpretCases);
         } catch (ScriptException e) {
-            if (VERBOSE) {
-                e.printStackTrace();
-            }
-            // This exception has been thrown to indicate an error during execution.
-            // It has been taken down and added to the corresponding proof node.
+            failures.add(e);
         }
     }
 
@@ -153,7 +151,7 @@ public final class Interpreter {
             ProofNode node = findCase(cas);
             cas.setProofNode(node);
             if (node == null) {
-                throw new ScriptException("Unknown label \"" + cas.getLabel().getText() + "\"", cas, node);
+                throw new ScriptException("Unknown label " + cas.getLabel().getText(), cas, node);
             }
             List<ProofNode> oldCurrent = currentNodes;
             currentNodes = singleList(node);
@@ -206,8 +204,22 @@ public final class Interpreter {
             node.setChildren(newNodes);
             currentNodes = newNodes;
 
-        } catch (Exception e) {
+            ByClause byClause = command.getByClause();
+            if (byClause != null) {
+                if (currentNodes.size() != 2) {
+                    throw new ScriptException("by clauses are only allowed for rules with two cases", command, node);
+                }
+                List<ProofNode> oldCurrent = currentNodes;
+                currentNodes = List.of(oldCurrent.get(0));
+                byClause.visit(this::interpretCommand, this::interpretCases);
+                currentNodes = List.of(oldCurrent.get(1));
+            }
+        } catch(ScriptException e) {
             this.failures.add(e);
+            currentNodes = List.of();
+        } catch (Exception e) {
+            ScriptException scriptEx = new ScriptException(e, command, node);
+            this.failures.add(scriptEx);
             currentNodes = List.of();
         }
 
@@ -217,9 +229,17 @@ public final class Interpreter {
     private Parameters interpretParameters(ProofNode node, ProofRule rule, List<Parameter> params) throws ScriptException {
         Parameters result = new Parameters();
         Map<String, ParameterDescription<?>> knownParams = rule.getAllParameters();
+        int paramCounter = 1;
         for (Parameter param : params) {
+            Token nameToken = param.getName();
+            String paramName;
+            if(nameToken == null) {
+                paramName = "#" + paramCounter;
+                paramCounter ++;
+            } else {
+                paramName = nameToken.getText();
+            }
 
-            String paramName = param.getName().getText();
             ParameterDescription<?> knownParam = knownParams.get(paramName);
 
             if (knownParam == null) {
@@ -261,7 +281,7 @@ public final class Interpreter {
                         obj = new TermParameter(term, node.getSequent());
                     }
                 } catch (DafnyException | DafnyParserException e) {
-                    throw new ScriptException("Cannot parse term/sequent " + string, e, param, node);
+                    throw new ScriptException("Cannot parse term/sequent '" + string + "'", e, param, node);
                 }
                 break;
 
@@ -274,9 +294,9 @@ public final class Interpreter {
             }
 
             if (!knownParam.acceptsValue(obj)) {
-                throw new ScriptException("Parameter " + paramName +
-                        " expects an argument of type " + knownParam.getType() +
-                        ", not " + obj, param, node);
+                throw new ScriptException("Parameter '" + paramName +
+                        "' expects an argument of type " + knownParam.getType() +
+                        ", cannot digest '" + obj + "'", param, node);
             }
             result.checkAndPutValue(knownParam, obj);
 

@@ -39,15 +39,21 @@ singleCase
     ;
 
 commandStmt
-    :   cmd=ID parameter* ';'
+    :   cmd=ID parameter* ( ';' | byClause )
     ;
 
 parameter
     :   (pname=ID '=')? expr=expression
     ;
 
+byClause
+    :   BY commandStmt
+    |   BY BEGIN statement* END
+    ;
+
 
 BEGIN : '{';
+BY : 'by';
 CASE : 'case';
 CASES : 'cases';
 END : '}';

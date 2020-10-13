@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.nuscript.parser;
 
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
+import edu.kit.iti.algover.util.TestUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

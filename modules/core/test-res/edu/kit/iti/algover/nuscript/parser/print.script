@@ -1,0 +1,15 @@
+
+command parameter_str="string value" parameter_int=42 parameter_bool=true;
+command "string_parameter" 42 true;
+command p1=22
+  p2=23
+  p3=34;
+
+cases {
+  case "case 1":
+  case "case 2": command; command;
+}
+
+command p="p" by command;
+
+command p="p" by { command; command by command; command; }

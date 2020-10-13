@@ -156,6 +156,8 @@ public abstract class ScriptAST {
         /** The actual command name token */
         private Token command;
 
+        private ByClause byClause;
+
         /** The list of all parameters to the command */
         private final List<Parameter> parameters = new ArrayList<>();
 
@@ -186,7 +188,11 @@ public abstract class ScriptAST {
                 writer.append(" ");
                 p.print(writer, indentation);
             }
-            writer.append(";");
+            if (byClause == null) {
+                writer.append(";");
+            } else {
+                byClause.print(writer, indentation);
+            }
         }
 
         /**
@@ -207,13 +213,21 @@ public abstract class ScriptAST {
                       FunctionWithException<Cases, R, Ex> casesFct) throws Ex {
             return commandFct.apply(this);
         }
+
+        public ByClause getByClause() {
+            return byClause;
+        }
+
+        public void setByClause(ByClause byClause) {
+            this.byClause = byClause;
+        }
     }
 
     /**
      * This class captures a single parameter to a command. Consists of a name and a value.
      * The value type can differ.
      */
-    public static class Parameter extends ScriptAST {
+    public static final class Parameter extends ScriptAST {
 
         /** The name of the parameter. This may be null if ommitted in the script! */
         private Token name;
@@ -241,7 +255,10 @@ public abstract class ScriptAST {
 
         @Override
         public void print(Appendable writer, int indentation) throws IOException {
-            writer.append(name.getText()).append("=").append(value.getText());
+            if (name != null) {
+                writer.append(name.getText()).append("=");
+            }
+            writer.append(value.getText());
         }
     }
 
@@ -249,7 +266,7 @@ public abstract class ScriptAST {
      * This class captures a cases statements which essentially consists
      * of a collection of {@link Case} objects.
      */
-    public static class Cases extends Statement {
+    public static final class Cases extends Statement {
         private final List<Case> cases = new LinkedList<>();
 
         public void addCase(Case cas) {
@@ -282,7 +299,7 @@ public abstract class ScriptAST {
      * This class captures a single case in a cases statements.
      * This is comprised by a set of statements.
      */
-    public static class Case extends ScriptAST {
+    public static final class Case extends ScriptAST {
         /** The label of the case of type STRING_LITERAL */
         private Token label;
 
@@ -322,7 +339,8 @@ public abstract class ScriptAST {
         @Override
         public void print(Appendable writer, int indentation) throws IOException {
             indentation ++;
-            writer.append(Util.duplicate("  ", indentation) + label.getText() + ":");
+            writer.append(Util.duplicate("  ", indentation)).
+                   append(label.getText()).append(":");
             indentation ++;
             for (Statement statement : statements) {
                 writer.append("\n");
@@ -339,5 +357,52 @@ public abstract class ScriptAST {
         }
     }
 
+    /**
+     * This class captures a single case in a cases statements.
+     * This is comprised by a set of statements.
+     */
+    public static final class ByClause extends ScriptAST {
+
+        /** The list of statements of this clause */
+        private final List<Statement> statements = new LinkedList<>();
+
+        /** The node to which the head of the case points */
+        private ProofNode proofNode;
+
+        public void addStatement(Statement stmt) {
+            statements.add(stmt);
+        }
+
+        public void addStatements(Collection<? extends Statement> stmts) {
+            statements.addAll(stmts);
+        }
+
+        public <R> void visit(FunctionWithException<Command, R, ScriptException> commandFct,
+                              FunctionWithException<Cases, R, ScriptException> casesFct) throws ScriptException {
+            for (Statement statement : statements) {
+                statement.visit(commandFct, casesFct);
+            }
+        }
+
+        @Override
+        public void print(Appendable writer, int indentation) throws IOException {
+            writer.append(" by ");
+            if (statements.size() == 1) {
+                statements.get(0).print(writer, 0);
+            } else {
+                writer.append("{");
+                indentation ++;
+                for (Statement statement : statements) {
+                    writer.append("\n");
+                    statement.print(writer, indentation);
+                }
+                indentation --;
+                writer.append("\n").
+                        append(Util.duplicate("  ", indentation)).
+                        append("}");
+            }
+        }
+
+    }
 
 }

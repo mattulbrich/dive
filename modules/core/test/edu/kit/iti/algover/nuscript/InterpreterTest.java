@@ -15,6 +15,7 @@ import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.TestUtil;
 import org.antlr.runtime.RecognitionException;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class InterpreterTest {
         Project p = TestUtil.mockProject("method m(b1: bool) ensures b1&&b1 { }");
         PVC pvc = p.getPVCByName("m/Post");
 
-        Proof proof = new Proof(p, pvc);
+        Proof proof = new Proof(pvc);
         Interpreter interpreter = new Interpreter(proof);
         interpreter.interpret("skip; andRight;");
         ProofNode root = interpreter.getRootNode();
@@ -69,7 +70,7 @@ public class InterpreterTest {
 
         Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 && b1 { }");
         PVC pvc = p.getPVCByName("m/Post");
-        Proof proof = new Proof(p, pvc);
+        Proof proof = new Proof(pvc);
         Interpreter interpreter = new Interpreter(proof);
         ProofNode root = interpreter.getRootNode();
         interpreter.interpret("andRight; cases { case \"case 1\": skip; fake close=true; }");
@@ -126,7 +127,7 @@ public class InterpreterTest {
 
         Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 { }");
         PVC pvc = p.getPVCByName("m/Post");
-        Proof proof = new Proof(p, pvc);
+        Proof proof = new Proof(pvc);
         Interpreter interpreter = new Interpreter(proof);
         ProofNode root = interpreter.getRootNode();
         interpreter.interpret("fake close=true;");
@@ -149,15 +150,15 @@ public class InterpreterTest {
     public void testNotMatching() throws Exception {
         Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 == b1 { }");
         PVC pvc = p.getPVCByName("m/Post");
-        Proof proof = new Proof(p, pvc);
+        Proof proof = new Proof(pvc);
         Interpreter interpreter = new Interpreter(proof);
         interpreter.interpret("andRight;");
 
         assertTrue(interpreter.hasFailure());
         Exception exc = interpreter.getFailures().get(0);
-        assertThat(exc, Matchers.instanceOf(RuleException.class));
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
         assertThat(exc.getMessage(),
-                Matchers.equalToIgnoringCase("Schematic sequent |- (?match: $and(_, _)) does not match."));
+                Matchers.containsString("Schematic sequent |- (?match: $and(_, _)) does not match."));
 
     }
 
@@ -165,7 +166,7 @@ public class InterpreterTest {
     public void testUnknownCommand() throws Exception {
         Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 == b1 { }");
         PVC pvc = p.getPVCByName("m/Post");
-        Proof proof = new Proof(p, pvc);
+        Proof proof = new Proof(pvc);
         Interpreter interpreter = new Interpreter(proof);
         interpreter.interpret("unknownCommand;");
         assertTrue(interpreter.hasFailure());
@@ -175,12 +176,139 @@ public class InterpreterTest {
                 Matchers.equalToIgnoringCase("Unknown script command unknownCommand"));
     }
 
+    @Test
+    public void testUnknownLabel() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 && b1 { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret("andRight; cases { case \"unknownLabel\": skip; }");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.equalToIgnoringCase("Unknown label \"unknownLabel\""));
+    }
+
+    @Test
+    public void testWrongCommand() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 || b1 { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(p, pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret("andRight on=S.0;");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.containsString("andRight may only be applied to terms with operator '&&'"));
+    }
+
+    @Test
+    public void testSyntaxError() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures true { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret(";;;");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ParseCancellationException.class));
+        assertThat(exc.getMessage(),
+                Matchers.containsString("mismatched input ';' expecting <EOF>"));
+    }
+
+    @Test
+    public void testIllegalAfterSplit() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 && b1 { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret("andRight; skip;");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.equalToIgnoringCase("Command cannot be applied, there is more than one (or no) open goal"));
+    }
+
+    @Test
+    public void testUnknownNumberedParameter() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures true { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret("skip \"numbered parameters not supported here\";");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.containsString("Unknown parameter #1"));
+    }
+
+    @Test
+    public void testIllegalSelector() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures true { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret("replace on=S.42.1 with='true';");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.containsString("Cannot select S.42.1 in"));
+    }
+
+    @Test
+    public void testIllegalTerm() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures true { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret("replace on=S.0 with='strange term not parseable';");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.containsString("Cannot parse term/sequent 'strange term not parseable'"));
+    }
+
+    @Test
+    public void testMissingParameter() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures true { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret("replace on=S.0;");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.containsString("This command is not applicable"));
+    }
+
+    @Test
+    public void testWrongParameterType() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures true { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret("replace on=\"wrong type\";");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.containsString("Parameter 'on' expects an argument of type Term, " +
+                        "cannot digest 'wrong type'"));
+    }
+
     // was a bug
     @Test
     public void testContinueAfterUnknownCommand() throws Exception {
         Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 == b1 { }");
         PVC pvc = p.getPVCByName("m/Post");
-        Proof proof = new Proof(p, pvc);
+        Proof proof = new Proof(pvc);
         Interpreter interpreter = new Interpreter(proof);
         interpreter.interpret("unknownCommand; skip;");
         assertTrue(interpreter.hasFailure());
@@ -211,5 +339,58 @@ public class InterpreterTest {
         assertEquals("fake", innerSkip.getCommand().getText());
         assertSame(proof.getProofRoot().getChildren().get(0).getChildren().get(0), innerSkip.getProofNode());
 
+    }
+
+    @Test
+    public void testAfterCases() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 && b1 { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+
+        proof.setScriptText("andRight on='|-_'; cases { case \"case 1\": fake; } skip;");
+        proof.interpretScript();
+
+        assertEquals("-- ('case 1':andRight fake 'case 2':andRight skip )",
+                toTreeString(proof.getProofRoot()));
+    }
+
+    @Test
+    public void testBy() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures 1+1 > 1 { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        proof.setScriptText("replace on=S.0.0 with='2' by fake; skip;");
+        proof.interpretScript();
+        for (Exception exception : proof.getFailures()) {
+            exception.printStackTrace();
+        }
+        assertEquals("-- ('justification':replace fake 'replace':replace skip )",
+                toTreeString(proof.getProofRoot()));
+    }
+
+    @Test
+    public void testIllegalBy() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures true { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        proof.setScriptText("skip by fake;");
+        proof.interpretScript();
+        Exception exc = proof.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.equalToIgnoringCase("by clauses are only allowed for rules with two cases"));
+    }
+
+    @Test
+    public void testIllegalBy2() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures true { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        proof.setScriptText("fake close=true by skip;");
+        proof.interpretScript();
+        Exception exc = proof.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.equalToIgnoringCase("by clauses are only allowed for rules with two cases"));
     }
 }

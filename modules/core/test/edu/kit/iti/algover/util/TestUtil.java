@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Function;
 
+import edu.kit.iti.algover.nuscript.ScriptsTest;
 import edu.kit.iti.algover.parser.*;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -36,7 +38,6 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.Test;
 import org.junit.Assert;
 
 import static org.junit.Assert.*;
@@ -438,5 +439,14 @@ public class TestUtil {
             }
             Assert.fail("Unexpected exception!");
         }
+    }
+
+    @TestInfrastructure
+    public static String resourceAsString(Class<?> clss, String resource) throws IOException {
+        InputStream is = clss.getResourceAsStream(resource);
+        if (is == null) {
+            throw new FileNotFoundException("Resource " + resource + " not found");
+        }
+        return Util.streamToString(is);
     }
 }

@@ -1,2 +1,2 @@
 command;
-skip #1="string" #2="other";
+skip "string" "other";
