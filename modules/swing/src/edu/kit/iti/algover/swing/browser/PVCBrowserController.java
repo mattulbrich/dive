@@ -46,6 +46,10 @@ public class PVCBrowserController {
                 return;
             }
 
+            if (!tree.isEnabled()) {
+                return;
+            }
+
             if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
                 Viewport viewport;
                 if ((e.getModifiersEx() & MouseEvent.SHIFT_DOWN_MASK) != 0) {

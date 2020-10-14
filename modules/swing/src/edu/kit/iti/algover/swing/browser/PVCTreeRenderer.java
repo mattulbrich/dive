@@ -58,6 +58,8 @@ public class PVCTreeRenderer extends DefaultTreeCellRenderer {
             default:
                 setIcon(GREY);
             }
+
+            setDisabledIcon(GREY);
         }
 
         return this;
