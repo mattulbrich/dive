@@ -68,11 +68,6 @@ public class Proof {
     private @Nullable Script scriptAST;
 
     /**
-     * The project to which this proof belongs
-     */
-    private final Project project;
-
-    /**
      * PVC for which this proof object is created
      */
     private final PVC pvc;
@@ -108,7 +103,6 @@ public class Proof {
      * @param pvc a PVC
      */
     public Proof(@NonNull PVC pvc) {
-        this.project = pvc.getProject();
         this.pvc = pvc;
         this.graph = new ReferenceGraph();
     }
@@ -116,7 +110,7 @@ public class Proof {
     // --------- Getters
 
     public @NonNull Project getProject() {
-        return project;
+        return pvc.getProject();
     }
 
     public @NonNull PVC getPVC() {

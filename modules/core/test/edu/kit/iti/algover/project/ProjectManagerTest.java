@@ -149,7 +149,7 @@ public class ProjectManagerTest {
         System.out.println(proofAfter.getScriptText().toString());
         Assert.assertNotNull(proofAfter.getScriptText());
         Assert.assertEquals("Proof is not loaded yet",
-                ProofStatus.NON_EXISTING, proof.getProofStatus());
+                ProofStatus.OPEN, proof.getProofStatus());
 
         pm.saveProofScripts();
         //Assert.assertEquals(Status.DIRTY, proof.getStatus());
@@ -163,7 +163,7 @@ public class ProjectManagerTest {
     // This test currently throws a NullPointerException, instead of the ScriptCommandNotApplicable exception.
     // That exception is caught during execution at some point and during catching, a NullPointerException is
     // generated. The point that happens is marked via "TODO handling of error state for each visit".
-    @Test(expected = RuleException.class)
+    @Test(expected = ScriptException.class)
     public void testInapplicableScriptCommand() throws Exception {
         ProjectManager pm = new XMLProjectManager (new File(testDir), config);
         pm.reload();

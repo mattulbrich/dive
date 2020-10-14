@@ -204,12 +204,12 @@ public class ReferenceGraphDirectParentsInProofsTest {
         //SaG: atm the parent whole replaced formula is returned, therefore although term value is still part of whole formula it is considered as changed
         Assert.assertFalse(isFormulaUnchangedInDirectParent("0,0", "A.0.1", proofWithReplacement));
         Assert.assertFalse(isFormulaUnchangedInDirectParent("0,0", "A.0.0", proofWithReplacement));
-        Set<ProofTermReferenceTarget> parentsReplace = computeDirectParents("0,0", "A.0.1", proofWithReplacement);
-        Assert.assertTrue(parentsReplace.size() == 1);
+        Set<ProofTermReferenceTarget> parentsReplace = computeDirectParents("0,1", "A.0.1", proofWithReplacement);
+        assertEquals(1, parentsReplace.size());
         Assert.assertEquals(parentsReplace.iterator().next().getTermSelector().toString(),"A.0");
 
-        Set<ProofTermReferenceTarget> parentsJust = computeDirectParents("0,0", "A.0.0", proofWithReplacement);
-        Assert.assertTrue(parentsJust.size() == 1);
+        Set<ProofTermReferenceTarget> parentsJust = computeDirectParents("0,1", "A.0.0", proofWithReplacement);
+        assertEquals(1, parentsJust.size());
         Assert.assertEquals(parentsJust.iterator().next().getTermSelector().toString(),"A.0");
     }
 

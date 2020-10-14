@@ -151,7 +151,7 @@ public final class Interpreter {
             ProofNode node = findCase(cas);
             cas.setProofNode(node);
             if (node == null) {
-                throw new ScriptException("Unknown label " + cas.getLabel().getText(), cas, node);
+                throw new ScriptException("Unknown label " + cas.getLabel().getText(), cas);
             }
             List<ProofNode> oldCurrent = currentNodes;
             currentNodes = singleList(node);
@@ -181,7 +181,7 @@ public final class Interpreter {
             }
             throw new ScriptException(
                     "Command cannot be applied, there is more than one (or no) open goal",
-                    command, node);
+                    command);
         }
 
         ProofNode node = currentNodes.get(0);

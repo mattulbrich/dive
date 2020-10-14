@@ -13,7 +13,6 @@ import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
-import edu.kit.iti.algover.script.ScriptLanguageParser;
 import edu.kit.iti.algover.util.ObservableValue;
 import edu.kit.iti.algover.util.TypedBindings;
 import javafx.beans.property.ObjectProperty;
