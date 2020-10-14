@@ -71,7 +71,7 @@ public abstract class AbstractProjectManager implements ProjectManager {
     }
 
     @Override
-    public void saveProject() throws IOException {
+    public void saveProofScripts() throws IOException {
         for (Map.Entry<String, Proof> pvcProofEntry : proofs.entrySet()) {
             String pvcName = pvcProofEntry.getKey();
             Proof proof = pvcProofEntry.getValue();

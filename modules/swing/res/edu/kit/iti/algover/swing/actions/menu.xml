@@ -16,6 +16,7 @@
             file.open
             file.save
             file.saveAndReload
+			file.saveScripts
 			SEPARATOR
 			viewport.left
 			viewport.pvc
@@ -51,6 +52,7 @@
             SEPARATOR
             file.save
             file.saveAndReload
+			file.saveScripts
 			SEPARATOR general.close general.exit
 		</fileMenu>
 		
@@ -168,6 +170,13 @@
 			<extra>saveAndReload</extra>
 			<icon>io/disk.png</icon>
 		</saveAndReload>
+		<saveScripts>ACTION io/SaveScriptsAction
+			<tooltip>save the modified proof scripts of the current project</tooltip>
+			<text>Save proof scripts</text>
+			<accelerator>control shift p</accelerator>
+			<mnemonic>P</mnemonic>
+			<icon>io/database_save.png</icon>
+		</saveScripts>
 		<new>TODO io/NewFileAction
 			<tooltip>Create a new, empty Dafny project</tooltip>
 			<text>New ...</text>

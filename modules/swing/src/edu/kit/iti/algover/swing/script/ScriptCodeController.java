@@ -179,6 +179,7 @@ public class ScriptCodeController {
         // This is similar to a proof that has finished: Change in the
         // proof status
         diveCenter.properties().onGoingProof.fire(false);
+        diveCenter.properties().unsavedProofScripts.setValue(true);
         setLabelText(proof.getProofStatus());
         diveCenter.getMainController().setStatus("Script modified.");
     }

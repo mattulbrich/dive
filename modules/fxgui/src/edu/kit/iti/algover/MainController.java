@@ -479,7 +479,7 @@ public class MainController implements RuleApplicationListener {
         // TODO: Save the project
         try {
             editorController.saveAllFiles();
-            manager.saveProject();
+            manager.saveProofScripts();
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved project.");
         } catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Error saving the project.");

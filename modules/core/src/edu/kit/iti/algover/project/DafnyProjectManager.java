@@ -199,8 +199,8 @@ public class DafnyProjectManager extends AbstractProjectManager {
     }
 
     @Override
-    public void saveProject() throws IOException {
-        super.saveProject();
+    public void saveProofScripts() throws IOException {
+        super.saveProofScripts();
 
         if (scriptDatabase == null) {
             // no scripts have been touched or changed

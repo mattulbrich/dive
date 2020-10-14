@@ -185,7 +185,7 @@ public final class XMLProjectManager extends AbstractProjectManager {
             throw new FileNotFoundException(scriptFile.getAbsolutePath());
         }
 
-        return new String(Files.readAllBytes(scriptFile.toPath()));
+        return Files.readString(scriptFile.toPath());
     }
 
     private File getScriptFileForPVC(String pvcIdentifier) {

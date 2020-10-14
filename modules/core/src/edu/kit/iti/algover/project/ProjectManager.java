@@ -84,7 +84,7 @@ public interface ProjectManager {
      * Unlike {@link #saveProofScriptForPVC(String, Proof)}, this method
      * always dumps proofs into file representation.
      */
-    void saveProject() throws IOException;
+    void saveProofScripts() throws IOException;
 
     /**
      * Save the proof script for a PVC given by its interpreted proof.
@@ -94,7 +94,11 @@ public interface ProjectManager {
      * @param pvcIdentifier the name of the PVC
      * @param proof the proof from which to extract the script.
      * @throws IOException if saving fails.
+     *
+     * @deprecated Since scripts are stored in proofs, it makes little
+     * sense to save them individually.
      */
+    @Deprecated
     void saveProofScriptForPVC(@NonNull String pvcIdentifier, @NonNull Proof proof) throws IOException;
 
     /**
@@ -152,7 +156,19 @@ public interface ProjectManager {
      */
     void saveProjectConfiguration() throws IOException;
 
-    static ProjectManager fromFile(File projectFile) throws FormatException, IOException, DafnyParserException {
+    /**
+     * Create a project manager from a file. Use the file name extension to
+     * determine the kind of manager to create.
+     *
+     * Currently .dfy and .xml files are supported.
+     *
+     * @param projectFile file pointing to the project file to open, not null
+     * @return a freshly created project manager. Class depends on file type
+     * @throws FormatException if the file is illegally formatted
+     * @throws IOException if reading fails
+     * @throws DafnyParserException if the file cannot be Dafny-parsed
+     */
+    static @NonNull ProjectManager fromFile(@NonNull File projectFile) throws FormatException, IOException, DafnyParserException {
         ProjectManager manager;
         if (projectFile.getName().endsWith(".xml")) {
             manager = new XMLProjectManager(projectFile.getParentFile(), projectFile.getName());
