@@ -124,39 +124,6 @@ public class ProofNodeCheckpoint {
         }
     }
 
-
-
-    private static void build(ProofNode node, List<ProofNodeCheckpoint> checkpoints) {
-
-
-        List<ProofNode> children = node.getChildren();
-        Command command = node.getCommand();
-
-        if(children != null) {
-            if (children.isEmpty()) {
-                // closed branch
-                checkpoints.add(ProofNodeCheckpoint.endOf(command, node, Type.CLOSED));
-            } else {
-                // splitting branch
-                Command commandOnThis = children.get(0).getCommand();
-                checkpoints.add(ProofNodeCheckpoint.beginOf(commandOnThis, node, Type.CALL));
-                if (children.size() > 1) {
-                    checkpoints.add(ProofNodeCheckpoint.endOf(commandOnThis, node, Type.BRANCH));
-                }
-
-                for (ProofNode child : children) {
-                    build(child, checkpoints);
-                }
-            }
-        } else {
-            if (command == null) {
-                checkpoints.add(new ProofNodeCheckpoint(node, 1,1, Type.OPEN));
-            } else {
-                checkpoints.add(ProofNodeCheckpoint.endOf(command, node, Type.OPEN));
-            }
-        }
-    }
-
     static ProofNodeCheckpoint endOf(ScriptAST cmd, ProofNode node, Type type) {
         Token token = cmd.getEndToken();
         return new ProofNodeCheckpoint(node, token.getLine(),

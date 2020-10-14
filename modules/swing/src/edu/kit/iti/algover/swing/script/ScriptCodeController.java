@@ -56,7 +56,7 @@ public class ScriptCodeController {
             new SquiggleUnderlineHighlightPainter(Color.red);
 
     private static final HighlightPainter SPOT_HIGHLIGHT =
-            new SpotHighlightPainter(Color.orange, "\u25b6");
+            new SpotHighlightPainter(Color.orange, "_"/*"\u25b6"*/);
 
     private static final HighlightPainter OPEN_SPOT_HIGHLIGHT =
             new SpotHighlightPainter(Color.red, "X");
@@ -253,7 +253,7 @@ public class ScriptCodeController {
                     break;
                 case CALL:
                     // give the symbol chance to not be on a character.
-                    caretPos = Math.max(0, caretPos - 1);
+                    // caretPos = Math.max(0, caretPos - 1);
                     color = SPOT_HIGHLIGHT;
                     break;
                 case BRANCH:

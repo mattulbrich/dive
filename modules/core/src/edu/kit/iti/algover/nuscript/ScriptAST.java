@@ -366,6 +366,9 @@ public abstract class ScriptAST {
         /** The list of statements of this clause */
         private final List<Statement> statements = new LinkedList<>();
 
+        /** If there is a '{', let's remember that for highlighting. */
+        private Token openingBrace = null;
+
         /** The node to which the head of the case points */
         private ProofNode proofNode;
 
@@ -403,6 +406,21 @@ public abstract class ScriptAST {
             }
         }
 
+        public List<Statement> getStatements() {
+            return statements;
+        }
+
+        public Token getOpeningBrace() {
+            return openingBrace;
+        }
+
+        public void setOpeningBrace(Token openingBrace) {
+            this.openingBrace = openingBrace;
+        }
+
+        public ProofNode getProofNode() {
+            return proofNode;
+        }
     }
 
 }

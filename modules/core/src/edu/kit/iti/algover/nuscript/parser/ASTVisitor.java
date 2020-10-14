@@ -95,6 +95,8 @@ public class ASTVisitor extends ScriptBaseVisitor<ScriptAST> {
     @Override
     public ByClause visitByClause(ByClauseContext ctx) {
         ByClause result = new ByClause();
+        result.setRangeFrom(ctx);
+        result.setOpeningBrace(ctx.BEGIN().getSymbol());
         if (ctx.commandStmt() != null) {
             result.addStatement((Statement)ctx.commandStmt().accept(this));
         } else {

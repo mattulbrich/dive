@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.swing.script;
 
+import edu.kit.iti.algover.nuscript.ScriptAST.ByClause;
 import edu.kit.iti.algover.nuscript.ScriptAST.Case;
 import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
 import edu.kit.iti.algover.nuscript.ScriptAST.Command;
@@ -7,6 +8,7 @@ import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.swing.script.ProofNodeCheckpoint.Type;
+import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +27,6 @@ public class ProofNodeCheckpointBuilder {
     }
 
     private void collectCheckpoints(List<Statement> statements) {
-
         for (Statement statement : statements) {
             statement.visit(this::collectCommandCheckpoints,
                     this::collectCasesCheckpoints);
@@ -55,7 +56,19 @@ public class ProofNodeCheckpointBuilder {
         checkpoints.add(ProofNodeCheckpoint.beginOf(command, node, Type.CALL));
 
         if (node.getChildren().size() > 1) {
-            checkpoints.add(ProofNodeCheckpoint.endOf(command, node, Type.BRANCH));
+            ByClause byClause = command.getByClause();
+            if (byClause != null) {
+                if(byClause.getStatements().isEmpty()) {
+                    Token token = byClause.getOpeningBrace();
+                    checkpoints.add(new ProofNodeCheckpoint(node.getChildren().get(0),
+                            token.getLine(),
+                            token.getCharPositionInLine() + 2, Type.OPEN));
+                } else {
+                    collectCheckpoints(byClause.getStatements());
+                }
+            } else {
+                checkpoints.add(ProofNodeCheckpoint.endOf(command, node, Type.BRANCH));
+            }
         } else {
 
             // since we know that this rule has been applied, we definitely know that
