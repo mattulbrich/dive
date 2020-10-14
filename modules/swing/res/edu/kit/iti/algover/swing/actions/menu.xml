@@ -173,11 +173,11 @@
 		<saveScripts>ACTION io/SaveScriptsAction
 			<tooltip>save the modified proof scripts of the current project</tooltip>
 			<text>Save proof scripts</text>
-			<accelerator>control shift p</accelerator>
+			<accelerator>control shift P</accelerator>
 			<mnemonic>P</mnemonic>
 			<icon>io/database_save.png</icon>
 		</saveScripts>
-		<new>TODO io/NewFileAction
+		<new>ACTION io/NewFileAction
 			<tooltip>Create a new, empty Dafny project</tooltip>
 			<text>New ...</text>
 			<accelerator>control N</accelerator>

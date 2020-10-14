@@ -45,7 +45,9 @@ public class CloseAction extends BarAction
     private void tryClose() {
         DiveCenter center = getDiveCenter();
 
-        boolean changed = center.properties().unsavedChanges.getValue();
+        boolean changed =
+                center.properties().unsavedChanges.getValue() ||
+                        center.properties().unsavedProofScripts.getValue();
 
         if(changed) {
             int result = JOptionPane.showConfirmDialog(getParentFrame(),
