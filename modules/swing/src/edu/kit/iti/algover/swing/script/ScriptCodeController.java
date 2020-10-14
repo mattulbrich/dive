@@ -62,7 +62,7 @@ public class ScriptCodeController {
             new SpotHighlightPainter(Color.red, "X");
 
     private static final HighlightPainter BRANCH_HIGHLIGHT =
-            new SpotHighlightPainter(Color.cyan, "\u25c0");
+            new SpotHighlightPainter(Color.BLUE, "\u2225"/*"\u25c0"*/);
 
     private static final HighlightPainter CLOSED_HIGHLIGHT =
             new SpotHighlightPainter(Color.green.darker(), "\u25cf");
@@ -270,6 +270,7 @@ public class ScriptCodeController {
                 e.printStackTrace();
             }
         }
+        textArea.repaint();
     }
 
     public void replay() {
