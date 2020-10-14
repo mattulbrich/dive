@@ -61,6 +61,13 @@ public class DiveProperties {
             new Property<>("unsavedChanges", Boolean.class, false);
 
     /**
+     * This is set to true if one of the proof scripts has been changed.
+     * It is reset to false once the scripts have been saved.
+     */
+    public final Property<Boolean> unsavedProofScripts =
+            new Property<>("unsavedProofScripts", Boolean.class, false);
+
+    /**
      * A signal to indicate that this dive center has been shut down.
      * Goes from false to true at most once.
      */

@@ -75,6 +75,12 @@ public class PrettyPrint {
             new HashMap<>();
 
     /**
+     * A pretty printer for variables. Currently only subscripts are handled.
+     */
+    @NonNull VariablePrettyPrintExtension variablePrettyPrint = new MultiSubscriptPrinterExtension();
+
+
+    /**
      * whether or not in-/prefix operators are printed as such.
      */
     private boolean printFix = true;
@@ -364,6 +370,15 @@ public class PrettyPrint {
             responsibleExtensions.put(f, null);
             return null;
         }
+    }
+
+    /**
+     * Getter for pretty printer extension used for variable names.
+     *
+     * @return The extension for pretty printing variable names
+     */
+    public VariablePrettyPrintExtension getVariablePrettyPrint() {
+        return variablePrettyPrint;
     }
 
 }

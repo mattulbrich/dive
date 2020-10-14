@@ -151,7 +151,7 @@ public class ProjectManagerTest {
         Assert.assertEquals("Proof is not loaded yet",
                 ProofStatus.NON_EXISTING, proof.getProofStatus());
 
-        pm.saveProject();
+        pm.saveProofScripts();
         //Assert.assertEquals(Status.DIRTY, proof.getStatus());
        /* pm.replayAllProofs();
         for (Proof pr : pm.getAllProofs().values()) {
