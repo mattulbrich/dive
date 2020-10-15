@@ -13,7 +13,7 @@ import java.awt.*;
 public class IndentationLayout implements LayoutManager {
 
     public static final String INDENTED_PROPERTY = "indented";
-    private static int GAP = 3;
+    private static final int GAP = 3;
 
     private final int indentation;
 

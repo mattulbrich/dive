@@ -21,6 +21,8 @@ import edu.kit.iti.algover.term.Sequent;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.awt.*;
 import java.util.ArrayList;
@@ -41,7 +43,7 @@ public class SequentController {
     public SequentController(DiveCenter diveCenter) {
         this.diveCenter = diveCenter;
 
-        seqComponent = new JPanel(new IndentationLayout(SEPARATOR.SEP_LENGTH / 2));
+        seqComponent = new JPanel(new IndentationLayout(SequentSeparator.SEP_LENGTH / 2));
         seqComponent.setBackground(Settings.getInstance().getColor(BACKGROUND, Color.WHITE));
         seqComponent.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
@@ -71,7 +73,7 @@ public class SequentController {
         Dimension portDim = component.getViewport().getExtentSize();
         Dimension curDim = seqComponent.getSize();
 
-        seqComponent.setPreferredSize(new Dimension(portDim.width, curDim.height));
+        seqComponent.setSize(new Dimension(portDim.width, curDim.height));
     }
 
     private void setProofNode(ProofNodeCheckpoint checkpoint) {
@@ -122,7 +124,6 @@ public class SequentController {
 
         seqComponent.revalidate();
         seqComponent.repaint();
-
     }
 
     public Component getComponent() {
