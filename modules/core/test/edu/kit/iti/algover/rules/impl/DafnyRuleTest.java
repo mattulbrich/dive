@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -142,5 +143,21 @@ public class DafnyRuleTest {
         assertEquals("$eq<int>(int, int) : bool", eqInPostCond.toString());
 
         assertSame(eqInPostCond, eqInSearchTerm);
+    }
+
+    // was a bug
+    @Test
+    public void testIllegalVariables() throws Exception {
+        Project project = TestUtil.mockProject("lemma l1(s: seq<int>) ensures (|s|==|s|) {}");
+        DafnyRule l1Rule = null;
+        for (ProofRule rule : project.getAllProofRules()) {
+            if(rule.getName().equals("l1")) {
+                l1Rule = (DafnyRule) rule;
+                break;
+            }
+        }
+        assertNotNull(l1Rule);
+        assertEquals("$seqLen<int>(s)", l1Rule.getSearchTerm().toString());
+        assertEquals("$seqLen<int>(s)", l1Rule.getReplaceTerm().toString());
     }
 }
