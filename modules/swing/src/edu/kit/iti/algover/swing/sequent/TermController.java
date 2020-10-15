@@ -248,6 +248,7 @@ public class TermController extends MouseAdapter {
             component.setText("");
             annotatedString.appendToDocument(component.getDocument(), attributeFactory);
             lineWidth = newLineWidth;
+            updateTermSelector(diveCenter.properties().termSelector.getValue());
         }
     }
 

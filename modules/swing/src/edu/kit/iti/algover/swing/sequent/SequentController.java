@@ -48,6 +48,7 @@ public class SequentController {
         seqComponent.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
         component = new JScrollPane(seqComponent);
+        component.getVerticalScrollBar().setUnitIncrement(16);
         component.getViewport().addChangeListener(this::changedViewportState);
 
         diveCenter.properties().proofNodeCheckpoint.addObserver(this::setProofNode);
