@@ -82,7 +82,6 @@ public class SkolemizationRule extends FocusProofRule {
     }
 
     private class SkolemizationVisitor extends ReplacementVisitor<Map<VariableTerm, ApplTerm>> {
-        private int varCounter = 0;
         private final SymbolTable symbolTable;
         private List<FunctionSymbol> newFs;
 
@@ -103,9 +102,11 @@ public class SkolemizationRule extends FocusProofRule {
                 if(arg.get(variableTerm) != null) {
                     return arg.get(variableTerm);
                 } else {
-                    FunctionSymbol fs = new FunctionSymbol("skvar" + varCounter++, variableTerm.getSort());
+                    String prefix = variableTerm.getName();
+                    FunctionSymbol fs = new FunctionSymbol(prefix, variableTerm.getSort());
+                    int varCounter = 1;
                     while(symbolTable.getFunctionSymbol(fs.getName()) != null) {
-                        fs = new FunctionSymbol("skvar" + varCounter++, variableTerm.getSort());
+                        fs = new FunctionSymbol(prefix + varCounter++, variableTerm.getSort());
                     }
                     newFs.add(fs);
                     ApplTerm at = new ApplTerm(fs);
