@@ -9,6 +9,8 @@ package edu.kit.iti.algover.swing.sequent;
 
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.BranchInfo;
+import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.rules.TermSelector.SequentPolarity;
 import edu.kit.iti.algover.swing.DiveCenter;
@@ -18,6 +20,9 @@ import edu.kit.iti.algover.swing.util.GUIUtil;
 import edu.kit.iti.algover.swing.util.IndentationLayout;
 import edu.kit.iti.algover.swing.util.Settings;
 import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.term.Term;
+import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Pair;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -123,8 +128,31 @@ public class SequentController {
             i++;
         }
 
+        highlightRuleApplication(proofNode);
+
         seqComponent.revalidate();
         seqComponent.repaint();
+    }
+
+    private void highlightRuleApplication(ProofNode node) {
+        ProofRuleApplication ruleApp = node.getProofRuleApplication();
+        if (ruleApp == null || ruleApp.getBranchCount() == 0) {
+            return;
+        }
+        BranchInfo branchInfo = null;
+        for (BranchInfo info : ruleApp.getBranchInfo()) {
+            if(info.getLabel().equals(node.getLabel())) {
+                branchInfo = info;
+                break;
+            }
+        }
+
+        // TODO Highlight additions too.
+        ImmutableList<TermSelector> selectors = branchInfo.getReplacements().map(Pair::getFst);
+        for (TermController termController : controllerList) {
+            termController.setReplacementHighlights(selectors);
+        }
+
     }
 
     public Component getComponent() {
