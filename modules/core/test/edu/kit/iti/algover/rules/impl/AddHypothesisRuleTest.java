@@ -53,7 +53,7 @@ public class AddHypothesisRuleTest {
         Parameters params = new Parameters();
         params.putValue(AddHypothesisRule.WITH_PARAM, new TermParameter(tp.parse("b1"), s));
         ProofRuleApplication pra = rule.makeApplication(pn,  params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
 
         assertEquals(2, newNodes.size());
         assertEquals(newNodes.get(0).getSequent().toString(), "$or(b1, b2), b3, b1 |- $or($and(b3, b2), $and(b3, b1))");

@@ -5,7 +5,6 @@
  */
 package edu.kit.iti.algover.term.builder;
 
-import edu.kit.iti.algover.SymbexStateToFormula;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyParser;
@@ -877,7 +876,7 @@ public class TreeTermTranslator {
     }
 
     private Term buildWildcard(DafnyTree tree) throws TermBuildException {
-        Sort sort = buildSort(tree.getExpressionType());
+        Sort sort = ASTUtil.toSort(tree.getExpressionType());
         if (tree.getChildCount() > 0) {
             return build(tree.getChild(0));
         }
@@ -1002,7 +1001,7 @@ public class TreeTermTranslator {
         // make the order correct
         vars = vars.reverse();
 
-        Sort sort = buildSort(tree.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
+        Sort sort = ASTUtil.toSort(tree.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
 
         DafnyTree formulaTree = tree.getLastChild();
         return buildQuantifier(q, vars, sort, formulaTree);
@@ -1060,13 +1059,6 @@ public class TreeTermTranslator {
 
     }
 
-
-    // Currently that is still simple since only array<int>, arrayN<int> and set<int>
-    // are supported besides int.
-    // The name of the node is actually the type already... Will change in future!
-    private Sort buildSort(@NonNull DafnyTree child) {
-        return SymbexStateToFormula.treeToType(child);
-    }
 
     private Term buildUnary(FunctionSymbol f, DafnyTree tree) throws TermBuildException {
         if (tree.getChildCount() != 1) {

@@ -93,7 +93,6 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
     @Override
     public Void visit(VariableTerm variable, Void arg) {
         printer.setStyle(Style.VARIABLE);
-
         // TODO maybe move to pretty printer, similar to FunctionSymbol;
 
         VariablePrettyPrintExtension ppe = pp.getVariablePrettyPrint();
@@ -103,7 +102,6 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
         } else {
             ppe.print(variable, this);
         }
-
 
         printer.resetPreviousStyle();
         return arg;

@@ -83,8 +83,8 @@ public class PlayProofsTest {
         List<Proof> proofs = service.runVerification();
 
         for (Proof proof : proofs) {
-            if(proof.getFailException() != null) {
-                proof.getFailException().printStackTrace();
+            if(proof.getFailures() != null) {
+                proof.getFailures().forEach(Throwable::printStackTrace);
             }
             assertEquals("Unclosed proof " + proof.getPVCName(), ProofStatus.CLOSED, proof.getProofStatus());
         }

@@ -141,8 +141,8 @@ public class AlgoVerService {
             if(verbosityLevel > 1) {
                 System.err.println(proof.proofToString());
 
-                if (proof.getFailException() != null) {
-                    proof.getFailException().printStackTrace();
+                if (proof.getFailures() != null) {
+                    proof.getFailures().forEach(Throwable::printStackTrace);
                 }
             }
         }

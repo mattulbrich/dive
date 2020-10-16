@@ -7,14 +7,9 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.nuscript.ScriptAST.Command;
 import edu.kit.iti.algover.rules.BranchInfo;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.script.ast.ASTNode;
-import edu.kit.iti.algover.script.ast.Position;
-import edu.kit.iti.algover.script.ast.Type;
-import edu.kit.iti.algover.script.ast.Variable;
-import edu.kit.iti.algover.script.data.Value;
-import edu.kit.iti.algover.script.data.VariableAssignment;
 import edu.kit.iti.algover.term.Sequent;
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -25,18 +20,11 @@ import java.util.*;
  * Class represents one proof node. It has a pointer to its parent node and to the children nodes.
  * If no child node exists, the node is either a leaf in the proof tree or a closed branch
  * (is that a good idea, or should we incorporate a field that is true when node is a closed proof node?)
- * *
+ *
+ * @author Sarah Grebing, Mattias Ulbrich
  */
 
-// REVIEW: Add the missing generic parameters! Please!
-
-@SuppressWarnings({"unchecked", "rawtypes"})
 public class ProofNode {
-
-    /**
-     * The variable assignments for this node
-     */
-    private VariableAssignment variableAssignments;
 
     /**
      * Pointer to parent proof node
@@ -44,16 +32,23 @@ public class ProofNode {
     private final ProofNode parent;
 
     /**
-     * Proof Rule Application responsible for child
+     * Proof Rule Application responsible for node.
+     * Null for the root node.
      */
-    private final ProofRuleApplication psr;
-
-    // private ProofHistory history;
+    private final @Nullable ProofRuleApplication ruleApplication;
 
     /**
-     * Pointer to children
+     * Pointer to command that produced this node.
+     * Null if root
+     *
+     * Can be set after construction.
      */
-    private final List<ProofNode> children = new LinkedList<ProofNode>();;
+    private final @Nullable Command command;
+
+    /**
+     * Pointer to children; mutable
+     */
+    private @Nullable List<ProofNode> children;
 
     /**
      * Root PVC
@@ -63,64 +58,46 @@ public class ProofNode {
     /**
      * Sequent in this proof node
      */
-    private final Sequent sequent;
-
-    /**
-     * Is closed node?
-     */
-    private boolean closed;
-
-    /**
-     * Pointer to ASTNode that mutated this node
-     */
-    // REVIEW: Why is this a list? The name and usage here indicates that is
-            // always a singleton (at most)
-    private List<ASTNode> mutator;
-
-    private @Nullable Position beginPos;
+    private final @NonNull Sequent sequent;
 
     /**
      * The label a rule application has given this Node on application.
-     * (see {@link BranchInfo#label})
+     * (see {@link BranchInfo#getLabel()}).
+     * null for the root.
      */
-    private String label = null;
+    private final @Nullable String label;
 
+    /**
+     * The symbols added by a rule application
+     */
     private final @NonNull SymbolTable addedSymbols;
 
 
     public static ProofNode createRoot(PVC pvc) {
-        return new ProofNode(null, null, pvc.getSequent(), pvc);
+        return new ProofNode(null, null, null, null,
+                pvc.getSequent(), pvc);
     }
 
-    public ProofNode(ProofNode parent, ProofRuleApplication psr, Sequent seq, PVC rootPVC) {
+    public static ProofNode createChild(ProofNode parent, ProofRuleApplication pra,
+                                        String label, Command command, Sequent seq) {
+        return new ProofNode(parent, pra, label, command, seq, parent.getPVC());
+    }
+
+    public static ProofNode createClosureChild(ProofNode parent, ProofRuleApplication pra,
+                                               Command command) {
+        return new ProofNode(parent, pra, "*error*", command, Sequent.EMPTY, parent.getPVC());
+    }
+
+    // TODO Make this private and call it with reflection from test cases to hide it.
+    public ProofNode(ProofNode parent, ProofRuleApplication pra,
+                     String label, Command command, Sequent seq, PVC rootPVC) {
         this.parent = parent;
-        this.psr = psr;
+        this.ruleApplication = pra;
+        this.label = label;
         this.sequent = seq;
         this.pvc = rootPVC;
-        this.closed = false;
-        this.mutator = new ArrayList<>();
-        this.variableAssignments = new VariableAssignment(parent == null ? null : parent.deepCopyAssignments());
+        this.command = command;
         this.addedSymbols = new MapSymbolTable(Collections.emptyList());
-    }
-
-    public Sequent getSequent() {
-        return sequent;
-    }
-
-    public ProofNode getParent() {
-        return parent;
-    }
-
-    public ProofRuleApplication getProofRuleApplication() {
-        return psr;
-    }
-
-    public List<ProofNode> getChildren() {
-        return children;
-    }
-
-    public SymbolTable getAddedSymbols() {
-        return addedSymbols;
     }
 
     public SymbolTable getAllSymbols() {
@@ -137,178 +114,77 @@ public class ProofNode {
      * @param children
      */
     public void setChildren(List<ProofNode> children) {
-        this.children.addAll(children);
+        this.children = new ArrayList<>(children);
+    }
+
+    /**
+     * Is this node closed?
+     *
+     * This is the case if the node has been interpreted and has no children.
+     *
+     * @return true iff the script node is a closed proof leaf.
+     */
+    public boolean isClosed() {
+        return children != null && children.isEmpty();
+    }
+
+    /**
+     * Returns true if there is no open leaf in the tree beneath
+     *
+     * @return true if the spanned subtree is closed.
+     */
+    public boolean allLeavesClosed() {
+        return children != null && children.stream().allMatch(ProofNode::allLeavesClosed);
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public Command getCommand() {
+        return command;
+    }
+
+    public Sequent getSequent() {
+        return sequent;
+    }
+
+    public ProofNode getParent() {
+        return parent;
     }
 
     public PVC getPVC() {
         return pvc;
     }
 
-    public boolean isClosed() {
-        return closed;
-    }
-
-    public void setClosed(boolean closed) {
-        assert !closed || children.isEmpty() : "Only empty nodes can be closed";
-        this.closed = closed;
+    public ProofRuleApplication getProofRuleApplication() {
+        return ruleApplication;
     }
 
     /**
-     * Returns true if there is no leaf in the tree beneath that is an open goal
+     * Get the list of all children of this proof node.
+     * This returns null during script interpretation as the proof tree grows
      *
-     * @return true if the spanned subtree is closed.
+     * @return an immutable view to the list of children, null if not yet fully expanded
+     * @see #getSuccessors()
      */
-    public boolean allLeavesClosed() {
-        return isClosed() ||
-                (!getChildren().isEmpty()
-                        && getChildren().stream().allMatch(ProofNode::allLeavesClosed));
+    public @Nullable List<ProofNode> getChildren() {
+        return children == null ? null : Collections.unmodifiableList(children);
     }
 
-    public void addMutator(ASTNode mutator) {
-        this.mutator.add(mutator);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-     //   sb.append("\n==============================================================\n");
-        if (this.getParent() == null) {
-            sb.append("Root Node:\n");
-        } else {
-            sb.append("Proof Node:\n");
-        }
-
-        if (!this.variableAssignments.isEmpty()) {
-            //sb.append("Variable Assignments");
-            sb.append(variableAssignments.toString());
-        } else {
-            sb.append("Empty Assignments\n");
-        }
-        sb.append("\nSequent:\n" + this.sequent.toString() + "\n");
-        sb.append("\nMutator for this Node: ");
-        if (!mutator.isEmpty()) {
-            sb.append("\nMutator-Type: " + mutator.get(0).getNodeName()+"\n");
-
-            sb.append("\n" + mutator.get(0).getRuleContext().getText()+"\n");
-            if (mutator.size() != 1)
-                sb.append("\nNumber of Mutators: " + mutator.size()+"\n");
-        }
-       // sb.append("\n==============================================================\n");
-
-        return sb.toString();
-    }
-
-    public List<ASTNode> getMutator() {
-        return mutator;
-    }
-
-    private void setMutator(List<ASTNode> mutator) {
-        this.mutator = mutator;
-    }
-
-    private VariableAssignment deepCopyAssignments() {
-        return this.variableAssignments.deepCopy();
-    }
-
-    /****************************************************************************************************************
+    /**
+     * Get the list of all children of this proof node.
+     * While the children reference may be null, this will always return a valid object reference.
+     * In case of children==null, it returns an empty list.
      *
-     *                                          Section  for Handling VariableAssignments
-     *
-     ****************************************************************************************************************/
-
-    public VariableAssignment getVariableAssignments() {
-        return variableAssignments;
-    }
-
-    public void setVariableAssignments(VariableAssignment variableAssignments) {
-        this.variableAssignments = variableAssignments;
-    }
-
-    /**
-     * @param varname
-     * @return value of variable if it exists
+     * @return an immutable view to the list of children, empty if not yet fully expanded
+     * @see #getChildren()
      */
-    public Value getVariableValue(Variable varname) {
-        return variableAssignments.getValue(varname);
-
+    public List<ProofNode> getSuccessors() {
+        return children == null ? Collections.emptyList() : Collections.unmodifiableList(children);
     }
 
-    /**
-     * Lookup the type of the variable in the type map
-     *
-     * @param varname
-     * @return
-     */
-    public Type getVariableType(Variable varname) {
-        Type t = this.getAssignments().getType(varname);
-        if (t == null) {
-            throw new RuntimeException("Variable " + varname + " must be declared first");
-        } else {
-
-            return t;
-        }
-    }
-
-    public VariableAssignment getAssignments() {
-        return this.variableAssignments;
-    }
-
-    /**
-     * Add a variable declaration to the type map (TODO Default value in map?)
-     *
-     * @param name
-     * @param type
-     * @throws NullPointerException
-     */
-    public void declareVariable(Variable name, Type type) {
-        this.getAssignments().declare(name, type);
-    }
-
-    /**
-     * Set the value of a variable in the value map
-     *
-     * @param name
-     * @param value
-     */
-    public void setVariableValue(Variable name, Value value) {
-        getAssignments().assign(name, value);
-    }
-
-    /**
-     * Enter new variable scope and push onto stack
-     */
-    public VariableAssignment enterScope() {
-        variableAssignments = variableAssignments.push();
-        return variableAssignments;
-    }
-
-
-    public VariableAssignment exitScope() {
-        this.variableAssignments = this.variableAssignments.pop();
-        return variableAssignments;
-    }
-
-    public VariableAssignment enterScope(VariableAssignment va) {
-        variableAssignments = variableAssignments.push(va);
-        return variableAssignments;
-    }
-
-    /**
-     * non-obligatory label for handling cases
-     */
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    public Position getBeginPos() {
-        return beginPos;
-    }
-
-    public void setBeginPos(Position beginPos) {
-        this.beginPos = beginPos;
+    public SymbolTable getAddedSymbols() {
+        return addedSymbols;
     }
 }

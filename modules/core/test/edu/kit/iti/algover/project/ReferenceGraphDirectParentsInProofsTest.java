@@ -1,10 +1,8 @@
 package edu.kit.iti.algover.project;
 
-import edu.kit.iti.algover.parser.DafnyException;
-import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.Proof;
-import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
@@ -15,7 +13,7 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.HistoryProofUtils;
 import edu.kit.iti.algover.util.ProofUtils;
-import edu.kit.iti.algover.util.TestInfrastructure;
+import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Assert;
@@ -24,21 +22,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Logger;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 @RunWith(JUnitParamsRunner.class)
 public class ReferenceGraphDirectParentsInProofsTest {
 
-    public Proof proofWithTwoSubstitutionsAndSkips;
+    private Proof proofWithTwoSubstitutionsAndSkips;
 
-    public Proof proofBranched;
+    private Proof proofBranched;
 
-    public Proof proofWithRemoval;
+    private Proof proofWithRemoval;
 
-    public Proof proofWithReplacement;
+    private Proof proofWithReplacement;
 
     private Object[][] unchangedFormulas() {
         return new Object[][]
@@ -50,8 +50,6 @@ public class ReferenceGraphDirectParentsInProofsTest {
                         new Object[]{"0", "S.0"},
                         new Object[]{"0", "S.0.0"},
                         new Object[]{"0", "S.0.1"},
-
-
                 };
     }
 
@@ -81,10 +79,9 @@ public class ReferenceGraphDirectParentsInProofsTest {
      */
 
     @Before
-    public void testProjectLoad(){
+    public void testProjectLoad() throws Exception {
 
         XMLProjectManager pm = null;
-        try {
             URL resource = getClass().getResource("./referenceGraphTest");
 
             pm = new XMLProjectManager(new File(resource.getFile()), "config.xml");
@@ -92,6 +89,9 @@ public class ReferenceGraphDirectParentsInProofsTest {
             proofWithTwoSubstitutionsAndSkips = pm.getProofForPVC("max/else/Post");
             proofWithTwoSubstitutionsAndSkips.setScriptTextAndInterpret("substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
                     "substitute on='|- ... ((?match: let m := x :: m > 1)) ...';\n"+"skip;\n"+"skip;\n");
+
+        TestUtil.assertNoException(proofWithTwoSubstitutionsAndSkips.getFailures());
+            assertEquals(ProofStatus.OPEN, proofWithTwoSubstitutionsAndSkips.getProofStatus());
 
             proofBranched = pm.getProofForPVC("max/then/Post.1");
             String script2 = "substitute on='... ((?match: let m := x :: m < y)) ... |-';\n" +
@@ -110,6 +110,10 @@ public class ReferenceGraphDirectParentsInProofsTest {
                     "\t}\n" +
                     "}";
             proofBranched.setScriptTextAndInterpret(script2);
+        TestUtil.assertNoException(proofBranched.getFailures());
+            assertEquals(ProofStatus.OPEN, proofBranched.getProofStatus());
+
+
 
             //has addlist+delList
             proofWithRemoval = pm.getProofForPVC("ff/Post");
@@ -131,16 +135,8 @@ public class ReferenceGraphDirectParentsInProofsTest {
 
             proofWithReplacement = pm.getProofForPVC("max/else/Post.1");
             proofWithReplacement.setScriptTextAndInterpret(script);
-
-        } catch (FormatException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DafnyParserException e) {
-            e.printStackTrace();
-        } catch (DafnyException e) {
-            e.printStackTrace();
-        }
+        TestUtil.assertNoException(proofWithReplacement.getFailures());
+            assertEquals(ProofStatus.OPEN, proofWithReplacement.getProofStatus());
 
     }
 
@@ -183,7 +179,7 @@ public class ReferenceGraphDirectParentsInProofsTest {
 
 
         ProofTermReferenceTarget childTarget = new ProofTermReferenceTarget(justNode, sy);
-        ReferenceGraph graph = proofBranched.getGraph();
+        ReferenceGraph graph = proofBranched.getReferenceGraph();
         ProofTermReferenceTarget proofTermReferenceTarget = graph.computeTargetBeforeChange(proofBranched, childTarget);
 
 
@@ -192,7 +188,7 @@ public class ReferenceGraphDirectParentsInProofsTest {
         scriptReferenceTargetSet.forEach(scriptReferenceTarget -> System.out.println("scriptReferenceTarget = " + scriptReferenceTarget));
 
 
-        // Set<ScriptReferenceTarget> scriptReferenceTargetSet = proofBranched.getGraph().allSuccessorsWithType(childTarget, ScriptReferenceTarget.class);
+        // Set<ScriptReferenceTarget> scriptReferenceTargetSet = proofBranched.getReferenceGraph().allSuccessorsWithType(childTarget, ScriptReferenceTarget.class);
        // scriptReferenceTargetSet.forEach(scriptReferenceTarget -> System.out.println("scriptReferenceTarget = " + scriptReferenceTarget));
 
     }
@@ -208,12 +204,12 @@ public class ReferenceGraphDirectParentsInProofsTest {
         //SaG: atm the parent whole replaced formula is returned, therefore although term value is still part of whole formula it is considered as changed
         Assert.assertFalse(isFormulaUnchangedInDirectParent("0,0", "A.0.1", proofWithReplacement));
         Assert.assertFalse(isFormulaUnchangedInDirectParent("0,0", "A.0.0", proofWithReplacement));
-        Set<ProofTermReferenceTarget> parentsReplace = computeDirectParents("0,0", "A.0.1", proofWithReplacement);
-        Assert.assertTrue(parentsReplace.size() == 1);
+        Set<ProofTermReferenceTarget> parentsReplace = computeDirectParents("0,1", "A.0.1", proofWithReplacement);
+        assertEquals(1, parentsReplace.size());
         Assert.assertEquals(parentsReplace.iterator().next().getTermSelector().toString(),"A.0");
 
-        Set<ProofTermReferenceTarget> parentsJust = computeDirectParents("0,0", "A.0.0", proofWithReplacement);
-        Assert.assertTrue(parentsJust.size() == 1);
+        Set<ProofTermReferenceTarget> parentsJust = computeDirectParents("0,1", "A.0.0", proofWithReplacement);
+        assertEquals(1, parentsJust.size());
         Assert.assertEquals(parentsJust.iterator().next().getTermSelector().toString(),"A.0");
     }
 
@@ -274,7 +270,7 @@ public class ReferenceGraphDirectParentsInProofsTest {
     private Set<ProofTermReferenceTarget> computeDirectParents(String pathChild, String termSelectorString, Proof currentProof) throws FormatException {
         ProofNodeSelector pns = ProofUtils.computeProofNodeSelector(pathChild);
         TermSelector termSelector = new TermSelector(termSelectorString);
-        Set<ProofTermReferenceTarget> directParents = currentProof.getGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), currentProof);
+        Set<ProofTermReferenceTarget> directParents = currentProof.getReferenceGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), currentProof);
         return directParents;
     }
 
@@ -293,7 +289,7 @@ public class ReferenceGraphDirectParentsInProofsTest {
 
         try {
             TermSelector termSelector = new TermSelector(termSelectorString);
-            Set<ProofTermReferenceTarget> directParents = currentProof.getGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), currentProof);
+            Set<ProofTermReferenceTarget> directParents = currentProof.getReferenceGraph().findDirectParents(new ProofTermReferenceTarget(pns, termSelector), currentProof);
             Term proofFormula = termSelector.selectSubterm(pns.get(currentProof).getSequent());
             Logger.getGlobal().info("Test for proof node " + pns + " term " + proofFormula);
 

@@ -8,24 +8,32 @@ package edu.kit.iti.algover.project;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
+import edu.kit.iti.algover.nuscript.ScriptException;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
-import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.TestUtil;
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for the methods for ProjectManagement
@@ -87,18 +95,17 @@ public class ProjectManagerTest {
 
         Proof proof = pm.getProofForPVC(testPVCxPost);
 
-        Assert.assertNotNull(proof.getScript());
+        Assert.assertNotNull(proof.getScriptText());
 //        pm.initializeProofDataStructures(testPVCm1Post);
         // pm.findAndParseScriptFileForPVC(testPVCm1Post);
        // Assert.assertTrue();
         Assert.assertEquals("Proofscript is parsed", ProofStatus.CHANGED_SCRIPT, proof.getProofStatus());
-        Assert.assertNull(proof.getFailException());
-        Assert.assertTrue(proof.getDfyFile() != null);
+        TestUtil.assertNoException(proof.getFailures());
 
         proof.interpretScript();
 
         Assert.assertEquals("Proofscript has run", ProofStatus.OPEN, proof.getProofStatus());
-        Assert.assertNull(proof.getFailException());
+        TestUtil.assertNoException(proof.getFailures());
 
         System.out.println("Proof root for PVC " + testPVCxPost + " \n" + pm.getProofForPVC(testPVCxPost).getProofRoot().getSequent());
         //get the Proof object for a PVC
@@ -115,7 +122,7 @@ public class ProjectManagerTest {
 
         //this should be the way a script should be interpreted
         proof2.interpretScript();
-        Assert.assertNull(proof.getFailException());
+        Assert.assertThat(proof.getFailures(), empty());
 
         //the way to print the proof tree
         //proof2.getProofRoot();
@@ -124,26 +131,27 @@ public class ProjectManagerTest {
 
         String newScript = "//substitute on='let $mod := $everything :: (let x := 1 :: 1== 2 && 2 == 3 && 4==5)';\n" +
                 "//substitute on='let x := 1 :: 1== 2 && 2 == 3 &&4==5 '; \n" +
-                "x:int := 0; \n" +
+                "//x:int := 0; \n" +
                 "andRight on='1== 2 && 2 == 3 && 4==5';\n";
         //set a new script text and parse it
         proof2.setScriptText(newScript);
-        System.out.println(proof2.getScript());
+        System.out.println(proof2.getScriptText());
         //interpret new Script
         proof2.interpretScript();
-        Assert.assertNull(proof.getFailException());
-        System.out.println(proof2.getDfyFile().getFilename() + proof2.getGraph().toString());
-        pm.getAllProofs().forEach((s1, proof1) -> {
+        TestUtil.assertNoException(proof.getFailures());
+        System.out.println(proof2.getPVCName() + ": " + proof2.getReferenceGraph());
+       /* pm.getAllProofs().forEach((s1, proof1) -> {
             proof1.invalidate();
-        });
+        });*/
         Proof proofAfter = pm.getProofForPVC(testPVCm1Post);
 
 
-        System.out.println(proofAfter.getScript().toString());
-        Assert.assertNotNull(proofAfter.getScript());
-        Assert.assertEquals("Proof is not loaded yet", ProofStatus.DIRTY, proof.getProofStatus());
+        System.out.println(proofAfter.getScriptText().toString());
+        Assert.assertNotNull(proofAfter.getScriptText());
+        Assert.assertEquals("Proof is not loaded yet",
+                ProofStatus.OPEN, proof.getProofStatus());
 
-        pm.saveProject();
+        pm.saveProofScripts();
         //Assert.assertEquals(Status.DIRTY, proof.getStatus());
        /* pm.replayAllProofs();
         for (Proof pr : pm.getAllProofs().values()) {
@@ -155,15 +163,16 @@ public class ProjectManagerTest {
     // This test currently throws a NullPointerException, instead of the ScriptCommandNotApplicable exception.
     // That exception is caught during execution at some point and during catching, a NullPointerException is
     // generated. The point that happens is marked via "TODO handling of error state for each visit".
-    @Test(expected = ScriptCommandNotApplicableException.class)
-    public void testInapplicableScriptCommand() throws ScriptCommandNotApplicableException, Exception {
+    @Test(expected = ScriptException.class)
+    public void testInapplicableScriptCommand() throws Exception {
         ProjectManager pm = new XMLProjectManager (new File(testDir), config);
         pm.reload();
 
         Proof proof = pm.getProofForPVC(testPVCm1Post);
 
         proof.setScriptTextAndInterpret("substitute on='true';");
-        throw proof.getFailException();
+        assertEquals(1, proof.getFailures().size());
+        throw proof.getFailures().get(0);
     }
 
     // This test currently fails with a NullPointerException, but I felt like an empty script should be
@@ -176,14 +185,12 @@ public class ProjectManagerTest {
         Proof proof = pm.getProofForPVC(testPVCm1Post);
 
         proof.setScriptTextAndInterpret(" ");
-        assertTrue(proof.getProofRoot().getChildren().isEmpty());
-        if (proof.getFailException() != null)
-            proof.getFailException().printStackTrace();
-        Assert.assertNull(proof.getFailException());
+        assertNull(proof.getProofRoot().getChildren());
+        TestUtil.assertNoException(proof.getFailures());
 
         proof.setScriptTextAndInterpret(" /* empty script */ ");
-        assertTrue(proof.getProofRoot().getChildren().isEmpty());
-        Assert.assertNull(proof.getFailException());
+        assertNull(proof.getProofRoot().getChildren());
+        TestUtil.assertNoException(proof.getFailures());
     }
 
     @Test
@@ -205,15 +212,14 @@ public class ProjectManagerTest {
 
     }
 
-    @Test
-    public void interpretScriptExhaustiveRules() throws Exception {
-        ProjectManager pm = new XMLProjectManager(new File(testDir), "configsum.xml");
-        pm.reload();
-        Proof proof = pm.getProofForPVC("sumAndMax/loop/else/Inv");
-        proof.interpretScript(); //Hier Zeile die exhaustive sein soll einfuegen
-
-        if (proof.getFailException() != null)
-            proof.getFailException().printStackTrace();
-    }
+//    @Deprecated @Ignore
+//    public void interpretScriptExhaustiveRules() throws Exception {
+//        ProjectManager pm = new XMLProjectManager(new File(testDir), "configsum.xml");
+//        pm.reload();
+//        Proof proof = pm.getProofForPVC("sumAndMax/loop/else/Inv");
+//        proof.interpretScript(); //Hier Zeile die exhaustive sein soll einfuegen
+//
+//        TestUtil.assertNoException(proof.getFailures());
+//    }
 
 }

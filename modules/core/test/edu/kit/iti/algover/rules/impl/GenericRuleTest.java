@@ -174,7 +174,7 @@ public class GenericRuleTest {
         //assertEquals(pra.getScriptTranscript(), pr.getName() + " on='" + params.getValue("on") + "';");
 
         pra = pr.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
 
         assertEquals(results.size(), newNodes.size());
 
@@ -243,7 +243,7 @@ public class GenericRuleTest {
         params.putValue(pr.getOnParameter(), new TermParameter(ts.selectSubterm(s), s));
 
         ProofRuleApplication pra = pr.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
     }
 
     public static Sequent parseSequent(String sequent, Pair<String, Sort>... usedVars) throws DafnyParserException, DafnyException {

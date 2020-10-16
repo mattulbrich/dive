@@ -5,8 +5,8 @@
  */
 package edu.kit.iti.algover.rule.script;
 
+import edu.kit.iti.algover.nuscript.Position;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
-import edu.kit.iti.algover.script.ast.Position;
 
 public class ProofNodeCheckpoint {
 
@@ -17,7 +17,7 @@ public class ProofNodeCheckpoint {
     public ProofNodeCheckpoint(ProofNodeSelector selector, Position position, Position caretPosition) {
         this.selector = selector;
         this.position = position;
-        //caret position is real line number and not indexed line number
+        // caret position is real line number and not indexed line number
         this.caretPosition = caretPosition;
     }
 

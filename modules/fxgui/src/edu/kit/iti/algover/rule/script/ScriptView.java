@@ -10,7 +10,7 @@ import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import edu.kit.iti.algover.AlgoVerApplication;
 import edu.kit.iti.algover.editor.HighlightingRule;
-import edu.kit.iti.algover.script.ScriptLanguageLexer;
+import edu.kit.iti.algover.nuscript.parser.ScriptLexer;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -129,7 +129,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         }
 
         InputStream stream = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
-        ScriptLanguageLexer lexer = new ScriptLanguageLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
+        ScriptLexer lexer = new ScriptLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
 
         Token token;
         while ((token = lexer.nextToken()).getType() != org.antlr.runtime.Token.EOF) {
@@ -147,16 +147,14 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
     private Collection<String> styleClassForToken(int type) {
         switch (type) {
-            case ScriptLanguageLexer.SEQUENT_LITERAL:
+            case ScriptLexer.TERM_LITERAL:
                 return Collections.singleton("value-literal");
-            case ScriptLanguageLexer.TERM_LITERAL:
-                return Collections.singleton("value-literal");
-            case ScriptLanguageLexer.SINGLE_LINE_COMMENT:
-            case ScriptLanguageLexer.MULTI_LINE_COMMENT:
+            case ScriptLexer.SINGLE_LINE_COMMENT:
+            case ScriptLexer.MULTI_LINE_COMMENT:
                 return Collections.singleton("comment");
-            case ScriptLanguageLexer.STRING_LITERAL:
+            case ScriptLexer.STRING_LITERAL:
                 return Collections.singleton("value-literal");
-            case ScriptLanguageLexer.SELECTOR_LITERAL:
+            case ScriptLexer.SELECTOR_LITERAL:
                 return Collections.singleton("value-literal");
             default:
                 return Collections.emptyList();
@@ -190,10 +188,10 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
         String text = getText();
 
-        ScriptLanguageLexer lexer = null;
+        ScriptLexer lexer = null;
         try {
             InputStream stream = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
-            lexer = new ScriptLanguageLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
+            lexer = new ScriptLexer(CharStreams.fromStream(stream, StandardCharsets.UTF_8));
         } catch (Exception e) {
             System.out.println("could not render new highlighting.");
         }
@@ -226,7 +224,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
         OptionalInt charIdx = hit.getCharacterIndex();
         if(charIdx.isPresent() && highlightedException != null) {
-            edu.kit.iti.algover.script.ast.Position moPos = computePositionFromCharIdx(charIdx.getAsInt(), getText());
+            edu.kit.iti.algover.nuscript.Position moPos = computePositionFromCharIdx(charIdx.getAsInt(), getText());
             if(moPos.getLineNumber() == highlightedExceptionInfo.getLine()) {
                 tooltip.setText(highlightedException.getMessage());
                 Tooltip.install(this, tooltip);
@@ -236,7 +234,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         }
     }
 
-    private edu.kit.iti.algover.script.ast.Position computePositionFromCharIdx(int charIdx, String text) {
+    private edu.kit.iti.algover.nuscript.Position computePositionFromCharIdx(int charIdx, String text) {
         int line = 1;
         int charInLine = 0;
         for (int i = 0; i < charIdx; i++) {
@@ -249,7 +247,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
                 charInLine++;
             }
         }
-        return new edu.kit.iti.algover.script.ast.Position(line, charInLine);
+        return new edu.kit.iti.algover.nuscript.Position(line, charInLine);
     }
 
     public void setHighlightedException(Exception e) {

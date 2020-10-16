@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.parser;
 
 import edu.kit.iti.algover.KnownRegression;
+import edu.kit.iti.algover.util.TestUtil;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;

@@ -16,6 +16,7 @@
             file.open
             file.save
             file.saveAndReload
+			file.saveScripts
 			SEPARATOR
 			viewport.left
 			viewport.pvc
@@ -45,12 +46,12 @@
             -->
 		</menubar>
 
-
 		<fileMenu text="File" mnemonic="F">
-			file.sampleBrowser file.open file.reload file.recentProb
+			file.sampleBrowser file.open file.reload file.recentProb file.new
             SEPARATOR
             file.save
             file.saveAndReload
+			file.saveScripts
 			SEPARATOR general.close general.exit
 		</fileMenu>
 		
@@ -137,7 +138,7 @@
 			<accelerator>control O</accelerator>
 			<mnemonic>O</mnemonic>
 			<text>Open ...</text>
-			<icon>io/page_white_text.png</icon>
+			<icon>io/folder_page_white.png</icon>
 		</open>
 		<reload>ACTION io/MostRecentProblemAction
 			<tooltip>reload the most recent project file into a new window</tooltip>
@@ -168,12 +169,19 @@
 			<extra>saveAndReload</extra>
 			<icon>io/disk.png</icon>
 		</saveAndReload>
-		<new>TODO io/NewFileAction
+		<saveScripts>ACTION io/SaveScriptsAction
+			<tooltip>save the modified proof scripts of the current project</tooltip>
+			<text>Save proof scripts</text>
+			<accelerator>control shift P</accelerator>
+			<mnemonic>P</mnemonic>
+			<icon>io/script_save.png</icon>
+		</saveScripts>
+		<new>ACTION io/NewFileAction
 			<tooltip>Create a new, empty Dafny project</tooltip>
 			<text>New ...</text>
 			<accelerator>control N</accelerator>
 			<mnemonic>S</mnemonic>
-			<icon>img/page_save.png</icon>
+			<icon>io/page_white_add.png</icon>
 		</new>
 	</file>
 

@@ -33,6 +33,7 @@ public class SequencePrinterExtension implements PrettyPrintExtension {
         FunctionSymbolFamily family = ifs.getFamily();
 
         return  family == BuiltinSymbols.SEQ_GET
+             || family == BuiltinSymbols.SEQ_SUB
            /*|| family == BuiltinSymbols.SEQ_UPDATE*/;
     }
 
@@ -72,8 +73,41 @@ public class SequencePrinterExtension implements PrettyPrintExtension {
         } else if(family == BuiltinSymbols.SEQ_UPDATE) {
             assert false : "To be implemented";
 
+        } else if(family == BuiltinSymbols.SEQ_SUB) {
+            Term seq = application.getTerm(0);
+            Term from = application.getTerm(1);
+            Term to = application.getTerm(2);
+
+            printer.beginTerm(0);
+            seq.accept(visitor, null);
+            printer.endTerm();
+
+            printer.append("[");
+            if(!isZero(from)) {
+                printer.beginTerm(1);
+                from.accept(visitor, null);
+                printer.endTerm();
+            }
+            printer.append("..");
+            if(!isMax(to, seq)) {
+                printer.beginTerm(2);
+                to.accept(visitor, null);
+                printer.endTerm();
+            }
+            printer.append("]");
+
         } else {
             throw new Error("should not be reached");
         }
+    }
+
+    private boolean isMax(Term to, Term seq) {
+        // TODO Is this the best way to do this
+        return to.toString().equals("$minus($seqLen<int>(" + seq + "),1)");
+    }
+
+    private boolean isZero(Term from) {
+        return from instanceof ApplTerm &&
+                ((ApplTerm) from).getFunctionSymbol().getName().equals("0");
     }
 }

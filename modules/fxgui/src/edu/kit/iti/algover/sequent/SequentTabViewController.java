@@ -86,7 +86,7 @@ public class SequentTabViewController implements ReferenceHighlightingHandler {
         if(parentNode.isEmpty()) {
             return new ArrayList<>();
         }
-        int numChildren = parentNode.get().getChildren().size();
+        int numChildren = parentNode.get().getSuccessors().size();
         List<ProofNodeSelector> res = new ArrayList<>();
         for(int i = 0; i < numChildren; ++i) {
             res.add(new ProofNodeSelector(selector, i));

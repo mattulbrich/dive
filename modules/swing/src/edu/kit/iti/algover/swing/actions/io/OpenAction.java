@@ -28,10 +28,10 @@ import edu.kit.iti.algover.swing.util.Log;
 @SuppressWarnings("serial")
 public class OpenAction extends BarAction implements Initialisable {
 
-    private static final FileFilter DFY_FILTER =
+    public static final FileFilter DFY_FILTER =
             new FileNameExtensionFilter("Dafny files", "dfy");
 
-    private static final FileFilter XML_FILTER =
+    public static final FileFilter XML_FILTER =
             new FileNameExtensionFilter("Project configurations", "xml");
 
     @Override

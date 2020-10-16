@@ -5,23 +5,25 @@
  */
 package edu.kit.iti.algover.proof;
 
+import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.data.BuiltinSymbols;
+import edu.kit.iti.algover.nuscript.ScriptException;
 import edu.kit.iti.algover.project.Project;
-import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuilder;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.TestUtil;
-import static edu.kit.iti.algover.util.ProofMockUtil.*;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class ProofTest {
 
@@ -47,6 +49,7 @@ public class ProofTest {
         pb.setSequent(Sequent.singleSuccedent(new ProofFormula(term)));
         pb.setPathIdentifier("test");
         pb.setReferenceMap(Collections.emptyMap());
+        pb.setProject(project);
         PVC pvc = pb.build();
         return new Proof(project, pvc);
     }
@@ -55,76 +58,74 @@ public class ProofTest {
     public void getScript() throws Exception {
         Proof p = makeProof("true");
         p.setScriptText("someText");
-        Assert.assertEquals("someText", p.getScript());
-        Assert.assertEquals(ProofStatus.CHANGED_SCRIPT, p.getProofStatus());
+        assertEquals("someText", p.getScriptText());
+        assertEquals(ProofStatus.CHANGED_SCRIPT, p.getProofStatus());
     }
 
     @Test
     public void positiveFake() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake close=true;");
-        Assert.assertEquals(ProofStatus.CLOSED, p.getProofStatus());
+        assertEquals(ProofStatus.CLOSED, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
     }
 
-    @Test(expected = ScriptCommandNotApplicableException.class)
+    @Test(expected = ScriptException.class)
     public void negativeFake() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake close=false;");
-        Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
+        assertEquals(ProofStatus.FAILING, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
-        if(TestUtil.VERBOSE)
-            p.getFailException().printStackTrace();
-        throw p.getFailException();
+        assertAndThrowSingleException(p);
+    }
+
+    private void assertAndThrowSingleException(Proof p) throws Exception {
+        List<Exception> failures = p.getFailures();
+        assertEquals(1, failures.size());
+        throw failures.get(0);
     }
 
     @Test
     public void skip() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("skip;");
-        Assert.assertEquals(ProofStatus.OPEN, p.getProofStatus());
+        TestUtil.assertNoException(p.getFailures());
+        assertEquals(ProofStatus.OPEN, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
-        Assert.assertNull(p.getFailException());
     }
 
     @Test(expected = ParseCancellationException.class)
     public void gibberish() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("!§$%&");
-        Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
+        assertEquals(ProofStatus.FAILING, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
-        if(TestUtil.VERBOSE)
-            p.getFailException().printStackTrace();
-        throw p.getFailException();
+        assertAndThrowSingleException(p);
     }
 
     @Test(expected = ParseCancellationException.class)
     public void extraInput() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake; 123");
-        Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
+        assertEquals(ProofStatus.FAILING, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
-        if(TestUtil.VERBOSE)
-            p.getFailException().printStackTrace();
-        throw p.getFailException();
+        assertAndThrowSingleException(p);
     }
 
-    @Test(expected = ScriptCommandNotApplicableException.class)
+    @Test(expected = ScriptException.class)
     public void illegalParameter() throws Exception {
         Proof p = makeProof("true");
         p.setScriptTextAndInterpret("fake unknownParameter=true;");
-        Assert.assertEquals(ProofStatus.FAILING, p.getProofStatus());
+        assertEquals(ProofStatus.FAILING, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
-        if(TestUtil.VERBOSE)
-            p.getFailException().printStackTrace();
-        throw p.getFailException();
+        assertAndThrowSingleException(p);
     }
 
     @Test
     public void schemaOnParameter() throws Exception {
         Proof p = makeProof("let i:=0 ; i >= 0");
         p.setScriptTextAndInterpret("substitute on='|- (?match: _) '; ");
-        Assert.assertEquals(ProofStatus.OPEN, p.getProofStatus());
+        assertEquals(ProofStatus.OPEN, p.getProofStatus());
         Assert.assertNotNull(p.getProofRoot());
     }
 

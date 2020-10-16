@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.rules;
 
 
+import edu.kit.iti.algover.nuscript.ScriptAST.Command;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.Sequent;
@@ -18,74 +19,70 @@ import edu.kit.iti.algover.util.Util;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Methods to apply a ProofRuleAppplication to a ProofNode
+ * Methods to apply a ProofRuleAppplication to a ProofNode.
+ *
+ * @author Sarah Grebing
  */
-public class RuleApplicator {
+public final class RuleApplicator {
+
+    private RuleApplicator() {
+        throw new Error("not to be instantiated");
+    }
 
     /**
-     * Apply a Proof Rule to a proof node
+     * Apply a Proof Rule to a proof node.
      *
-     * @param proofRuleApplication the proof rule application to be applied
+     * @param app the proof rule application to be applied
+     * @param command
      * @param pn                   the ProofNode to which the rule should be applied
      * @return a list of new proof nodes (children) resulting form the rule application
      */
-    public static List<ProofNode> applyRule(ProofRuleApplication proofRuleApplication, ProofNode pn) {
+    public static List<ProofNode> applyRule(ProofRuleApplication app, Command command, ProofNode pn) throws TermBuildException {
 
-        List<ProofNode> newNodes = applySingleApplication(proofRuleApplication, pn);
-        ImmutableList<ProofRuleApplication> subApps = proofRuleApplication.getSubApplications();
+        List<ProofNode> newNodes = applySingleApplication(app, command, pn);
+        ImmutableList<ProofRuleApplication> subApps = app.getSubApplications();
         if(subApps != null) {
-            assert(subApps.size() == newNodes.size());
+            assert subApps.size() == newNodes.size();
             for (int i = 0; i < newNodes.size(); ++i) {
                 if (subApps.get(i) != null) {
-                    newNodes.get(i).setChildren(applyRule(subApps.get(i), newNodes.get(i)));
+                    newNodes.get(i).setChildren(applyRule(subApps.get(i), command, newNodes.get(i)));
                 }
             }
         }
         return newNodes;
     }
 
-    private static List<ProofNode> applySingleApplication(ProofRuleApplication proofRuleApplication, ProofNode pn) {
+    private static List<ProofNode> applySingleApplication(ProofRuleApplication appl, Command command, ProofNode proofNode) throws TermBuildException {
 
-        ImmutableList<BranchInfo> applicationInfos = proofRuleApplication.getBranchInfo();
-        if (applicationInfos.equals(BranchInfo.UNCHANGED)) {
-            //SaG -> MU: why create a new object?
-            ProofNode unchanged = new ProofNode(pn, proofRuleApplication, pn.getSequent(), pn.getPVC());
-            //pn.getChildren().add(unchanged);
-            List<ProofNode> retList = new ArrayList<>();
-            retList.add(unchanged);
-            return retList;
+        ImmutableList<BranchInfo> infos = appl.getBranchInfo();
+
+        if (infos.equals(BranchInfo.CLOSE)) {
+            // for a closing rule application add an artificial node that manifests the application.
+            ProofNode markerNode = ProofNode.createClosureChild(proofNode, appl,  command);
+            markerNode.setChildren(Collections.emptyList());
+            return List.of(markerNode);
         }
-        if (applicationInfos.equals(BranchInfo.CLOSE)) {
-            //TODO handle closed case
-        }
-        Sequent sequent = pn.getSequent();
 
-        int numberOfChildrenExpected = applicationInfos.size();
+        Sequent sequent = proofNode.getSequent();
 
-        List<ProofNode> children = new ArrayList<>();
+        List<ProofNode> result = new ArrayList<>();
 
-        applicationInfos.forEach(branchInfo -> {
+        for (BranchInfo branchInfo : infos) {
             Sequent newSequent = null;
-            try {
-                newSequent = createNewSequent(branchInfo, sequent);
-                ProofNode pnNew = new ProofNode(pn, proofRuleApplication, newSequent, pn.getPVC());
-                proofRuleApplication.getNewFunctionSymbols().forEach(
-                        functionSymbol -> pnNew.getAddedSymbols().addFunctionSymbol(functionSymbol));
-                pnNew.setLabel(branchInfo.getLabel());
-                children.add(pnNew);
+            newSequent = createNewSequent(branchInfo, sequent);
+            ProofNode pnNew = ProofNode.createChild(proofNode, appl,
+                    branchInfo.getLabel(), command, newSequent);
+            appl.getNewFunctionSymbols().forEach(
+                    functionSymbol -> pnNew.getAddedSymbols().addFunctionSymbol(functionSymbol));
+            result.add(pnNew);
 
-            } catch (TermBuildException e) {
-                e.printStackTrace();
-            }
+        };
 
-        });
-        assert numberOfChildrenExpected == children.size();
-
-
-        return children;
+        return result;
     }
 
     /**
@@ -96,12 +93,10 @@ public class RuleApplicator {
      * @return a new created sequent considering the branchinfo
      * @throws TermBuildException
      */
-
-    protected static Sequent createNewSequent(BranchInfo branchInfo, Sequent oldSeq) throws TermBuildException {
-
-
+    private static Sequent createNewSequent(BranchInfo branchInfo, Sequent oldSeq) throws TermBuildException {
         Sequent additions = branchInfo.getAdditions();
         Sequent deletions = branchInfo.getDeletions();
+
         Iterable<Pair<TermSelector, Term>> replacements = branchInfo.getReplacements();
         List<Pair<TermSelector, Term>> antecReplacements = new ArrayList<>();
         List<Pair<TermSelector, Term>> succReplacements = new ArrayList<>();
@@ -113,18 +108,17 @@ public class RuleApplicator {
             }
         });
 
+        List<ProofFormula> antec = changeSemisequent(additions.getAntecedent(),
+                deletions.getAntecedent(), antecReplacements, oldSeq.getAntecedent());
 
-        List<ProofFormula> antec = changeSemisequent(additions.getAntecedent(), deletions.getAntecedent(), antecReplacements, oldSeq
-                .getAntecedent());
-        List<ProofFormula> succ = changeSemisequent(additions.getSuccedent(), deletions.getSuccedent(), succReplacements, oldSeq
-                .getSuccedent());
+        List<ProofFormula> succ = changeSemisequent(additions.getSuccedent(),
+                deletions.getSuccedent(), succReplacements, oldSeq.getSuccedent());
 
         Util.removeDuplicates(antec);
         Util.removeDuplicates(succ);
 
         Sequent newSeq = new Sequent(antec, succ);
         return newSeq;
-
     }
 
     /**
@@ -142,20 +136,16 @@ public class RuleApplicator {
      * @return a new Sequent that considers the change information
      * @throws TermBuildException
      */
-    protected static List<ProofFormula> changeSemisequent(List<ProofFormula> add, List<ProofFormula> delete, List<Pair<TermSelector, Term>> change, List<ProofFormula> oldSemiSeq) throws TermBuildException{
+    private static List<ProofFormula> changeSemisequent(List<ProofFormula> add,
+            List<ProofFormula> delete, List<Pair<TermSelector, Term>> change,
+            List<ProofFormula> oldSemiSeq) throws TermBuildException {
         List<ProofFormula> newSemiSeq = new ArrayList<>(oldSemiSeq);
-        if (change.size() != 0) {
-            change.forEach(termSelectorTermPair -> {
-                Term newTerm = termSelectorTermPair.snd;
-                TermSelector ts = termSelectorTermPair.fst;
-                try {
-                    ProofFormula nthForm = oldSemiSeq.get(ts.getTermNo());
-                    Term replace = ReplaceVisitor.replace(nthForm.getTerm(), ts.getSubtermSelector(), newTerm);
-                    newSemiSeq.set(ts.getTermNo(), new ProofFormula(replace, nthForm.getLabels()));
-                } catch (TermBuildException e) {
-                    e.printStackTrace();
-                }
-            });
+        for (Pair<TermSelector, Term> termSelectorTermPair : change) {
+            Term newTerm = termSelectorTermPair.snd;
+            TermSelector ts = termSelectorTermPair.fst;
+            ProofFormula nthForm = oldSemiSeq.get(ts.getTermNo());
+            Term replace = ReplaceVisitor.replace(nthForm.getTerm(), ts.getSubtermSelector(), newTerm);
+            newSemiSeq.set(ts.getTermNo(), new ProofFormula(replace, nthForm.getLabels()));
         }
 
         for(ProofFormula pf : delete) {

@@ -200,7 +200,7 @@ public class SequentController extends FxmlController {
         if (activeNode != null) {
             try {
                 ProofNode nodeBefore = activeNode.get(PropertyManager.getInstance().currentProof.get());
-                while (nodeBefore.getChildren().size() > 0) {
+                while (nodeBefore.getSuccessors().size() > 0) {
                     ProofNodeSelector newActiveNode = new ProofNodeSelector(activeNode, 0);
                     ProofNode node = newActiveNode.get(PropertyManager.getInstance().currentProof.get());
                     updateSequent(node.getSequent(), null);
@@ -265,7 +265,7 @@ public class SequentController extends FxmlController {
             activeNode = proofNodeSelector;
             BranchInfo branchInfo = null;
             ProofRuleApplication application = proofNode.getProofRuleApplication();
-            if (application != null) {
+            if (application != null && application.getBranchInfo().size() > 0) {
                 branchInfo = application.getBranchInfo().get(
                         proofNodeSelector.getPath()[proofNodeSelector.getPath().length - 1]
                 );

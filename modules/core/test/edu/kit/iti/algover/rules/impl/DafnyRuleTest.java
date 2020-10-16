@@ -8,11 +8,13 @@ package edu.kit.iti.algover.rules.impl;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.*;
+import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
@@ -21,16 +23,17 @@ import edu.kit.iti.algover.term.builder.TreeTermTranslator;
 import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.ProofMockUtil;
+import edu.kit.iti.algover.util.TestUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -89,7 +92,7 @@ public class DafnyRuleTest {
         assertEquals("addZero on='... ((?match: b + 0)) ... |-';", pra.getScriptTranscript());
 
         pra = dafnyRule.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
 
         assertTrue(newNodes.size() == 1);
         assertEquals("$gt(b, 0) |- $gt($plus(c, d), 0)", newNodes.get(0).getSequent().toString());
@@ -110,9 +113,34 @@ public class DafnyRuleTest {
         assertEquals("commAddition on='|- ... ((?match: c + d)) ...';", pra.getScriptTranscript());
 
         pra = dafnyRule.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
 
         assertTrue(newNodes.size() == 1);
         assertEquals("$gt($plus(b, 0), 0) |- $gt($plus(d, c), 0)", newNodes.get(0).getSequent().toString());
+    }
+
+    // was a bug
+    @Test
+    public void testNameConflict() throws Exception {
+
+        Project project = TestUtil.mockProject("lemma l1() ensures (1==2) == false {} method m() ensures 1==2 {}");
+
+        PVC pvc = project.getPVCByName("m/Post");
+        Collection<ProofRule> rules = project.getProofRules(pvc);
+        DafnyRule l1Rule = null;
+        for (ProofRule rule : rules) {
+            if(rule.getName().equals("l1")) {
+                l1Rule = (DafnyRule) rule;
+                break;
+            }
+        }
+
+        FunctionSymbol eqInSearchTerm = ((ApplTerm) l1Rule.getSearchTerm()).getFunctionSymbol();
+        assertEquals("$eq<int>(int, int) : bool", eqInSearchTerm.toString());
+
+        FunctionSymbol eqInPostCond = ((ApplTerm) pvc.getSequent().getSuccedent().get(0).getTerm()).getFunctionSymbol();
+        assertEquals("$eq<int>(int, int) : bool", eqInPostCond.toString());
+
+        assertSame(eqInPostCond, eqInSearchTerm);
     }
 }

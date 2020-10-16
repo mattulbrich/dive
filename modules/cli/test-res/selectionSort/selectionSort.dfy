@@ -30,7 +30,7 @@ method selectionSort(a: seq<int>) returns (r: seq<int>)
       invariant multiset(a) == multiset(r)
     decreases |r| - y
     {
-      if a[y] < a[m]
+      if r[y] < r[m]
       {
         m := y;
       }

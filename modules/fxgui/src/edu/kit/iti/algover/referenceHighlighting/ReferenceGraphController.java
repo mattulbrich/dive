@@ -8,7 +8,6 @@ import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.timeline.TimelineFactory;
 import org.controlsfx.dialog.ExceptionDialog;
 
 import java.util.HashSet;
@@ -42,7 +41,7 @@ public class ReferenceGraphController {
      * @param selectedTarget
      */
     public void highlightAllReferenceTargets(ProofTermReferenceTarget selectedTarget){
-        if (selectedTarget != null && selectedTarget.getTermSelector() == null) {
+        if(selectedTarget != null && selectedTarget.getTermSelector() == null) {
             removeReferenceHighlighting();
             return;
         }
@@ -70,10 +69,10 @@ public class ReferenceGraphController {
                 referenceHighlightingHandler.handleReferenceHighlighting(referenceObj);
             }
 
-            if (codeReferenceTargets.size() > 0) {
-                PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.EDITOR_SEQUENT);
-            } else if (scriptReferenceTargetSet.size() > 0) {
-                PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.SEQUENT_RULE);
+            if(codeReferenceTargets.size() > 0) {
+                PropertyManager.getInstance().currentlyDisplayedView.set(1);
+            } else if(scriptReferenceTargetSet.size() > 0) {
+                PropertyManager.getInstance().currentlyDisplayedView.set(2);
             }
             // editorController.viewReferences(codeReferenceTargets);
             // sequentController.viewReferences(proofTermReferenceTargets, selectedTarget);
@@ -83,8 +82,8 @@ public class ReferenceGraphController {
             //scriptController.viewReferences(proofTermReferenceTargets);
             //scriptController.viewReferences(scriptReferenceTargetSet);
 
-        } else {
-            Logger.getGlobal().warning("Could not compute references.");
+       } else {
+           Logger.getGlobal().warning("Could not compute references.");
         }
         try {
             Logger.getGlobal().info("Searched for references for selection "
@@ -106,19 +105,19 @@ public class ReferenceGraphController {
      */
     private Set<ProofTermReferenceTarget> computeProofTermRefTargets(ProofTermReferenceTarget selectedTarget, Proof proof){
         Set<ProofTermReferenceTarget> targetsToHighlight = new HashSet<>();
-        Set<ProofTermReferenceTarget> history = proof.getGraph().computeHistory(selectedTarget, proof);
+        Set<ProofTermReferenceTarget> history = proof.getReferenceGraph().computeHistory(selectedTarget, proof);
         return history;
     }
 
 
     private Set<CodeReferenceTarget> computeCodeRefTargets(ProofTermReferenceTarget selectedTarget, Proof proof){
         Set<CodeReferenceTarget> targetsToHighlight = new HashSet<>();
-        ReferenceGraph referenceGraph = proof.getGraph();
-        if (referenceGraph != null) {
+        ReferenceGraph referenceGraph = proof.getReferenceGraph();
+        if(referenceGraph != null) {
             targetsToHighlight = referenceGraph.allPredecessorsWithType(selectedTarget, CodeReferenceTarget.class);
             //we haven't found a direct reference yet and we are not in the root node
-            if (targetsToHighlight.isEmpty() && selectedTarget.getProofNodeSelector().getParentSelector() != null){
-                List<ProofTermReferenceTarget> descedents = referenceGraph.computeHistorySorted(selectedTarget, proof);
+            if(targetsToHighlight.isEmpty() && selectedTarget.getProofNodeSelector().getParentSelector() != null){
+               List<ProofTermReferenceTarget> descedents = referenceGraph.computeHistorySorted(selectedTarget, proof);
                 ProofTermReferenceTarget root = descedents.get(0);
                 targetsToHighlight = referenceGraph.allPredecessorsWithType(root, CodeReferenceTarget.class);
 
@@ -132,13 +131,13 @@ public class ReferenceGraphController {
 
     private Set<ScriptReferenceTarget> computeScriptRefTargets(ProofTermReferenceTarget selectedTarget, Proof proof){
         Set<ScriptReferenceTarget> targetsToHighlight = new HashSet<>();
-        ReferenceGraph referenceGraph = proof.getGraph();
-        if (referenceGraph != null) {
+        ReferenceGraph referenceGraph = proof.getReferenceGraph();
+        if(referenceGraph != null) {
             //TODO
             //First: find nodes that contain selectedTarget and a scriptReferenceTarget
             targetsToHighlight = referenceGraph.allSuccessorsWithType(selectedTarget, ScriptReferenceTarget.class);
             //Second: if not contained, find the direct parent of the selected target and ask for script ReferenceTargets
-            if (targetsToHighlight.isEmpty()){
+            if(targetsToHighlight.isEmpty()){
                 ProofTermReferenceTarget proofTermReferenceTarget = null;
                 try {
                     proofTermReferenceTarget = referenceGraph.computeTargetBeforeChange(proof, selectedTarget);

@@ -62,6 +62,8 @@ public class RuleBayController {
                 thePanel.add(new RuleController(diveCenter, proofRule).getComponent());
             }
         }
+
+        thePanel.revalidate();
     }
 
     private JLabel newHeader(String s) {

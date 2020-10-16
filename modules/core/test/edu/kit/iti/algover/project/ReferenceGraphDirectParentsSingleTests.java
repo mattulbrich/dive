@@ -1,10 +1,8 @@
 package edu.kit.iti.algover.project;
 
-import com.sun.source.tree.AssertTree;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.Proof;
-import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.references.ProofTermReferenceTarget;
 import edu.kit.iti.algover.references.ReferenceGraph;
@@ -12,10 +10,10 @@ import edu.kit.iti.algover.references.ScriptReferenceTarget;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
-import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.HistoryProofUtils;
 import edu.kit.iti.algover.util.ProofUtils;
+import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,7 +25,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 @RunWith(JUnitParamsRunner.class)
 public class ReferenceGraphDirectParentsSingleTests {
@@ -114,7 +111,7 @@ public class ReferenceGraphDirectParentsSingleTests {
         for (TermSelector childTerm: allSelectors) {
             //only one parent
             ProofTermReferenceTarget childTarget = new ProofTermReferenceTarget(lastNode, childTerm);
-            Set<ProofTermReferenceTarget> directParents = proofWithTwoSubstitutionsAndSkips.getGraph().findDirectParents(childTarget, proofWithTwoSubstitutionsAndSkips);
+            Set<ProofTermReferenceTarget> directParents = proofWithTwoSubstitutionsAndSkips.getReferenceGraph().findDirectParents(childTarget, proofWithTwoSubstitutionsAndSkips);
             Assert.assertTrue(directParents.size() == 1);
             Assert.assertTrue(HistoryProofUtils.compareTerms(childTarget, directParents.iterator().next(), proofWithTwoSubstitutionsAndSkips));
         }
@@ -130,7 +127,7 @@ public class ReferenceGraphDirectParentsSingleTests {
         Proof letExpansionAntec = pm.getProofForPVC("max/else/Post");
         letExpansionAntec.setScriptTextAndInterpret("substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n");
 
-        ReferenceGraph graph = letExpansionAntec.getGraph();
+        ReferenceGraph graph = letExpansionAntec.getReferenceGraph();
 
         ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0");
         ProofTermReferenceTarget notLtXY = new ProofTermReferenceTarget(lastNode, new TermSelector("A.0"));
@@ -158,27 +155,31 @@ public class ReferenceGraphDirectParentsSingleTests {
     public void testAddedTermWithScriptReference() throws FormatException {
         Proof proofConj = pm.getProofForPVC("simpleConjunction/Post");
         proofConj.setScriptTextAndInterpret("addHypothesis  with='a == b';");
+        TestUtil.assertNoException(proofConj.getFailures());
         ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0");
         ProofTermReferenceTarget b = new ProofTermReferenceTarget(lastNode, new TermSelector("A.1"));
-        Set<ProofTermReferenceTarget> directParents = proofConj.getGraph().findDirectParents(b, proofConj);
+        Set<ProofTermReferenceTarget> directParents = proofConj.getReferenceGraph().findDirectParents(b, proofConj);
         Assert.assertTrue(directParents.isEmpty());
-        Set<ScriptReferenceTarget> scriptReferenceTargetSet = proofConj.getGraph().allSuccessorsWithType(b, ScriptReferenceTarget.class);
+        System.out.println(proofConj.getReferenceGraph());
+        Set<ScriptReferenceTarget> scriptReferenceTargetSet = proofConj.getReferenceGraph().allSuccessorsWithType(b, ScriptReferenceTarget.class);
         Assert.assertFalse(scriptReferenceTargetSet.isEmpty());
         Assert.assertTrue(scriptReferenceTargetSet.size() == 1);
         ScriptReferenceTarget next = scriptReferenceTargetSet.iterator().next();
-        Assert.assertEquals(next.getLinenumber(), 1);
+        Assert.assertEquals(1, next.getNode().getBeginToken().getLine());
     }
 
     @Test
-    public void testReplacedTerm() throws FormatException, RuleException {
+    public void testReplacedTerm() throws Exception {
         Proof proofDisj = pm.getProofForPVC("simpleSplit/Post");
         proofDisj.setScriptTextAndInterpret("orRight on= '|- _ || _';");
+        TestUtil.assertNoException(proofDisj.getFailures());
         ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0");
         ProofTermReferenceTarget right = new ProofTermReferenceTarget(lastNode, new TermSelector("S.0.1"));
-        Set<ProofTermReferenceTarget> directParents = proofDisj.getGraph().findDirectParents(right, proofDisj);
-        Assert.assertTrue(directParents.size()==1);
+        System.out.println(proofDisj.getReferenceGraph());
+        Set<ProofTermReferenceTarget> directParents = proofDisj.getReferenceGraph().findDirectParents(right, proofDisj);
+        Assert.assertEquals(1, directParents.size());
         ProofTermReferenceTarget directParentTarget = directParents.iterator().next();
-        Assert.assertTrue(directParentTarget.getTermSelector().equals(new TermSelector("S.0.0.1")));
+        Assert.assertEquals(new TermSelector("S.0.0.1"), directParentTarget.getTermSelector());
         Assert.assertTrue(HistoryProofUtils.compareTerms(right, directParentTarget, proofDisj));
 
         //proofDisj.setScriptTextAndInterpret("orRight on= '|- _ || _';\n plus_0 on='|- ... ((?match: a + 0)) ...';");
@@ -188,7 +189,7 @@ public class ReferenceGraphDirectParentsSingleTests {
         proof.setScriptTextAndInterpret("andRight on= '|- _ && _';");
         ProofNodeSelector lastNodeP = ProofUtils.computeProofNodeSelector("0");
         ProofTermReferenceTarget select = new ProofTermReferenceTarget(lastNodeP, new TermSelector("S.0"));
-        Set<ProofTermReferenceTarget> directParentsP = proof.getGraph().findDirectParents(select, proof);
+        Set<ProofTermReferenceTarget> directParentsP = proof.getReferenceGraph().findDirectParents(select, proof);
         Assert.assertTrue(directParentsP.size() == 2);
         //TODO, here we want distinction between reoccurrence and context/explanation
 

@@ -6,14 +6,14 @@
  */
 package edu.kit.iti.algover.swing.script;
 
+import edu.kit.iti.algover.nuscript.ScriptAST;
+import edu.kit.iti.algover.nuscript.ScriptAST.Command;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.script.ast.ASTNode;
-import edu.kit.iti.algover.script.ast.Position;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
+import org.antlr.v4.runtime.Token;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,8 +49,6 @@ public class ProofNodeCheckpoint {
          */
         CLOSED,
     }
-
-    ;
 
     /**
      * The proof node to which this checkpoint refers
@@ -115,62 +113,26 @@ public class ProofNodeCheckpoint {
      * @return a freshly created, modifiable list
      */
     public static @DeepNonNull  List<ProofNodeCheckpoint> extractCheckpoints(@NonNull Proof proof) {
-        ProofNode root = proof.getProofRoot();
-        List<ProofNodeCheckpoint> checkpoints = new ArrayList<>();
-        if (root != null) {
-            build(root, checkpoints);
+
+        ProofNodeCheckpointBuilder builder = new ProofNodeCheckpointBuilder(proof);
+
+        if (builder.canCollect()) {
+            builder.collectCheckpoints();
+            return builder.getCheckpoints();
+        } else {
+            return List.of();
         }
-        return checkpoints;
     }
 
-    private static void build(ProofNode node, List<ProofNodeCheckpoint> checkpoints) {
+    static ProofNodeCheckpoint endOf(ScriptAST cmd, ProofNode node, Type type) {
+        Token token = cmd.getEndToken();
+        return new ProofNodeCheckpoint(node, token.getLine(),
+                token.getCharPositionInLine() + token.getText().length() + 1, type);
+    }
 
-        Position pos = node.getBeginPos();
-        List<ProofNode> children = node.getChildren();
-        ASTNode mutator = null;
-        if (!node.getMutator().isEmpty()) {
-            mutator = node.getMutator().get(0);
-        }
-
-        if (mutator != null) {
-            checkpoints.add(new ProofNodeCheckpoint(node, pos.getLineNumber(), pos.getCharInLine() + 1, Type.CALL));
-            ASTNode ast = node.getMutator().get(0);
-            Position end = ast.getEndPosition();
-            if (children.size() > 1) {
-                checkpoints.add(new ProofNodeCheckpoint(node, end.getLineNumber(), end.getCharInLine() + 2, Type.BRANCH));
-            }
-            if (node.isClosed()) {
-                checkpoints.add(new ProofNodeCheckpoint(node, end.getLineNumber(), end.getCharInLine() + 2, Type.CLOSED));
-            }
-        } else {
-            if (pos != null) {
-                checkpoints.add(new ProofNodeCheckpoint(node, pos.getLineNumber(), pos.getCharInLine() + 2, Type.OPEN));
-            }
-        }
-
-/*
-        if(pos != null) {
-            Type type = node.getMutator().isEmpty() ? Type.OPEN : Type.CALL;
-            checkpoints.add(new ProofNodeCheckpoint(node, pos.getLineNumber(), pos.getCharInLine() + 1, type));
-        }
-
-        if (children.isEmpty()) {
-            if (!node.isClosed() && !node.getMutator().isEmpty()) {
-                ASTNode ast = node.getMutator().get(0);
-                Position end = ast.getEndPosition();
-                checkpoints.add(new ProofNodeCheckpoint(node, end.getLineNumber(), end.getCharInLine()+2, Type.OPEN));
-            }
-        } else
-
-        if (children.size() > 1) {
-            ASTNode ast = node.getMutator().get(0);
-            Position end = ast.getEndPosition();
-            checkpoints.add(new ProofNodeCheckpoint(node, end.getLineNumber(), end.getCharInLine()+2, Type.BRANCH));
-        }
-*/
-        for (ProofNode child : children) {
-            build(child, checkpoints);
-        }
-
+    static ProofNodeCheckpoint beginOf(ScriptAST cmd, ProofNode node, Type type) {
+        Token token = cmd.getBeginToken();
+        return new ProofNodeCheckpoint(node, token.getLine(),
+                token.getCharPositionInLine() + 1, type);
     }
 }

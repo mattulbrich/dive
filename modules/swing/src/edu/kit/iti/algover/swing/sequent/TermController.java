@@ -20,6 +20,8 @@ import edu.kit.iti.algover.term.prettyprint.AnnotatedString;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString.Style;
 import edu.kit.iti.algover.term.prettyprint.AnnotatedString.TermElement;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import edu.kit.iti.algover.util.ImmutableList;
+import edu.kit.iti.algover.util.Immutables;
 import edu.kit.iti.algover.util.Util;
 
 import javax.swing.*;
@@ -68,7 +70,7 @@ public class TermController extends MouseAdapter {
 
     // variables should be noticed
     private static final Color VARIABLE_FOREGROUND =
-            S.getColor("dive.termcomponent.variableforeground", Color.MAGENTA);
+            S.getColor("dive.termcomponent.variableforeground", Color.CYAN.darker());
 
     // variables should be noticed
     private static final Color USER_ENTITY_FOREGROUND =
@@ -84,11 +86,11 @@ public class TermController extends MouseAdapter {
 
     // marking for an assumption
     private static final Color LIGHT_MARKING_COLOR =
-            S.getColor("dive.termcomponent.assumptionforeground", Color.LIGHT_GRAY);
+            S.getColor("dive.termcomponent.assumptionforeground", new Color(0xd0d0ff));
 
     // marking for a find clause
     private static final Color DARK_MARKING_COLOR =
-            S.getColor("dive.termcomponent.findforeground", Color.LIGHT_GRAY);
+            S.getColor("dive.termcomponent.findforeground", new Color(0xb0b0ff));
 
     // empty border
     private static final Border BORDER =
@@ -145,6 +147,7 @@ public class TermController extends MouseAdapter {
     private int lineWidth;
     private AnnotatedString annotatedString;
     private SubtermSelector mouseSelection;
+    private ImmutableList<TermSelector> replacementHighlights = ImmutableList.nil();
 
     @SuppressWarnings("checkstyle:JavadocMethod")
     public TermController(DiveCenter diveCenter, ProofFormula proofFormula, TermSelector termSelector) {
@@ -221,8 +224,38 @@ public class TermController extends MouseAdapter {
             Log.stacktrace(Log.WARNING, ex);
             throw new Error(ex);
         }
-
     }
+
+    public void setReplacementHighlights(ImmutableList<TermSelector> selectors) {
+        this.replacementHighlights = selectors.filter(ts -> ts.getToplevelSelector().equals(this.termSelector));
+    }
+
+    private void paintReplacementHighlights() {
+        try {
+            for (TermSelector ts : replacementHighlights) {
+                if (ts.isToplevel()) {
+                    component.getHighlighter().addHighlight(0, annotatedString.length(),
+                            new DefaultHighlightPainter(DARK_MARKING_COLOR));
+                } else {
+                    for (TermElement element : annotatedString.getAllTermElements()) {
+                        if (element.getSubtermSelector().equals(ts.getSubtermSelector())) {
+                            int begin = element.getBegin();
+                            int end = element.getEnd();
+                            component.getHighlighter().addHighlight(begin, end,
+                                    new DefaultHighlightPainter(DARK_MARKING_COLOR));
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (BadLocationException ex) {
+            // Must always work!
+            Log.log(Log.WARNING, "Unexpected bad location error");
+            Log.stacktrace(Log.WARNING, ex);
+            throw new Error(ex);
+        }
+    }
+
 
     /**
      * React to the sources being unavailable.
@@ -248,6 +281,8 @@ public class TermController extends MouseAdapter {
             component.setText("");
             annotatedString.appendToDocument(component.getDocument(), attributeFactory);
             lineWidth = newLineWidth;
+            updateTermSelector(diveCenter.properties().termSelector.getValue());
+            paintReplacementHighlights();
         }
     }
 

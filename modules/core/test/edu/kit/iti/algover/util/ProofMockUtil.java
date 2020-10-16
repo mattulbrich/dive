@@ -69,9 +69,9 @@ public class ProofMockUtil {
         for (int i = 0; i < succedentTerms.length; i++) {
             succedentFormulas.add(new ProofFormula(succedentTerms[i]));
         }
-        return new ProofNode(parent, null,
-                new Sequent(antedecentFormulas, succedentFormulas), null);
+        return mockProofNode(parent, antedecentFormulas, succedentFormulas);
     }
+
 
     /**
      * Create a mocked proof node from a parent and the sequent data.
@@ -88,8 +88,7 @@ public class ProofMockUtil {
         antedecentFormulas.addAll(Arrays.asList(antedecentTerms));
         List<ProofFormula> succedentFormulas = new ArrayList<>(succedentTerms.length);
         succedentFormulas.addAll(Arrays.asList(succedentTerms));
-        return new ProofNode(parent, null,
-                new Sequent(antedecentFormulas, succedentFormulas), null);
+        return mockProofNode(parent, antedecentFormulas, succedentFormulas);
     }
 
     /**
@@ -103,12 +102,8 @@ public class ProofMockUtil {
      */
     @TestInfrastructure
     public static ProofNode mockProofNode(ProofNode parent, List<ProofFormula> antedecentTerms, List<ProofFormula> succedentTerms) throws TermBuildException {
-        List<ProofFormula> antedecentFormulas = new ArrayList<>(antedecentTerms.size());
-        antedecentFormulas.addAll(antedecentTerms);
-        List<ProofFormula> succedentFormulas = new ArrayList<>(succedentTerms.size());
-        succedentFormulas.addAll(succedentTerms);
-        return new ProofNode(parent, null,
-                new Sequent(antedecentFormulas, succedentFormulas), null);
+        return new ProofNode(parent, null, null, null,
+                new Sequent(antedecentTerms, succedentTerms),null);
     }
 
     /**
@@ -166,12 +161,12 @@ public class ProofMockUtil {
         pb.setPathIdentifier("test");
         pb.setReferenceMap(Collections.emptyMap());
         PVC pvc = pb.build();
-         List<DafnyFile> dfyFiles = project.getDafnyFiles().stream().filter(dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename())).collect(Collectors.toList());
-            if(dfyFiles.size()>0) {
-                return new Proof(project, pvc, dfyFiles.get(0));
-            } else {
-                return new Proof(project, pvc, null);
-            }
+        List<DafnyFile> dfyFiles = project.getDafnyFiles().stream().filter(dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename())).collect(Collectors.toList());
+        Proof proof = new Proof(project, pvc);
+        if(dfyFiles.size() > 0) {
+            proof.addDafnyFileReferences(dfyFiles.get(0));
+        }
+        return proof;
     }
 
     /**
@@ -192,16 +187,15 @@ public class ProofMockUtil {
         pb.setSequent(sequent);
         pb.setPathIdentifier("test");
         pb.setReferenceMap(Collections.emptyMap());
+        pb.setProject(project);
         PVC pvc = pb.build();
         List<DafnyFile> dfyFiles = project.getDafnyFiles().stream().filter(dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename())).collect(Collectors.toList());
-        Proof p;
-        if(dfyFiles.size()>0) {
-            p =  new Proof(project, pvc, dfyFiles.get(0));
-        } else {
-            p = new Proof(project, pvc, null);
+        Proof proof = new Proof(project, pvc);
+        if(dfyFiles.size() > 0) {
+            proof.addDafnyFileReferences(dfyFiles.get(0));
         }
-        p.setScriptTextAndInterpret("");
-        return p;
+        proof.setScriptTextAndInterpret("");
+        return proof;
     }
     
     /**
@@ -213,9 +207,18 @@ public class ProofMockUtil {
      * @throws TermBuildException if formulas are not boolean
      */
     @TestInfrastructure
-    public static ProofNode mockProofNode(ProofNode parent, Sequent s) {
-        return new ProofNode(parent, null,
-                s, null);
+    public static ProofNode mockProofNode(ProofNode parent, Sequent s) throws TermBuildException {
+        return mockProofNode(parent, s.getAntecedent(), s.getSuccedent());
     }
 
+    @TestInfrastructure
+    public static ProofNode mockProofNode(Sequent s) throws TermBuildException {
+        return mockProofNode(null, s);
+    }
+
+
+    @TestInfrastructure
+    public static ProofNode mockProofNode(Sequent seq, PVC pvc) {
+        return new ProofNode(null, null, null, null, seq, pvc);
+    }
 }

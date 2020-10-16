@@ -63,7 +63,6 @@ public class ReplaceCutRule extends FocusProofRule {
         }
 
         ProofRuleApplicationBuilder pra = new ProofRuleApplicationBuilder(this);
-        pra.newBranch().addReplacement(selector, with).setLabel("replace");
         TermBuilder tb = new TermBuilder(target.getAllSymbols());
         try {
             // Probably universal closure is required here.
@@ -73,6 +72,7 @@ public class ReplaceCutRule extends FocusProofRule {
             }
             Term justificationTerm = tb.eq(on, with);
             pra.newBranch().addAdditionsSuccedent(new ProofFormula(justificationTerm)).setLabel("justification");
+            pra.newBranch().addReplacement(selector, with).setLabel("replace");
         } catch (TermBuildException e) {
             throw new RuleException("Error building justification term: " + e.getMessage(), e);
         }

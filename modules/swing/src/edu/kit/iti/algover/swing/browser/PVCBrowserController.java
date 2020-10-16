@@ -46,6 +46,10 @@ public class PVCBrowserController {
                 return;
             }
 
+            if (!tree.isEnabled()) {
+                return;
+            }
+
             if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
                 Viewport viewport;
                 if ((e.getModifiersEx() & MouseEvent.SHIFT_DOWN_MASK) != 0) {
@@ -65,6 +69,35 @@ public class PVCBrowserController {
         private final String type;
         private final String name;
         private final int countAllPVC;
+        private ProofStatus status;
+
+
+        private TreeNode(PVCCollection pvcCollection) {
+            this.pvcCollection = pvcCollection;
+            if (pvcCollection instanceof PVCGroup) {
+                PVCGroup group = (PVCGroup) pvcCollection;
+                DafnyDecl decl = group.getDafnyDecl();
+                if (decl != null) {
+                    type = getDeclType(decl);
+                    name = " " + decl.getName();
+                } else {
+                    type = name = "";
+                }
+                this.countAllPVC = countPVCs(pvcCollection);
+            } else
+
+            if (pvcCollection instanceof SinglePVC) {
+                SinglePVC singlePVC = (SinglePVC) pvcCollection;
+                String fullName = singlePVC.getPVC().getIdentifier();
+                this.name = fullName.substring(fullName.indexOf('/')+1);
+                this.type = "";
+                this.countAllPVC = -1;
+
+            } else {
+
+                throw new Error("should not happen");
+            }
+        }
 
         private int countFinishedPVCs;
 
@@ -100,35 +133,6 @@ public class PVCBrowserController {
                     '}';
         }
 
-        private ProofStatus status;
-
-
-        private TreeNode(PVCCollection pvcCollection) {
-            this.pvcCollection = pvcCollection;
-            if (pvcCollection instanceof PVCGroup) {
-                PVCGroup group = (PVCGroup) pvcCollection;
-                DafnyDecl decl = group.getDafnyDecl();
-                if (decl != null) {
-                    type = getDeclType(decl);
-                    name = " " + decl.getName();
-                } else {
-                    type = name = "";
-                }
-                this.countAllPVC = countPVCs(pvcCollection);
-            } else
-
-            if (pvcCollection instanceof SinglePVC) {
-                SinglePVC singlePVC = (SinglePVC) pvcCollection;
-                String fullName = singlePVC.getPVC().getIdentifier();
-                String name = fullName.substring(fullName.indexOf('/')+1);
-                this.name = name;
-                this.type = "";
-                this.countAllPVC = -1;
-            } else {
-
-                throw new Error("should not happen");
-            }
-        }
 
         public void updateTreeNode() {
             if (pvcCollection instanceof SinglePVC) {
@@ -155,7 +159,7 @@ public class PVCBrowserController {
                 } else if (oneOrange) {
                     this.status = ProofStatus.OPEN;
                 } else {
-                    this.status = ProofStatus.DIRTY;
+                    this.status = ProofStatus.CHANGED_SCRIPT;
                 }
 
             }

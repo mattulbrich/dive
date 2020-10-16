@@ -85,6 +85,20 @@ task runAntlr4(type:JavaExec) {
     args = ["-visitor", "-o", "$projectDir/gen", "edu/kit/iti/algover/script/ScriptLanguage.g4", "-package", "edu.kit.iti.algover.script" ]
 }
 
+task runAntlr4Nu(type:JavaExec) {
+    println "Building Script Parser"
+
+    inputs.files configurations.antlr4
+    inputs.file "src/edu/kit/iti/algover/nuscript/parser/Script.g4"
+    outputs.dir "$projectDir/gen"
+    classpath { configurations.antlr4.getAsPath()}
+
+    main = "org.antlr.v4.Tool"
+    workingDir = "src"
+
+    args = ["-visitor", "-o", "$projectDir/gen", "edu/kit/iti/algover/nuscript/parser/Script.g4", "-package", "edu.kit.iti.algover.nuscript.parser" ]
+}
+
 
 clean.doFirst {
     delete("$projectDir/gen/edu/kit/iti/algover/parser")
@@ -96,7 +110,8 @@ buildVisitor.shouldRunAfter runAntlr3
 
 compileJava.dependsOn runAntlr3
 compileJava.dependsOn buildVisitor
-compileJava.dependsOn runAntlr4
+// compileJava.dependsOn runAntlr4
+compileJava.dependsOn runAntlr4Nu
 
 
 

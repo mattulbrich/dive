@@ -15,7 +15,6 @@ import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.PVCCollection;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofStatus;
-import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;

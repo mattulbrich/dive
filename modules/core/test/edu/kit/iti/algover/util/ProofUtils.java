@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.util;
 
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.rules.TermSelector;
@@ -9,6 +10,7 @@ import edu.kit.iti.algover.term.Term;
 import java.util.*;
 
 public class ProofUtils {
+
     @TestInfrastructure
     public static ProofNodeSelector computeProofNodeSelector(String pathChild){
         String[] pathStringArray = pathChild.split(",");
@@ -45,5 +47,4 @@ public class ProofUtils {
         }
         return selectors;
     }
-
 }

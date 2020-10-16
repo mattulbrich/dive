@@ -74,7 +74,11 @@ public class PrettyPrint {
     Map<FunctionSymbol, PrettyPrintExtension> responsibleExtensions =
             new HashMap<>();
 
-    @NonNull VariablePrettyPrintExtension variablePrettyPrint = new RecursiveSubscriptPrinterExtension();
+    /**
+     * A pretty printer for variables. Currently only subscripts are handled.
+     */
+    @NonNull VariablePrettyPrintExtension variablePrettyPrint = new MultiSubscriptPrinterExtension();
+
 
     /**
      * whether or not in-/prefix operators are printed as such.
@@ -368,6 +372,11 @@ public class PrettyPrint {
         }
     }
 
+    /**
+     * Getter for pretty printer extension used for variable names.
+     *
+     * @return The extension for pretty printing variable names
+     */
     public VariablePrettyPrintExtension getVariablePrettyPrint() {
         return variablePrettyPrint;
     }

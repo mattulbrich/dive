@@ -56,13 +56,13 @@ public class ScriptCodeController {
             new SquiggleUnderlineHighlightPainter(Color.red);
 
     private static final HighlightPainter SPOT_HIGHLIGHT =
-            new SpotHighlightPainter(Color.orange, "\u25b6");
+            new SpotHighlightPainter(Color.orange, "_"/*"\u25b6"*/);
 
     private static final HighlightPainter OPEN_SPOT_HIGHLIGHT =
             new SpotHighlightPainter(Color.red, "X");
 
     private static final HighlightPainter BRANCH_HIGHLIGHT =
-            new SpotHighlightPainter(Color.cyan, "\u25c0");
+            new SpotHighlightPainter(Color.BLUE, "\u2225"/*"\u25c0"*/);
 
     private static final HighlightPainter CLOSED_HIGHLIGHT =
             new SpotHighlightPainter(Color.green.darker(), "\u25cf");
@@ -179,6 +179,7 @@ public class ScriptCodeController {
         // This is similar to a proof that has finished: Change in the
         // proof status
         diveCenter.properties().onGoingProof.fire(false);
+        diveCenter.properties().unsavedProofScripts.setValue(true);
         setLabelText(proof.getProofStatus());
         diveCenter.getMainController().setStatus("Script modified.");
     }
@@ -203,7 +204,7 @@ public class ScriptCodeController {
             }
 
             documentChangeListenerActive = false;
-            textArea.setText(proof.getScript());
+            textArea.setText(proof.getScriptText());
             documentChangeListenerActive = true;
             textArea.setCaretPosition(0);
             setProofState(proof);
@@ -218,8 +219,11 @@ public class ScriptCodeController {
 
         Highlighter highlighter = textArea.getHighlighter();
         highlighter.removeAllHighlights();
-        Exception exc = proof.getFailException();
-        if (exc != null) {
+        List<Exception> failures = proof.getFailures();
+        if (failures != null && !failures.isEmpty()) {
+            // TODO Deal with several failures ?!
+            Exception exc = failures.get(0);
+            Log.stacktrace(exc);
             diveCenter.getMainController().setStatus(exc);
             ExceptionReportInfo report = ExceptionDetails.extractReportInfo(exc);
             if (report.getLine() >= 0) {
@@ -249,7 +253,7 @@ public class ScriptCodeController {
                     break;
                 case CALL:
                     // give the symbol chance to not be on a character.
-                    caretPos = Math.max(0, caretPos - 1);
+                    // caretPos = Math.max(0, caretPos - 1);
                     color = SPOT_HIGHLIGHT;
                     break;
                 case BRANCH:
@@ -266,6 +270,7 @@ public class ScriptCodeController {
                 e.printStackTrace();
             }
         }
+        textArea.repaint();
     }
 
     public void replay() {
@@ -290,10 +295,6 @@ public class ScriptCodeController {
         case CLOSED:
             label.setText("Proof successfully closed.");
             label.setBackground(SUCCESS_BACKGROUND);
-            break;
-        case DIRTY:
-            label.setText("Proof has not been replayed since (re)loading.");
-            label.setBackground(DIRTY_BACKGROUND);
             break;
         case NON_EXISTING:
             label.setText("There is no proof, yet.");

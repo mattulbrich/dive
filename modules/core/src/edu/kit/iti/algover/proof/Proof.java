@@ -5,44 +5,34 @@
  */
 package edu.kit.iti.algover.proof;
 
-import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.nuscript.Interpreter;
+import edu.kit.iti.algover.nuscript.ScriptAST.Script;
+import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.script.ast.*;
-import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
-import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
-import edu.kit.iti.algover.script.interpreter.Interpreter;
-import edu.kit.iti.algover.script.interpreter.InterpreterBuilder;
-import edu.kit.iti.algover.script.interpreter.TermMatcherApi;
-import edu.kit.iti.algover.script.parser.DefaultASTVisitor;
-import edu.kit.iti.algover.script.parser.Facade;
 import edu.kit.iti.algover.util.ObservableValue;
 import edu.kit.iti.algover.util.ProofTreeUtil;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
- * Proof Object
+ * Proof Object.
+ *
  * This object contains the proof root as well as the script root
- * It has to be build by the ProjectManager in order to contain a valid interpreter.
+ *
+ * It is a mutable object. The proof script can be modified and interpretation be triggered.
  *
  * @author Sarah Grebing
  * @author M. Ulbrich, refactoring Jan 2018
  */
 public class Proof {
-
-    public ReferenceGraph getGraph() {
-        return graph;
-    }
-
-    /**
-     * The reference graph for the current proof
-     */
-    private ReferenceGraph graph;
 
     /**
      * Status of proof.
@@ -57,27 +47,25 @@ public class Proof {
      * (Even the empty script produces a one-node prooftree.)
      *
      * if proof state is ProofState#CHANGED_SCRIPT or ProofState#NON_EXISTING, then this ought to be null.
+     *
+     * mutable.
      */
     private @Nullable ProofNode proofRoot;
-
 
     /**
      * The script text.
      *
-     * mutable, can be null if no script set so far.
+     * mutable, should never be null.
      * If a proofRoot is present, it results from this very script object.
      */
-    private @Nullable String script;
+    private @NonNull String script = "";
 
     /**
-     * The script AST
+     * The AST of the script.
+     *
+     * mutable, can be null if not yet parsed (in the beginning or after setting a script)
      */
-    private @Nullable ProofScript scriptAST;
-
-    /**
-     * The project to which this proof belongs
-     */
-    private final Project project;
+    private @Nullable Script scriptAST;
 
     /**
      * PVC for which this proof object is created
@@ -85,43 +73,47 @@ public class Proof {
     private final PVC pvc;
 
     /**
+     * The reference graph for the current proof
+     */
+    private final ReferenceGraph graph;
+
+    /**
      * The exception with which interpretation has failed.
      */
-    /*@ invariant failException != null <==> poofStatus.getValue() == FAIL; */
-    private Exception failException;
+    /*@ invariant failures.isEmpty() <==> poofStatus.getValue() != FAIL; */
+    private @NonNull List<Exception> failures = Collections.emptyList();
 
-    public DafnyFile getDfyFile() {
-        return dfyFile;
-    }
-
-    public void setDfyFile(DafnyFile dfyFile) {
-        this.dfyFile = dfyFile;
+    /**
+     * Create a new proof for a PVC.
+     *
+     * The project parameter is not necessary.
+     *
+     * @param project project to which the PVC belongs
+     * @param pvc a PVC
+     */
+    @Deprecated
+    public Proof(@NonNull Project project, @NonNull PVC pvc) {
+        this(pvc);
+        assert project == pvc.getProject();
     }
 
     /**
-     * DafnyFile for this proof. Needed for ReferenceGraph. Is allowed to be null for downwards compatibility
+     * Create a new proof for a PVC.
+     *
+     * @param pvc a PVC
      */
-    private @Nullable DafnyFile dfyFile;
-
-    public Proof(@NonNull Project project, @NonNull PVC pvc) {
-        this.project = project;
+    public Proof(@NonNull PVC pvc) {
         this.pvc = pvc;
-    }
-
-
-    public Proof(@NonNull Project project, @NonNull PVC pvc, @NonNull DafnyFile dfyFile ) {
-        this.project = project;
-        this.pvc = pvc;
-        this.dfyFile = dfyFile;
         this.graph = new ReferenceGraph();
-        this.graph.addFromReferenceMap(dfyFile, pvc.getReferenceMap());
     }
+
+    // --------- Getters
 
     public @NonNull Project getProject() {
-        return project;
+        return pvc.getProject();
     }
 
-    public @NonNull  PVC getPVC() {
+    public @NonNull PVC getPVC() {
         return pvc;
     }
 
@@ -129,37 +121,65 @@ public class Proof {
         return proofRoot;
     }
 
-    public String getPVCName() {
+    public @NonNull String getPVCName() {
         return pvc.getIdentifier();
     }
 
-    public ProofStatus getProofStatus() {
+    public @NonNull ProofStatus getProofStatus() {
         return proofStatus.getValue();
     }
 
-    public Exception getFailException() {
-        return failException;
+    public @NonNull List<Exception> getFailures() {
+        return failures;
     }
+
+    public @NonNull ReferenceGraph getReferenceGraph() {
+        return graph;
+    }
+
+    public @Nullable String getScriptText() {
+        return script;
+    }
+
+    /**
+     * Get the proof script or null.
+     *
+     * Null if the script has not been parsed yet.
+     *
+     * @return null or the parser result of the script text.
+     */
+    public @Nullable Script getProofScript() {
+        return scriptAST;
+    }
+
+    // --------- Modifiers
 
     public void addProofStatusListener(ObservableValue.ChangeListener<ProofStatus> listener) {
         proofStatus.addObserver(listener);
     }
 
-    public String getScript() {
-        return script;
+    /**
+     * Add all code references from a Dafny file to the refrence graph.
+     *
+     * @param dfyFile the file to use for analysis
+     */
+    public void addDafnyFileReferences(@NonNull DafnyFile dfyFile) {
+        getReferenceGraph().addFromReferenceMap(dfyFile, pvc.getReferenceMap());
     }
 
     /**
-     * Parses a script as string representation and sets the parsed AST
+     * Parses a script as string representation and sets the parsed AST to null.
+     * Set the state to {@link ProofStatus#CHANGED_SCRIPT}.
      *
      * @param script string representation of script
      */
-    public void setScriptText(String script) {
-        if (this.getScript() != null) {
+    public void setScriptText(@NonNull String script) {
+        if (this.getScriptText() != null) {
             saveOldDataStructures();
         }
 
         this.script = script;
+        this.scriptAST = null;
 
         this.proofStatus.setValue(ProofStatus.CHANGED_SCRIPT);
     }
@@ -170,64 +190,78 @@ public class Proof {
      * This will also parse the previously set script text. After this
      * {@link #getProofScript()} will return a valid script, if parsing is successful.
      */
-    public void interpretScript() throws InterpreterRuntimeException, ScriptCommandNotApplicableException {
+    public void interpretScript() {
         assert script != null;
 
-        ProofNode newRoot = ProofNode.createRoot(pvc);
-        newRoot.setBeginPos(new Position(1, 1));
+        Interpreter interpreter = new Interpreter(this);
+
+        // Set the new root upfront to keep partial proofs even in case of failure.
+        // (Also a syntax error deserves a proof root.)
+        this.proofRoot = interpreter.getRootNode();
 
         try {
-            // TODO Exception handling
-            this.scriptAST = Facade.getAST(script);
-            //save old root
-            ProofNode oldRoot = getProofRoot();
-
-            Interpreter<ProofNode> interpreter = buildIndividualInterpreter();
-
-            // Caution: Keep this pure constructor call, it performs the computation!
-            new ProofNodeInterpreterManager(interpreter);
-            interpreter.newState(newRoot);
-            this.proofRoot = newRoot;
-
-            scriptAST.getBody().forEach(interpreter::interpret);
-            this.failException = null;
-            proofStatus.setValue(newRoot.allLeavesClosed() ? ProofStatus.CLOSED : ProofStatus.OPEN);
-
-            // REVIEW: Why 3 different catch-clauses?
-        } catch (ScriptCommandNotApplicableException snap) {
-            this.proofRoot = newRoot;
-            this.failException = snap;
-            proofStatus.setValue(ProofStatus.FAILING);
-        } catch (InterpreterRuntimeException ire) {
-            this.proofRoot = newRoot;
-            this.failException = ire;
-            proofStatus.setValue(ProofStatus.FAILING);
+            this.scriptAST = Scripts.parseScript(script);
         } catch(Exception ex) {
-            // publish the proof root even if the proof has (partially) failed.
-            this.proofRoot = newRoot;
-            this.failException = ex;
-
-            // TODO proof state handling.
+            this.failures = Collections.singletonList(ex);
+            this.scriptAST = null;
             proofStatus.setValue(ProofStatus.FAILING);
+            return;
         }
 
+        try {
+            interpreter.interpret(scriptAST);
+            ProofNode newRoot = interpreter.getRootNode();
+            this.proofRoot = newRoot;
 
+            publishReferences();
+
+            if(interpreter.hasFailure()) {
+                this.failures = interpreter.getFailures();
+                this.proofStatus.setValue(ProofStatus.FAILING);
+            } else {
+                this.failures = Collections.emptyList();
+                proofStatus.setValue(newRoot.allLeavesClosed() ?
+                        ProofStatus.CLOSED : ProofStatus.OPEN);
+            }
+        } catch(Exception ex) {
+            System.err.println("This is an unexpected error (should not be raised):");
+            ex.printStackTrace();
+            this.failures = Collections.singletonList(ex);
+            proofStatus.setValue(ProofStatus.FAILING);
+        }
     }
 
 
-    // REVIEW: Review after repairing generics elsewhere
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private Interpreter<ProofNode> buildIndividualInterpreter() {
+    private void publishReferences() {
+        Deque<ProofNode> todo = new LinkedList<>();
+        todo.add(proofRoot);
+        while (!todo.isEmpty()) {
+            ProofNode node = todo.removeFirst();
+            List<ProofNode> children = node.getChildren();
+            if (children != null) {
+                try {
+                    graph.addFromRuleApplication(this, node, children);
+                } catch (RuleException e) {
+                    System.err.println("Reference graph is incomplete due to exception:");
+                    e.printStackTrace();
+                }
 
-        InterpreterBuilder ib = new InterpreterBuilder();
-        Interpreter<ProofNode> i = ib
-                .setProofRules(this.project.getAllProofRules())
-                .startState(getProofRoot())
-                .addMatcher(new TermMatcherApi())
-                .setProof(this)
-                .build();
+                if (children.size() > 0) {
+                    ProofNode child = children.get(0);
+                    if(child.getCommand() != null) {
+                        try {
+                            graph.addFromScriptNode(child.getCommand(), node, this);
+                        } catch (RuleException e) {
+                            System.err.println("Reference graph is incomplete due to exception:");
+                            e.printStackTrace();
+                        }
+                    }
+                }
 
-        return i;
+                todo.addAll(children);
+            }
+        }
+
     }
 
     /**
@@ -245,9 +279,6 @@ public class Proof {
     public Proof setScriptTextAndInterpret(String scriptText) {
         setScriptText(scriptText);
         interpretScript();
-        if(this.getGraph() != null){
-            graph.toString();
-        }
         return this;
     }
 
@@ -268,336 +299,9 @@ public class Proof {
     }
 
     /**
-     * @return an instance encapsulating the script AST.
-     *         Is null as long as {@link #interpretScript()} has not yet been called validly.
-     */
-    public ProofScript getProofScript() {
-        return scriptAST;
-    }
-
-    /**
-     * This method invalidates this proof object, sets the status to dirty
-     */
-    public void invalidate() {
-        this.proofStatus.setValue(ProofStatus.DIRTY);
-    }
-
-    /**
      * Save the old script and the old proof for comparison when reloading
      */
     private void saveOldDataStructures() {
         // future ...
-    }
-}
-
-/**
- * Class handling the creation of the proof tree when interpreting script.
- * EntryListeners are informed when entering an ASTNode in the Interpreter
- * ExitsListeners are informed at then end of ASTNodes
- * Book keeping is done in this visitor
- */
-class ProofNodeInterpreterManager {
-    final Interpreter<ProofNode> interpreter;
-    private ProofNode lastSelectedGoalNode;
-
-
-    private ReferenceGraph graph;
-    /**
-     * The proofNodeInterpreterManager adds an entry and an exit listner to the interpreter to listen what event happen
-     * during AST-Node visiting
-     *
-     * @param interpreter
-     */
-    public ProofNodeInterpreterManager(Interpreter<ProofNode> interpreter) {
-        this.interpreter = interpreter;
-        interpreter.getExitListeners().add(new ExitListener());
-        interpreter.getEntryListeners().add(new EntryListener());
-        this.graph = interpreter.getCurrentProof().getGraph();
-    }
-
-    /**
-     * Access the current ReferenceGraph
-     * @return
-     */
-    public ReferenceGraph getGraph() {
-        return graph;
-    }
-
-    private class EntryListener extends DefaultASTVisitor<Void> {
-        @Override
-        public Void visit(Statements statements) {
-            return null;
-        }
-
-        @Override
-        public Void defaultVisit(ASTNode node) {
-            lastSelectedGoalNode = interpreter.getSelectedNode();
-            return null;
-        }
-
-        @Override
-        public Void visit(AssignmentStatement assignment) {
-            return defaultVisit(assignment);
-            /*if(lastSelectedGoalNode == null )
-                return defaultVisit(assignment);
-            return null;*/
-        }
-
-        @Override
-        public Void visit(SimpleCaseStatement simpleCaseStatement) {
-            return null;
-        }
-
-        @Override
-        public Void visit(MatchExpression matchExpression) {
-            return null;
-        }
-
-        @Override
-        public Void visit(Signature signature) {
-            return null;
-        }
-
-        @Override
-        public Void visit(Parameters parameters) {
-            return null;
-        }
-
-        @Override
-        public Void visit(IntegerLiteral integer) {
-            return null;
-        }
-
-        @Override
-        public Void visit(BinaryExpression binaryExpression) {
-            return null;
-        }
-
-        @Override
-        public Void visit(TermLiteral termLiteral) {
-            return null;
-        }
-
-        @Override
-        public Void visit(SequentLiteral sequentLiteral) {
-            return null;
-        }
-
-        @Override
-        public Void visit(StringLiteral stringLiteral) {
-            return null;
-        }
-
-        @Override
-        public Void visit(Variable variable) {
-            return null;
-        }
-
-        @Override
-        public Void visit(BooleanLiteral booleanLiteral) {
-            return null;
-        }
-    }
-
-    private class ExitListener extends DefaultASTVisitor<Void> {
-        @Override
-        public Void visit(SimpleCaseStatement simpleCaseStatement) {
-            return null;
-        }
-
-        @Override
-        public Void visit(MatchExpression matchExpression) {
-            return null;
-        }
-
-        @Override
-        public Void visit(Signature signature) {
-            return null;
-        }
-
-        @Override
-        public Void visit(Parameters parameters) {
-            return null;
-        }
-
-        @Override
-        public Void defaultVisit(ASTNode node) {
-            lastSelectedGoalNode.setChildren(new ArrayList<>());
-
-            List<ProofNode> goals = interpreter.getCurrentState().getGoals();
-
-            if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
-                if(graph != null) {
-                    try {
-                        graph.addFromRuleApplication(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
-                        graph.addFromScriptNode(node,  lastSelectedGoalNode, interpreter.getCurrentProof());
-                    } catch (RuleException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                return null;
-            }
-            //goal list is empty, we have reached a proof
-            if (goals.isEmpty()) {
-                lastSelectedGoalNode.setClosed(true);
-               // System.out.println("Goalist goals.size() = " + goals.size() + "is empty we have reached a full proof");
-            }
-            //we have newly created goals, for each of them, add them to the proofnode structure as children
-            //TODO we now have a nested structure, how to add this structure to the proof tree
-            if (goals.size() > 0) {
-                for (ProofNode goal : goals) {
-                    //we don't have a nested structure
-                    if(goal.getParent() == lastSelectedGoalNode) {
-                        lastSelectedGoalNode.getChildren().add(goal);
-                        if(graph != null) {
-                            try {
-                                graph.addFromRuleApplication(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
-                                graph.addFromScriptNode(node,  lastSelectedGoalNode, interpreter.getCurrentProof());
-                            } catch (RuleException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    } else {
-                        //TODO handle nested structure -> maybe this is not wanted
-                        ProofNode temporaryGoal = goal;
-                        while(temporaryGoal.getParent() != lastSelectedGoalNode){
-                            try {
-                                graph.addFromRuleApplication(interpreter.getCurrentProof(), temporaryGoal, temporaryGoal.getParent().getChildren());
-                                graph.addFromScriptNode(node, lastSelectedGoalNode, interpreter.getCurrentProof());
-                            } catch (RuleException e) {
-                                e.printStackTrace();
-                            }
-                            temporaryGoal = temporaryGoal.getParent();
-                        }
-                        lastSelectedGoalNode.getChildren().add(temporaryGoal);
-
-                    }
-
-                }
-            }
-
-            lastSelectedGoalNode.addMutator(node);
-
-            return null;
-        }
-
-        @Override
-        public Void visit(Statements statements) {
-            return null;
-        }
-
-
-        /**
-         * When exiting an Assignment statement a new node has to be added, because assignments change the state as well
-         *
-         * @param assignment
-         * @return
-         */
-        @Override
-        public Void visit(AssignmentStatement assignment) {
-            lastSelectedGoalNode.setChildren(new ArrayList<>());
-
-            List<ProofNode> goals = interpreter.getCurrentState().getGoals();
-
-            if (goals.size() == 1 && goals.get(0).equals(lastSelectedGoalNode)) {
-                return null;
-            }
-            if (goals.isEmpty()) {
-                lastSelectedGoalNode.setClosed(true);
-                // System.out.println("Goalist goals.size() = " + goals.size() + "is empty we have reached a full proof");
-            }
-            if (goals.size() > 0) {
-                for (ProofNode goal : goals) {
-                    lastSelectedGoalNode.getChildren().add(goal);
-                    //TODO implement new method allowing to create "self-references"
-                   /* if(graph != null) {
-                        try {
-                            graph.addReference(interpreter.getCurrentProof(), lastSelectedGoalNode, lastSelectedGoalNode.getChildren());
-                        } catch (RuleException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }*/
-
-                }
-            }
-
-            lastSelectedGoalNode.addMutator(assignment);
-
-            return null;
-
-
-         /*   LinkedList<ProofNode> singleChild = new LinkedList<>();
-            List<ProofNode> goals = interpreter.getCurrentState().getGoals();
-
-
-            if (goals.size() == 1) {
-                //singleChild.add(goals.get(0).getData());
-                ProofNode pn = new ProofNode(lastSelectedGoalNode,
-                        null,
-                        lastSelectedGoalNode.getHistory(),
-                        goals.get(0).getSequent(), lastSelectedGoalNode.getRootPVC());
-                pn.setVariableAssignments(lastSelectedGoalNode.getVariableAssignments().deepCopy());
-
-                goals.get(0).addMutator(assignment);
-                singleChild.add(goals.get(0));
-            }
-            lastSelectedGoalNode.setChildren(singleChild);
-            //lastSelectedGoalNode.addMutator(assignment);
-            return null;*/
-//            return defaultVisit(assignment);
-        }
-
-        @Override
-        public Void visit(CasesStatement casesStatement) {
-
-            return null;
-        }
-
-        @Override
-        public Void visit(CaseStatement caseStatement) {
-            return null;
-        }
-
-        @Override
-        public Void visit(IsClosableCase isClosableCase) {
-            return null;
-        }
-
-
-
-        @Override
-        public Void visit(IntegerLiteral integer) {
-            return null;
-        }
-
-        @Override
-        public Void visit(BinaryExpression binaryExpression) {
-            return null;
-        }
-
-        @Override
-        public Void visit(TermLiteral termLiteral) {
-            return null;
-        }
-
-        @Override
-        public Void visit(SequentLiteral sequentLiteral) {
-            return null;
-        }
-
-        @Override
-        public Void visit(StringLiteral stringLiteral) {
-            return null;
-        }
-
-        @Override
-        public Void visit(Variable variable) {
-            return null;
-        }
-
-        @Override
-        public Void visit(BooleanLiteral booleanLiteral) {
-            return null;
-        }
     }
 }

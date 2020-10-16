@@ -159,20 +159,27 @@ public final class XMLProjectManager extends AbstractProjectManager {
             List<DafnyFile> dfyFiles = project.getDafnyFiles().stream()
                     .filter(dafnyFile -> dafnyFile.getFilename().equals(pvc.getDeclaration().getFilename()))
                     .collect(Collectors.toList());
-            if(dfyFiles.size()>0) {
-                Proof p = new Proof(project, pvc, dfyFiles.get(0));
-                String script;
-                try {
-                    script = loadScriptForPVC(pvc.getIdentifier());
-                } catch (FileNotFoundException ex) {
-                    script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT_PROP.key);
-                }
-                p.setScriptText(script);
 
-                proofs.put(pvc.getIdentifier(), p);
-            } else {
-                throw new IOException("Could not find Dafny file for pvc: "+pvc.toString());
+            assert dfyFiles.size() <= 1;
+
+            if(dfyFiles.isEmpty()) {
+                throw new IOException("Could not find Dafny file for pvc: " + pvc.toString());
             }
+
+            Proof p = new Proof(project, pvc);
+            for (DafnyFile dfyFile : dfyFiles) {
+                p.getReferenceGraph().addFromReferenceMap(dfyFile, pvc.getReferenceMap());
+            }
+            String script;
+            try {
+                script = loadScriptForPVC(pvc.getIdentifier());
+            } catch (FileNotFoundException ex) {
+                script = project.getSettings().getString(ProjectSettings.DEFAULT_SCRIPT_PROP.key);
+            }
+
+            p.setScriptText(script);
+
+            proofs.put(pvc.getIdentifier(), p);
         }
     }
 
@@ -185,7 +192,7 @@ public final class XMLProjectManager extends AbstractProjectManager {
             throw new FileNotFoundException(scriptFile.getAbsolutePath());
         }
 
-        return new String(Files.readAllBytes(scriptFile.toPath()));
+        return Files.readString(scriptFile.toPath());
     }
 
     private File getScriptFileForPVC(String pvcIdentifier) {
@@ -197,7 +204,7 @@ public final class XMLProjectManager extends AbstractProjectManager {
     @Override
     public void saveProofScriptForPVC(String pvcIdentifier, Proof proof) throws IOException {
         File scriptFile = getScriptFileForPVC(pvcIdentifier);
-        saverHelper(scriptFile.getPath(), proof.getScript());
+        saverHelper(scriptFile.getPath(), proof.getScriptText());
     }
 
     private void saverHelper(String pathToFile, String content) throws IOException {

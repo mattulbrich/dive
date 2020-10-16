@@ -11,7 +11,6 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.Parameters;
-import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleApplicator;
 import edu.kit.iti.algover.rules.RuleException;
@@ -63,7 +62,7 @@ public class QuantifierInstatiationTest {
         params.putValue(rule.getOnParameter(), new TermParameter(new TermSelector("A.0"), s));
         params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
         assertEquals(1, newNodes.size());
         assertEquals("$imp($and($ge(0, 0), $lt(0, 1)), $eq<int>(0, 0)) |-", newNodes.get(0).getSequent().toString());
     }
@@ -79,7 +78,7 @@ public class QuantifierInstatiationTest {
         params.putValue(rule.getOnParameter(), new TermParameter(new TermSelector("A.0"), s));
         params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
         assertEquals(1, newNodes.size());
         assertEquals("$imp($and($ge(i1, 0), $lt(i1, 1)), $eq<int>(i1, 0)) |-", newNodes.get(0).getSequent().toString());
     }
@@ -95,7 +94,7 @@ public class QuantifierInstatiationTest {
         params.putValue(rule.getOnParameter(), new TermParameter(new TermSelector("A.0"), s));
         params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(new ApplTerm(new FunctionSymbol("0", Sort.INT)), null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
         assertEquals(1, newNodes.size());
         assertEquals("$imp($and($ge(0, 0), $lt(i3, 1)), $eq<int>(i1, 0)) |-", newNodes.get(0).getSequent().toString());
     }
@@ -112,7 +111,7 @@ public class QuantifierInstatiationTest {
         Term rt = tp.parse("i1 + i1 % i3 - i4");
         params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(rt, null));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
         assertEquals(1, newNodes.size());
         assertEquals("$imp($and($ge($minus($plus(i1, $modulo(i1, i3)), i4), 0), $lt(i3, 1)), $eq<int>(i1, 0)) |-", newNodes.get(0).getSequent().toString());
     }

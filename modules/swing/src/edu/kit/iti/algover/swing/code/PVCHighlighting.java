@@ -62,6 +62,10 @@ public class PVCHighlighting {
                     color = POSITIVE_GUARD_HIGHLIGHT;
                 } else if (isNegativeGuard(pathCondition)) {
                     color = NEGATIVE_GUARD_HIGHLIGHT;
+                } else if (pathCondition.getType() == AssumptionType.CALL_POST) {
+                    // do not paint post conditions from distant methods
+                    // (it messes up the ranges)
+                    continue;
                 } else {
                     color = OTHER_PATH_CONDITION;
                 }

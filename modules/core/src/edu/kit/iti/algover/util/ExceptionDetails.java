@@ -5,21 +5,17 @@
  */
 package edu.kit.iti.algover.util;
 
+import edu.kit.iti.algover.nuscript.ScriptException;
+import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.script.ast.ASTNode;
-import edu.kit.iti.algover.script.exceptions.InterpreterRuntimeException;
-import edu.kit.iti.algover.script.exceptions.NoCallHandlerException;
-import edu.kit.iti.algover.script.exceptions.ScriptCommandNotApplicableException;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.InputMismatchException;
 import java.util.List;
 
 /**
@@ -150,45 +146,20 @@ public final class ExceptionDetails {
             return result;
         }
 
-        if(ex instanceof ScriptCommandNotApplicableException) {
-            ScriptCommandNotApplicableException snap = (ScriptCommandNotApplicableException) ex;
+        if(ex instanceof ScriptException) {
+            ScriptException sex = (ScriptException) ex;
             ExceptionReportInfo result = new ExceptionReportInfo();
-            result.message = snap.getMessage();
-            if(snap.callStatement != null) {
-                result.line = snap.callStatement.getStartPosition().getLineNumber();
-                result.column = snap.callStatement.getStartPosition().getCharInLine() + 1;
-                result.length = snap.callStatement.getEndPosition().getCharInLine() -
-                        snap.callStatement.getStartPosition().getCharInLine();
+            result.message = sex.getMessage();
+            ScriptAST ast = sex.getScriptAST();
+            if(ast != null) {
+                result.line = ast.getBeginToken().getLine();
+                result.column = ast.getBeginToken().getCharPositionInLine();
+                result.length = ast.getEndToken().getStopIndex() -
+                        ast.getBeginToken().getStartIndex();
             }
             return result;
         }
 
-        if(ex instanceof NoCallHandlerException) {
-            NoCallHandlerException snap = (NoCallHandlerException) ex;
-            ExceptionReportInfo result = new ExceptionReportInfo();
-            result.message = snap.getMessage();
-            if(snap.callStatement != null) {
-                result.line = snap.callStatement.getStartPosition().getLineNumber();
-                result.column = snap.callStatement.getStartPosition().getCharInLine() + 1;
-                result.length = snap.callStatement.getEndPosition().getCharInLine() -
-                        snap.callStatement.getStartPosition().getCharInLine();
-            }
-            return result;
-        }
-
-        if(ex instanceof InterpreterRuntimeException){
-            InterpreterRuntimeException ire = (InterpreterRuntimeException) ex;
-            ExceptionReportInfo result = new ExceptionReportInfo();
-            result.message = ire.getMessage();
-            if(ire.getLocation() != null){
-                ASTNode location = ire.getLocation();
-                result.line = location.getStartPosition().getLineNumber();
-                result.column = location.getStartPosition().getCharInLine() + 1;
-                result.length = location.getEndPosition().getCharInLine() -
-                        location.getStartPosition().getCharInLine();
-            }
-            return result;
-        }
         // ... add other classes here!
 
         Throwable cause = ex.getCause();

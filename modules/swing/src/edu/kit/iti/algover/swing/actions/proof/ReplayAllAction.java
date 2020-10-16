@@ -56,8 +56,7 @@ public class ReplayAllAction extends BarAction implements Initialisable {
 
     private static boolean isDirty(Proof proof) {
         ProofStatus state = proof.getProofStatus();
-        return  state == ProofStatus.DIRTY ||
-                state == ProofStatus.CHANGED_SCRIPT ||
+        return  state == ProofStatus.CHANGED_SCRIPT ||
                 state == ProofStatus.NON_EXISTING;
     }
 
@@ -70,7 +69,7 @@ public class ReplayAllAction extends BarAction implements Initialisable {
         try {
             Log.enter(proof, counter);
             if(!pm.isCanceled()) {
-                String script = proof.getScript();
+                String script = proof.getScriptText();
                 if (script == null || script.trim().isEmpty()) {
                     script = getDiveCenter().properties().project.getValue().
                             getSettings().getString(ProjectSettings.DEFAULT_SCRIPT_PROP.key);
@@ -78,7 +77,7 @@ public class ReplayAllAction extends BarAction implements Initialisable {
                 }
 
                 proof.interpretScript();
-                System.err.println(proof.getFailException());
+                // System.err.println(proof.getFailException());
             }
             // TODO remove default script if it does not work?
         } catch(Exception ex) {

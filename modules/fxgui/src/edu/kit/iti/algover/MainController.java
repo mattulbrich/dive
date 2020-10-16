@@ -291,12 +291,13 @@ public class MainController implements RuleApplicationListener {
                     Proof p = manager.getProofForPVC(pvcName);
                     p.interpretScript();
                     if (p.getProofStatus() != ProofStatus.CLOSED) {
-                        String oldScript = p.getScript();
+                        String oldScript = p.getScriptText();
                         String script = "boogie;\n";
                         p.setScriptTextAndInterpret(script);
-                        if (p.getFailException() != null) {
+                        if (!p.getFailures().isEmpty()) {
+                            // TODO This should use the default script!
                             p.setScriptTextAndInterpret(oldScript + "boogie;");
-                            if (p.getFailException() != null) {
+                            if (!p.getFailures().isEmpty()) {
                                 p.setScriptText(oldScript);
                                 p.interpretScript();
                                 failed++;
@@ -478,7 +479,7 @@ public class MainController implements RuleApplicationListener {
         // TODO: Save the project
         try {
             editorController.saveAllFiles();
-            manager.saveProject();
+            manager.saveProofScripts();
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved project.");
         } catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Error saving the project.");
@@ -636,7 +637,7 @@ public class MainController implements RuleApplicationListener {
         PropertyManager.getInstance().currentProofStatus.set(PropertyManager.getInstance().currentProof.get().getProofStatus());
         ruleApplicationController.resetConsideration();
         sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
-        if(PropertyManager.getInstance().currentProof.get().getFailException() == null) {
+        if(PropertyManager.getInstance().currentProof.get().getFailures() == null) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
         }
     }

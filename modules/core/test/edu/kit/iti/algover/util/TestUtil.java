@@ -12,13 +12,11 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -27,14 +25,10 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Function;
 
-import edu.kit.iti.algover.dafnystructures.DafnyMethod;
-import edu.kit.iti.algover.dafnystructures.TarjansAlgorithm;
+import edu.kit.iti.algover.nuscript.ScriptsTest;
 import edu.kit.iti.algover.parser.*;
-import edu.kit.iti.algover.proof.Proof;
-import edu.kit.iti.algover.proof.ProofNode;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.Parser;
 import org.antlr.runtime.ParserRuleReturnScope;
 import org.antlr.runtime.RecognitionException;
 
@@ -43,7 +37,9 @@ import edu.kit.iti.algover.project.ProjectBuilder;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.Test;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.Assert;
+
 import static org.junit.Assert.*;
 
 public class TestUtil {
@@ -319,6 +315,20 @@ public class TestUtil {
         };
     }
 
+    public static <E> TypeSafeMatcher<Collection<E>> contains(E o) {
+        return new TypeSafeMatcher<Collection<E>>() {
+            @Override
+            protected boolean matchesSafely(Collection<E> coll) {
+                return coll.contains(o);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("contains " + o);
+            }
+        };
+    }
+
     public static Matcher<Collection<?>> isEmpty() {
         return new BaseMatcher<Collection<?>>() {
             @Override
@@ -419,5 +429,24 @@ public class TestUtil {
             fw.write(string);
         }
         return temp;
+    }
+
+    @TestInfrastructure
+    public static void assertNoException(List<Exception> failures) {
+        if (!failures.isEmpty()) {
+            for (Exception failure : failures) {
+                failure.printStackTrace();
+            }
+            Assert.fail("Unexpected exception!");
+        }
+    }
+
+    @TestInfrastructure
+    public static String resourceAsString(Class<?> clss, String resource) throws IOException {
+        InputStream is = clss.getResourceAsStream(resource);
+        if (is == null) {
+            throw new FileNotFoundException("Resource " + resource + " not found");
+        }
+        return Util.streamToString(is);
     }
 }

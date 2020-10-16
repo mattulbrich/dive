@@ -7,18 +7,15 @@
 
 package edu.kit.iti.algover.swing.script;
 
-import edu.kit.iti.algover.parser.DafnyLexer;
-import edu.kit.iti.algover.script.ScriptLanguageLexer;
+import edu.kit.iti.algover.nuscript.parser.ScriptLexer;
 import edu.kit.iti.algover.swing.util.Log;
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rsyntaxtextarea.TokenMakerBase;
 
 import javax.swing.text.Segment;
 
-import static edu.kit.iti.algover.script.ScriptLanguageLexer.*;
+import static edu.kit.iti.algover.nuscript.parser.ScriptLexer.*;
 
 public class ScriptTokenMaker extends TokenMakerBase {
 
@@ -41,7 +38,7 @@ public class ScriptTokenMaker extends TokenMakerBase {
             startOffset += end + 2;
         }
 
-        ScriptLanguageLexer lexer = new ScriptLanguageLexer(CharStreams.fromString(text));
+        ScriptLexer lexer = new ScriptLexer(CharStreams.fromString(text));
         boolean openComment = false;
         try {
             org.antlr.v4.runtime.Token t = lexer.nextToken();
@@ -87,7 +84,6 @@ public class ScriptTokenMaker extends TokenMakerBase {
             return Token.COMMENT_MULTILINE;
 
 
-        case SEQUENT_LITERAL:
         case TERM_LITERAL:
             return Token.LITERAL_NUMBER_DECIMAL_INT;
 

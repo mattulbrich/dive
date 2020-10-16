@@ -26,6 +26,7 @@ import edu.kit.iti.algover.term.builder.TreeTermTranslatorTest;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.ProofMockUtil;
+import edu.kit.iti.algover.util.TestUtil;
 import org.antlr.runtime.RecognitionException;
 import org.junit.Before;
 import org.junit.Test;
@@ -101,7 +102,7 @@ public class TestRuleApplicator {
         System.out.println(testSequent);
 
         ProofRule pr = new AndRightRule();
-        ProofNode pn = new ProofNode(null, null, testSequent, null);
+        ProofNode pn = new ProofNode(null, null, null, null, testSequent, null);
 
         TermSelector ts = new TermSelector(TermSelector.SequentPolarity.SUCCEDENT, 1);
         Parameters params = new Parameters();
@@ -130,7 +131,9 @@ public class TestRuleApplicator {
 
         List<ProofFormula> testSemi = testSequent.getAntecedent();
 
-        System.out.println(RuleApplicator.changeSemisequent(add, del, new ArrayList<>(), testSemi));
+        Object s = TestUtil.callStatic(RuleApplicator.class, "changeSemisequent", add, del, new ArrayList<>(), testSemi);
+
+        System.out.println(s);
     }
 
     @Test
@@ -141,7 +144,7 @@ public class TestRuleApplicator {
         AndLeftRule rule = new AndLeftRule();
         ProofNode pn = ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent());
         ProofRuleApplication pra = rule.considerApplication(pn, sequent, new TermSelector("A.0"));
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
         assertEquals(1, newNodes.size());
         assertEquals("$lt(i1, i2), $lt(i2, i3) |- $lt(i1, i3)", newNodes.get(0).getSequent().toString());
     }
@@ -154,7 +157,7 @@ public class TestRuleApplicator {
         AndRightRule rule = new AndRightRule();
         ProofNode pn = ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent());
         ProofRuleApplication pra = rule.considerApplication(pn, sequent, new TermSelector("S.0"));
-        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, pn);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
         assertEquals(2, newNodes.size());
         assertEquals("$lt(i1, i3) |- $lt(i1, i2)", newNodes.get(0).getSequent().toString());
         assertEquals("$lt(i1, i3) |- $lt(i2, i3)", newNodes.get(1).getSequent().toString());
