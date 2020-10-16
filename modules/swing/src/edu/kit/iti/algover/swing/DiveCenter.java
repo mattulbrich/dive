@@ -72,6 +72,10 @@ public class DiveCenter {
         mainController.makeGUI();
 
         properties().onGoingProof.setValueOnEventQueue(false);
+
+        properties().proofNodeCheckpoint.addObserver(() -> {
+            properties().termSelector.setValue(null);
+        });
     }
 
     public DiveProperties properties() {
