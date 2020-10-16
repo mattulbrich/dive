@@ -106,7 +106,7 @@ public class SkolemizationRule extends FocusProofRule {
                     FunctionSymbol fs = new FunctionSymbol(prefix, variableTerm.getSort());
                     int varCounter = 1;
                     while(symbolTable.getFunctionSymbol(fs.getName()) != null) {
-                        fs = new FunctionSymbol(prefix + varCounter++, variableTerm.getSort());
+                        fs = new FunctionSymbol(prefix + "_" + varCounter++, variableTerm.getSort());
                     }
                     newFs.add(fs);
                     ApplTerm at = new ApplTerm(fs);
