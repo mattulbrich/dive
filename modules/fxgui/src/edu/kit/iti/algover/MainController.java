@@ -22,6 +22,7 @@ import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
+import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
@@ -31,6 +32,8 @@ import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceGraphController;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
+import edu.kit.iti.algover.rule.script.ScriptController;
+import edu.kit.iti.algover.rule.script.ScriptView;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
@@ -154,10 +157,12 @@ public class MainController implements RuleApplicationListener {
         ContextMenu contextMenu = new ContextMenu();
         statusBar.setContextMenu(contextMenu);
 
-        this.timelineView = TimelineFactory.getDefaultTimeLineLayout(browserController,
+        ScriptController sc = new ScriptController(executor, this, lookup);
+
+        this.timelineView = TimelineFactory.testWebviewAlongScriptEditor(browserController,
                 editorController,
                 sequentController,
-                ruleApplicationController);
+                ruleApplicationController, sc.getView());
 
         this.view = new VBox(toolbar, breadCrumbBar, timelineView, statusBar);
         VBox.setVgrow(timelineView, Priority.ALWAYS);
@@ -352,7 +357,7 @@ public class MainController implements RuleApplicationListener {
                     DafnyFile file = (DafnyFile) item.getParent().getParent().getValue();
                     PropertyManager.getInstance().currentFile.set(file);
                     PropertyManager.getInstance().currentPVC.set(pvc);
-                    PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.BROWSER_EDITOR);
+                    PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.DefaultViewPosition.BROWSER_EDITOR.index);
                     onClickPVCEdit(new PVCEntity(manager.getProofForPVC(pvc.getIdentifier()), pvc, file));
                 } catch (NullPointerException e) {
                     Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
@@ -364,7 +369,7 @@ public class MainController implements RuleApplicationListener {
             if (item.getValue() instanceof DafnyFile) {
                 PropertyManager.getInstance().currentFile.set((DafnyFile) item.getValue());
                 //editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getValue());
-                PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.BROWSER_EDITOR);
+                PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.DefaultViewPosition.BROWSER_EDITOR.index);
                 PropertyManager.getInstance().currentPVC.set(null);
                 //editorController.resetPVCSelection();
             }
@@ -372,7 +377,7 @@ public class MainController implements RuleApplicationListener {
                 if (item.getParent().getValue() instanceof DafnyFile) {
                     PropertyManager.getInstance().currentFile.set((DafnyFile) item.getParent().getValue());
                     //editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getParent().getValue());
-                    PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.BROWSER_EDITOR);
+                    PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.DefaultViewPosition.BROWSER_EDITOR.index);
                     PropertyManager.getInstance().currentPVC.set(null);
                     //editorController.resetPVCSelection();
                 }
@@ -556,7 +561,7 @@ public class MainController implements RuleApplicationListener {
         //if (proof.getProofStatus() == ProofStatus.NON_EXISTING || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
         //    proof.interpretScript();
         ruleApplicationController.resetConsideration();
-        PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.EDITOR_SEQUENT);
+        PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.DefaultViewPosition.EDITOR_SEQUENT.index);
     }
 
     /**
@@ -611,7 +616,7 @@ public class MainController implements RuleApplicationListener {
 
     public void onClickSequentSubterm(TermSelector selector) {
         if (selector != null) {
-            PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.SEQUENT_RULE);
+            PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.DefaultViewPosition.SEQUENT_RULE.index);
         }
     }
 
@@ -630,10 +635,12 @@ public class MainController implements RuleApplicationListener {
         // This can be implemented as an incremental algorithm in the future here!
         // Currently, this will reset the script text completely. That means the
         // script has to be parsed and rebuilt completely.
-        ruleApplicationController.applyRule(application);
+        //ruleApplicationController.applyRule(application);
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
-        String newScript = "";
-        PropertyManager.getInstance().currentProof.get().setScriptTextAndInterpret(newScript);
+        ruleApplicationController.applyRule(application);
+
+        PropertyManager.getInstance().currentProof.get().interpretScript();
+
         PropertyManager.getInstance().currentProofStatus.set(PropertyManager.getInstance().currentProof.get().getProofStatus());
         ruleApplicationController.resetConsideration();
         sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()

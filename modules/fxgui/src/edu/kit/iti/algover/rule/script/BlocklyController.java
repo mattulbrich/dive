@@ -18,6 +18,8 @@
 package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.PropertyManager;
+import edu.kit.iti.algover.nuscript.ScriptAST;
+import edu.kit.iti.algover.nuscript.parser.Scripts;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
@@ -31,8 +33,13 @@ public class BlocklyController {
 
         PropertyManager.getInstance().currentProof.addListener(((observable, oldValue, newValue) -> {
             if(newValue != null) {
-                String content = ProofHTML.toHTML(newValue.getProofScript());
-                engine.loadContent(content);
+                refreshView();
+            }
+        }));
+
+        PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
+            if(newValue != null) {
+                refreshView();
             }
         }));
     }
@@ -42,5 +49,17 @@ public class BlocklyController {
     }
 
     public void insertTextForSelectedNode(String s) {
+        ScriptAST.Script newLine = Scripts.parseScript(s);
+        for (ScriptAST.Statement statement: newLine.getStatements()) {
+            PropertyManager.getInstance().currentProof.get().getProofScript().addStatement(statement);
+        }
+        refreshView();
+    }
+
+    private void refreshView() {
+        if (PropertyManager.getInstance().currentProof.get().getProofScript() != null) {
+            String content = ProofHTML.toHTML(PropertyManager.getInstance().currentProof.get().getProofScript());
+            engine.loadContent(content);
+        }
     }
 }

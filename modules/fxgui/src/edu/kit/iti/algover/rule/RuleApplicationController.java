@@ -9,6 +9,7 @@ import com.jfoenix.controls.JFXRadioButton;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.PropertyManager;
+import edu.kit.iti.algover.nuscript.parser.ASTVisitor;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
@@ -194,11 +195,13 @@ public class RuleApplicationController extends FxmlController implements Referen
     public void applyRule(ProofRuleApplication application) {
         try {
             resetConsideration();
-            scriptController.insertTextForSelectedNode(application.getScriptTranscript()+"\n"); //SaG: removed newline character
+            System.out.println(application.getScriptTranscript());
+            scriptController.insertTextForSelectedNode(application.getScriptTranscript()); //SaG: removed newline character
         } catch(RuleException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
         }
     }
+
 
     public void onReset() {
         ruleGrid.setAllRules(manager.getProject().getAllProofRules().stream()

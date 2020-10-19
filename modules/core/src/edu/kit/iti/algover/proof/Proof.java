@@ -199,13 +199,15 @@ public class Proof {
         // (Also a syntax error deserves a proof root.)
         this.proofRoot = interpreter.getRootNode();
 
-        try {
-            this.scriptAST = Scripts.parseScript(script);
-        } catch(Exception ex) {
-            this.failures = Collections.singletonList(ex);
-            this.scriptAST = null;
-            proofStatus.setValue(ProofStatus.FAILING);
-            return;
+        if (this.scriptAST == null) {
+            try {
+                this.scriptAST = Scripts.parseScript(script);
+            } catch (Exception ex) {
+                this.failures = Collections.singletonList(ex);
+                this.scriptAST = null;
+                proofStatus.setValue(ProofStatus.FAILING);
+                return;
+            }
         }
 
         try {

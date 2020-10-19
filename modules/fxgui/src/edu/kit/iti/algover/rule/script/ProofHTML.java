@@ -1,11 +1,7 @@
 package edu.kit.iti.algover.rule.script;
 
-import edu.kit.iti.algover.script.ast.CallStatement;
-import edu.kit.iti.algover.script.ast.CasesStatement;
-import edu.kit.iti.algover.script.ast.ProofScript;
-import edu.kit.iti.algover.script.ast.SimpleCaseStatement;
-import edu.kit.iti.algover.script.ast.Statement;
-import edu.kit.iti.algover.script.ast.Variable;
+import edu.kit.iti.algover.nuscript.ScriptAST;
+
 import edu.kit.iti.algover.util.Util;
 import j2html.tags.Tag;
 
@@ -45,50 +41,50 @@ public final class ProofHTML {
      */
     private static String readHead() {
         try {
-            return Util.streamToString(ProofHTML.class.getResourceAsStream("css.css"));
+            return Util.streamToString(ProofHTML.class.getResourceAsStream("ASTStyles.css"));
         } catch (IOException e) {
             e.printStackTrace();
             return "MISSING HEADER";
         }
     }
 
-    public static String toHTML(ProofScript script) {
+    public static String toHTML(ScriptAST.Script script) {
         return html(head(style(HEAD)), body(toDiv(script))).render();
     }
 
     /*
      * an entire script as HTML
      */
-    private static Tag<?> toDiv(ProofScript proofScript) {
-        return div(attrs(".script"), each(proofScript.getBody().subList(0, proofScript.getBody().size()), ProofHTML::toTag));
+    private static Tag<?> toDiv(ScriptAST.Script proofScript) {
+        return div(attrs(".script"), each(proofScript.getStatements(), ProofHTML::toTag));
     }
 
     /*
      * statements can be commands or cases. Make case distinction here.
      */
-    private static Tag<?> toTag(Statement statement) {
-        if(statement instanceof CallStatement) {
-            return commandToTag((CallStatement) statement);
+    private static Tag<?> toTag(ScriptAST statement) {
+        if(statement instanceof ScriptAST.Command) {
+            return commandToTag((ScriptAST.Command) statement);
         } else {
-            return casesToTag((CasesStatement)statement);
+            return casesToTag((ScriptAST.Cases) statement);
         }
     }
 
-    private static Tag<?> casesToTag(CasesStatement cases) {
+    private static Tag<?> casesToTag(ScriptAST.Cases cases) {
         return div(attrs(".cases"), span(attrs(".casesName"), "cases"),
                 each(cases.getCases(), c ->
                         div(attrs(".case"), span(attrs(".caseLabel"),
-                                "case " + ((SimpleCaseStatement)c).getGuard().getText() + ":"),
+                                "case " + (c).getLabel().getText() + ":"),
                                 div(attrs(".block"),
-                                        each(c.getBody().subList(0, c.getBody().size()), ProofHTML::toTag)))));
+                                        each(c.getStatements(), ProofHTML::toTag)))));
     }
 
-    private static Tag<?> commandToTag(CallStatement command) {
+    private static Tag<?> commandToTag(ScriptAST.Command command) {
         List<Tag<?>> params = new ArrayList<>();
-        params.add(span(attrs(".ruleName"), command.getCommand()));
-        for(Variable key : command.getParameters().keySet()) {
-            params.add(span(span(attrs(".paramName"), " " + key.getIdentifier() + "="),
-                    span(attrs(".termParam"), command.getParameters().get(key).getText())));
+        params.add(span(attrs(".ruleName"), command.getCommand().getText()));
+        for(ScriptAST.Parameter key : command.getParameters()) {
+            params.add(span(span(attrs(".paramName"), " " + key.getName().getText() + "="),
+                    span(attrs(".termParam"), key.getValue().getText())));
         }
 
         return div(attrs(".call")).with(params);
