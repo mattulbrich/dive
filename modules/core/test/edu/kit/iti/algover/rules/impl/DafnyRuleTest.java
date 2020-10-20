@@ -157,7 +157,7 @@ public class DafnyRuleTest {
             }
         }
         assertNotNull(l1Rule);
-        assertEquals("$seqLen<int>(s)", l1Rule.getSearchTerm().toString());
-        assertEquals("$seqLen<int>(s)", l1Rule.getReplaceTerm().toString());
+        assertEquals("$seq_len<int>(?s)", l1Rule.getSearchTerm().toString());
+        assertEquals("$seq_len<int>(?s)", l1Rule.getReplaceTerm().toString());
     }
 }
