@@ -1,0 +1,34 @@
+### project:
+class C { var f : int; }
+
+### decls:
+o : C
+a : array<int>
+
+### sequent:
+|- o.f == o.f@$heap[a[0] := 0]
+
+### result:
+prove
+
+### translation:
+const _$heap : Heap;
+const _a : ref;
+const _o : ref;
+const unique TClass_C : Ty;
+const unique _C$$f : Field (int);
+
+axiom (forall x:ref :: $Is(x, TClass_C) <==> dtype(x) == TClass_C || x == null);
+axiom $Is(_$heap, THeap);
+axiom $Is(_o, TClass_C);
+axiom $Is(_C$$f, TField(TInt));
+axiom $Is(_a, TArray(TInt));
+
+procedure Sequent()
+  ensures false;
+{
+  assume !((read(_$heap, _o, _C$$f) == read(update(_$heap, _a, IndexField(0) : Field int, 0), _o, _C$$f)));
+}
+
+### comments:
+was a bug : IndexField(0) could alias with _C$$f
