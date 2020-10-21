@@ -107,6 +107,8 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
                 view.setStyle("-fx-background-color: #c4c1c9; -fx-font-size: "+fontSizeProperty.get()+"pt;");
             } else if(newValue == ProofStatus.CLOSED) {
                 view.setStyle("-fx-background-color: #cefaae; -fx-font-size: "+fontSizeProperty.get()+"pt;");
+            } else if(newValue == ProofStatus.FAILING) {
+                view.setStyle("-fx-background-color: #E74E4E; -fx-font-size: "+fontSizeProperty.get()+"pt;");
             } else {
                 view.setStyle("-fx-background-color: white; -fx-font-size: "+fontSizeProperty.get()+"pt;");
             }
@@ -184,16 +186,18 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
     }
 
     private void onCaretPositionChanged(Observable observable) {
-       //this positions linenumber starts with 1
-        Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
-        ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
-        //insertPosition = checkpoint.caretPosition;
-        observableInsertPosition.set(checkpoint.caretPosition);
-        this.checkpoints = ProofNodeCheckpointsBuilder.build(PropertyManager.getInstance().currentProof.get());
-        createVisualSelectors(this.checkpoints);
-        //showSelectedSelector(checkpoint);
-        switchViewedNode();
-        view.highlightLine();
+        if(PropertyManager.getInstance().currentProofStatus.get() == ProofStatus.OPEN) {
+            //this positions linenumber starts with 1
+            Position caretPosition = computePositionFromCharIdx(view.getCaretPosition(), view.getText());
+            ProofNodeCheckpoint checkpoint = getCheckpointForCaretPosition(caretPosition);
+            //insertPosition = checkpoint.caretPosition;
+            observableInsertPosition.set(checkpoint.position);
+            this.checkpoints = ProofNodeCheckpointsBuilder.build(PropertyManager.getInstance().currentProof.get());
+            createVisualSelectors(this.checkpoints);
+            //showSelectedSelector(checkpoint);
+            switchViewedNode();
+            view.highlightLine();
+        }
     }
 
     private void showSelectedSelector(ProofNodeCheckpoint checkpoint) {
@@ -219,7 +223,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         } else {
             PropertyManager.getInstance().currentProofNodeSelector.set(checkpoint.selector);
         }
-        showSelectedSelector(checkpoint);
+        //showSelectedSelector(checkpoint);
         view.requestLayout();
 
     }
@@ -350,13 +354,15 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         } else {
             Logger.getGlobal().info("Successfully ran script.");
         }
-        checkpoints = ProofNodeCheckpointsBuilder.build(PropertyManager.getInstance().currentProof.get());
-       // insertPosition = oldInsertPos;
-        observableInsertPosition.set(oldInsertPos);
-        createVisualSelectors(checkpoints);
-
         PropertyManager.getInstance().currentProofStatus.set(PropertyManager.getInstance().currentProof.get().getProofStatus());
-        switchViewedNode();
+        if(PropertyManager.getInstance().currentProofStatus.get() != ProofStatus.FAILING) {
+            checkpoints = ProofNodeCheckpointsBuilder.build(PropertyManager.getInstance().currentProof.get());
+            // insertPosition = oldInsertPos;
+            observableInsertPosition.set(oldInsertPos);
+            createVisualSelectors(checkpoints);
+            switchViewedNode();
+        }
+
         scriptChanged.set(false);
     }
 

@@ -7,18 +7,17 @@ package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.nuscript.Position;
 import edu.kit.iti.algover.nuscript.ScriptAST;
+import edu.kit.iti.algover.nuscript.ScriptAST.Case;
+import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
 import edu.kit.iti.algover.nuscript.ScriptAST.Command;
+import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
+import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import edu.kit.iti.algover.nuscript.ScriptAST.Case;
-import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
-import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
-import org.antlr.v4.runtime.Token;
 
 public class ProofNodeCheckpointsBuilder {
     private final Proof proof;
