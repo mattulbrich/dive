@@ -111,7 +111,6 @@ public class TraceViewController extends FxmlController {
 
             }
             succ.sort(Comparator.comparingInt(this::getLetDepth));
-            System.out.println("succ");
             for (Term t : succ) {
                 List<Pair<VariableTerm, Term>> newAssignments = extractAssignments(t);
                 newAssignments.removeAll(assignments);
@@ -125,7 +124,7 @@ public class TraceViewController extends FxmlController {
                 //System.out.println("Assert: " + pp.print(extractTerm(t)));
                 formulaViews.add(new ViewFormula(idx++, extractTerm(t), ViewFormula.Type.ORIGINAL, TermSelector.SequentPolarity.ANTECEDENT, ImmutableList.single("Assertion")));
             }
-            formulaBox.getChildren().addAll(formulaViews.stream().map(formula -> new FormulaCell(PropertyManager.getInstance().selectedTerm, PropertyManager.getInstance().selectedTermForReference, styles, formula, this.showFormulaLabels, this.fontsizeProperty)).collect(Collectors.toList()));
+            formulaBox.getChildren().setAll(formulaViews.stream().map(formula -> new FormulaCell(PropertyManager.getInstance().selectedTerm, PropertyManager.getInstance().selectedTermForReference, styles, formula, this.showFormulaLabels, this.fontsizeProperty)).collect(Collectors.toList()));
         }
 
     }
