@@ -17,15 +17,32 @@
 
 package edu.kit.iti.algover.trace;
 
+import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.sequent.FormulaCell;
+import edu.kit.iti.algover.sequent.formulas.ViewFormula;
 import edu.kit.iti.algover.term.LetTerm;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
+import edu.kit.iti.algover.util.Quadruple;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
+import org.controlsfx.control.ToggleSwitch;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,14 +50,40 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TraceViewController {
+public class TraceViewController extends FxmlController {
+
+    @FXML
+    private ScrollPane scrollPane;
+
+    @FXML
+    private ToggleSwitch formulaLabels;
+
+    @FXML
+    private Label goalTypeLabel;
+
+    @FXML
+    private VBox formulaBox;
+
+    private ObservableList<Quadruple<TermSelector, String, Integer, String>> styles = FXCollections.observableArrayList();
+    private SimpleIntegerProperty fontsizeProperty = new SimpleIntegerProperty(12);
+    private SimpleBooleanProperty showFormulaLabels = new SimpleBooleanProperty(true);
 
     public TraceViewController() {
+        super("TraceView.fxml");
         PropertyManager.getInstance().currentProofNode.addListener(this::showSelectedNode);
+    }
+
+    @FXML
+    public void handleOnKeyPressed(KeyEvent event){
+        if (event.getCode() == KeyCode.ESCAPE) {
+            PropertyManager.getInstance().selectedTerm.set(null);
+            PropertyManager.getInstance().selectedTermForReference.set(null);
+        }
     }
 
     private void showSelectedNode(ObservableValue<? extends ProofNode> observableValue, ProofNode oldValue, ProofNode newValue) {
         if(newValue != null) {
+            List<ViewFormula> formulaViews = new ArrayList<>();
             PrettyPrint pp = new PrettyPrint();
             Sequent seq = newValue.getSequent();
             List<VariableTerm> referencedVars = new ArrayList<>();
@@ -51,17 +94,21 @@ public class TraceViewController {
             List<Term> ante = seq.getAntecedent().stream().map(pf -> pf.getTerm()).collect(Collectors.toList());
             ante.sort(Comparator.comparingInt(this::getLetDepth));
             List<Pair<VariableTerm, Term>> assignments = new ArrayList<>();
-            System.out.println("\n\n");
+            int idx = 0;
             for (Term t : ante) {
                 List<Pair<VariableTerm, Term>> newAssignments = extractAssignments(t);
                 newAssignments.removeAll(assignments);
                 assignments.addAll(newAssignments);
                 for(Pair<VariableTerm, Term> p : newAssignments) {
                     if(referencedVars.contains(p.fst)) {
-                        System.out.println("Assignment: " + pp.print(p.fst) + " = " + pp.print(p.snd));
+
+                        formulaViews.add(new ViewAssignment(idx++, p.fst, p.snd));
+                        //System.out.println("Assignment: " + pp.print(p.fst) + " = " + pp.print(p.snd));
                     }
                 }
-                System.out.println("Assume: " + pp.print(extractTerm(t)));
+                //System.out.println("Assume: " + pp.print(extractTerm(t)));
+                formulaViews.add(new ViewFormula(idx++, extractTerm(t), ViewFormula.Type.ORIGINAL, TermSelector.SequentPolarity.ANTECEDENT, ImmutableList.single("Assumption")));
+
             }
             succ.sort(Comparator.comparingInt(this::getLetDepth));
             System.out.println("succ");
@@ -71,12 +118,16 @@ public class TraceViewController {
                 assignments.addAll(newAssignments);
                 for(Pair<VariableTerm, Term> p : newAssignments) {
                     if(referencedVars.contains(p.fst)) {
-                        System.out.println("Assignment: " + pp.print(p.fst) + " = " + pp.print(p.snd));
+                        //System.out.println("Assignment: " + pp.print(p.fst) + " = " + pp.print(p.snd));
+                        formulaViews.add(new ViewAssignment(idx++, p.fst, p.snd));
                     }
                 }
-                System.out.println("Assert: " + pp.print(extractTerm(t)));
+                //System.out.println("Assert: " + pp.print(extractTerm(t)));
+                formulaViews.add(new ViewFormula(idx++, extractTerm(t), ViewFormula.Type.ORIGINAL, TermSelector.SequentPolarity.ANTECEDENT, ImmutableList.single("Assertion")));
             }
+            formulaBox.getChildren().addAll(formulaViews.stream().map(formula -> new FormulaCell(PropertyManager.getInstance().selectedTerm, PropertyManager.getInstance().selectedTermForReference, styles, formula, this.showFormulaLabels, this.fontsizeProperty)).collect(Collectors.toList()));
         }
+
     }
 
     private int getLetDepth(Term term) {
@@ -112,5 +163,4 @@ public class TraceViewController {
         term.getSubterms().forEach(t -> vars.addAll(extractReferencedVars(t)));
         return vars;
     }
-
 }

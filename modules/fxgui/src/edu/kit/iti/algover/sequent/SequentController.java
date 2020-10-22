@@ -152,6 +152,7 @@ public class SequentController extends FxmlController {
         goalTypeLabel.setStyle("-fx-text-fill: GRAY");
         formulaLabels.selectedProperty().addListener((observable, oldValue, newValue) -> this.showFormulaLabels.set(newValue));
     }
+
     @FXML
     public void handleOnKeyPressed(KeyEvent event){
             if (event.getCode() == KeyCode.ESCAPE) {
@@ -159,6 +160,7 @@ public class SequentController extends FxmlController {
                 PropertyManager.getInstance().selectedTermForReference.set(null);
             }
     }
+
     /**
      * Adds a style class for a certain Term.
      * @param ts A termselector pointing to the term to be styled.

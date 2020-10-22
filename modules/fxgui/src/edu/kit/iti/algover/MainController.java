@@ -154,10 +154,13 @@ public class MainController implements RuleApplicationListener {
         ContextMenu contextMenu = new ContextMenu();
         statusBar.setContextMenu(contextMenu);
 
+        TraceViewController tvc = new TraceViewController();
+
         this.timelineView = new TimelineLayout(
                 browserController.getView(),
                 editorController.getView(),
                 sequentController.getView(),
+                tvc.getView(),
                 ruleApplicationController.getRuleApplicationView());
         timelineView.setDividerPosition(0.2);
 
@@ -174,7 +177,6 @@ public class MainController implements RuleApplicationListener {
         //Add property listener
         PropertyManager.getInstance().selectedTerm.addListener(((observable, oldValue, newValue) -> onClickSequentSubterm(newValue)));
         PropertyManager.getInstance().currentPVC.addListener(((observable, oldValue, newValue) -> onSelectBrowserItem(newValue)));
-        TraceViewController tvc = new TraceViewController();
 
         onClickRefresh(null);
     }
