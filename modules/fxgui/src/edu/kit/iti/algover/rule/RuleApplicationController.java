@@ -9,12 +9,15 @@ import com.jfoenix.controls.JFXRadioButton;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.PropertyManager;
-import edu.kit.iti.algover.nuscript.parser.ASTVisitor;
+import edu.kit.iti.algover.nuscript.ScriptAST;
+import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.rule.script.BlocklyController;
+import edu.kit.iti.algover.rule.script.ScriptTextController;
 import edu.kit.iti.algover.rules.ProofRule;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
@@ -29,7 +32,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.web.WebView;
 
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
@@ -51,13 +53,13 @@ public class RuleApplicationController extends FxmlController implements Referen
     @FXML
     private JFXRadioButton sortBranching;
 
+    private BlocklyController scriptRepWeb;
+    private ScriptTextController scriptRepText;
 
 
-    private final WebView scriptView;
+    //private final WebView scriptView;
 
     private final RuleApplicationListener listener;
-
-    private final BlocklyController scriptController;
 
     private final Logger logger;
 
@@ -69,8 +71,10 @@ public class RuleApplicationController extends FxmlController implements Referen
     public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener, ProjectManager manager, Lookup lookup) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
-        this.scriptController = new BlocklyController();
-        this.scriptView = scriptController.getView();
+
+        this.scriptRepWeb = new BlocklyController();
+        this.scriptRepText = new ScriptTextController(executor);
+        //this.scriptView = scriptControllers.getView();
         lookup.register(this, RuleApplicationController.class);
         lookup.register(this, ReferenceHighlightingHandler.class);
 
@@ -135,7 +139,7 @@ public class RuleApplicationController extends FxmlController implements Referen
             addProofRule(rule);
         }
         ruleGrid.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
-        splitPane.getItems().add(0, scriptView);
+        splitPane.getItems().add(0, scriptRepWeb.getView());
 
     }
 
@@ -184,19 +188,18 @@ public class RuleApplicationController extends FxmlController implements Referen
         return ruleGrid;
     }
 
-    public WebView getScriptView() {
-        return scriptView;
-    }
-
-    public BlocklyController getScriptController() {
-        return scriptController;
-    }
-
     public void applyRule(ProofRuleApplication application) {
         try {
             resetConsideration();
-            System.out.println(application.getScriptTranscript());
-            scriptController.insertTextForSelectedNode(application.getScriptTranscript()); //SaG: removed newline character
+            ScriptAST.Script newLine = Scripts.parseScript(application.getScriptTranscript());
+            for (ScriptAST.Statement statement: newLine.getStatements()) {
+                PropertyManager.getInstance().currentProof.get().getProofScript().addStatement(statement);
+            }
+            PropertyManager.getInstance().currentProofStatus.set(
+                    ProofStatus.CHANGED_SCRIPT);
+            PropertyManager.getInstance().currentProof.get().interpretScript();
+
+
         } catch(RuleException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
         }
@@ -218,4 +221,9 @@ public class RuleApplicationController extends FxmlController implements Referen
     public void removeReferenceHighlighting() {
         //Do nothing at the moment
     }
+
+    public Node getScriptView() {
+        return this.scriptRepText.getView();
+    }
+
 }

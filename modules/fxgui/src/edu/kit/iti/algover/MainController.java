@@ -22,7 +22,6 @@ import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.dafnystructures.DafnyFunction;
 import edu.kit.iti.algover.dafnystructures.DafnyMethod;
 import edu.kit.iti.algover.editor.EditorController;
-import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.PVC;
@@ -32,8 +31,7 @@ import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceGraphController;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
-import edu.kit.iti.algover.rule.script.ScriptController;
-import edu.kit.iti.algover.rule.script.ScriptView;
+import edu.kit.iti.algover.rule.script.ScriptTextController;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
@@ -113,15 +111,15 @@ public class MainController implements RuleApplicationListener {
     private final CostumBreadCrumbBar<Object> breadCrumbBar;
 
 
-    public MainController(ProjectManager manager, ExecutorService executor) {
+    public MainController(ProjectManager manager, ExecutorService highlightingExecutor) {
         this.manager = manager;
-        this.executor = executor;
+        this.executor = highlightingExecutor;
         this.browserController = new FlatBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
         //this.browserController = new FileBasedBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
-        this.editorController = new EditorController(executor, manager.getProject().getBaseDir().getAbsolutePath(), this.lookup);
+        this.editorController = new EditorController(highlightingExecutor, manager.getProject().getBaseDir().getAbsolutePath(), this.lookup);
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
         this.sequentController = new SequentTabViewController(lookup);
-        this.ruleApplicationController = new RuleApplicationController(executor, this, manager, this.lookup);
+        this.ruleApplicationController = new RuleApplicationController(highlightingExecutor, this, manager, this.lookup);
         this.referenceGraphController = new ReferenceGraphController(this.lookup);
 
         PropertyManager.getInstance().projectManager.set(manager);
@@ -157,12 +155,12 @@ public class MainController implements RuleApplicationListener {
         ContextMenu contextMenu = new ContextMenu();
         statusBar.setContextMenu(contextMenu);
 
-        ScriptController sc = new ScriptController(executor, this, lookup);
+        //ScriptTextController sc = new ScriptTextController(highlightingExecutor, this, lookup);
 
         this.timelineView = TimelineFactory.testWebviewAlongScriptEditor(browserController,
                 editorController,
                 sequentController,
-                ruleApplicationController, sc.getView());
+                ruleApplicationController);
 
         this.view = new VBox(toolbar, breadCrumbBar, timelineView, statusBar);
         VBox.setVgrow(timelineView, Priority.ALWAYS);

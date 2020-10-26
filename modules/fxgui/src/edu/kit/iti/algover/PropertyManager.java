@@ -6,6 +6,7 @@ import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.util.ObservableValue;
 import edu.kit.iti.algover.util.TypedBindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -83,6 +84,12 @@ public class PropertyManager {
      */
     public final IntegerProperty currentlyDisplayedView = new SimpleIntegerProperty(0);
 
+
+    public final ObservableValue.ChangeListener<ProofStatus> proofStatusSyncer =
+            (observableValue, oldValue, newValue) -> {
+        currentProofStatus.set(newValue);
+    };
+
     /**
      * Provides the singleton for this class
      * @return an instance of this class
@@ -144,10 +151,17 @@ public class PropertyManager {
                 })
         );
 
+        // TODO: review Proof and maybe use beans/fx properties.
         currentProof.addListener(((observable, oldValue, newValue) -> {
-            if (newValue != null)
+            if (oldValue != null) {
+                oldValue.proofStatusObservableValue().removeObserver(proofStatusSyncer);
+            }
+            if (newValue != null) {
+                newValue.proofStatusObservableValue().addObserver(proofStatusSyncer);
                 newValue.interpretScript();
+            }
         }));
+
 
 
 

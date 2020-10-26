@@ -141,6 +141,11 @@ public class Proof {
         return script;
     }
 
+
+    public @NonNull ObservableValue<ProofStatus> proofStatusObservableValue() {
+        return this.proofStatus;
+    }
+
     /**
      * Get the proof script or null.
      *

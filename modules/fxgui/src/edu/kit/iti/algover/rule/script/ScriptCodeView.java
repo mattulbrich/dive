@@ -35,8 +35,9 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * Created by Philipp on 24.07.2017.
+ * Renamed from ScriptView to ScriptCodeView by Valentin on 20.10.2020
  */
-public class ScriptView extends AsyncHighlightingCodeArea {
+public class ScriptCodeView extends AsyncHighlightingCodeArea {
 
 
     private final ScriptViewListener listener;
@@ -65,7 +66,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
     private GutterFactory gutter;
 
-    public ScriptView(ExecutorService executor, ScriptViewListener listener) {
+    public ScriptCodeView(ExecutorService executor, ScriptViewListener listener) {
         super(executor);
         this.listener = listener;
         this.highlightingRule = (token, syntaxClasses) -> syntaxClasses;
@@ -96,7 +97,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
         setupAsyncSyntaxhighlighting();
 
-        textProperty().addListener((observable, oldValue, newValue) -> listener.onAsyncScriptTextChanged(newValue));
+        //textProperty().addListener((observable, oldValue, newValue) -> listener.onAsyncScriptTextChanged(newValue));
         setOnMouseMoved(this::handleHover);
 
         fontsizeProperty().addListener((observable, oldValue, newValue) -> {
