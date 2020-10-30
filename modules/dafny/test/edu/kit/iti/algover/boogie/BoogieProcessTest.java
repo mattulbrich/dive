@@ -8,6 +8,8 @@ package edu.kit.iti.algover.boogie;
 import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.MockPVCBuilder;
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
@@ -55,6 +57,7 @@ public class BoogieProcessTest {
     private SymbolTable table;
 
     private Sequent sequent;
+    private ProofNode proofNode;
 
     private String expectedResult;
 
@@ -103,6 +106,11 @@ public class BoogieProcessTest {
 
         this.sequent = TermParser.parseSequent(table, props.get("sequent"));
 
+        MockPVCBuilder b = new MockPVCBuilder();
+        b.setSequent(this.sequent);
+        this.proofNode = ProofNode.createRoot(b.build());
+
+
         this.expectedResult = props.getOrDefault("result", "fail");
 
         this.expectedTranslation = props.get("translation");
@@ -112,7 +120,7 @@ public class BoogieProcessTest {
 
     @Test
     public void testBoogie() throws Exception {
-        BoogieProcess process = new BoogieProcess(project, table, sequent);
+        BoogieProcess process = new BoogieProcess(project, table, proofNode);
         process.setAdditionalBoogieText(additionalBoogieCode);
 
         switch (expectedResult) {
@@ -126,7 +134,7 @@ public class BoogieProcessTest {
             return;
         }
 
-        String actualTranslation = process.getObligation().toString().trim();
+        String actualTranslation = process.getBoogieCode().trim();
 
         if (!expectedTranslation.equals(actualTranslation)) {
             System.out.println(">>> " + name);

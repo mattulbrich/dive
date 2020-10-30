@@ -10,6 +10,7 @@ package edu.kit.iti.algover.boogie;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.ProofFormula;
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.LetInlineVisitor;
@@ -25,6 +26,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,9 +46,10 @@ public class BoogieTranslation {
     public final static String PRELUDE = loadPrelude();
 
     private final Project project;
-    private Sequent sequent;
+    private ProofNode proofNode;
     private SymbolTable symbolTable;
-    private @Nullable CharSequence obligation;
+    private @Nullable List<String> obligation;
+    private boolean verified;
 
     public BoogieTranslation(Project project) {
         this.project = project;
@@ -64,10 +67,10 @@ public class BoogieTranslation {
         }
     }
 
-    private CharSequence produceObligation() throws TermBuildException {
+    private List<String> produceObligation() throws TermBuildException {
 
         assert symbolTable != null;
-        assert sequent != null;
+        assert proofNode != null;
 
         TermBuilder tb = new TermBuilder(symbolTable);
 
@@ -78,7 +81,7 @@ public class BoogieTranslation {
 
         v.addClassDeclarations(project);
 
-        for (ProofFormula formula : sequent.getAntecedent()) {
+        for (ProofFormula formula : proofNode.getSequent().getAntecedent()) {
             Term term = formula.getTerm();
             term = LetInlineVisitor.inline(term);
             term = fdv.collectAndMask(term);
@@ -87,7 +90,7 @@ public class BoogieTranslation {
             clauses.add(translation);
         }
 
-        for (ProofFormula formula : sequent.getSuccedent()) {
+        for (ProofFormula formula : proofNode.getSequent().getSuccedent()) {
             Term term = formula.getTerm();
             term = LetInlineVisitor.inline(term);
             term = fdv.collectAndMask(term);
@@ -99,43 +102,36 @@ public class BoogieTranslation {
 
         fdv.findFunctionDefinitions(symbolTable, v);
 
+
+        List<String> result = new ArrayList<>();
+        result.addAll(v.getDeclarations());
+        result.addAll(v.getAxioms());
+
         StringBuilder sb = new StringBuilder();
-        sb.append(Util.join(v.getDeclarations(), "\n")).append("\n\n");
-        sb.append(Util.join(v.getAxioms(), "\n")).append("\n\n");
         sb.append("procedure Sequent()\n  ensures false;\n{\n");
         for (String clause : clauses) {
             sb.append("  assume " + clause + ";\n");
         }
         sb.append("}");
+        result.add(sb.toString());
 
-        return sb;
+        return result;
     }
 
-    public CharSequence getObligation() throws TermBuildException {
+    public List<String> getObligation() throws TermBuildException {
 
         if (obligation != null) {
             return obligation;
         }
 
-        CharSequence sb = this.produceObligation();
-
-        this.obligation = sb;
-        return sb;
+        this.obligation = Collections.unmodifiableList(this.produceObligation());
+        return this.obligation;
     }
 
     public String getHash() throws TermBuildException, NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] hash = digest.digest(getObligation().toString().getBytes());
         return Base64.getEncoder().encodeToString(hash);
-    }
-
-    public Sequent getSequent() {
-        return sequent;
-    }
-
-    public void setSequent(Sequent sequent) {
-        this.sequent = sequent;
-        this.obligation = null;
     }
 
     public SymbolTable getSymbolTable() {
@@ -145,5 +141,17 @@ public class BoogieTranslation {
     public void setSymbolTable(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
         this.obligation = null;
+    }
+
+    public void setProofNode(ProofNode proofNode) {
+        this.proofNode = proofNode;
+    }
+
+    public void setVerified(boolean b) {
+        this.verified = b;
+    }
+
+    public boolean isVerified() {
+        return verified;
     }
 }

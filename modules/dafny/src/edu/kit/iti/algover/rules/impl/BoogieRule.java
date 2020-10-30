@@ -29,9 +29,6 @@ import java.util.Set;
  */
 public class BoogieRule extends NoFocusProofRule {
 
-    private static Set<String> provedConditions =
-            Collections.synchronizedSet(new HashSet<>());
-
     @Override
     public String getName() {
         return "boogie";
@@ -65,17 +62,14 @@ public class BoogieRule extends NoFocusProofRule {
 
         PVC pvc = target.getPVC();
 
-        BoogieProcess process = new BoogieProcess(pvc.getProject(), pvc.getSymbolTable(), target.getSequent());
+        BoogieProcess process = new BoogieProcess(pvc.getProject(), pvc.getSymbolTable(), target);
 
         try {
             String hash = process.getHash();
-            if(provedConditions.contains(hash)) {
+            if(BoogieCache.contains(hash)) {
                 return true;
             }
             boolean result = process.callBoogie();
-            if (result) {
-                provedConditions.add(hash);
-            }
             return result;
         } catch(RuleException rex) {
             throw rex;

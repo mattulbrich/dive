@@ -7,19 +7,23 @@ package edu.kit.iti.algover.boogie;
 
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.project.Project;
+import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.rules.impl.BoogieCache;
 import edu.kit.iti.algover.term.builder.TermBuildException;
+import edu.kit.iti.algover.util.Util;
 import nonnull.NonNull;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,22 +54,29 @@ public class BoogieProcess {
             Boolean.getBoolean("edu.kit.iti.algover.verboseBPL");
 
     /**
-     * The class responsible for the translation
+     * The collection of sequent translations
      */
-    private final BoogieTranslation translation;
-
+    private final List<BoogieTranslation> translations;
 
     /**
-     * Instantiate a new boogie connection for a project
+     * Instantiate a new boogie connection for a single sequent
      *
      * @param project the project for which to translate a sequent.
      * @param table the table containing all symbols occurring on the sequent
      * @param sequent the logical encoding of the problem to solve
      */
-    public BoogieProcess(@NonNull Project project, SymbolTable table, Sequent sequent) {
-        this.translation = new BoogieTranslation(project);
-        this.translation.setSequent(sequent);
-        this.translation.setSymbolTable(table);
+    public BoogieProcess(@NonNull Project project, SymbolTable table, ProofNode proofNode) {
+        this(project, table, List.of(proofNode));
+    }
+
+    public BoogieProcess(@NonNull Project project, SymbolTable table, List<ProofNode> proofNodes) {
+        this.translations = new ArrayList<>();
+        for (ProofNode pnode : proofNodes) {
+            BoogieTranslation translation = new BoogieTranslation(project);
+            translation.setProofNode(pnode);
+            translation.setSymbolTable(table);
+            translations.add(translation);
+        }
     }
 
     /**
@@ -79,9 +90,9 @@ public class BoogieProcess {
      * @return whether or not boogie was able to close the target
      * @throws RuleException if boogie somehow ran into problems
      */
-    public boolean callBoogie() throws TermBuildException, IOException, RuleException {
+    public boolean callBoogie() throws TermBuildException, IOException, RuleException, NoSuchAlgorithmException {
 
-        CharSequence sb = translation.getObligation();
+        String boogieCode = getBoogieCode();
 
         // The boogie code is stored in a temporary file
         Path tmpFile = Files.createTempFile("dive-", ".bpl");
@@ -94,25 +105,24 @@ public class BoogieProcess {
         }
 
         // write prelude, obligation and add. code
-        Files.write(tmpFile, Arrays.asList(BoogieTranslation.PRELUDE, sb, additionalBoogieText));
+        Files.write(tmpFile, Arrays.asList(BoogieTranslation.PRELUDE, boogieCode, additionalBoogieText));
 
         Process process = buildProcess(tmpFile);
         InputStream in = process.getInputStream();
 
-        // read lines from process and look for error indications
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
-        String line;
-        while ((line = br.readLine()) != null) {
-            if(VERBOSE_BOOGIE){
-                System.out.println(" Boogie > " + line);
+        BoogieResponseParser boogieResponseParser = new BoogieResponseParser(boogieCode);
+        boogieResponseParser.readFrom(in);
+        if (boogieResponseParser.isConsistent()) {
+            // write back solutions to the objects
+            for (Integer p : boogieResponseParser.getVerifiedProcedures()) {
+                BoogieTranslation translation = translations.get(p);
+                BoogieCache.add(translation.getHash());
+                translation.setVerified(true);
             }
-            if (line.matches("Boogie program verifier finished with \\d+ verified, 0 errors"))
-                return true;
-            if (line.startsWith("Boogie program verifier finished with"))
-                return false;
+            return boogieResponseParser.getFailedProcedures().isEmpty();
+        } else {
+            throw new RuleException("Oh dear, boogie seems to fail for " + tmpFile);
         }
-
-        throw new RuleException("Oh dear, boogie seems to fail for " + tmpFile);
     }
 
     private Process buildProcess(Path tmpFile) throws IOException {
@@ -150,22 +160,33 @@ public class BoogieProcess {
     /**
      * Retrieve the proof obligation of this object.
      *
+     * Mainly for testing.
+     *
      * @return the boogie proof obligation handled by this object
-     * @throws NoSuchAlgorithmException never actually (I hope)
      * @throws TermBuildException if obligation creation is broken
      */
-    public CharSequence getObligation() throws TermBuildException {
-        return translation.getObligation();
+    public String getBoogieCode() throws TermBuildException {
+        Collection<String> elements = new LinkedHashSet<>();
+        for (BoogieTranslation translation : translations) {
+            elements.addAll(translation.getObligation());
+        }
+        String boogieCode = Util.join(elements, "\n\n");
+        return boogieCode;
     }
 
     /**
-     * Retrieve a hash code for the proof obligation
+     * Retrieve a hash code for the proof obligation.
+     *
+     * This is only available if the process wraps a single sequent!
      *
      * @return the hash code of the proof obligation handled by this object
      * @throws NoSuchAlgorithmException never actually (I hope)
      * @throws TermBuildException if obligation creation is broken
      */
     public String getHash() throws NoSuchAlgorithmException, TermBuildException {
-        return translation.getHash();
+        if (translations.size() != 1) {
+            throw new IllegalStateException("internal error: hashes can only obtained for single translations");
+        }
+        return translations.get(0).getHash();
     }
 }
