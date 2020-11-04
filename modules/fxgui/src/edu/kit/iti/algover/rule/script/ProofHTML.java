@@ -9,14 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static j2html.TagCreator.attrs;
-import static j2html.TagCreator.body;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
-import static j2html.TagCreator.head;
-import static j2html.TagCreator.html;
-import static j2html.TagCreator.span;
-import static j2html.TagCreator.style;
+import static j2html.TagCreator.*;
 
 /*
  * Container for the static method toHTML that translates a script to a htmlized form.
@@ -36,6 +29,8 @@ public final class ProofHTML {
      */
     private final static String HEAD = readHead();
 
+    private final static String JS = readJS();
+
     /*
      * read the styles from a resource.
      */
@@ -48,15 +43,25 @@ public final class ProofHTML {
         }
     }
 
+    private static String readJS() {
+        try {
+            return Util.streamToString(ProofHTML.class.getResourceAsStream("BlocklyScript.js"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "MISSING JS";
+        }
+    }
+
+
     public static String toHTML(ScriptAST.Script script) {
-        return html(head(style(HEAD)), body(toDiv(script))).render();
+        return html(head(style(HEAD), script().with(rawHtml(JS))), body(toDiv(script))).render();
     }
 
     /*
      * an entire script as HTML
      */
     private static Tag<?> toDiv(ScriptAST.Script proofScript) {
-        return div(attrs(".script"), each(proofScript.getStatements(), ProofHTML::toTag));
+        return div(attrs("#proofScript.script"), each(proofScript.getStatements(), ProofHTML::toTag));
     }
 
     /*
@@ -82,12 +87,13 @@ public final class ProofHTML {
     private static Tag<?> commandToTag(ScriptAST.Command command) {
         List<Tag<?>> params = new ArrayList<>();
         params.add(span(attrs(".ruleName"), command.getCommand().getText()));
+
         for(ScriptAST.Parameter key : command.getParameters()) {
             params.add(span(span(attrs(".paramName"), " " + key.getName().getText() + "="),
                     span(attrs(".termParam"), key.getValue().getText())));
         }
 
-        return div(attrs(".call")).with(params);
+        return div(attrs("#" + command.hashCode() + ".call")).with(params)/*.attr("onclick", "invoke(" + command.hashCode() +");")*/;
     }
 
 }
