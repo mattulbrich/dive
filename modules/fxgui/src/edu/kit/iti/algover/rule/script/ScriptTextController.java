@@ -6,10 +6,8 @@ package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.nuscript.ScriptAST;
-import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.proof.ProofStatus;
-import edu.kit.iti.algover.settings.ProjectSettings;
 import javafx.scene.Node;
 
 import java.util.concurrent.ExecutorService;
@@ -63,7 +61,6 @@ public class ScriptTextController implements ScriptViewListener {
 
         PropertyManager.getInstance().currentProof.get().interpretScript();
 
-        selectLastProofNode();
 
     }
 
@@ -74,7 +71,7 @@ public class ScriptTextController implements ScriptViewListener {
             if (PropertyManager.getInstance().currentProofStatus.get() != ProofStatus.FAILING) {
 
                 ScriptAST.Statement lastStmt = proofScript.getStatements().get(proofScript.getStatements().size() - 1);
-                lastStmt.visit(this::selectCommandPN, null);
+                lastStmt.visit(this::selectCommandPN, this::selectCasesPN);
             }
         } else {
             PropertyManager.getInstance().currentProofNodeSelector.set(new ProofNodeSelector());
@@ -84,6 +81,11 @@ public class ScriptTextController implements ScriptViewListener {
 
     private Void selectCommandPN(ScriptAST.Command cmd) {
         PropertyManager.getInstance().currentProofNode.set(cmd.getProofNode());
+        return null;
+    }
+
+    private Void selectCasesPN(ScriptAST.Cases cases) {
+        PropertyManager.getInstance().currentProofNode.set(cases.getCases().get(0).getProofNode().getChildren().get(0));
         return null;
     }
 

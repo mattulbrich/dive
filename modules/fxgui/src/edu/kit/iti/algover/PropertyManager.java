@@ -84,7 +84,10 @@ public class PropertyManager {
      */
     public final IntegerProperty currentlyDisplayedView = new SimpleIntegerProperty(0);
 
-
+    /**
+     * ChangeListener that binds the back end representation of the proof staus
+     * to the status of the currently selected proof.
+     */
     public final ObservableValue.ChangeListener<ProofStatus> proofStatusSyncer =
             (observableValue, oldValue, newValue) -> {
         currentProofStatus.set(newValue);
@@ -161,9 +164,6 @@ public class PropertyManager {
                 newValue.interpretScript();
             }
         }));
-
-
-
 
         currentPVC.addListener(((observable, oldValue, newValue) -> selectedTermForReference.set(null)));
         currentPVC.addListener(((observable, oldValue, newValue) -> selectedTerm.set(null)));

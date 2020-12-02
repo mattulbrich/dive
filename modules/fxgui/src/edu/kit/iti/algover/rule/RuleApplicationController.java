@@ -18,10 +18,7 @@ import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.rule.script.BlocklyController;
 import edu.kit.iti.algover.rule.script.ScriptTextController;
-import edu.kit.iti.algover.rules.ProofRule;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
@@ -192,9 +189,11 @@ public class RuleApplicationController extends FxmlController implements Referen
         try {
             resetConsideration();
             ScriptAST.Script newLine = Scripts.parseScript(application.getScriptTranscript());
-            for (ScriptAST.Statement statement: newLine.getStatements()) {
+            /*for (ScriptAST.Statement statement: newLine.getStatements()) {
                 PropertyManager.getInstance().currentProof.get().getProofScript().addStatement(statement);
-            }
+            }*/
+            scriptRepWeb.insertForSelectedNode(application, newLine);
+
             PropertyManager.getInstance().currentProofStatus.set(
                     ProofStatus.CHANGED_SCRIPT);
             PropertyManager.getInstance().currentProof.get().interpretScript();

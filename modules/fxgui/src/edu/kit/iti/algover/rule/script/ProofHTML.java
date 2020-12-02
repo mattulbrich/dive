@@ -93,7 +93,7 @@ public final class ProofHTML {
                     span(attrs(".termParam"), key.getValue().getText())));
         }
 
-        return div(attrs("#" + command.hashCode() + ".call")).with(params)/*.attr("onclick", "invoke(" + command.hashCode() +");")*/;
+        return div(attrs("#" + command.hashCode() + ".call")).with(params);
     }
 
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-<comment>Created by DIVE at Sat Oct 03 20:52:50 CEST 2020</comment>
+<comment>Created by DIVE at Tue Dec 01 15:22:16 CET 2020</comment>
 <entry key="List.removeAt/then/else/Bounds">expand on='... ((?match: this.Valid())) ... |-';
 boogie ;
 
@@ -111,16 +111,13 @@ boogie ;
 </entry>
 <entry key="List.size/loop/Inv.2">boogie;
 </entry>
-<entry key="List.size/InitInv">expand on='... ((?match: this.Valid())) ... |-';
-boogie ;
-</entry>
+<entry key="List.size/InitInv"></entry>
 <entry key="List.removeAt/else/loop_exit/then/Modifies"></entry>
 <entry key="List.removeAt/then/then/Bounds">boogie;
 </entry>
 <entry key="List.Valid/Bounds">boogie;
 </entry>
-<entry key="List.size/loop/Null">boogie;
-</entry>
+<entry key="List.size/loop/Null"></entry>
 <entry key="List.insertAt/loop_exit/Post.1">boogie;
 </entry>
 <entry key="List.removeAt/else/loop_exit/else/Post.1">boogie;
