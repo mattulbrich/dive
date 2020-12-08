@@ -185,6 +185,7 @@ public class RuleApplicationController extends FxmlController implements Referen
         return ruleGrid;
     }
 
+    // TODO: consider reimplementation
     public void applyRule(ProofRuleApplication application) {
         try {
             resetConsideration();
