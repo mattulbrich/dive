@@ -19,105 +19,45 @@ package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.nuscript.ScriptAST;
-import edu.kit.iti.algover.nuscript.ScriptAST.Script;
-import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
-import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
-import edu.kit.iti.algover.nuscript.ScriptAST.Case;
-
+import edu.kit.iti.algover.nuscript.parser.ScriptParser;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.concurrent.Worker;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import edu.kit.iti.algover.util.Util;
+import org.antlr.v4.runtime.CommonToken;
 
-import org.w3c.dom.events.EventTarget;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class BlocklyController {
-    private final WebView view;
-    private final WebEngine engine;
-    private Document doc;
 
-    private final SimpleObjectProperty<ScriptAST.Statement> highlightedStatement = new SimpleObjectProperty<>(null);
-
-
-    private ScriptHTML scriptHTML;
-
+    private BlocklyView view;
 
     public BlocklyController() {
-        view = new WebView();
-        engine = view.getEngine();
+        this.view = new BlocklyView();
 
-        engine.setJavaScriptEnabled(true);
-        engine.setOnAlert(event -> showAlert(event.getData()));
+        PropertyManager.getInstance().insertCasesPressed.addListener((observable, oldValue, newValue) -> {
+            if (newValue == true) {
+                List<ScriptAST.Statement> updatedScript = insertCasesForStatement(PropertyManager.getInstance()
+                                .currentProof.get().getProofRoot(),
+                        PropertyManager.getInstance().currentProof.get().getProofScript().getStatements());
+                ScriptAST.Script newScript = new ScriptAST.Script(updatedScript);
 
-        engine.getLoadWorker().stateProperty().addListener(
-                (observable, oldValue, newValue) -> {
-                    if (newValue != Worker.State.SUCCEEDED) {
-                        return;
-                    }
-                    doc = engine.getDocument();
-                    recursivelyAddListeners(doc, PropertyManager.getInstance().currentProof.get().getProofScript().getStatements());
-                }
-        );
-
-
-        PropertyManager.getInstance().currentProof.addListener(((observable, oldValue, newValue) -> {
-            updateView();
-        }));
-
-        PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
-            if(newValue != null) {
-                /* TODO: Somehow consider filtering */
-
-                /*  If newValue == CHANGED_SCRIPT the proof is rerun (triggered by a different listener)
-                    the satus is immediately set to OPEN, CLOSED or FAILING.*/
-                System.out.println("Status changed to " + newValue);
-                updateView();
+                PropertyManager.getInstance().currentProof.get().setScriptAST(newScript);
+                PropertyManager.getInstance().currentProof.get().proofStatusObservableValue().setValue(ProofStatus.CHANGED_SCRIPT);
+                PropertyManager.getInstance().currentProof.get().interpretScript();
+                PropertyManager.getInstance().insertCasesPressed.set(false);
             }
-        }));
-
-        highlightedStatement.addListener((observable, oldValue, newValue) ->  {
-
-            System.out.println("highlighted statement");
-
-            System.out.println("was: " + oldValue);
-            if (oldValue != null) {
-                engine.executeScript("unhighlight(" + scriptHTML.getID(oldValue) + ")");
-            }
-
-            if (newValue != null) {
-                engine.executeScript("highlight(" + scriptHTML.getID(newValue) + ")");
-                handleProofNodeSelection(newValue);
-            } else {
-                // TODO : search open proof node
-            }
-
-            System.out.println("is now: " + newValue);
-
 
         });
 
-        // TODO: remove, debugging only
-        PropertyManager.getInstance().currentProofNodeSelector.addListener(
-                (observable, oldValue, newValue) -> {
-                    System.out.println("Selected PN= " + newValue);
-                }
-        );
-
-
     }
 
-    public WebView getView() {
+    public BlocklyView getView() {
         return view;
     }
+
 
     /**
      * Insert AST to position of display
@@ -126,95 +66,82 @@ public class BlocklyController {
      */
     public boolean insertForSelectedNode(ProofRuleApplication app, ScriptAST.Script ruleScript) {
         System.out.println("insert rule application");
-
         // TODO: return true iff ast added to script ast
         return false;
     }
 
-    private void recursivelyAddListeners(Document doc, List<ScriptAST.Statement> statements) {
-        for(Statement stmt : statements) {
-            stmt.visit(command -> {
-                addListener(doc, command);
-                return null;
-            }, cases -> {
-                addListener(doc, cases);
-                for (Case caze: cases.getCases()) {
-                    recursivelyAddListeners(doc, caze.getStatements());
+
+    /**
+     * recursivly inserts all missing case statements in the given script
+     *
+     * @param pn the proofnode for which the cases should be inserted
+     * @param stmts the current script that should be extended by the missing case statements
+     * @return a new script containing all necessary case statements
+     */
+    // MU: Adapted the existing code to nuscript. But it does not seem to be recursive at all.
+    private List<ScriptAST.Statement> insertCasesForStatement(ProofNode pn, List<ScriptAST.Statement> stmts) {
+        if(stmts.size() == 0) {
+            return stmts;
+        }
+        List<ScriptAST.Statement> result = new ArrayList<>();
+        for (int i = 0; i < stmts.size() - 1; ++i) {
+            if(stmts.get(i) instanceof ScriptAST.Command) {
+                result.add(stmts.get(i));
+            } else {
+                Logger.getGlobal().warning("Only the last statement may be a cases-statement.");
+                return stmts;
+            }
+            if((pn.getChildren() != null && pn.getChildren().size() == 1)) {
+                pn = pn.getChildren().get(0);
+            } else if (stmts.size() - 2 != i) {
+                Logger.getGlobal().warning("Script has unexpected number of children at some point.");
+                return stmts;
+            }
+        }
+        ScriptAST.Statement st = stmts.get(stmts.size() - 1);
+        if(pn.getSuccessors().size() == 1 && st instanceof ScriptAST.Command) {
+            result.add(st);
+        } else if (pn.getChildren().size() > 1 && st instanceof ScriptAST.Cases) {
+            result.add(createCasesForNode(pn, ((ScriptAST.Cases) st).getCases()));
+        } else if (pn.getChildren().size() > 1 && !(st instanceof ScriptAST.Cases)) {
+            result.add(st);
+            result.add(createCasesForNode(pn));
+        }
+
+        return result;
+    }
+
+    /**@
+     * Creates all cases for the given proofnode except the ones given in cases
+     *
+     * @param pn the proofnode for which the cases should be created
+     * @param cases the cases that already exist
+     * @return a case statement containing all necesarry cases
+     */
+    private ScriptAST.Statement createCasesForNode(ProofNode pn, List<ScriptAST.Case> cases) {
+        ScriptAST.Cases res = new ScriptAST.Cases();
+        for(ProofNode p : pn.getChildren()) {
+            boolean found = false;
+            for(ScriptAST.Case caze : cases) {
+                //apparently some guards are string literals and some are MathcExpressions...
+                String caseString = Util.stripQuotes(caze.getLabel().getText());
+                if (caseString.equals(p.getLabel())) {
+                    List<ScriptAST.Statement> statements = insertCasesForStatement(p, caze.getStatements());
+                    caze.addStatements(statements);
+                    res.getCases().add(caze);
+                    found = true;
                 }
-                return null;
-            });
+            }
+            if(!found) {
+                ScriptAST.Case c = new ScriptAST.Case();
+                c.setLabel(new CommonToken(ScriptParser.STRING_LITERAL, "\"" + p.getLabel() + "\""));
+                res.getCases().add(c);
+            }
         }
+        return res;
     }
 
-    private void addListener(Document doc, Statement cmd) {
-        Element el = doc.getElementById(scriptHTML.getID(cmd).toString());
-        // TODO: remove listener ?
-        if (el != null) {
-            // useCapture parameter of addEventListener method influences the direction of event propagation.
-            // See HTML/JavaScript specification for exact description.
-            // For HTML documents: true ~ top down, false ~ bottom up
-            ((EventTarget) el).addEventListener("click", event -> {
-                event.stopPropagation();
-                if (highlightedStatement.get() == cmd) {
-                    highlightedStatement.set(null);
-                    return;
-                }
-                highlightedStatement.set(cmd);
-            }, false);
-        } else {
-            System.out.println("Statement: " + cmd + " not found in AST Display.");
-        }
+    private ScriptAST.Statement createCasesForNode(ProofNode pn) {
+        return createCasesForNode(pn, new ArrayList<>());
     }
-
-    public void addCasesListener(Document doc, Cases cases) {
-        Element el = doc.getElementById(scriptHTML.getID(cases).toString());
-        // TODO: remove listener ?
-        if (el != null) {
-            ((EventTarget) el).addEventListener("click", event -> {
-                if (highlightedStatement.get() == cases) {
-                    highlightedStatement.set(null);
-                    return;
-                }
-                highlightedStatement.set(cases);
-            }, false);
-        } else {
-            System.out.println("Statement: " + cases + " not found in AST Display.");
-        }
-    }
-
-    private boolean handleProofNodeSelection(ScriptAST.Statement statement) {
-        ProofNode afterStatement = statement.visit(this::commandProofNode, this::casesProofNode);
-        PropertyManager.getInstance().currentProofNode.set(afterStatement);
-
-        return true;
-    }
-
-    private ProofNode commandProofNode(ScriptAST.Command cmd) {
-        ProofNode pn = cmd.getProofNode();
-        return pn;
-    }
-
-    // TODO
-    private ProofNode casesProofNode(ScriptAST.Cases cases) {
-        ProofNode pn = cases.getCases().get(0).getProofNode();
-
-        return pn;
-
-    }
-
-    private void showAlert(String message) {
-        Dialog<Void> alert = new Dialog<>();
-        alert.getDialogPane().setContentText(message);
-        alert.getDialogPane().getButtonTypes().add(ButtonType.OK);
-        alert.showAndWait();
-    }
-
-    private void updateView() {
-        highlightedStatement.set(null);
-        if (PropertyManager.getInstance().currentProof.get().getProofScript() != null) {
-            scriptHTML = new ScriptHTML(PropertyManager.getInstance().currentProof.get().getProofScript());
-            engine.loadContent(scriptHTML.getHTML());
-        }
-    }
-
 }

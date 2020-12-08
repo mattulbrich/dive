@@ -8,9 +8,7 @@ import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.util.ObservableValue;
 import edu.kit.iti.algover.util.TypedBindings;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 
 /**
  * This class holds all relevant properties for the FXGUI.
@@ -18,6 +16,12 @@ import javafx.beans.property.SimpleObjectProperty;
  * @author Jonas Klamroth (08/2020)
  */
 public class PropertyManager {
+
+    /**
+     * The singleton instance
+     */
+    private static PropertyManager instance;
+
     /**
      * the {@link ProofNodeSelector} pointing to the {@link ProofNode} that is currently displayed in the sequent view
      * this selector is bound bidirectionally with {@link PropertyManager#currentProofNode} so updates to either one of
@@ -54,10 +58,6 @@ public class PropertyManager {
      */
     public final SimpleObjectProperty<Project> currentProject = new SimpleObjectProperty<>();
 
-    /**
-     * The singleton instance
-     */
-    private static PropertyManager instance;
 
     /**
      * Whichever Term was clicked to apply rules to.
@@ -83,6 +83,8 @@ public class PropertyManager {
      * Representing the current position of the timeline.
      */
     public final IntegerProperty currentlyDisplayedView = new SimpleIntegerProperty(0);
+
+    public final BooleanProperty insertCasesPressed = new SimpleBooleanProperty(false);
 
     /**
      * ChangeListener that binds the back end representation of the proof staus
@@ -145,6 +147,7 @@ public class PropertyManager {
                 })
         );
 
+
         TypedBindings.bind(currentProof, currentProofNode,
                 (proof -> {
                     if (proof != null) {
@@ -164,6 +167,11 @@ public class PropertyManager {
                 newValue.interpretScript();
             }
         }));
+
+        /*currentProofStatus.addListener((observable, oldValue, newValue) -> {
+            currentProof.get().proofStatusObservableValue().setValue(newValue);
+        });*/
+
 
         currentPVC.addListener(((observable, oldValue, newValue) -> selectedTermForReference.set(null)));
         currentPVC.addListener(((observable, oldValue, newValue) -> selectedTerm.set(null)));

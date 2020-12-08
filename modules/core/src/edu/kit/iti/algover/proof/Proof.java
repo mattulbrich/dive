@@ -189,6 +189,11 @@ public class Proof {
         this.proofStatus.setValue(ProofStatus.CHANGED_SCRIPT);
     }
 
+    public void setScriptAST (Script script) {
+        this.scriptAST = script;
+        this.proofStatus.setValue(ProofStatus.CHANGED_SCRIPT);
+    }
+
     /**
      * Interpret Script. A script must have been set previously.
      *
