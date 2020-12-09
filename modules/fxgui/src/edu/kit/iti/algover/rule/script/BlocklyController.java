@@ -23,6 +23,7 @@ import edu.kit.iti.algover.nuscript.parser.ScriptParser;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.util.ScriptASTUtil;
 import edu.kit.iti.algover.util.Util;
 import org.antlr.v4.runtime.CommonToken;
 
@@ -42,7 +43,7 @@ public class BlocklyController {
                 List<ScriptAST.Statement> updatedScript = insertCasesForStatement(PropertyManager.getInstance()
                                 .currentProof.get().getProofRoot(),
                         PropertyManager.getInstance().currentProof.get().getProofScript().getStatements());
-                ScriptAST.Script newScript = new ScriptAST.Script(updatedScript);
+                ScriptAST.Script newScript = ScriptASTUtil.createScriptWithStatements(updatedScript);
 
                 PropertyManager.getInstance().currentProof.get().setScriptAST(newScript);
                 PropertyManager.getInstance().currentProof.get().proofStatusObservableValue().setValue(ProofStatus.CHANGED_SCRIPT);

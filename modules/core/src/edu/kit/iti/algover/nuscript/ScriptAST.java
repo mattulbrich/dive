@@ -89,19 +89,6 @@ public abstract class ScriptAST {
         /** The sequence of statements in the script */
         private final List<Statement> statements = new LinkedList<>();
 
-        public Script() { }
-
-        public Script(Statement... statements) {
-            addStatements(statements);
-        }
-
-        public Script(List<Statement>  statements) {
-            for (Statement stmt : statements) {
-                addStatement(stmt);
-            }
-        }
-
-
         public List<Statement> getStatements() {
             return statements;
         }
@@ -113,12 +100,6 @@ public abstract class ScriptAST {
          */
         public void addStatement(Statement stmt) {
             statements.add(stmt);
-        }
-
-        public void addStatements(Statement... statements) {
-            for (Statement stmt : statements) {
-                addStatement(stmt);
-            }
         }
 
         /**
