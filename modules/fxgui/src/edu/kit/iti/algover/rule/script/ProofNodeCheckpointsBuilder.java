@@ -5,6 +5,7 @@
  */
 package edu.kit.iti.algover.rule.script;
 
+import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
 import edu.kit.iti.algover.nuscript.Position;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Case;
@@ -19,7 +20,7 @@ import org.antlr.v4.runtime.Token;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProofNodeCheckpointsBuilder {
+public class ProofNodeCheckpointsBuilder extends DefaultScriptASTVisitor<Void, Void, RuntimeException> {
     private final Proof proof;
     private List<ProofNodeCheckpoint> checkpoints;
 
@@ -49,12 +50,12 @@ public class ProofNodeCheckpointsBuilder {
     private void collectCheckpoints(List<Statement> statements) {
 
         for (Statement statement : statements) {
-            statement.visit(this::collectCommandCheckpoints,
-                    this::collectCasesCheckpoints);
+            statement.accept(this, null);
         }
     }
 
-    private Void collectCasesCheckpoints(Cases cases) {
+    @Override
+    public Void visitCases(Cases cases, Void arg) {
         for (Case aCase : cases.getCases()) {
             List<Statement> stms = aCase.getStatements();
             if (stms.isEmpty()) {
@@ -66,7 +67,8 @@ public class ProofNodeCheckpointsBuilder {
         return null;
     }
 
-    private Void collectCommandCheckpoints(Command command) {
+    @Override
+    public Void visitCommand(Command command, Void arg) throws RuntimeException {
         ProofNode node = command.getProofNode();
         if(node.getChildren() == null) {
             // If the execution failed, ...

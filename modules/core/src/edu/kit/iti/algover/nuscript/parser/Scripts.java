@@ -8,6 +8,7 @@
 package edu.kit.iti.algover.nuscript.parser;
 
 import edu.kit.iti.algover.nuscript.BailOutErrorStrategy;
+import edu.kit.iti.algover.nuscript.ParentRelationVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.ScriptContext;
 import nonnull.NonNull;
@@ -84,6 +85,8 @@ public final class Scripts {
 
         ScriptContext ctx = parser.script();
         Script result = (Script) ctx.accept(new ASTVisitor());
+
+        ParentRelationVisitor.setParentRelation(result);
 
         return result;
     }

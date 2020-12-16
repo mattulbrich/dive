@@ -9,8 +9,6 @@ import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.MainController;
 import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.nuscript.Position;
-import edu.kit.iti.algover.nuscript.ScriptPrettyPrinter;
-import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Case;
 import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
 import edu.kit.iti.algover.nuscript.ScriptAST.Command;
@@ -42,7 +40,6 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -318,16 +315,10 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
 
         Exception failException = null;
         try {
-            ScriptAST ps = Scripts.parseScript(text);
+            Script ps = Scripts.parseScript(text);
 
             // TODO Why is this done?? Sure?
-            StringBuilder sb = new StringBuilder();
-            try {
-                ps.print(sb, 0);
-                view.replaceText(sb.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            view.replaceText(ps.toString());
 
             PropertyManager.getInstance().currentProof.get().setScriptTextAndInterpret(text);
         } catch (ParseCancellationException | RecognitionException pce) {
@@ -382,7 +373,7 @@ public class ScriptController implements ScriptViewListener, ReferenceHighlighti
         }
         Script script = PropertyManager.getInstance().currentProof.get().getProofScript();
         List<Statement> newScript = insertCasesForStatement(PropertyManager.getInstance().currentProof.get().getProofRoot(), script.getStatements());
-        CharSequence newText = ScriptPrettyPrinter.print(newScript);
+        CharSequence newText = newScript.toString();
         view.replaceText(newText.toString());
         runScript();
     }

@@ -9,7 +9,6 @@ package edu.kit.iti.algover.nuscript;
 
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.util.Conditional;
-import edu.kit.iti.algover.util.FunctionWithException;
 import edu.kit.iti.algover.util.Util;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -36,6 +35,10 @@ public abstract class ScriptAST {
     /** The last token of this AST elements */
     private Token end;
 
+    /** The script AST element to which this element belongs.
+     * null for instances of {@link Script}. */
+    private ScriptAST parent;
+
     /**
      * Extract the beginning and end of this AST from a parsing context.
      * @param ctx the non-null rule context to extract from
@@ -43,6 +46,21 @@ public abstract class ScriptAST {
     public void setRangeFrom(ParserRuleContext ctx) {
         this.begin = ctx.start;
         this.end = ctx.stop;
+    }
+
+    /**
+     * Set the parent node in the AST for this node.
+     * @param parent, only null if this is instance of {@link Script}
+     */
+    public void setParent(ScriptAST parent) {
+        this.parent = parent;
+    }
+
+    /** Get the script AST element to which this element belongs.
+     * @return null only for instances of {@link Script}
+     */
+    public ScriptAST getParent() {
+        return parent;
     }
 
     /**
@@ -63,9 +81,9 @@ public abstract class ScriptAST {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
         try {
-            print(sb, 0);
+            StringBuilder sb = new StringBuilder();
+            this.accept(new PrintVisitor(sb), 0);
             return sb.toString();
         } catch (IOException e) {
             e.printStackTrace();
@@ -73,18 +91,25 @@ public abstract class ScriptAST {
         }
     }
 
+    public abstract <A, R, Ex extends Exception>
+        R accept(ScriptASTVisitor<A, R, Ex> visitor, A arg) throws Ex;
+
+
     /**
-     * Print the AST (such that it can be parsed again) to a writer
-     * @param writer a non-null object to write to
-     * @param indentation the level of indentation for the spaces in the line
-     * @throws IOException if writing fails
+     * This abstract class has the functionality of retrieving a list of statements.
      */
-    public abstract void print(Appendable writer, int indentation) throws IOException;
+    public static abstract class StatementList extends ScriptAST {
+        /**
+         * Return the list of statement contained in this AST element
+         * @return the internal list of statements; do not modify
+         */
+        public abstract List<Statement> getStatements();
+    }
 
     /**
      * This class captures an entire script -- which is essentially a list of statements.
      */
-    public static final class Script extends ScriptAST {
+    public static final class Script extends StatementList {
 
         /** The sequence of statements in the script */
         private final List<Statement> statements = new LinkedList<>();
@@ -102,50 +127,16 @@ public abstract class ScriptAST {
             statements.add(stmt);
         }
 
-        /**
-         * run a visitation on all statements of the script in natural order.
-         *
-         * @param commandFct the function to apply to all {@link Command} objects.
-         * @param casesFct the function to apply to all {@link Cases} objects.
-         * @param <R> the result type of the functions
-         * @param <Ex> the result that may be thrown by the functions
-         */
-        public <R, Ex extends Exception> void visit(FunctionWithException<Command, R, Ex> commandFct,
-                FunctionWithException<Cases, R, Ex> casesFct) throws Ex {
-            for (Statement statement : statements) {
-                statement.visit(commandFct, casesFct);
-            }
+        public <A, R, Ex extends Exception> R accept(ScriptASTVisitor<A, R, Ex> visitor, A arg) throws Ex {
+            return visitor.visitScript(this, arg);
         }
 
-        public void print(Appendable writer, int indentation) throws IOException {
-            Conditional conditional = Conditional.notAtFirst();
-            for (Statement statement : statements) {
-                conditional.run(() -> writer.append("\n"));
-                statement.print(writer, indentation);
-            }
-        }
     }
 
     /**
      * This abstract class captures a single statement: either a command or a "cases".
      */
     public abstract static class Statement extends ScriptAST {
-
-        /**
-         * A poor man's version of a visitor which takes two functions that react to
-         * commands and cases respectively.
-         *
-         * Should there be more statement types in the future, consider using a proper visitor.
-         *
-         * @param commandFct the function to apply to a {@link Command} object.
-         * @param casesFct the function to apply to a {@link Cases} object.
-         * @param <R> the result type of the function
-         * @param <Ex> the result that may be thrown by the function
-         */
-        public abstract <R, Ex extends Exception> R visit(
-                FunctionWithException<Command, R, Ex> commandFct,
-                FunctionWithException<Cases, R, Ex> casesFct) throws Ex;
-
     }
 
     /**
@@ -181,18 +172,8 @@ public abstract class ScriptAST {
         }
 
         @Override
-        public void print(Appendable writer, int indentation) throws IOException {
-            writer.append(Util.duplicate("  ", indentation) +
-                command.getText());
-            for (Parameter p : parameters) {
-                writer.append(" ");
-                p.print(writer, indentation);
-            }
-            if (byClause == null) {
-                writer.append(";");
-            } else {
-                byClause.print(writer, indentation);
-            }
+        public <A, R, Ex extends Exception> R accept(ScriptASTVisitor<A, R, Ex> visitor, A arg) throws Ex {
+            return visitor.visitCommand(this, arg);
         }
 
         /**
@@ -205,13 +186,6 @@ public abstract class ScriptAST {
 
         public void setProofNode(ProofNode proofNode) {
             this.proofNode = proofNode;
-        }
-
-        @Override
-        public <R, Ex extends Exception> R
-                visit(FunctionWithException<Command, R, Ex> commandFct,
-                      FunctionWithException<Cases, R, Ex> casesFct) throws Ex {
-            return commandFct.apply(this);
         }
 
         public ByClause getByClause() {
@@ -254,12 +228,10 @@ public abstract class ScriptAST {
         }
 
         @Override
-        public void print(Appendable writer, int indentation) throws IOException {
-            if (name != null) {
-                writer.append(name.getText()).append("=");
-            }
-            writer.append(value.getText());
+        public <A, R, Ex extends Exception> R accept(ScriptASTVisitor<A, R, Ex> visitor, A arg) throws Ex {
+            return visitor.visitParameter(this, arg);
         }
+
     }
 
     /**
@@ -278,20 +250,8 @@ public abstract class ScriptAST {
         }
 
         @Override
-        public void print(Appendable writer, int indentation) throws IOException {
-            writer.append(Util.duplicate("  ", indentation)).append("cases {");
-            for (Case cas : cases) {
-                writer.append("\n");
-                cas.print(writer, indentation);
-            }
-            writer.append("\n").append(Util.duplicate("  ", indentation)).append("}");
-        }
-
-        @Override
-        public <R, Ex extends Exception> R
-                visit(FunctionWithException<Command, R, Ex> commandFct,
-                      FunctionWithException<Cases, R, Ex> casesFct) throws Ex {
-            return casesFct.apply(this);
+        public <A, R, Ex extends Exception> R accept(ScriptASTVisitor<A, R, Ex> visitor, A arg) throws Ex {
+            return  visitor.visitCases(this, arg);
         }
     }
 
@@ -299,7 +259,7 @@ public abstract class ScriptAST {
      * This class captures a single case in a cases statements.
      * This is comprised by a set of statements.
      */
-    public static final class Case extends ScriptAST {
+    public static final class Case extends StatementList {
         /** The label of the case of type STRING_LITERAL */
         private Token label;
 
@@ -325,27 +285,13 @@ public abstract class ScriptAST {
             statements.addAll(stmts);
         }
 
-        public <R> void visit(FunctionWithException<Command, R, ScriptException> commandFct,
-                              FunctionWithException<Cases, R, ScriptException> casesFct) throws ScriptException {
-            for (Statement statement : statements) {
-                statement.visit(commandFct, casesFct);
-            }
-        }
-
         public List<Statement> getStatements() {
             return statements;
         }
 
         @Override
-        public void print(Appendable writer, int indentation) throws IOException {
-            indentation ++;
-            writer.append(Util.duplicate("  ", indentation)).
-                   append(label.getText()).append(":");
-            indentation ++;
-            for (Statement statement : statements) {
-                writer.append("\n");
-                statement.print(writer, indentation);
-            }
+        public <A, R, Ex extends Exception> R accept(ScriptASTVisitor<A, R, Ex> visitor, A arg) throws Ex {
+            return visitor.visitCase(this, arg);
         }
 
         public void setProofNode(ProofNode node) {
@@ -359,9 +305,9 @@ public abstract class ScriptAST {
 
     /**
      * This class captures a single case in a cases statements.
-     * This is comprised by a set of statements.
+     * It comprises a set of statements.
      */
-    public static final class ByClause extends ScriptAST {
+    public static final class ByClause extends StatementList {
 
         /** The list of statements of this clause */
         private final List<Statement> statements = new LinkedList<>();
@@ -380,31 +326,11 @@ public abstract class ScriptAST {
             statements.addAll(stmts);
         }
 
-        public <R> void visit(FunctionWithException<Command, R, ScriptException> commandFct,
-                              FunctionWithException<Cases, R, ScriptException> casesFct) throws ScriptException {
-            for (Statement statement : statements) {
-                statement.visit(commandFct, casesFct);
-            }
+        @Override
+        public <A, R, Ex extends Exception> R accept(ScriptASTVisitor<A, R, Ex> visitor, A arg) throws Ex {
+            return visitor.visitByClause(this, arg);
         }
 
-        @Override
-        public void print(Appendable writer, int indentation) throws IOException {
-            writer.append(" by ");
-            if (statements.size() == 1) {
-                statements.get(0).print(writer, 0);
-            } else {
-                writer.append("{");
-                indentation ++;
-                for (Statement statement : statements) {
-                    writer.append("\n");
-                    statement.print(writer, indentation);
-                }
-                indentation --;
-                writer.append("\n").
-                        append(Util.duplicate("  ", indentation)).
-                        append("}");
-            }
-        }
 
         public List<Statement> getStatements() {
             return statements;

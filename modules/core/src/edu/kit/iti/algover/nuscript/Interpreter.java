@@ -46,8 +46,14 @@ import java.util.Map;
 
 /**
  * This class implements an interpreter for proof scripts.
+ *
+ * This has been retrofitted to be an AST visitor; hence it
+ * does not fully follow the principle.
+ *
+ * You are probably interested in {@link #interpret(Script)}
+ * or {@link #interpret(String)}.
  */
-public final class Interpreter {
+public final class Interpreter extends DefaultScriptASTVisitor<Void, Void, ScriptException> {
 
     /** Used for debugging */
     private static final boolean VERBOSE = false;
@@ -106,7 +112,7 @@ public final class Interpreter {
     public void interpret(Script script) {
         currentNodes = singleList(rootNode);
         try {
-            script.visit(this::interpretCommand, this::interpretCases);
+            script.accept(this, null);
         } catch (ScriptException e) {
             failures.add(e);
         }
@@ -146,7 +152,8 @@ public final class Interpreter {
         return result;
     }
 
-    private Void interpretCases(Cases cases) throws ScriptException {
+    @Override
+    public Void visitCases(Cases cases, Void arg) throws ScriptException {
         for (Case cas : cases.getCases()) {
             ProofNode node = findCase(cas);
             cas.setProofNode(node);
@@ -155,7 +162,7 @@ public final class Interpreter {
             }
             List<ProofNode> oldCurrent = currentNodes;
             currentNodes = singleList(node);
-            cas.visit(this::interpretCommand, this::interpretCases);
+            cas.accept(this, null);
             currentNodes = oldCurrent;
             currentNodes.remove(node);
         }
@@ -172,7 +179,8 @@ public final class Interpreter {
         return null;
     }
 
-    private Void interpretCommand(Command command) throws ScriptException {
+    @Override
+    public Void visitCommand(Command command, Void arg) throws ScriptException {
 
         if (currentNodes.size() != 1) {
             ProofNode node = null;
@@ -211,7 +219,7 @@ public final class Interpreter {
                 }
                 List<ProofNode> oldCurrent = currentNodes;
                 currentNodes = List.of(oldCurrent.get(0));
-                byClause.visit(this::interpretCommand, this::interpretCases);
+                byClause.accept(this, null);
                 currentNodes = List.of(oldCurrent.get(1));
             }
         } catch(ScriptException e) {

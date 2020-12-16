@@ -63,9 +63,6 @@ public class ScriptParserTest {
         ScriptAST script = Scripts.parseScript(file);
         Assert.assertNotNull(script);
 
-        StringBuilder sb = new StringBuilder();
-        script.print(sb, 0);
-
         File file2 = new File(file.getAbsoluteFile() + ".expected");
         File expectedFile = file;
         if(file2.exists()) {
@@ -73,7 +70,7 @@ public class ScriptParserTest {
         }
 
         String expected = Files.readString(expectedFile.toPath());
-        Assert.assertEquals(expected, sb.toString());
+        Assert.assertEquals(expected.trim(), script.toString().trim());
     }
 
 
