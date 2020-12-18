@@ -641,7 +641,9 @@ public class MainController implements RuleApplicationListener {
 
         PropertyManager.getInstance().currentProofStatus.set(PropertyManager.getInstance().currentProof.get().getProofStatus());
         ruleApplicationController.resetConsideration();
-        sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
+        if(PropertyManager.getInstance().currentProofStatus.get() != ProofStatus.FAILING) {
+            sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
+        }
         if(PropertyManager.getInstance().currentProof.get().getFailures() == null) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully applied rule " + application.getRule().getName() + ".");
         }

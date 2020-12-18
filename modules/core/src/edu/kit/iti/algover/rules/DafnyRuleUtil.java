@@ -13,13 +13,22 @@ import edu.kit.iti.algover.data.BuiltinSymbols;
 import edu.kit.iti.algover.data.MapSymbolTable;
 import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.nuscript.parser.ScriptLexer;
-import edu.kit.iti.algover.parser.*;
+import edu.kit.iti.algover.parser.DafnyException;
+import edu.kit.iti.algover.parser.DafnyFileParser;
+import edu.kit.iti.algover.parser.DafnyParser;
+import edu.kit.iti.algover.parser.DafnyParserException;
+import edu.kit.iti.algover.parser.DafnyTree;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.rules.impl.DafnyRule;
-import edu.kit.iti.algover.term.*;
+import edu.kit.iti.algover.term.ApplTerm;
+import edu.kit.iti.algover.term.FunctionSymbol;
+import edu.kit.iti.algover.term.SchemaVarTerm;
+import edu.kit.iti.algover.term.Sort;
+import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.ReplacementVisitor;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
+import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.Pair;
 
 import java.io.File;
@@ -226,21 +235,13 @@ public class DafnyRuleUtil {
 
         for (DafnyTree decl : ProgramDatabase.getAllVariableDeclarations(tree)) {
             String name = decl.getChild(0).toString();
-            Sort sort = treeToType(decl.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
+            Sort sort = ASTUtil.toSort(decl.getFirstChildWithType(DafnyParser.TYPE).getChild(0));
             map.add(new FunctionSymbol(name, sort));
             programVars.add(name);
         }
 
         MapSymbolTable st = new MapSymbolTable(baseTable, map);
         return st;
-    }
-
-    private static Sort treeToType(DafnyTree tree) {
-        String name = tree.toString();
-        if("array".equals(name)) {
-            name = "array1";
-        }
-        return Sort.get(name);
     }
 }
 
