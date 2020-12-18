@@ -189,14 +189,13 @@ public class RuleApplicationController extends FxmlController implements Referen
     public void applyRule(ProofRuleApplication application) {
         try {
             resetConsideration();
+            // TODO: create new Statement directly from ProofRuleApplication.
             ScriptAST.Script newLine = Scripts.parseScript(application.getScriptTranscript());
             /*for (ScriptAST.Statement statement: newLine.getStatements()) {
                 PropertyManager.getInstance().currentProof.get().getProofScript().addStatement(statement);
             }*/
             scriptRepWeb.insertForSelectedNode(application, newLine);
 
-            PropertyManager.getInstance().currentProofStatus.set(
-                    ProofStatus.CHANGED_SCRIPT);
             PropertyManager.getInstance().currentProof.get().interpretScript();
 
 

@@ -27,6 +27,11 @@ import java.util.Objects;
  * There are: entire scripts, commands, parameters cases-statements, a single case,
  *
  * @author Mattias Ulbrich
+ *
+ * remark from Valentin Springsklee: Maybe introduce common super type only for Script and Case,
+ * (which is again subtype of ScriptAST). Something like Container. Should define a list of
+ * statements.
+ *
  */
 public abstract class ScriptAST {
 

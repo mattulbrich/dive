@@ -10,6 +10,20 @@
     border-radius: 5px;
 }
 
+.afterLeaf {
+    background-color: #dad6d1 ;
+    padding: 20px;
+    border: 8px solid #0040ff;
+    border-radius: 5px;
+}
+
+.closed {
+    background-color: #009335 ;
+    padding: 3px;
+    border: 0px solid #0040ff;
+    border-radius: 5px;
+}
+
 .comment {
     background-color: #d9d9bf;
     padding: 5px;

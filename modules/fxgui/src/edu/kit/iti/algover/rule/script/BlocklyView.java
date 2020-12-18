@@ -69,7 +69,7 @@ public class BlocklyView extends VBox {
                         return;
                     }
                     doc = engine.getDocument();
-                    recursivelyAddListeners(doc, PropertyManager.getInstance().currentProof.get().getProofScript().getStatements());
+                    recursivelyAddListeners(doc, PropertyManager.getInstance().currentProof.get().getProofScript());
                 }
         );
 
@@ -133,22 +133,59 @@ public class BlocklyView extends VBox {
         this.getChildren().setAll(new HBox(btRunScript, btInsertCases), this.webView);
     }
 
-    private void recursivelyAddListeners(Document doc, List<ScriptAST.Statement> statements) {
+    // TODO: assert not null, vistor for script and case
+    private void recursivelyAddListeners(Document doc, ScriptAST.Script proofScript) {
+
+        List<Statement> statements = proofScript.getStatements();
+
+        if (statements.size() == 0) {
+            return;
+        }
+
         for(Statement stmt : statements) {
             stmt.visit(command -> {
-                addListener(doc, command);
+                addHTMLElemListeners(doc, command);
                 return null;
             }, cases -> {
-                addListener(doc, cases);
+                addHTMLElemListeners(doc, cases);
                 for (Case caze: cases.getCases()) {
-                    recursivelyAddListeners(doc, caze.getStatements());
+                    recursivelyAddListeners(doc, caze);
                 }
                 return null;
             });
         }
+
+
+        addLeafListener(doc, proofScript);
     }
 
-    private void addListener(Document doc, Statement cmd) {
+    // TODO: Add visitor for Script or Case
+    private void recursivelyAddListeners(Document doc, ScriptAST.Case c) {
+
+        List<Statement> statements = c.getStatements();
+
+        if (statements.size() == 0) {
+            return;
+        }
+
+        for(Statement stmt : statements) {
+            stmt.visit(command -> {
+                addHTMLElemListeners(doc, command);
+                return null;
+            }, cases -> {
+                addHTMLElemListeners(doc, cases);
+                for (Case caze: cases.getCases()) {
+                    recursivelyAddListeners(doc, caze);
+                }
+                return null;
+            });
+        }
+
+
+        addLeafListener(doc, c);
+    }
+
+    private void addHTMLElemListeners(Document doc, Statement cmd) {
         Element el = doc.getElementById(scriptHTML.getID(cmd).toString());
         // TODO: remove listener ?
         if (el != null) {
@@ -165,6 +202,28 @@ public class BlocklyView extends VBox {
             }, false);
         } else {
             System.out.println("Statement: " + cmd + " not found in AST Display.");
+        }
+    }
+
+    private void addLeafListener(Document doc, ScriptAST container) {
+        Integer id = scriptHTML.getID(container);
+        if (id == null) {
+            System.out.println("No leaf");
+            return;
+        }
+        Element el = doc.getElementById(String.valueOf(id));
+        // TODO: remove listener ?
+        if (el != null) {
+            // useCapture parameter of addEventListener method influences the direction of event propagation.
+            // See HTML/JavaScript specification for exact description.
+            // For HTML documents: true ~ top down, false ~ bottom up
+            ((EventTarget) el).addEventListener("click", event -> {
+                System.out.println("Leaf clicked");
+                event.stopPropagation();
+                engine.executeScript("highlight(" + id + ")");
+            }, false);
+        } else {
+            System.out.println("Statement: " + container + " not found in AST Display.");
         }
     }
 

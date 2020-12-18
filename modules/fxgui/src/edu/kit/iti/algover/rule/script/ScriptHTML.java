@@ -1,9 +1,14 @@
 package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.nuscript.ScriptAST;
+import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
+import edu.kit.iti.algover.nuscript.ScriptAST.Command;
 
 import edu.kit.iti.algover.util.Util;
+import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
+import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.Token;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,11 +19,13 @@ import java.util.Map;
 import static j2html.TagCreator.*;
 
 /*
- * Container for the static method toHTML that translates a script to a htmlized form.
+ * Container to translate a ScriptAST.Script to a htmlized form.
  *
+ * Also holds mapping for ScriptAST.Statements of proof script to HTML element ID.
  * TODO Add this with a conducted proof to learn about errors and open goals.
  *
  * @author Mattias Ulbrich
+ * changed by Valentin Springsklee
  */
 public final class ScriptHTML {
 
@@ -28,6 +35,8 @@ public final class ScriptHTML {
     private final static String HEAD = readHead();
 
     private final static String JS = readJS();
+
+    private final static String TK_END = "AST_CONT";
 
     private final Map<ScriptAST, Integer> astElemIDs;
 
@@ -41,7 +50,7 @@ public final class ScriptHTML {
         this.proofScript = proofScript;
         this.count = 0;
         this.astElemIDs = new HashMap<>();
-        this.htmlRep = this.toHTML(proofScript);
+        this.htmlRep = this.createHTML(proofScript);
     }
 
     public String getHTML() {
@@ -74,16 +83,29 @@ public final class ScriptHTML {
     }
 
 
-    private String toHTML(ScriptAST.Script script) {
+    private String createHTML(ScriptAST.Script script) {
         String htmlScript = html(head(style(HEAD), script().with(rawHtml(JS))), body(toDiv(script))).render();
+        astElemIDs.forEach((scriptAST, integer) -> {
+            try {
+                scriptAST.print(System.out, 0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println(integer);
+
+        });
         return htmlScript;
     }
 
     /*
      * an entire script as HTML
      */
-    private Tag<?> toDiv(ScriptAST.Script proofScript) {
-        return div(attrs("#proofScript.script"), each(proofScript.getStatements(), this::toTag));
+    private Tag<?> toDiv(ScriptAST.Script script) {
+        ContainerTag scriptHTMLTag = div(attrs("#proofScript.script"),
+                each(script.getStatements(), this::toTag));
+        astElemIDs.put(script, count++);
+        scriptHTMLTag.with(div(attrs("#" + getID(script) + ".afterLeaf")));
+        return scriptHTMLTag;
     }
 
     /*
@@ -104,11 +126,13 @@ public final class ScriptHTML {
     }
 
     private Tag<?> caseToTag(ScriptAST.Case c) {
-        astElemIDs.put(c, count++);
-        return div(attrs("#" + c.toString() + ".case"), span(attrs(".caseLabel"),
+        ContainerTag scriptHTMLTag = div(attrs("#" + c + ".case"), span(attrs(".caseLabel"),
                 "case " + (c).getLabel().getText() + ":"),
                 div(attrs(".block"),
                         each(c.getStatements(), this::toTag)));
+        astElemIDs.put(c, count++);
+        scriptHTMLTag.with(div(attrs("#" + getID(c) + ".afterLeaf")));
+        return scriptHTMLTag;
     }
 
     private Tag<?> commandToTag(ScriptAST.Command command) {
@@ -124,5 +148,6 @@ public final class ScriptHTML {
 
         return div(attrs("#" + getID(command).toString() + ".call")).with(params);
     }
+
 
 }
