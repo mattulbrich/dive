@@ -168,10 +168,6 @@ public class PropertyManager {
             }
         }));
 
-        /*currentProofStatus.addListener((observable, oldValue, newValue) -> {
-            currentProof.get().proofStatusObservableValue().setValue(newValue);
-        });*/
-
 
         currentPVC.addListener(((observable, oldValue, newValue) -> selectedTermForReference.set(null)));
         currentPVC.addListener(((observable, oldValue, newValue) -> selectedTerm.set(null)));

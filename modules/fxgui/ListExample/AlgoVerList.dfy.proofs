@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-<comment>Created by DIVE at Tue Dec 01 15:22:16 CET 2020</comment>
+<comment>Created by DIVE at Mon Dec 21 15:48:08 CET 2020</comment>
 <entry key="List.removeAt/then/else/Bounds">expand on='... ((?match: this.Valid())) ... |-';
 boogie ;
 
@@ -111,7 +111,17 @@ boogie ;
 </entry>
 <entry key="List.size/loop/Inv.2">boogie;
 </entry>
-<entry key="List.size/InitInv"></entry>
+<entry key="List.size/InitInv">skip;
+skip;
+expand on='... ((?match: this.Valid())) ... |-';
+branchCut with='true';
+cases {
+  "positive":
+    skip;
+}
+skip;
+prop;
+</entry>
 <entry key="List.removeAt/else/loop_exit/then/Modifies"></entry>
 <entry key="List.removeAt/then/then/Bounds">boogie;
 </entry>

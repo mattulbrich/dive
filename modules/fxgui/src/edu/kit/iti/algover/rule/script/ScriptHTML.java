@@ -1,5 +1,6 @@
 package edu.kit.iti.algover.rule.script;
 
+import edu.kit.iti.algover.nuscript.PrintVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
 import edu.kit.iti.algover.nuscript.ScriptAST.Command;
@@ -35,8 +36,6 @@ public final class ScriptHTML {
     private final static String HEAD = readHead();
 
     private final static String JS = readJS();
-
-    private final static String TK_END = "AST_CONT";
 
     private final Map<ScriptAST, Integer> astElemIDs;
 
@@ -85,15 +84,7 @@ public final class ScriptHTML {
 
     private String createHTML(ScriptAST.Script script) {
         String htmlScript = html(head(style(HEAD), script().with(rawHtml(JS))), body(toDiv(script))).render();
-        astElemIDs.forEach((scriptAST, integer) -> {
-            try {
-                scriptAST.print(System.out, 0);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            System.out.println(integer);
-
-        });
+        //String htmlScript = html(head(style(HEAD), script(JS)), body(toDiv(script))).render();
         return htmlScript;
     }
 
@@ -131,7 +122,7 @@ public final class ScriptHTML {
                 div(attrs(".block"),
                         each(c.getStatements(), this::toTag)));
         astElemIDs.put(c, count++);
-        scriptHTMLTag.with(div(attrs("#" + getID(c) + ".afterLeaf")));
+        scriptHTMLTag.with(div(attrs("#" + getID(c) + ".afterLeafCase")));
         return scriptHTMLTag;
     }
 

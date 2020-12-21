@@ -11,10 +11,12 @@
 }
 
 .afterLeaf {
-    background-color: #dad6d1 ;
-    padding: 20px;
-    border: 8px solid #0040ff;
-    border-radius: 5px;
+    border-top:15px solid #c47e7e;
+}
+
+.afterLeafCase {
+    border-top:15px solid #c47e7e;
+    margin-left: 15px;
 }
 
 .closed {
@@ -76,7 +78,8 @@
 }
 
 .current {
-    border-left-width:15px;
+    border-top-width:15px;
+    border-top-color: #c80000;
 }
 
 .error {
@@ -87,3 +90,5 @@
     color: #999;
     border: 1px solid #999;
 }
+
+

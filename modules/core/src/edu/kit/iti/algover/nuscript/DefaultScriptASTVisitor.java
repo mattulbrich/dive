@@ -59,7 +59,7 @@ public abstract class DefaultScriptASTVisitor<A, R, Ex extends Exception> implem
     @Override
     public R visitCase(Case aCase, A arg) throws Ex {
         visitStatements(aCase, arg);
-        return visitCase(aCase, arg);
+        return visitDefault(aCase, arg);
     }
 
     @Override

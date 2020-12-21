@@ -64,20 +64,6 @@ public class ScriptTextController implements ScriptViewListener {
 
     }
 
-    private void selectLastProofNode() {
-        ScriptAST.Script proofScript = PropertyManager.getInstance().currentProof.get().getProofScript();
-
-        if (proofScript.getStatements().size() > 0) {
-            if (PropertyManager.getInstance().currentProofStatus.get() != ProofStatus.FAILING) {
-
-                ScriptAST.Statement lastStmt = proofScript.getStatements().get(proofScript.getStatements().size() - 1);
-                lastStmt.visit(this::selectCommandPN, this::selectCasesPN);
-            }
-        } else {
-            PropertyManager.getInstance().currentProofNodeSelector.set(new ProofNodeSelector());
-
-        }
-    }
 
     private Void selectCommandPN(ScriptAST.Command cmd) {
         PropertyManager.getInstance().currentProofNode.set(cmd.getProofNode());

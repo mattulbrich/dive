@@ -1,6 +1,8 @@
 package edu.kit.iti.algover.util;
 
+import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
+import edu.kit.iti.algover.nuscript.ScriptAST.StatementList;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
 import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
@@ -8,6 +10,7 @@ import edu.kit.iti.algover.nuscript.ScriptAST.Case;
 import edu.kit.iti.algover.nuscript.ScriptAST.Command;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser;
 import edu.kit.iti.algover.proof.ProofNode;
+import nonnull.NonNull;
 import org.antlr.v4.runtime.CommonToken;
 
 
@@ -35,7 +38,6 @@ public class ScriptASTUtil {
 
     public static Script insertAfter(Script script, Statement newStatement, Statement target) {
         Script updatedScript = new Script();
-        boolean found = false;
 
         if (target == null) {
             assert script.getStatements().isEmpty();
@@ -43,38 +45,18 @@ public class ScriptASTUtil {
             return updatedScript;
         }
 
-        for (Statement statement: script.getStatements()) {
-            if (found) {
-                updatedScript.addStatement(statement);
-                continue;
-            }
-            if (statement == target) {
-                found = true;
-                // TODO: insert and copy old script
-                // if (stmt instanceof Cases), maybe forbid insertion
+        updatedScript = (Script) traverseAndInsert(script, new Script(), newStatement, target);
 
-                updatedScript.addStatement(statement);
-                updatedScript.addStatement(newStatement);
-
-            } else {
-                Statement insert = statement.visit(command -> command,
-                        cases -> ScriptASTUtil.visitCases(cases, newStatement, target));
-                updatedScript.addStatement(insert);
-            }
-
-
-        }
-
-        return updatedScript;
+        return updatedScript == null ? script : updatedScript;
     }
 
-    private static Case findAndInsertInCase(Case c, Statement newStatement, Statement target) {
-        Case updatedCase = new Case();
+    private static StatementList traverseAndInsert(StatementList statementList, @NonNull StatementList updated,
+                                                   Statement newStatement, Statement target) {
         boolean found = false;
 
-        for (Statement statement: c.getStatements()) {
+        for (Statement statement: statementList.getStatements()) {
             if (found) {
-                updatedCase.addStatement(statement);
+                updated.addStatement(statement);
                 continue;
             }
             if (statement == target) {
@@ -82,31 +64,37 @@ public class ScriptASTUtil {
                 // TODO : insert and return
                 // if (stmt instanceof Cases), maybe forbid insertion
 
-                updatedCase.addStatement(statement);
-                updatedCase.addStatement(newStatement);
+                updated.addStatement(statement);
+                updated.addStatement(newStatement);
 
             } else {
-                Statement insert = statement.visit(command -> command,
-                        cases -> ScriptASTUtil.visitCases(cases, newStatement, target));
-                updatedCase.addStatement(insert);
+                Statement insert = statement.accept(new DefaultScriptASTVisitor<Void, Statement, RuntimeException>() {
+                    @Override
+                    public Statement visitCommand(Command command, Void arg) throws RuntimeException {
+                        return command;
+                    }
+
+                    @Override
+                    public Statement visitCases(Cases cases, Void arg) throws RuntimeException {
+                        Cases newCases = new Cases();
+                        for (Case c : cases.getCases()) {
+                            Case newCase = (Case) ScriptASTUtil.traverseAndInsert(c, new Case(), newStatement, target);
+                            if (newCase != null) {
+                                // TODO: found and done. Copy rest of AST.
+                                newCases.addCase(newCase);
+                            } else {
+                                newCases.addCase(c);
+                            }
+                        }
+                        return newCases;
+                    }
+                }, null);
+
+                updated.addStatement(insert);
             }
         }
 
-        return found ? updatedCase : null;
-    }
-
-    private static Statement visitCases(Cases cases, Statement newStatement, Statement target) {
-        Cases newCases = new Cases();
-        for (Case c : cases.getCases()) {
-            Case newCase = ScriptASTUtil.findAndInsertInCase(c, newStatement, target);
-            if (newCase != null) {
-                // TODO: found and done. Copy rest of AST.
-                newCases.addCase(newCase);
-            } else {
-                newCases.addCase(c);
-            }
-        }
-        return newCases;
+        return found ? updated : null;
     }
 
     /**

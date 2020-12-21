@@ -31,28 +31,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class BlocklyController {
+public class BlocklyController implements ScriptViewListener {
 
     private BlocklyView view;
 
     public BlocklyController() {
-        this.view = new BlocklyView();
-
-        PropertyManager.getInstance().insertCasesPressed.addListener((observable, oldValue, newValue) -> {
-            if (newValue == true) {
-                List<ScriptAST.Statement> updatedScript = ScriptASTUtil.insertCasesForStatement(PropertyManager.getInstance()
-                                .currentProof.get().getProofRoot(),
-                        PropertyManager.getInstance().currentProof.get().getProofScript().getStatements());
-                ScriptAST.Script newScript = ScriptASTUtil.createScriptWithStatements(updatedScript);
-
-                PropertyManager.getInstance().currentProof.get().setScriptAST(newScript);
-                PropertyManager.getInstance().currentProof.get().proofStatusObservableValue().setValue(ProofStatus.CHANGED_SCRIPT);
-                PropertyManager.getInstance().currentProof.get().interpretScript();
-                PropertyManager.getInstance().insertCasesPressed.set(false);
-            }
-
-        });
-
+        this.view = new BlocklyView(this);
     }
 
     public BlocklyView getView() {
@@ -96,5 +80,33 @@ public class BlocklyController {
 
         // TODO: return true iff ast added to script ast
         return false;
+    }
+
+    @Override
+    public void onScriptSave() {
+
+    }
+
+    @Override
+    public void onAsyncScriptTextChanged(String text) {
+
+    }
+
+    @Override
+    public void runScript() {
+
+    }
+
+    @Override
+    public void onInsertCases() {
+        List<ScriptAST.Statement> updatedScript = ScriptASTUtil.insertCasesForStatement(PropertyManager.getInstance()
+                        .currentProof.get().getProofRoot(),
+                PropertyManager.getInstance().currentProof.get().getProofScript().getStatements());
+        ScriptAST.Script newScript = ScriptASTUtil.createScriptWithStatements(updatedScript);
+
+        PropertyManager.getInstance().currentProof.get().setScriptAST(newScript);
+        PropertyManager.getInstance().currentProof.get().proofStatusObservableValue().setValue(ProofStatus.CHANGED_SCRIPT);
+        PropertyManager.getInstance().currentProof.get().interpretScript();
+        PropertyManager.getInstance().insertCasesPressed.set(false);
     }
 }

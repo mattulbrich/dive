@@ -11,14 +11,15 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with DIVE.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public LicenS* along with DIVE.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.PropertyManager;
+import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
+import edu.kit.iti.algover.nuscript.ScriptAST.StatementList;
 import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
 import edu.kit.iti.algover.nuscript.ScriptAST.Case;
 
@@ -33,27 +34,29 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
-import java.util.List;
 
 public class BlocklyView extends VBox {
     private final WebView webView;
     private final WebEngine engine;
-    private Document doc;
     private ScriptHTML scriptHTML;
+
+    private final ScriptViewListener listener;
 
     private final Button btRunScript;
     private final Button btInsertCases;
 
+    private final SimpleObjectProperty<ScriptAST> highlightedStatement = new SimpleObjectProperty<>(null);
 
-    private final SimpleObjectProperty<ScriptAST.Statement> highlightedStatement = new SimpleObjectProperty<>(null);
+    public BlocklyView(ScriptViewListener listener) {
+        this.listener = listener;
 
-
-    public BlocklyView() {
         webView = new WebView();
         engine = webView.getEngine();
 
@@ -68,8 +71,67 @@ public class BlocklyView extends VBox {
                     if (newValue != Worker.State.SUCCEEDED) {
                         return;
                     }
-                    doc = engine.getDocument();
-                    recursivelyAddListeners(doc, PropertyManager.getInstance().currentProof.get().getProofScript());
+                    Document doc = engine.getDocument();
+
+                    // add listeners to HTML
+
+                    PropertyManager.getInstance().currentProof.get().getProofScript().accept(
+                            new DefaultScriptASTVisitor<Void, Void, RuntimeException>() {
+
+                                @Override
+                                protected void visitStatements(ScriptAST.StatementList statementList, Void arg) throws RuntimeException {
+                                    Integer elemID = scriptHTML.getID(statementList);
+                                    addHTMLElemListeners(doc, elemID, evt -> {
+                                        evt.stopPropagation();
+                                        // TODO: CSS highlighting
+                                        highlightedStatement.set(statementList);
+
+                                        PropertyManager.getInstance().currentProofNode.set(
+                                                statementList.accept(new ProofNodeExtractionVisitor(), null)
+                                        );
+                                    });
+
+                                    super.visitStatements(statementList, arg);
+                                }
+
+                                @Override
+                                public Void visitCase(Case aCase, Void arg) throws RuntimeException {
+                                    visitStatements(aCase, arg);
+                                    return null;
+                                }
+
+                                @Override
+                                public Void visitCommand(ScriptAST.Command command, Void arg) throws RuntimeException {
+                                    addHTMLElemListeners(doc, scriptHTML.getID(command), evt -> {
+                                        evt.stopPropagation();
+                                        highlightedStatement.set(command);
+                                        PropertyManager.getInstance().currentProofNode.set(command.getProofNode());
+
+                                    });
+                                    return null;
+                                }
+
+
+                                @Override
+                                public Void visitCases(ScriptAST.Cases cases, Void arg) throws RuntimeException {
+                                    addHTMLElemListeners(doc, scriptHTML.getID(cases), evt -> {
+                                        evt.stopPropagation();
+                                        highlightedStatement.set(cases);
+                                        PropertyManager.getInstance().currentProofNode.
+                                                set(cases.getCases().get(0).getProofNode());
+                                    });
+
+                                    for (StatementList c : cases.getCases()) {
+                                        c.accept(this, null);
+                                    }
+
+                                    return null;
+                                }
+
+
+                            }, null
+                    );
+
                 }
         );
 
@@ -86,6 +148,9 @@ public class BlocklyView extends VBox {
                     the satus is immediately set to OPEN, CLOSED or FAILING.*/
                 System.out.println("Status changed to " + newValue);
                 updateView();
+
+
+
             }
         }));
 
@@ -95,12 +160,11 @@ public class BlocklyView extends VBox {
 
             System.out.println("was: " + oldValue);
             if (oldValue != null) {
-                engine.executeScript("unhighlight(" + scriptHTML.getID(oldValue) + ")");
+                engine.executeScript("unhighlight(" + scriptHTML.getID(oldValue) + ");");
             }
 
             if (newValue != null) {
-                engine.executeScript("highlight(" + scriptHTML.getID(newValue) + ")");
-                handleProofNodeSelection(newValue);
+                engine.executeScript("highlight(" + scriptHTML.getID(newValue) + ");");
             } else {
                 // TODO : search open proof node
             }
@@ -123,7 +187,7 @@ public class BlocklyView extends VBox {
     private void initView() {
 
         btInsertCases.setOnAction(event -> {
-            PropertyManager.getInstance().insertCasesPressed.setValue(true);
+            listener.onInsertCases();
         });
 
         HBox.setHgrow(btRunScript, Priority.ALWAYS);
@@ -133,82 +197,9 @@ public class BlocklyView extends VBox {
         this.getChildren().setAll(new HBox(btRunScript, btInsertCases), this.webView);
     }
 
-    // TODO: assert not null, vistor for script and case
-    private void recursivelyAddListeners(Document doc, ScriptAST.Script proofScript) {
 
-        List<Statement> statements = proofScript.getStatements();
-
-        if (statements.size() == 0) {
-            return;
-        }
-
-        for(Statement stmt : statements) {
-            stmt.visit(command -> {
-                addHTMLElemListeners(doc, command);
-                return null;
-            }, cases -> {
-                addHTMLElemListeners(doc, cases);
-                for (Case caze: cases.getCases()) {
-                    recursivelyAddListeners(doc, caze);
-                }
-                return null;
-            });
-        }
-
-
-        addLeafListener(doc, proofScript);
-    }
-
-    // TODO: Add visitor for Script or Case
-    private void recursivelyAddListeners(Document doc, ScriptAST.Case c) {
-
-        List<Statement> statements = c.getStatements();
-
-        if (statements.size() == 0) {
-            return;
-        }
-
-        for(Statement stmt : statements) {
-            stmt.visit(command -> {
-                addHTMLElemListeners(doc, command);
-                return null;
-            }, cases -> {
-                addHTMLElemListeners(doc, cases);
-                for (Case caze: cases.getCases()) {
-                    recursivelyAddListeners(doc, caze);
-                }
-                return null;
-            });
-        }
-
-
-        addLeafListener(doc, c);
-    }
-
-    private void addHTMLElemListeners(Document doc, Statement cmd) {
-        Element el = doc.getElementById(scriptHTML.getID(cmd).toString());
-        // TODO: remove listener ?
-        if (el != null) {
-            // useCapture parameter of addEventListener method influences the direction of event propagation.
-            // See HTML/JavaScript specification for exact description.
-            // For HTML documents: true ~ top down, false ~ bottom up
-            ((EventTarget) el).addEventListener("click", event -> {
-                event.stopPropagation();
-                if (highlightedStatement.get() == cmd) {
-                    highlightedStatement.set(null);
-                    return;
-                }
-                highlightedStatement.set(cmd);
-            }, false);
-        } else {
-            System.out.println("Statement: " + cmd + " not found in AST Display.");
-        }
-    }
-
-    private void addLeafListener(Document doc, ScriptAST container) {
-        Integer id = scriptHTML.getID(container);
+    private void addHTMLElemListeners(Document doc, Integer id, EventListener listener) {
         if (id == null) {
-            System.out.println("No leaf");
             return;
         }
         Element el = doc.getElementById(String.valueOf(id));
@@ -217,35 +208,14 @@ public class BlocklyView extends VBox {
             // useCapture parameter of addEventListener method influences the direction of event propagation.
             // See HTML/JavaScript specification for exact description.
             // For HTML documents: true ~ top down, false ~ bottom up
-            ((EventTarget) el).addEventListener("click", event -> {
-                System.out.println("Leaf clicked");
-                event.stopPropagation();
-                engine.executeScript("highlight(" + id + ")");
-            }, false);
+            ((EventTarget) el).addEventListener("click", listener, false);
         } else {
-            System.out.println("Statement: " + container + " not found in AST Display.");
+            System.out.println("Statement with id " + id + " not found in HTMl Document.");
         }
     }
 
-    private boolean handleProofNodeSelection(ScriptAST.Statement statement) {
-        ProofNode afterStatement = statement.visit(this::commandProofNode, this::casesProofNode);
-        PropertyManager.getInstance().currentProofNode.set(afterStatement);
 
-        return true;
-    }
 
-    private ProofNode commandProofNode(ScriptAST.Command cmd) {
-        ProofNode pn = cmd.getProofNode();
-        return pn;
-    }
-
-    // TODO
-    private ProofNode casesProofNode(ScriptAST.Cases cases) {
-        ProofNode pn = cases.getCases().get(0).getProofNode();
-
-        return pn;
-
-    }
 
     private void showAlert(String message) {
         Dialog<Void> alert = new Dialog<>();
