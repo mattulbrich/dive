@@ -84,8 +84,6 @@ public class PropertyManager {
      */
     public final IntegerProperty currentlyDisplayedView = new SimpleIntegerProperty(0);
 
-    public final BooleanProperty insertCasesPressed = new SimpleBooleanProperty(false);
-
     /**
      * ChangeListener that binds the back end representation of the proof staus
      * to the status of the currently selected proof.

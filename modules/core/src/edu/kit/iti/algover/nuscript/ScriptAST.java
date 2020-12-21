@@ -109,6 +109,8 @@ public abstract class ScriptAST {
          * @return the internal list of statements; do not modify
          */
         public abstract List<Statement> getStatements();
+
+        public abstract void addStatement(Statement stmt);
     }
 
     /**
