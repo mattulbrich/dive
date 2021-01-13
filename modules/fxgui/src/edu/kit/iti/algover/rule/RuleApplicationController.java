@@ -13,7 +13,6 @@ import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.rule.script.BlocklyController;
@@ -52,9 +51,6 @@ public class RuleApplicationController extends FxmlController implements Referen
 
     private BlocklyController scriptRepWeb;
     private ScriptTextController scriptRepText;
-
-
-    //private final WebView scriptView;
 
     private final RuleApplicationListener listener;
 
@@ -106,11 +102,15 @@ public class RuleApplicationController extends FxmlController implements Referen
             }
         });*/
 
-        PropertyManager.getInstance().selectedTerm.addListener(((observable, oldValue, newValue) -> considerApplication(
-                PropertyManager.getInstance().currentProofNode.get(),
-                PropertyManager.getInstance().currentProofNode.get().getSequent(),
-                PropertyManager.getInstance().selectedTerm.get()
-        )));
+        PropertyManager.getInstance().selectedTerm.addListener(((observable, oldValue, newValue) -> {
+                if (newValue != null && PropertyManager.getInstance().currentProofNode.get() != null) {
+                    considerApplication(
+                    PropertyManager.getInstance().currentProofNode.get(),
+                    PropertyManager.getInstance().currentProofNode.get().getSequent(),
+                    PropertyManager.getInstance().selectedTerm.get());
+                }
+
+        }));
         PropertyManager.getInstance().currentProofNode.addListener(((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 considerApplication(
@@ -191,17 +191,17 @@ public class RuleApplicationController extends FxmlController implements Referen
             resetConsideration();
             // TODO: create new Statement directly from ProofRuleApplication.
             ScriptAST.Script newLine = Scripts.parseScript(application.getScriptTranscript());
-            /*for (ScriptAST.Statement statement: newLine.getStatements()) {
-                PropertyManager.getInstance().currentProof.get().getProofScript().addStatement(statement);
-            }*/
-            scriptRepWeb.insertForSelectedNode(application, newLine);
 
-            PropertyManager.getInstance().currentProof.get().interpretScript();
+            scriptRepWeb.insertAtCurrentPosition(application, newLine);
+
 
 
         } catch(RuleException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
         }
+
+        System.out.println("In applyRule PN is " + PropertyManager.getInstance().currentProofNodeSelector.get());
+
     }
 
 

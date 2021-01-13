@@ -8,8 +8,6 @@
 package edu.kit.iti.algover.nuscript;
 
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.util.Conditional;
-import edu.kit.iti.algover.util.Util;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 

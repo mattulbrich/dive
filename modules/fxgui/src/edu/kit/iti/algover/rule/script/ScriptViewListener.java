@@ -5,6 +5,9 @@
  */
 package edu.kit.iti.algover.rule.script;
 
+import edu.kit.iti.algover.nuscript.ScriptAST;
+import javafx.beans.property.SimpleObjectProperty;
+
 public interface ScriptViewListener {
 
     void onScriptSave();
@@ -14,4 +17,10 @@ public interface ScriptViewListener {
     void runScript();
 
     void onInsertCases();
+
+    void onASTElemSelected(ScriptAST astElem);
+
+    // TODO: review
+    SimpleObjectProperty<ScriptAST> getHighlightedElemProperty();
+
 }

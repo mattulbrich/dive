@@ -1,8 +1,8 @@
 package edu.kit.iti.algover.util;
 
 import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
+import edu.kit.iti.algover.nuscript.ParentRelationVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
-import edu.kit.iti.algover.nuscript.ScriptAST.StatementList;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
 import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
@@ -10,15 +10,21 @@ import edu.kit.iti.algover.nuscript.ScriptAST.Case;
 import edu.kit.iti.algover.nuscript.ScriptAST.Command;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser;
 import edu.kit.iti.algover.proof.ProofNode;
-import nonnull.NonNull;
+
 import org.antlr.v4.runtime.CommonToken;
 
-
-import javax.swing.plaf.nimbus.State;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * Utility class for Creating new ScriptASTs. Used for inserting a new Statement
+ * into a given ScriptAST.Script
+ * Could and probabily will be extended to insert any statement after a given statement.
+ *
+ * @author Valentin Springsklee
+ *
+ */
 public class ScriptASTUtil {
 
     private ScriptASTUtil() {
@@ -27,74 +33,51 @@ public class ScriptASTUtil {
 
     public static Script createScriptWithStatements(List<Statement> statements) {
         Script script = new Script();
-
-        for (Statement stmt: statements) {
-            script.addStatement(stmt);
-        }
-
+        script.getStatements().addAll(statements);
+        ParentRelationVisitor.setParentRelation(script);
         return script;
     }
 
 
-    public static Script insertAfter(Script script, Statement newStatement, Statement target) {
-        Script updatedScript = new Script();
+    public static Case createEmptyCaseFrom(Case oldCase) {
+        Case newCase = new Case();
+        newCase.setLabel(oldCase.getLabel());
+        newCase.setProofNode(oldCase.getProofNode());
 
-        if (target == null) {
-            assert script.getStatements().isEmpty();
-            updatedScript.addStatement(newStatement);
-            return updatedScript;
-        }
-
-        updatedScript = (Script) traverseAndInsert(script, new Script(), newStatement, target);
-
-        return updatedScript == null ? script : updatedScript;
+        return newCase;
     }
 
-    private static StatementList traverseAndInsert(StatementList statementList, @NonNull StatementList updated,
-                                                   Statement newStatement, Statement target) {
-        boolean found = false;
 
-        for (Statement statement: statementList.getStatements()) {
-            if (found) {
-                updated.addStatement(statement);
-                continue;
-            }
-            if (statement == target) {
-                found = true;
-                // TODO : insert and return
-                // if (stmt instanceof Cases), maybe forbid insertion
+    public static Script insertIntoCase(Script script, Statement newStatement, Case target) {
+        Script updatedScript = new Script();
+        Case alteredCase = null;
 
-                updated.addStatement(statement);
-                updated.addStatement(newStatement);
+        for (Statement stmt: script.getStatements()) {
+            updatedScript.addStatement(stmt.accept(new DefaultScriptASTVisitor<Void, Statement, RuntimeException>() {
+                @Override
+                public Command visitCommand(Command command, Void arg) throws RuntimeException {
+                    return command;
+                }
 
-            } else {
-                Statement insert = statement.accept(new DefaultScriptASTVisitor<Void, Statement, RuntimeException>() {
-                    @Override
-                    public Statement visitCommand(Command command, Void arg) throws RuntimeException {
-                        return command;
-                    }
-
-                    @Override
-                    public Statement visitCases(Cases cases, Void arg) throws RuntimeException {
-                        Cases newCases = new Cases();
-                        for (Case c : cases.getCases()) {
-                            Case newCase = (Case) ScriptASTUtil.traverseAndInsert(c, new Case(), newStatement, target);
-                            if (newCase != null) {
-                                // TODO: found and done. Copy rest of AST.
-                                newCases.addCase(newCase);
-                            } else {
-                                newCases.addCase(c);
-                            }
+                @Override
+                public Cases visitCases(Cases cases, Void arg) throws RuntimeException {
+                    Cases newCases = new Cases();
+                    for (Case c: cases.getCases()) {
+                        Case newCase = createEmptyCaseFrom(c);
+                        newCase.addStatements(c.getStatements());
+                        if (c == target) {
+                            newCase.addStatement(newStatement);
                         }
-                        return newCases;
+                        newCases.addCase(newCase);
                     }
-                }, null);
-
-                updated.addStatement(insert);
-            }
+                    return newCases;
+                }
+            }, null));
         }
 
-        return found ? updated : null;
+        ParentRelationVisitor.setParentRelation(updatedScript);
+
+        return updatedScript;
     }
 
     /**

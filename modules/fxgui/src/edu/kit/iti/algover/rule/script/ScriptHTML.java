@@ -84,7 +84,6 @@ public final class ScriptHTML {
 
     private String createHTML(ScriptAST.Script script) {
         String htmlScript = html(head(style(HEAD), script().with(rawHtml(JS))), body(toDiv(script))).render();
-        //String htmlScript = html(head(style(HEAD), script(JS)), body(toDiv(script))).render();
         return htmlScript;
     }
 
@@ -139,6 +138,5 @@ public final class ScriptHTML {
 
         return div(attrs("#" + getID(command).toString() + ".call")).with(params);
     }
-
 
 }
