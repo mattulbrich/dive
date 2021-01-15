@@ -46,20 +46,6 @@ public class BlocklyController implements ScriptViewListener {
      * Listeners handle proof node selection
      */
     private void configureListeners() {
-        highlightedStatement.addListener((observable, oldValue, newValue) ->  {
-            if (oldValue != null) {
-                view.unhighlight(oldValue);
-            }
-
-            if (newValue != null) {
-                view.highlight(newValue);
-                PropertyManager.getInstance().currentProofNode.set(
-                        newValue.accept(new ProofNodeExtractionVisitor(), null)
-                );
-            } else {
-                // TODO : search open proof node
-            }
-        });
 
         PropertyManager.getInstance().currentProof.addListener(((observable, oldValue, newValue) -> {
             System.out.println("Proof changed");
@@ -86,11 +72,9 @@ public class BlocklyController implements ScriptViewListener {
                         highlightedStatement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
                     } else if (!(currentPN == null || currentPN.getCommand() == null)) {
                         highlightedStatement.set(currentPN.getCommand().getParent());
-                    } else {
-                        highlightedStatement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
                     }
-                }
 
+                }
                 view.update();
             }
         }));
@@ -195,7 +179,12 @@ public class BlocklyController implements ScriptViewListener {
 
     @Override
     public void onASTElemSelected(ScriptAST astElem) {
+        view.unhighlight(highlightedStatement.get());
+        view.highlight(astElem);
         highlightedStatement.set(astElem);
+        PropertyManager.getInstance().currentProofNode.set(
+                astElem.accept(new ProofNodeExtractionVisitor(), null)
+        );
     }
 
     @Override
