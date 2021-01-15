@@ -184,7 +184,13 @@ public class Proof {
         }
 
         this.script = script;
-        this.scriptAST = null;
+        try {
+            this.scriptAST = Scripts.parseScript(script);
+        } catch (Exception ex) {
+            this.failures = Collections.singletonList(ex);
+            this.scriptAST = null;
+            proofStatus.setValue(ProofStatus.FAILING);
+        }
 
         this.proofStatus.setValue(ProofStatus.CHANGED_SCRIPT);
     }

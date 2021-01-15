@@ -43,8 +43,6 @@ public class BlocklyView extends VBox {
     private final Button btRunScript;
     private final Button btInsertCases;
 
-    //private ScriptAST highlightedElement;
-
     private ScriptHTML scriptHTML;
 
     public BlocklyView(ScriptViewListener listener) {
@@ -75,9 +73,6 @@ public class BlocklyView extends VBox {
                                     addHTMLElemListeners(doc, elemID, evt -> {
                                         evt.stopPropagation();
                                         listener.onASTElemSelected(ast);
-                                        PropertyManager.getInstance().currentProofNode.set(
-                                                ast.accept(new ProofNodeExtractionVisitor(), null)
-                                        );
                                     });
                                     return null;
                                 }
@@ -108,11 +103,14 @@ public class BlocklyView extends VBox {
 
                             }, null
                     );
-
-                    highlight(listener.getHighlightedElemProperty().get());
-
                 }
         );
+
+        engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == Worker.State.SUCCEEDED) {
+                highlight(listener.getHighlightedElemProperty().get());
+            }
+        });
 
         initView();
         update();
@@ -160,10 +158,8 @@ public class BlocklyView extends VBox {
     public void update() {
         Proof currentProof = PropertyManager.getInstance().currentProof.get();
         if (currentProof != null) {
-            if (currentProof.getProofScript() != null) {
-                scriptHTML = new ScriptHTML(PropertyManager.getInstance().currentProof.get().getProofScript());
-                engine.loadContent(scriptHTML.getHTML());
-            }
+            scriptHTML = new ScriptHTML(PropertyManager.getInstance().currentProof.get().getProofScript());
+            engine.loadContent(scriptHTML.getHTML());
         }
     }
 

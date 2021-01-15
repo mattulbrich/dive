@@ -18,6 +18,10 @@ public class ProofNodeExtractionVisitor extends DefaultScriptASTVisitor<Void, Pr
 
         ProofNode ret = statements.get(0).accept(this, null);
 
+        if (ret == null) {
+            return null;
+        }
+
         while (ret.getChildren() != null && ret.getChildren().size() > 0) {
             ret = ret.getChildren().get(ret.getChildren().size() - 1);
         }

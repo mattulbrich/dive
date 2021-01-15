@@ -50,7 +50,6 @@ public class ScriptASTUtil {
 
     public static Script insertIntoCase(Script script, Statement newStatement, Case target) {
         Script updatedScript = new Script();
-        Case alteredCase = null;
 
         for (Statement stmt: script.getStatements()) {
             updatedScript.addStatement(stmt.accept(new DefaultScriptASTVisitor<Void, Statement, RuntimeException>() {
@@ -64,7 +63,9 @@ public class ScriptASTUtil {
                     Cases newCases = new Cases();
                     for (Case c: cases.getCases()) {
                         Case newCase = createEmptyCaseFrom(c);
-                        newCase.addStatements(c.getStatements());
+                        for (Statement stmtC: c.getStatements()) {
+                            newCase.addStatement(stmtC.accept(this, null));
+                        }
                         if (c == target) {
                             newCase.addStatement(newStatement);
                         }

@@ -1,15 +1,10 @@
 package edu.kit.iti.algover.rule.script;
 
-import edu.kit.iti.algover.nuscript.PrintVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
-import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
-import edu.kit.iti.algover.nuscript.ScriptAST.Command;
 
 import edu.kit.iti.algover.util.Util;
 import j2html.tags.ContainerTag;
 import j2html.tags.Tag;
-import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.Token;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,7 +44,12 @@ public final class ScriptHTML {
         this.proofScript = proofScript;
         this.count = 0;
         this.astElemIDs = new HashMap<>();
-        this.htmlRep = this.createHTML(proofScript);
+        if (proofScript != null) {
+            this.htmlRep = this.createHTML(proofScript);
+        } else {
+            this.htmlRep = this.createHTMLWithEmptyBody();
+        }
+
     }
 
     public String getHTML() {
@@ -84,6 +84,11 @@ public final class ScriptHTML {
 
     private String createHTML(ScriptAST.Script script) {
         String htmlScript = html(head(style(HEAD), script().with(rawHtml(JS))), body(toDiv(script))).render();
+        return htmlScript;
+    }
+
+    private String createHTMLWithEmptyBody() {
+        String htmlScript = html(head(style(HEAD), script().with(rawHtml(JS))), body("")).render();
         return htmlScript;
     }
 

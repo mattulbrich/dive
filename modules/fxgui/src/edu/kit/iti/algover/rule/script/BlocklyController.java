@@ -53,6 +53,9 @@ public class BlocklyController implements ScriptViewListener {
 
             if (newValue != null) {
                 view.highlight(newValue);
+                PropertyManager.getInstance().currentProofNode.set(
+                        newValue.accept(new ProofNodeExtractionVisitor(), null)
+                );
             } else {
                 // TODO : search open proof node
             }
@@ -62,12 +65,15 @@ public class BlocklyController implements ScriptViewListener {
             System.out.println("Proof changed");
             if (newValue.getProofScript() != null) {
                 // TODO: (maybe) select open end
-                highlightedStatement.set(null);
+                //highlightedStatement.set(null);
                 view.update();
             }
         }));
 
         PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
+            System.out.println("Proof Status changed to " + newValue);
+            System.out.println("Proof Skript: " + PropertyManager.getInstance().currentProof.get().getProofScript());
+
             if(newValue != null) {
                 /* TODO: Somehow consider filtering newValue*/
                 /*  If newValue == CHANGED_SCRIPT the proof is rerun (triggered by a different listener)
@@ -75,16 +81,17 @@ public class BlocklyController implements ScriptViewListener {
 
                 if (newValue == ProofStatus.OPEN || newValue == ProofStatus.CLOSED) {
                     ProofNode currentPN = PropertyManager.getInstance().currentProofNode.get();
-                    if (!(currentPN == null || currentPN.getCommand() == null)) {
+                    System.out.println("Current Selected PN " + currentPN);
+                    if (currentPN == PropertyManager.getInstance().currentProof.get().getProofRoot()) {
+                        highlightedStatement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
+                    } else if (!(currentPN == null || currentPN.getCommand() == null)) {
                         highlightedStatement.set(currentPN.getCommand().getParent());
+                    } else {
+                        highlightedStatement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
                     }
                 }
 
-                if (PropertyManager.getInstance().currentProof.get().getProofScript() != null) {
-                    view.update();
-                }
-
-
+                view.update();
             }
         }));
     }
