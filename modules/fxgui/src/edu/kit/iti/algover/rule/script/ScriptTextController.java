@@ -6,8 +6,6 @@ package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.nuscript.ScriptAST;
-import edu.kit.iti.algover.proof.ProofNodeSelector;
-import edu.kit.iti.algover.proof.ProofStatus;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 
@@ -82,12 +80,12 @@ public class ScriptTextController implements ScriptViewListener {
     }
 
     @Override
-    public void onASTElemSelected(ScriptAST astElem) {
+    public void onASTElemSelected(ScriptAST.Statement astElem) {
 
     }
 
     @Override
-    public SimpleObjectProperty<ScriptAST> getHighlightedElemProperty() {
+    public SimpleObjectProperty<ScriptAST.Statement> getHighlightedElemProperty() {
         return null;
     }
 }

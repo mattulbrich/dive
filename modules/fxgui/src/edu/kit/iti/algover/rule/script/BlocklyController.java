@@ -18,13 +18,11 @@
 package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.PropertyManager;
-import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.ScriptASTUtil;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -33,7 +31,7 @@ import java.util.List;
 public class BlocklyController implements ScriptViewListener {
 
     private BlocklyView view;
-    private final SimpleObjectProperty<ScriptAST> highlightedStatement = new SimpleObjectProperty<>(null);
+    private final SimpleObjectProperty<ScriptAST.Statement> highlightedStatement = new SimpleObjectProperty<>(null);
 
     public BlocklyController() {
         this.view = new BlocklyView(this);
@@ -68,12 +66,9 @@ public class BlocklyController implements ScriptViewListener {
                 if (newValue == ProofStatus.OPEN || newValue == ProofStatus.CLOSED) {
                     ProofNode currentPN = PropertyManager.getInstance().currentProofNode.get();
                     System.out.println("Current Selected PN " + currentPN);
-                    if (currentPN == PropertyManager.getInstance().currentProof.get().getProofRoot()) {
-                        highlightedStatement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
-                    } else if (!(currentPN == null || currentPN.getCommand() == null)) {
-                        highlightedStatement.set(currentPN.getCommand().getParent());
+                    if(currentPN != null) {
+                        highlightedStatement.set(PropertyManager.getInstance().currentProofNode.get().getCommand());
                     }
-
                 }
                 view.update();
             }
@@ -95,50 +90,18 @@ public class BlocklyController implements ScriptViewListener {
         // introduced for readabilty
         ProofNode selectedPN = PropertyManager.getInstance().currentProofNode.get();
         Script currentProofScript = PropertyManager.getInstance().currentProof.get().getProofScript();
-        if (selectedPN.getChildren() != null && selectedPN.getChildren().size() > 0) {
-            return false;
-        }
+        //if (selectedPN.getChildren() != null && selectedPN.getChildren().size() > 0) {
+        //    return false;
+        //}
 
-        if (highlightedStatement.get() == null) {
-            return false;
+        if (highlightedStatement.get() == null && currentProofScript.getStatements().size() > 0) {
+            highlightedStatement.set(currentProofScript.getStatements().get(currentProofScript.getStatements().size() - 1));
         }
 
         // TODO: create ScriptAST.Statement objects from ProofRuleApplication directly
         ScriptAST.Statement ruleApplicationStatement = ruleScript.getStatements().get(0);
 
-        Script updatedScript = highlightedStatement.get().accept(new DefaultScriptASTVisitor<Pair<Script, ScriptAST.Statement>, Script, RuntimeException>() {
-            @Override
-            public Script visitCommand(ScriptAST.Command command, Pair<Script, ScriptAST.Statement> arg) throws RuntimeException {
-                return arg.getFst();
-            }
-
-            @Override
-            public Script visitCases(ScriptAST.Cases cases, Pair<Script, ScriptAST.Statement> arg) throws RuntimeException {
-                return arg.getFst();
-            }
-
-            @Override
-            public Script visitCase(ScriptAST.Case aCase, Pair<Script, ScriptAST.Statement> arg) throws RuntimeException {
-                Script updated = ScriptASTUtil.insertIntoCase(arg.getFst(), arg.getSnd(), aCase);
-                return updated;
-            }
-
-            /**
-             * TODO: review. Check legality here?
-             * @param script
-             * @param arg
-             * @return
-             * @throws RuntimeException
-             */
-            @Override
-            public Script visitScript(Script script, Pair<Script, ScriptAST.Statement> arg) throws RuntimeException {
-                List<ScriptAST.Statement> stmts = script.getStatements();
-                stmts.add(arg.getSnd());
-                Script updatedScript = ScriptASTUtil.createScriptWithStatements(stmts);
-                return updatedScript;
-            }
-        }, new Pair<>(currentProofScript, ruleApplicationStatement));
-
+        Script updatedScript = insertStatementAtHighlight(currentProofScript, ruleApplicationStatement);
         boolean scriptChanged = currentProofScript.equals(updatedScript);
 
         System.out.println("Before Script change PN is " + PropertyManager.getInstance().currentProofNodeSelector.get());
@@ -149,6 +112,46 @@ public class BlocklyController implements ScriptViewListener {
 
         //return true iff ast added to script ast
         return scriptChanged;
+    }
+
+    private Script insertStatementAtHighlight(Script currentProofScript, ScriptAST.Statement ruleApplicationStatement) {
+        if(currentProofScript.getStatements().size() == 0) {
+            currentProofScript.addStatement(ruleApplicationStatement);
+            return currentProofScript;
+        }
+        return ScriptASTUtil.insertStatementAfter(currentProofScript, ruleApplicationStatement, highlightedStatement.get());
+//        return highlightedStatement.get().accept(new DefaultScriptASTVisitor<Pair<Script, ScriptAST.Statement>, Script, RuntimeException>() {
+//            @Override
+//            public Script visitCommand(ScriptAST.Command command, Pair<Script, ScriptAST.Statement> arg) throws RuntimeException {
+//                return arg.getFst();
+//            }
+//
+//            @Override
+//            public Script visitCases(ScriptAST.Cases cases, Pair<Script, ScriptAST.Statement> arg) throws RuntimeException {
+//                return arg.getFst();
+//            }
+//
+//            @Override
+//            public Script visitCase(ScriptAST.Case aCase, Pair<Script, ScriptAST.Statement> arg) throws RuntimeException {
+//                Script updated = ScriptASTUtil.insertIntoCase(arg.getFst(), arg.getSnd(), aCase);
+//                return updated;
+//            }
+//
+//            /**
+//             * TODO: review. Check legality here?
+//             * @param script
+//             * @param arg
+//             * @return
+//             * @throws RuntimeException
+//             */
+//            @Override
+//            public Script visitScript(Script script, Pair<Script, ScriptAST.Statement> arg) throws RuntimeException {
+//                List<ScriptAST.Statement> stmts = script.getStatements();
+//                stmts.add(arg.getSnd());
+//                Script updatedScript = ScriptASTUtil.createScriptWithStatements(stmts);
+//                return updatedScript;
+//            }
+//        }, new Pair<>(currentProofScript, ruleApplicationStatement));
     }
 
     @Override
@@ -178,7 +181,7 @@ public class BlocklyController implements ScriptViewListener {
     }
 
     @Override
-    public void onASTElemSelected(ScriptAST astElem) {
+    public void onASTElemSelected(ScriptAST.Statement astElem) {
         view.unhighlight(highlightedStatement.get());
         view.highlight(astElem);
         highlightedStatement.set(astElem);
@@ -188,7 +191,7 @@ public class BlocklyController implements ScriptViewListener {
     }
 
     @Override
-    public SimpleObjectProperty<ScriptAST> getHighlightedElemProperty() {
+    public SimpleObjectProperty<ScriptAST.Statement> getHighlightedElemProperty() {
         return highlightedStatement;
     }
 

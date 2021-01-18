@@ -69,11 +69,6 @@ public class BlocklyView extends VBox {
 
                                 @Override
                                 protected Void visitDefault(ScriptAST ast, Void arg) throws RuntimeException {
-                                    Integer elemID = scriptHTML.getID(ast);
-                                    addHTMLElemListeners(doc, elemID, evt -> {
-                                        evt.stopPropagation();
-                                        listener.onASTElemSelected(ast);
-                                    });
                                     return null;
                                 }
 
@@ -87,13 +82,21 @@ public class BlocklyView extends VBox {
 
                                 @Override
                                 public Void visitCommand(ScriptAST.Command command, Void arg) throws RuntimeException {
-                                    visitDefault(command, arg);
+                                    Integer elemID = scriptHTML.getID(command);
+                                    addHTMLElemListeners(doc, elemID, evt -> {
+                                        evt.stopPropagation();
+                                        listener.onASTElemSelected(command);
+                                    });
                                     return null;
                                 }
 
                                 @Override
                                 public Void visitCases(ScriptAST.Cases cases, Void arg) throws RuntimeException {
-                                    visitDefault(cases, arg);
+                                    Integer elemID = scriptHTML.getID(cases);
+                                    addHTMLElemListeners(doc, elemID, evt -> {
+                                        evt.stopPropagation();
+                                        listener.onASTElemSelected(cases);
+                                    });
                                     for (ScriptAST.Case aCase : cases.getCases()) {
                                         aCase.accept(this, arg);
                                     }
