@@ -111,6 +111,7 @@ public class BlocklyController implements ScriptViewListener {
         System.out.println("After Script change PN is " + PropertyManager.getInstance().currentProofNodeSelector.get());
 
         //return true iff ast added to script ast
+        onASTElemSelected(ruleApplicationStatement);
         return scriptChanged;
     }
 
