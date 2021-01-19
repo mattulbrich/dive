@@ -138,7 +138,7 @@ public class ScriptASTUtil {
                 String caseString = Util.stripQuotes(caze.getLabel().getText());
                 if (caseString.equals(p.getLabel())) {
                     List<ScriptAST.Statement> statements = insertCasesForStatement(p, caze.getStatements());
-                    caze.addStatements(statements);
+                    caze.setStatements(statements);
                     res.getCases().add(caze);
                     found = true;
                 }
@@ -181,5 +181,40 @@ public class ScriptASTUtil {
         }
         return script;
 
+    }
+
+    public static Script insertStatementAfter(Script script, Statement newStatement, Case referenceStatement) {
+        List<Statement> res = insertStatementAfter(script.getStatements(), newStatement, referenceStatement);
+        if (res == null) {
+            System.out.println("Couldnt find reference statement to insert new statement.");
+        }
+        return script;
+    }
+
+    public static List<Statement> insertStatementAfter(List<Statement> statements, Statement newStatement, Case referenceStatement) {
+        for(int i = 0; i < statements.size(); ++i) {
+            if(statements.get(i) instanceof Cases) {
+                for(int j = 0; j < ((Cases) statements.get(i)).getCases().size(); ++j) {
+                    if(((Cases) statements.get(i)).getCases().get(j) == referenceStatement) {
+                        ((Cases) statements.get(i)).getCases().get(j).getStatements().add(newStatement);
+                        return statements;
+                    }
+                    List<Statement> res = insertStatementAfter(((Cases) statements.get(i)).getCases().get(j).getStatements(), newStatement, referenceStatement);
+                    if(res != null) {
+                        return res;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static Script insertStatementAfter(Script script, Statement newStatement, ScriptAST referenceStatement) {
+        if(referenceStatement instanceof Statement) {
+            return insertStatementAfter(script, newStatement, (Statement) referenceStatement);
+        } else if (referenceStatement instanceof Case) {
+            return insertStatementAfter(script, newStatement, (Case) referenceStatement);
+        }
+        return null;
     }
 }

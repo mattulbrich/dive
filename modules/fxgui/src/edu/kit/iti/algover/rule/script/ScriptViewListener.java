@@ -20,7 +20,7 @@ public interface ScriptViewListener {
 
     void onInsertCases();
 
-    void onASTElemSelected(ScriptAST.Statement astElem);
+    void onASTElemSelected(ScriptAST astElem);
 
-    SimpleObjectProperty<ScriptAST.Statement> getHighlightedElemProperty();
+    SimpleObjectProperty<ScriptAST> getHighlightedElemProperty();
 }

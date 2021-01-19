@@ -103,6 +103,16 @@ public class BlocklyView extends VBox {
                                     return null;
                                 }
 
+                                @Override
+                                public Void visitCase(ScriptAST.Case caze, Void arg) throws RuntimeException {
+                                    Integer elemID = scriptHTML.getID(caze);
+                                    addHTMLElemListeners(doc, elemID, evt -> {
+                                        evt.stopPropagation();
+                                        listener.onASTElemSelected(caze);
+                                    });
+                                    return null;
+                                }
+
 
                             }, null
                     );
@@ -140,9 +150,7 @@ public class BlocklyView extends VBox {
 
     private void initView() {
 
-        btInsertCases.setOnAction(event -> {
-            listener.onInsertCases();
-        });
+        btInsertCases.setOnAction(event -> listener.onInsertCases());
 
         HBox.setHgrow(btRunScript, Priority.ALWAYS);
         HBox.setHgrow(btInsertCases, Priority.ALWAYS);

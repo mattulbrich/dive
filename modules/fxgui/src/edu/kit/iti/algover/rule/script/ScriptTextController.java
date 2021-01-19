@@ -80,12 +80,12 @@ public class ScriptTextController implements ScriptViewListener {
     }
 
     @Override
-    public void onASTElemSelected(ScriptAST.Statement astElem) {
+    public void onASTElemSelected(ScriptAST astElem) {
 
     }
 
     @Override
-    public SimpleObjectProperty<ScriptAST.Statement> getHighlightedElemProperty() {
+    public SimpleObjectProperty<ScriptAST> getHighlightedElemProperty() {
         return null;
     }
 }
