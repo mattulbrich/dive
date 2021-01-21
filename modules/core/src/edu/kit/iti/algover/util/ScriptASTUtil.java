@@ -82,7 +82,7 @@ public class ScriptASTUtil {
     }
 
     /**
-     * recursivly inserts all missing case statements in the given script
+     * recursively inserts all missing case statements in the given script
      *
      * @param pn the proofnode for which the cases should be inserted
      * @param stmts the current script that should be extended by the missing case statements
@@ -110,7 +110,7 @@ public class ScriptASTUtil {
             }
         }
         ScriptAST.Statement st = stmts.get(stmts.size() - 1);
-        if(pn.getSuccessors().size() == 1 && st instanceof ScriptAST.Command) {
+        if((pn.getChildren() == null || pn.getSuccessors().size() == 1) && st instanceof ScriptAST.Command) {
             result.add(st);
         } else if (pn.getChildren().size() > 1 && st instanceof ScriptAST.Cases) {
             result.add(createCasesForNode(pn, ((ScriptAST.Cases) st).getCases()));
@@ -127,7 +127,7 @@ public class ScriptASTUtil {
      *
      * @param pn the proofnode for which the cases should be created
      * @param cases the cases that already exist
-     * @return a case statement containing all necesarry cases
+     * @return a case statement containing all necessary cases
      */
     private static ScriptAST.Statement createCasesForNode(ProofNode pn, List<ScriptAST.Case> cases) {
         ScriptAST.Cases res = new ScriptAST.Cases();
@@ -138,7 +138,7 @@ public class ScriptASTUtil {
                 String caseString = Util.stripQuotes(caze.getLabel().getText());
                 if (caseString.equals(p.getLabel())) {
                     List<ScriptAST.Statement> statements = insertCasesForStatement(p, caze.getStatements());
-                    caze.addStatements(statements);
+                    caze.setStatements(statements);
                     res.getCases().add(caze);
                     found = true;
                 }
@@ -154,5 +154,67 @@ public class ScriptASTUtil {
 
     private static ScriptAST.Statement createCasesForNode(ProofNode pn) {
         return createCasesForNode(pn, new ArrayList<>());
+    }
+
+    public static List<Statement> insertStatementAfter(List<Statement>  statements, Statement newStatement, ScriptAST referenceStatement) {
+        for(int i = 0; i < statements.size(); ++i) {
+            if(statements.get(i) == referenceStatement) {
+                statements.add(i + 1, newStatement);
+                return statements;
+            }
+            if(statements.get(i) instanceof Cases) {
+                for(int j = 0; j < ((Cases) statements.get(i)).getCases().size(); ++j) {
+                    List<Statement> res = insertStatementAfter(((Cases) statements.get(i)).getCases().get(j).getStatements(), newStatement, referenceStatement);
+                    if(res != null) {
+                        return res;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static Script insertStatementAfter(Script script, Statement newStatement, Statement referenceStatement) {
+        List<Statement> res = insertStatementAfter(script.getStatements(), newStatement, referenceStatement);
+        if(res == null) {
+            System.out.println("Couldnt find reference statement to insert new statement.");
+        }
+        return script;
+
+    }
+
+    public static Script insertStatementAfter(Script script, Statement newStatement, Case referenceStatement) {
+        List<Statement> res = insertStatementAfter(script.getStatements(), newStatement, referenceStatement);
+        if (res == null) {
+            System.out.println("Couldnt find reference statement to insert new statement.");
+        }
+        return script;
+    }
+
+    public static List<Statement> insertStatementAfter(List<Statement> statements, Statement newStatement, Case referenceStatement) {
+        for(int i = 0; i < statements.size(); ++i) {
+            if(statements.get(i) instanceof Cases) {
+                for(int j = 0; j < ((Cases) statements.get(i)).getCases().size(); ++j) {
+                    if(((Cases) statements.get(i)).getCases().get(j) == referenceStatement) {
+                        ((Cases) statements.get(i)).getCases().get(j).getStatements().add(newStatement);
+                        return statements;
+                    }
+                    List<Statement> res = insertStatementAfter(((Cases) statements.get(i)).getCases().get(j).getStatements(), newStatement, referenceStatement);
+                    if(res != null) {
+                        return res;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static Script insertStatementAfter(Script script, Statement newStatement, ScriptAST referenceStatement) {
+        if(referenceStatement instanceof Statement) {
+            return insertStatementAfter(script, newStatement, (Statement) referenceStatement);
+        } else if (referenceStatement instanceof Case) {
+            return insertStatementAfter(script, newStatement, (Case) referenceStatement);
+        }
+        return null;
     }
 }

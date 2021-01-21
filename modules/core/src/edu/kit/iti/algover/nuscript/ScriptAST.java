@@ -290,6 +290,12 @@ public abstract class ScriptAST {
             statements.addAll(stmts);
         }
 
+
+        public void setStatements(Collection<? extends Statement> stmts) {
+            statements.clear();
+            statements.addAll(stmts);
+        }
+
         public List<Statement> getStatements() {
             return statements;
         }
