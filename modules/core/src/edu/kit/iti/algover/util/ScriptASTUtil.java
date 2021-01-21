@@ -89,7 +89,7 @@ public class ScriptASTUtil {
      * @return a new script containing all necessary case statements
      */
     // MU: Adapted the existing code to nuscript. But it does not seem to be recursive at all.
-    // VS: Some Bug for inner cases.
+    // TODO: Make it work for "implicit" second cases (syntax level)
     public static List<ScriptAST.Statement> insertCasesForStatement(ProofNode pn, List<ScriptAST.Statement> stmts) {
         if(stmts.size() == 0) {
             return stmts;

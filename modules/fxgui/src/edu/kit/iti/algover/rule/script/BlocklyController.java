@@ -21,7 +21,6 @@ import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
-import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.util.Pair;
@@ -69,7 +68,11 @@ public class BlocklyController implements ScriptViewListener {
         {
             if (newValue != null) {
                  if (newValue == PropertyManager.getInstance().currentProof.get().getProofRoot()) {
-                     highlightedStatement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
+                     if (PropertyManager.getInstance().currentProof.get().getProofScript() != null &&
+                         PropertyManager.getInstance().currentProof.get().getProofScript().getStatements().size() == 0) {
+                         highlightedStatement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
+
+                     }
                  } else if (!(newValue == null || newValue.getCommand() == null)) {
                      if (newValue.getChildren() == null || newValue.getChildren().size() == 0) {
                          ScriptAST.StatementList parentList = newValue.getCommand().getParent().accept(
@@ -99,7 +102,8 @@ public class BlocklyController implements ScriptViewListener {
                                      ScriptAST.Statement nextStmt = parentList.getStatements().get(i + 1);
                                      ScriptAST.Cases cases = (ScriptAST.Cases) nextStmt;
                                      for (int j = 0; j < newValue.getParent().getChildren().size(); j++) {
-                                         ProofNode pChild = newValue.getParent().getChildren().get(i);
+                                         // TODO: tests and assertions
+                                         ProofNode pChild = newValue.getParent().getChildren().get(j);
                                          if (pChild == newValue) {
                                              highlightedStatement.set(cases.getCases().get(j));
                                              return;
