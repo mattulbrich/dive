@@ -29,6 +29,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import netscape.javascript.JSException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.events.EventListener;
@@ -106,11 +107,15 @@ public class BlocklyView extends VBox {
                 }
         );
 
-        engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == Worker.State.SUCCEEDED) {
-                highlight(listener.getHighlightedElemProperty().get());
-            }
-        });
+        engine.getLoadWorker().stateProperty().addListener(
+                (observable, oldValue, newValue) ->
+                {
+                    if (newValue != Worker.State.SUCCEEDED) {
+                        return;
+                    }
+                    highlight(listener.getHighlightedElemProperty().get());
+                }
+        );
 
         initView();
         update();
@@ -155,6 +160,7 @@ public class BlocklyView extends VBox {
         alert.showAndWait();
     }
 
+
     public void update() {
         Proof currentProof = PropertyManager.getInstance().currentProof.get();
         if (currentProof != null) {
@@ -163,20 +169,32 @@ public class BlocklyView extends VBox {
         }
     }
 
+    public void reload() {
+        engine.reload();
+    }
+
 
     public void highlight(ScriptAST astElem) {
         Integer elemid = scriptHTML.getID(astElem);
         if (elemid != null) {
-            engine.executeScript("highlight(" + elemid+ ");");
+            executeJavaScript("highlight(" + elemid + ");");
         }
     }
 
     public void unhighlight(ScriptAST astElem) {
         Integer elemid = scriptHTML.getID(astElem);
         if (elemid != null) {
-            engine.executeScript("unhighlight(" + elemid + ");");
+            executeJavaScript("unhighlight(" + elemid + ");");
         }
 
+    }
+
+    private void executeJavaScript(String js) {
+        try {
+            engine.executeScript(js);
+        } catch (JSException jsex) {
+            System.out.println("Failed to run javascript code, due to js exception: " + jsex.getMessage());
+        }
     }
 
 }

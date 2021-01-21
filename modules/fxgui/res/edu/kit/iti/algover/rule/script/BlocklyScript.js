@@ -1,7 +1,7 @@
 
 function highlight(elemid) {
     const elem = document.getElementById(elemid);
-    if (elem === null) {
+    if (elem === null || elemid === undefined) {
         return;
     }
     elem.style.borderTopWidth = "15px";
@@ -10,7 +10,7 @@ function highlight(elemid) {
 
 function unhighlight(elemid) {
     const elem = document.getElementById(elemid);
-    if (elem === null) {
+    if (elem === null || elemid === undefined) {
         return;
     }
     elem.style.borderTopWidth = "";

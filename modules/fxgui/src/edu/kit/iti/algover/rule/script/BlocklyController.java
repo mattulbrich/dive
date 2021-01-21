@@ -21,8 +21,8 @@ import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.ScriptASTUtil;
@@ -47,6 +47,15 @@ public class BlocklyController implements ScriptViewListener {
      */
     private void configureListeners() {
 
+        highlightedStatement.addListener((observable, oldValue, newValue) ->  {
+            if (oldValue != null) {
+                view.unhighlight(oldValue);
+            }
+            if (newValue != null) {
+                view.highlight(newValue);
+            }
+        });
+
         PropertyManager.getInstance().currentProof.addListener(((observable, oldValue, newValue) -> {
             System.out.println("Proof changed");
             if (newValue.getProofScript() != null) {
@@ -56,25 +65,77 @@ public class BlocklyController implements ScriptViewListener {
             }
         }));
 
+        PropertyManager.getInstance().currentProofNode.addListener((observable, oldValue, newValue) ->
+        {
+            if (newValue != null) {
+                 if (newValue == PropertyManager.getInstance().currentProof.get().getProofRoot()) {
+                     highlightedStatement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
+                 } else if (!(newValue == null || newValue.getCommand() == null)) {
+                     if (newValue.getChildren() == null || newValue.getChildren().size() == 0) {
+                         ScriptAST.StatementList parentList = newValue.getCommand().getParent().accept(
+                                 new DefaultScriptASTVisitor<Void, ScriptAST.StatementList, IllegalArgumentException>() {
+                                     @Override
+                                     public ScriptAST.StatementList visitScript(Script script, Void arg) throws IllegalArgumentException {
+                                         return script;
+                                     }
+
+                                     @Override
+                                     public ScriptAST.StatementList visitCase(ScriptAST.Case aCase, Void arg) throws IllegalArgumentException {
+                                         return aCase;
+                                     }
+                                 }
+                         , null);
+
+                         /*if (parentList.getStatements().size() <= 0 ) {
+                             highlightedStatement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
+                         }*/
+
+                         if (newValue.getCommand() == parentList.getStatements().get(parentList.getStatements().size() - 1)) {
+                             highlightedStatement.set(parentList);
+                         } else {
+                             for (int i = 0; i < parentList.getStatements().size(); i++) {
+                                 ScriptAST.Statement stmt = parentList.getStatements().get(i);
+                                 if (stmt == newValue.getCommand()) {
+                                     ScriptAST.Statement nextStmt = parentList.getStatements().get(i + 1);
+                                     ScriptAST.Cases cases = (ScriptAST.Cases) nextStmt;
+                                     for (int j = 0; j < newValue.getParent().getChildren().size(); j++) {
+                                         ProofNode pChild = newValue.getParent().getChildren().get(i);
+                                         if (pChild == newValue) {
+                                             highlightedStatement.set(cases.getCases().get(j));
+                                             return;
+                                         }
+                                     }
+                                 }
+                             }
+                         }
+
+                         //highlightedStatement.set(newValue.getCommand().getParent());
+                     } else {
+                         //highlightedStatement.set(newValue.getChildren().get(0).getCommand());
+                     }
+                 }
+            }
+
+        });
+
         PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
             System.out.println("Proof Status changed to " + newValue);
-            System.out.println("Proof Skript: " + PropertyManager.getInstance().currentProof.get().getProofScript());
 
             if(newValue != null) {
                 /* TODO: Somehow consider filtering newValue*/
                 /*  If newValue == CHANGED_SCRIPT the proof is rerun (triggered by a different listener)
                     the satus is immediately set to OPEN, CLOSED or FAILING.*/
 
-                if (newValue == ProofStatus.OPEN || newValue == ProofStatus.CLOSED) {
-                    ProofNode currentPN = PropertyManager.getInstance().currentProofNode.get();
-                    System.out.println("Current Selected PN " + currentPN);
-                    if (currentPN == PropertyManager.getInstance().currentProof.get().getProofRoot()) {
-                        highlightedStatement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
-                    } else if (!(currentPN == null || currentPN.getCommand() == null)) {
-                        highlightedStatement.set(currentPN.getCommand().getParent());
-                    }
+                Script currentScript = PropertyManager.getInstance().currentProof.get().getProofScript();
 
+                if (currentScript != null) {
+                    if (currentScript.getStatements().size() == 0) {
+                        PropertyManager.getInstance().currentProofNode.set(
+                                PropertyManager.getInstance().currentProof.get().getProofRoot()
+                        );
+                    }
                 }
+
                 view.update();
             }
         }));
@@ -141,11 +202,7 @@ public class BlocklyController implements ScriptViewListener {
 
         boolean scriptChanged = currentProofScript.equals(updatedScript);
 
-        System.out.println("Before Script change PN is " + PropertyManager.getInstance().currentProofNodeSelector.get());
-
         PropertyManager.getInstance().currentProof.get().setScriptAST(updatedScript);
-
-        System.out.println("After Script change PN is " + PropertyManager.getInstance().currentProofNodeSelector.get());
 
         //return true iff ast added to script ast
         return scriptChanged;
@@ -179,8 +236,6 @@ public class BlocklyController implements ScriptViewListener {
 
     @Override
     public void onASTElemSelected(ScriptAST astElem) {
-        view.unhighlight(highlightedStatement.get());
-        view.highlight(astElem);
         highlightedStatement.set(astElem);
         PropertyManager.getInstance().currentProofNode.set(
                 astElem.accept(new ProofNodeExtractionVisitor(), null)

@@ -65,17 +65,6 @@ public class ScriptTextController implements ScriptViewListener {
 
     }
 
-
-    private Void selectCommandPN(ScriptAST.Command cmd) {
-        PropertyManager.getInstance().currentProofNode.set(cmd.getProofNode());
-        return null;
-    }
-
-    private Void selectCasesPN(ScriptAST.Cases cases) {
-        PropertyManager.getInstance().currentProofNode.set(cases.getCases().get(0).getProofNode().getChildren().get(0));
-        return null;
-    }
-
     @Override
     public void onInsertCases() {
 
