@@ -71,6 +71,11 @@ public class ScriptTextController implements ScriptViewListener {
     }
 
     @Override
+    public void onViewReloaded() {
+
+    }
+
+    @Override
     public void onASTElemSelected(ScriptAST astElem) {
 
     }

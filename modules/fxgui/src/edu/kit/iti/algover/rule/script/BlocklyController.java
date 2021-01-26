@@ -21,8 +21,11 @@ import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.settings.ProjectSettings;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.ScriptASTUtil;
 import javafx.beans.property.SimpleObjectProperty;
@@ -53,13 +56,14 @@ public class BlocklyController implements ScriptViewListener {
             if (newValue != null) {
                 view.highlight(newValue);
             }
+            //scanProofEnds(PropertyManager.getInstance().currentProof.get().getProofScript());
         });
 
         PropertyManager.getInstance().currentProof.addListener(((observable, oldValue, newValue) -> {
             System.out.println("Proof changed");
             if (newValue.getProofScript() != null) {
                 // TODO: (maybe) select open end
-                //highlightedStatement.set(null);
+                highlightedStatement.set(null);
                 view.update();
             }
         }));
@@ -75,20 +79,7 @@ public class BlocklyController implements ScriptViewListener {
                      }
                  } else if (!(newValue == null || newValue.getCommand() == null)) {
                      if (newValue.getChildren() == null || newValue.getChildren().size() == 0) {
-                         ScriptAST.StatementList parentList = newValue.getCommand().getParent().accept(
-                                 new DefaultScriptASTVisitor<Void, ScriptAST.StatementList, IllegalArgumentException>() {
-                                     @Override
-                                     public ScriptAST.StatementList visitScript(Script script, Void arg) throws IllegalArgumentException {
-                                         return script;
-                                     }
-
-                                     @Override
-                                     public ScriptAST.StatementList visitCase(ScriptAST.Case aCase, Void arg) throws IllegalArgumentException {
-                                         return aCase;
-                                     }
-                                 }
-                         , null);
-
+                         ScriptAST.StatementList parentList = (ScriptAST.StatementList) newValue.getCommand().getParent();
                          /*if (parentList.getStatements().size() <= 0 ) {
                              highlightedStatement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
                          }*/
@@ -103,9 +94,12 @@ public class BlocklyController implements ScriptViewListener {
                                      ScriptAST.Cases cases = (ScriptAST.Cases) nextStmt;
                                      for (int j = 0; j < newValue.getParent().getChildren().size(); j++) {
                                          // TODO: tests and assertions
+                                         // Handle implicit cases
                                          ProofNode pChild = newValue.getParent().getChildren().get(j);
                                          if (pChild == newValue) {
-                                             highlightedStatement.set(cases.getCases().get(j));
+                                             if (j < cases.getCases().size()) {
+                                                 highlightedStatement.set(cases.getCases().get(j));
+                                             }
                                              return;
                                          }
                                      }
@@ -132,17 +126,52 @@ public class BlocklyController implements ScriptViewListener {
 
                 Script currentScript = PropertyManager.getInstance().currentProof.get().getProofScript();
 
+                view.update();
+
                 if (currentScript != null) {
-                    if (currentScript.getStatements().size() == 0) {
+                    if (currentScript.getStatements().isEmpty()) {
                         PropertyManager.getInstance().currentProofNode.set(
                                 PropertyManager.getInstance().currentProof.get().getProofRoot()
                         );
                     }
                 }
-
-                view.update();
             }
         }));
+    }
+
+    private void scanProofEnds(ScriptAST.StatementList script) {
+        if (script == null) {
+            return;
+        }
+        ProofNode pn = script.accept(new ProofNodeExtractionVisitor(), null);
+        if (pn != null) {
+            if (pn.isClosed()) {
+                view.setClosedProofEnd(script);
+            }
+        }
+
+        boolean caseOpen = false;
+        boolean casesInList = false;
+        for (ScriptAST.Statement stmt : script.getStatements()) {
+            if (stmt instanceof ScriptAST.Cases) {
+                casesInList = true;
+                ScriptAST.Cases cases = (ScriptAST.Cases) stmt;
+                for (ScriptAST.Case aCase : cases.getCases()) {
+                    System.out.println("Case" + aCase.getLabel().toString());
+                    scanProofEnds(aCase);
+                }
+                ProofNode splitting = cases.accept(new ProofNodeExtractionVisitor(), null).getParent();
+                System.out.println("parent pn has " + splitting.getChildren().size() + " children.");
+                if (splitting.getChildren().size() > cases.getCases().size()) {
+                    caseOpen = true;
+                }
+            }
+        }
+
+        if (casesInList && !caseOpen) {
+            view.hideProofEnd(script);
+        }
+
     }
 
 
@@ -239,11 +268,21 @@ public class BlocklyController implements ScriptViewListener {
     }
 
     @Override
+    public void onViewReloaded() {
+        ProofStatus proofState = PropertyManager.getInstance().currentProofStatus.get();
+        if (proofState == ProofStatus.OPEN || proofState == ProofStatus.CLOSED) {
+            scanProofEnds(PropertyManager.getInstance().currentProof.get().getProofScript());
+        }
+
+        view.highlight(highlightedStatement.get());
+
+    }
+
+    @Override
     public void onASTElemSelected(ScriptAST astElem) {
         highlightedStatement.set(astElem);
-        PropertyManager.getInstance().currentProofNode.set(
-                astElem.accept(new ProofNodeExtractionVisitor(), null)
-        );
+        ProofNode displayNode = astElem.accept(new ProofNodeExtractionVisitor(), null);
+        PropertyManager.getInstance().currentProofNode.set(displayNode);
     }
 
     @Override

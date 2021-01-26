@@ -185,6 +185,7 @@ public final class Interpreter extends DefaultScriptASTVisitor<Void, Void, Scrip
         if (currentNodes.size() != 1) {
             ProofNode node = null;
             if (currentNodes.size() > 0) {
+                // Valentin: Where is this used?
                 node = currentNodes.get(0).getParent();
             }
             throw new ScriptException(

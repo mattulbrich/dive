@@ -19,11 +19,13 @@
     margin-left: 15px;
 }
 
-.closed {
-    background-color: #009335 ;
-    padding: 3px;
-    border: 0px solid #0040ff;
-    border-radius: 5px;
+.closedScript {
+    border-top:15px solid #30a000;
+}
+
+.closedCase {
+    border-top:15px solid #30a000;
+    margin-left: 15px;
 }
 
 .comment {

@@ -1,7 +1,7 @@
 
 function highlight(elemid) {
     const elem = document.getElementById(elemid);
-    if (elem === null || elemid === undefined) {
+    if (elem === null) {
         return;
     }
     elem.style.borderTopWidth = "15px";
@@ -10,7 +10,7 @@ function highlight(elemid) {
 
 function unhighlight(elemid) {
     const elem = document.getElementById(elemid);
-    if (elem === null || elemid === undefined) {
+    if (elem === null) {
         return;
     }
     elem.style.borderTopWidth = "";
@@ -19,6 +19,9 @@ function unhighlight(elemid) {
 
 function hide(elemid) {
     const elem = document.getElementById(elemid);
+    if (elem === null) {
+        return;
+    }
     elem.style.display = "none";
 
 }
@@ -29,9 +32,12 @@ function selectAfterLeaf(elemid) {
 }
 
 function setOpenEnd(elemid) {
-    document.getElementById(elemid).setAttribute("class", "opengoal");
+    const elem = document.getElementById(elemid);
+    elem.style.borderTop = "15px 30a000";
 }
 
-function setClosed(elemid) {
-    document.getElementById(elemid).setAttribute("class", "closed");
+function setStyle(elemid, stylename) {
+    const elem = document.getElementById(elemid);
+    elem.className = stylename;
+
 }

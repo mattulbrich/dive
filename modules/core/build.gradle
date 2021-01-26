@@ -34,6 +34,7 @@ dependencies {
     // jpplib uses slf4j. Unless the following is specified, a nasty error message
     // will occur.
     api group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.21'
+    implementation 'org.junit.jupiter:junit-jupiter:5.4.2'
 
     antlr3 group: 'org.antlr', name: 'antlr', version: '3.5.2'
     api group: 'org.antlr', name: 'antlr-runtime', version: '3.5.2'

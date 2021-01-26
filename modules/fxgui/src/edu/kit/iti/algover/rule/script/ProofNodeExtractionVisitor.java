@@ -7,8 +7,22 @@ import edu.kit.iti.algover.proof.ProofNode;
 
 import java.util.List;
 
+/**
+ * Visitor to get ProofNode from AST Element.
+ *
+ * review: consider to implement as singleton.
+ *
+ * @author Valentin
+ */
 public class ProofNodeExtractionVisitor extends DefaultScriptASTVisitor<Void, ProofNode, IllegalArgumentException> {
 
+    /**
+     * TODO: add documentation
+     * @param statementList
+     * @param listRoot
+     * @return
+     * @throws IllegalArgumentException
+     */
     protected ProofNode getPNforList(ScriptAST.StatementList statementList, ProofNode listRoot) throws IllegalArgumentException {
         List<ScriptAST.Statement> statements = statementList.getStatements();
 

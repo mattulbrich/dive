@@ -99,6 +99,7 @@ public final class ScriptHTML {
         ContainerTag scriptHTMLTag = div(attrs("#proofScript.script"),
                 each(script.getStatements(), this::toTag));
         astElemIDs.put(script, count++);
+        // TODO: (maybe) analyze syntactically (hide if cases holds all leaves)
         scriptHTMLTag.with(div(attrs("#" + getID(script) + ".afterLeaf")));
         return scriptHTMLTag;
     }

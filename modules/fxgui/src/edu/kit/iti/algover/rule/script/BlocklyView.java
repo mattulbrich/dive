@@ -35,6 +35,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
+import java.awt.*;
+
 public class BlocklyView extends VBox {
     private final WebView webView;
     private final WebEngine engine;
@@ -104,10 +106,12 @@ public class BlocklyView extends VBox {
 
                             }, null
                     );
+
+                    listener.onViewReloaded();
                 }
         );
 
-        engine.getLoadWorker().stateProperty().addListener(
+        /*engine.getLoadWorker().stateProperty().addListener(
                 (observable, oldValue, newValue) ->
                 {
                     if (newValue != Worker.State.SUCCEEDED) {
@@ -115,16 +119,16 @@ public class BlocklyView extends VBox {
                     }
                     highlight(listener.getHighlightedElemProperty().get());
                 }
-        );
+        );*/
 
         initView();
         update();
     }
 
-    private void addHTMLElemListeners(Document doc, Integer id, EventListener listener) {
+    private boolean addHTMLElemListeners(Document doc, Integer id, EventListener listener) {
         if (id == null) {
             // TODO: logging
-            return;
+            return false;
         }
         Element el = doc.getElementById(String.valueOf(id));
         // TODO: remove listener ?
@@ -133,10 +137,12 @@ public class BlocklyView extends VBox {
             // See HTML/JavaScript specification for exact description.
             // For HTML documents: true ~ top down, false ~ bottom up
             ((EventTarget) el).addEventListener("click", listener, false);
+            return true;
         } else {
             // TODO: log somewhere (not for user)
             System.out.println("Statement with id " + id + " not found in HTMl Document.");
         }
+        return false;
     }
 
 
@@ -146,6 +152,7 @@ public class BlocklyView extends VBox {
             listener.onInsertCases();
         });
 
+        // TODO: FXML, Editor integration
         HBox.setHgrow(btRunScript, Priority.ALWAYS);
         HBox.setHgrow(btInsertCases, Priority.ALWAYS);
         btRunScript.setPrefWidth(500000);
@@ -175,6 +182,7 @@ public class BlocklyView extends VBox {
 
 
     public void highlight(ScriptAST astElem) {
+        //String hexColor = "#" + Integer.toHexString(color.getRGB()).substring(2);
         Integer elemid = scriptHTML.getID(astElem);
         if (elemid != null) {
             executeJavaScript("highlight(" + elemid + ");");
@@ -186,11 +194,44 @@ public class BlocklyView extends VBox {
         if (elemid != null) {
             executeJavaScript("unhighlight(" + elemid + ");");
         }
+    }
 
+    public void setOpenProofEnd (ScriptAST.StatementList statementList) {
+        Integer elemid = scriptHTML.getID(statementList);
+        if (elemid != null) {
+            executeJavaScript("setOpenEnd(" + elemid + ");");
+        }
+    }
+
+    public void setClosedProofEnd (ScriptAST statementList) {
+        Integer elemid = scriptHTML.getID(statementList);
+        if (elemid != null) {
+            statementList.accept(new DefaultScriptASTVisitor<Void, Void, RuntimeException>() {
+                @Override
+                public Void visitScript(ScriptAST.Script script, Void arg) throws RuntimeException {
+                    executeJavaScript("setStyle(" + elemid + ", " + "\"closedScript\"" + ");");
+                    return null;
+                }
+
+                @Override
+                public Void visitCase(ScriptAST.Case aCase, Void arg) throws RuntimeException {
+                    executeJavaScript("setStyle(" + elemid + ", " + "\"closedCase\"" + ");");
+                    return null;
+                }
+            }, null);
+        }
+    }
+    
+    public void hideProofEnd (ScriptAST statementList) {
+        Integer elemid = scriptHTML.getID(statementList);
+        if (elemid != null) {
+            executeJavaScript("hide(" + elemid + ");");
+        }
     }
 
     private void executeJavaScript(String js) {
         try {
+            System.out.println("trying to execute " + js);
             engine.executeScript(js);
         } catch (JSException jsex) {
             System.out.println("Failed to run javascript code, due to js exception: " + jsex.getMessage());
