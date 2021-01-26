@@ -243,10 +243,8 @@ public class MultiViewSplitPane extends Pane {
             alternateDividerShiftFactor *= (-1);
         }
 
-        // A bit hacky: the divider position is required to change for ChangeListener to be triggered
-        // Very hacky: not resetting it seems to prevent JavaFX repaint bug for the individual nodes.
-        dividers.get(oldPos).setPosition(dividers.get(oldPos).getPosition()
-                +0.01 * alternateDividerShiftFactor);
+        dividers.get(oldPos).setPosition(dividers.get(oldPos).getPosition() + 0.05);
+        dividers.get(oldPos).setPosition(dividers.get(oldPos).getPosition() - 0.05);
 
         unlinkDividerPositions();
     }
@@ -271,6 +269,11 @@ public class MultiViewSplitPane extends Pane {
         linkDividerPositions();
         dividers.get(0).setPosition(pos / this.windowSizeMultiple);
         unlinkDividerPositions();
+    }
+
+    public double getDividerPosition() {
+        ObservableList<SplitPane.Divider> dividers = this.splitPane.getDividers();
+        return dividers.get(0).getPosition() * this.windowSizeMultiple;
     }
 
     /**

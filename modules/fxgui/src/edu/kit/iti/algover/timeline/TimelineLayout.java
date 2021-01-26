@@ -92,7 +92,7 @@ public class TimelineLayout extends HiddenSidesPane {
         this.configureActionHandling();
         // Auxiliary method to set up listener on framePosition property.
         // passed as parameter. May be retrieved from state holding class in the future.
-        configureFramePositionChangeListener(PropertyManager.getInstance().currentlyDisplayedView);
+        configureFramePositionChangeListener();
 
         this.updateFrame(0);
     }
@@ -122,11 +122,10 @@ public class TimelineLayout extends HiddenSidesPane {
      * frame position must be triggered. The listener has to carefully handle this.
      * The {@link MultiViewSplitPane#shiftProperty()} is bound to correspond to the
      * position of the left node in the new frame position.
-     * @param framePosition
-     *          IntegerProperty holding the frame position.
+
      */
-    private void configureFramePositionChangeListener(IntegerProperty framePosition) {
-        framePosition.addListener((observableValue, oldValue, newValue) -> {
+    private void configureFramePositionChangeListener() {
+        PropertyManager.getInstance().currentlyDisplayedView.addListener((observableValue, oldValue, newValue) -> {
             // frame position set to an invalid value for display
             if (newValue.intValue() < 0 || newValue.intValue() >= numViews.get()) {
                 return;
@@ -145,6 +144,8 @@ public class TimelineLayout extends HiddenSidesPane {
 
             currentAnimation.setOnFinished(event -> {
                 viewPane.shiftProperty().bind(viewPane.nodePositionProperty(newValue.intValue()).negate());
+                viewPane.resetDividerPositions(1,0);
+
             });
 
             viewPane.shiftProperty().unbind();
@@ -232,7 +233,7 @@ public class TimelineLayout extends HiddenSidesPane {
      * @return true iff move was possible.
      */
     private boolean moveFrameRight() {
-        if (PropertyManager.getInstance().currentlyDisplayedView.get() >= numViews.get() ){
+        if (PropertyManager.getInstance().currentlyDisplayedView.get() >= numViews.get() - 1){
             return false;
         }
         PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.getInstance().currentlyDisplayedView.get() + 1);
