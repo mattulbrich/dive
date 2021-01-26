@@ -24,10 +24,10 @@ import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
@@ -39,6 +39,18 @@ public class RuleApplicationController extends FxmlController implements Referen
     private SplitPane splitPane;
     @FXML
     private Label termToConsider;
+
+    @FXML
+    private VBox buttonBox;
+
+    @FXML
+    private Button btInsertCases;
+
+    @FXML
+    private Button btReplay;
+
+    @FXML
+    private Button btToggleView;
 
     @FXML
     private RuleGrid ruleGrid;
@@ -136,7 +148,31 @@ public class RuleApplicationController extends FxmlController implements Referen
             addProofRule(rule);
         }
         ruleGrid.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
-        splitPane.getItems().add(0, scriptRepWeb.getView());
+
+        btInsertCases.setOnAction(event -> {
+            System.out.println("trying to insert cases");
+            scriptRepWeb.onInsertCases();
+        });
+
+        btReplay.setOnAction(event -> {
+            scriptRepText.runScript();
+        });
+
+
+        scriptRepText.getView().prefHeightProperty().bind(buttonBox.heightProperty());
+
+        btToggleView.setOnAction(event -> {
+            Node currentView = buttonBox.getChildren().get(1);
+            if (currentView == scriptRepWeb.getView()) {
+                buttonBox.getChildren().set(1, scriptRepText.getView());
+            } else if (currentView == scriptRepText.getView()) {
+                buttonBox.getChildren().set(1, scriptRepWeb.getView());
+            }
+
+        });
+
+        buttonBox.getChildren().add(scriptRepWeb.getView());
+
 
     }
 

@@ -11,6 +11,7 @@ import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.proof.ProofStatus;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
+import javafx.scene.layout.Region;
 
 import java.util.concurrent.ExecutorService;
 
@@ -51,7 +52,7 @@ public class ScriptTextController implements ScriptViewListener {
     }
 
 
-    public Node getView() {
+    public Region getView() {
         return view;
     }
 

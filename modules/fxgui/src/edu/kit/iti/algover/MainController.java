@@ -157,7 +157,12 @@ public class MainController implements RuleApplicationListener {
 
         //ScriptTextController sc = new ScriptTextController(highlightingExecutor, this, lookup);
 
-        this.timelineView = TimelineFactory.testWebviewAlongScriptEditor(browserController,
+       /* this.timelineView = TimelineFactory.testWebviewAlongScriptEditor(browserController,
+                editorController,
+                sequentController,
+                ruleApplicationController);*/
+
+        this.timelineView = TimelineFactory.getDefaultTimeLineLayout(browserController,
                 editorController,
                 sequentController,
                 ruleApplicationController);

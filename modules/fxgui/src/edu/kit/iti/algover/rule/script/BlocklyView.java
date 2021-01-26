@@ -139,17 +139,7 @@ public class BlocklyView extends VBox {
 
 
     private void initView() {
-
-        btInsertCases.setOnAction(event -> {
-            listener.onInsertCases();
-        });
-
-        // TODO: FXML, Editor integration
-        HBox.setHgrow(btRunScript, Priority.ALWAYS);
-        HBox.setHgrow(btInsertCases, Priority.ALWAYS);
-        btRunScript.setPrefWidth(500000);
-        btInsertCases.setPrefWidth(500000);
-        this.getChildren().setAll(new HBox(btRunScript, btInsertCases), this.webView);
+        this.getChildren().setAll(this.webView);
     }
 
     private void showAlert(String message) {

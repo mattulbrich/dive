@@ -6,6 +6,7 @@
 <?import javafx.geometry.Insets?>
 <?import edu.kit.iti.algover.rule.RuleGrid?>
 <?import com.jfoenix.controls.JFXRadioButton?>
+
 <SplitPane
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
@@ -13,10 +14,20 @@
         dividerPositions="0.5"
         fx:id="splitPane">
 
-    <!--
-      Here the RuleApplicationController is going to insert a new VirtualizedScrollPane(new ScriptView(...)),
-      but it can't be done in FXML because of constructor args...
-     -->
+    <VBox fx:id="buttonBox">
+        <HBox>
+            <Button fx:id="btReplay" visible="true" prefWidth="81011" text="Replay"></Button>
+            <Button fx:id="btInsertCases" visible="true" prefWidth="81011" text="InsertCases"></Button>
+            <Button fx:id="btToggleView" visible="true" prefWidth="81011" text="ToggleView"></Button>
+        </HBox>
+
+
+        <!--
+     Here the RuleApplicationController is going to insert a new VirtualizedScrollPane(new ScriptView(...)),
+     but it can't be done in FXML because of constructor args...
+    -->
+
+    </VBox>
 
     <ScrollPane fitToWidth="true">
         <VBox spacing="10">
