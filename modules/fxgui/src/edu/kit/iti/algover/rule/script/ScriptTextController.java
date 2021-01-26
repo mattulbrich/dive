@@ -6,6 +6,7 @@ package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.nuscript.ScriptAST;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.proof.ProofStatus;
 import javafx.beans.property.SimpleObjectProperty;
@@ -24,14 +25,26 @@ public class ScriptTextController implements ScriptViewListener {
     public ScriptTextController(ExecutorService higlightingExecutor) {
         view = new ScriptCodeView(higlightingExecutor, this);
 
+        PropertyManager.getInstance().currentProof.addListener((observable, oldValue, newValue) -> {
+            if (newValue == null) {
+                view.setDisable(true);
+            } else {
+                view.setDisable(false);
+            }
+        });
+
         PropertyManager.getInstance().currentProofStatus.addListener(
                 (observable, oldValue, newValue) -> {
-                    ScriptAST.Script currentScript = PropertyManager.getInstance().currentProof.get().getProofScript();
-                    if (currentScript != null) {
-                        view.clear();
-                        for (ScriptAST.Statement stmt : currentScript.getStatements()) {
-                            view.insertText(view.getText().length(), stmt.toString() +  "\n");
+                    if (PropertyManager.getInstance().currentProof.get() != null) {
+                        ScriptAST.Script currentScript = PropertyManager.getInstance().currentProof.get().getProofScript();
+                        if (currentScript != null) {
+                            view.clear();
+                            for (ScriptAST.Statement stmt : currentScript.getStatements()) {
+                                view.insertText(view.getText().length(), stmt.toString() + "\n");
+                            }
                         }
+                    } else {
+                        view.clear();
                     }
                 });
 
@@ -58,8 +71,6 @@ public class ScriptTextController implements ScriptViewListener {
         // TODO: save and run
         String scriptStr = view.getText();
         PropertyManager.getInstance().currentProof.get().setScriptText(scriptStr);
-
-
         PropertyManager.getInstance().currentProof.get().interpretScript();
 
 

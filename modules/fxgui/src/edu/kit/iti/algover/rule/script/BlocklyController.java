@@ -61,11 +61,15 @@ public class BlocklyController implements ScriptViewListener {
 
         PropertyManager.getInstance().currentProof.addListener(((observable, oldValue, newValue) -> {
             System.out.println("Proof changed");
-            if (newValue.getProofScript() != null) {
-                // TODO: (maybe) select open end
-                highlightedStatement.set(null);
-                view.update();
+            if (newValue != null) {
+                if (newValue.getProofScript() != null) {
+                    // TODO: (maybe) select open end
+                    highlightedStatement.set(null);
+                }
             }
+
+            view.update();
+
         }));
 
         PropertyManager.getInstance().currentProofNode.addListener((observable, oldValue, newValue) ->
@@ -119,7 +123,7 @@ public class BlocklyController implements ScriptViewListener {
         PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
             System.out.println("Proof Status changed to " + newValue);
 
-            if(newValue != null) {
+            if(PropertyManager.getInstance().currentProof.get() != null) {
                 /* TODO: Somehow consider filtering newValue*/
                 /*  If newValue == CHANGED_SCRIPT the proof is rerun (triggered by a different listener)
                     the satus is immediately set to OPEN, CLOSED or FAILING.*/

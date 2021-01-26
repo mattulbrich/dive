@@ -60,6 +60,10 @@ public final class ScriptHTML {
         return astElemIDs.get(astElem);
     }
 
+    public ScriptAST.Script getProofScript() {
+        return proofScript;
+    }
+
     /*
      * read the styles from a resource.
      */

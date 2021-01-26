@@ -67,59 +67,51 @@ public class BlocklyView extends VBox {
                     }
                     Document doc = engine.getDocument();
 
-                    PropertyManager.getInstance().currentProof.get().getProofScript().accept(
-                            new DefaultScriptASTVisitor<Void, Void, RuntimeException>() {
+                    if (scriptHTML.getProofScript() != null) {
+                        scriptHTML.getProofScript().accept(
+                                new DefaultScriptASTVisitor<Void, Void, RuntimeException>() {
 
-                                @Override
-                                protected Void visitDefault(ScriptAST ast, Void arg) throws RuntimeException {
-                                    Integer elemID = scriptHTML.getID(ast);
-                                    addHTMLElemListeners(doc, elemID, evt -> {
-                                        evt.stopPropagation();
-                                        listener.onASTElemSelected(ast);
-                                    });
-                                    return null;
-                                }
-
-                                @Override
-                                protected void visitStatements(ScriptAST.StatementList statementList, Void arg) throws RuntimeException {
-                                    visitDefault(statementList, arg);
-                                    for (ScriptAST.Statement statement : statementList.getStatements()) {
-                                        statement.accept(this, arg);
+                                    @Override
+                                    protected Void visitDefault(ScriptAST ast, Void arg) throws RuntimeException {
+                                        Integer elemID = scriptHTML.getID(ast);
+                                        addHTMLElemListeners(doc, elemID, evt -> {
+                                            evt.stopPropagation();
+                                            listener.onASTElemSelected(ast);
+                                        });
+                                        return null;
                                     }
-                                }
 
-                                @Override
-                                public Void visitCommand(ScriptAST.Command command, Void arg) throws RuntimeException {
-                                    visitDefault(command, arg);
-                                    return null;
-                                }
-
-                                @Override
-                                public Void visitCases(ScriptAST.Cases cases, Void arg) throws RuntimeException {
-                                    visitDefault(cases, arg);
-                                    for (ScriptAST.Case aCase : cases.getCases()) {
-                                        aCase.accept(this, arg);
+                                    @Override
+                                    protected void visitStatements(ScriptAST.StatementList statementList, Void arg) throws RuntimeException {
+                                        visitDefault(statementList, arg);
+                                        for (ScriptAST.Statement statement : statementList.getStatements()) {
+                                            statement.accept(this, arg);
+                                        }
                                     }
-                                    return null;
-                                }
+
+                                    @Override
+                                    public Void visitCommand(ScriptAST.Command command, Void arg) throws RuntimeException {
+                                        visitDefault(command, arg);
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public Void visitCases(ScriptAST.Cases cases, Void arg) throws RuntimeException {
+                                        visitDefault(cases, arg);
+                                        for (ScriptAST.Case aCase : cases.getCases()) {
+                                            aCase.accept(this, arg);
+                                        }
+                                        return null;
+                                    }
 
 
-                            }, null
-                    );
+                                }, null
+                        );
+                    }
 
                     listener.onViewReloaded();
                 }
         );
-
-        /*engine.getLoadWorker().stateProperty().addListener(
-                (observable, oldValue, newValue) ->
-                {
-                    if (newValue != Worker.State.SUCCEEDED) {
-                        return;
-                    }
-                    highlight(listener.getHighlightedElemProperty().get());
-                }
-        );*/
 
         initView();
         update();
@@ -172,8 +164,11 @@ public class BlocklyView extends VBox {
         Proof currentProof = PropertyManager.getInstance().currentProof.get();
         if (currentProof != null) {
             scriptHTML = new ScriptHTML(PropertyManager.getInstance().currentProof.get().getProofScript());
-            engine.loadContent(scriptHTML.getHTML());
+        } else {
+            scriptHTML = new ScriptHTML(null);
         }
+
+        engine.loadContent(scriptHTML.getHTML());
     }
 
     public void reload() {

@@ -26,16 +26,6 @@ function hide(elemid) {
 
 }
 
-function selectAfterLeaf(elemid) {
-    const elem = document.getElementById(elemid);
-    elem.className = "afterLeafSelected";
-}
-
-function setOpenEnd(elemid) {
-    const elem = document.getElementById(elemid);
-    elem.style.borderTop = "15px 30a000";
-}
-
 function setStyle(elemid, stylename) {
     const elem = document.getElementById(elemid);
     elem.className = stylename;
