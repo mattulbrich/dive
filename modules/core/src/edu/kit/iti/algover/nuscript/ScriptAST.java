@@ -8,6 +8,9 @@
 package edu.kit.iti.algover.nuscript;
 
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.util.sealable.Sealable;
+import edu.kit.iti.algover.util.sealable.SealableList;
+import edu.kit.iti.algover.util.sealable.SealedException;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 
@@ -17,6 +20,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * This class is the base class for the abstract syntax tree of the new script parser.
@@ -32,38 +36,56 @@ import java.util.Objects;
  */
 public abstract class ScriptAST {
 
+    /**
+     * an ast can be made an immutable object by setting it sealed.
+     * All children nodes must also be sealed.
+     * @see #seal()
+     * @see #isSealed()
+     */
+    private boolean sealed = false;
+
+    /**
+     * This is used for the {@link edu.kit.iti.algover.util.sealable.Sealable}
+     * instances to check for a sealed ast.
+     */
+    protected final Supplier<Boolean> sealCheck = this::isSealed;
+
     /** The first token of this AST elements */
-    private Token begin;
+    private final Sealable<Token> begin = new Sealable<>(sealCheck);
 
     /** The last token of this AST elements */
-    private Token end;
+    private final Sealable<Token> end = new Sealable<>(sealCheck);
 
     /** The script AST element to which this element belongs.
      * null for instances of {@link Script}. */
-    private ScriptAST parent;
+    private final Sealable<ScriptAST> parent = new Sealable<>(sealCheck);
 
     /**
      * Extract the beginning and end of this AST from a parsing context.
+     * Requires that the ast has not been sealed.
      * @param ctx the non-null rule context to extract from
+     * @throws SealedException if this node has been sealed.
      */
-    public void setRangeFrom(ParserRuleContext ctx) {
-        this.begin = ctx.start;
-        this.end = ctx.stop;
+    public void setRangeFrom(ParserRuleContext ctx) throws SealedException {
+        this.begin.set(ctx.start);
+        this.end.set(ctx.stop);
     }
 
     /**
      * Set the parent node in the AST for this node.
-     * @param parent, only null if this is instance of {@link Script}
+     * Requires that the ast has not been sealed.
+     * @param parent, null only if this is instance of {@link Script}
+     * @throws SealedException if this node has been sealed.
      */
-    public void setParent(ScriptAST parent) {
-        this.parent = parent;
+    public void setParent(ScriptAST parent) throws SealedException {
+        this.parent.set(parent);
     }
 
     /** Get the script AST element to which this element belongs.
      * @return null only for instances of {@link Script}
      */
     public ScriptAST getParent() {
-        return parent;
+        return parent.get();
     }
 
     /**
@@ -71,7 +93,7 @@ public abstract class ScriptAST {
      * @return the non-null first token
      */
     public Token getBeginToken() {
-        return begin;
+        return begin.get();
     }
 
     /**
@@ -79,7 +101,7 @@ public abstract class ScriptAST {
      * @return the non-null first token
      */
     public Token getEndToken() {
-        return end;
+        return end.get();
     }
 
     @Override
@@ -94,43 +116,89 @@ public abstract class ScriptAST {
         }
     }
 
+    public void seal() {
+        this.sealed = true;
+        if(this.parent.isSet() && !this.parent.get().isSealed()) {
+            this.parent.get().seal();
+        }
+    }
+
+    public boolean isSealed() {
+        return this.sealed;
+    }
+
     public abstract <A, R, Ex extends Exception>
         R accept(ScriptASTVisitor<A, R, Ex> visitor, A arg) throws Ex;
-
 
     /**
      * This abstract class has the functionality of retrieving a list of statements.
      */
     public static abstract class StatementList extends ScriptAST {
-        /**
-         * Return the list of statement contained in this AST element
-         * @return the internal list of statements; do not modify
-         */
-        public abstract List<Statement> getStatements();
 
-        public abstract void addStatement(Statement stmt);
+        /** The sequence of statements in this element */
+        private SealableList<Statement> statements =
+                new SealableList<>(sealCheck, new LinkedList<>());
+
+        /**
+         * Add a statement to the end of the statement list of this element.
+         * Requires that this not be sealed.
+         *
+         * @param stmt non-null statement to add
+         * @throws SealedException if the ast has been sealed.
+         */
+        public void addStatement(Statement stmt) {
+            statements.add(stmt);
+        }
+
+        /**
+         * Return the list of statement contained in this AST element. If the
+         * ast has been sealed, this is an unmodifiable list of sealed ast
+         * elements.
+         *
+         * You may modify the list if this ast node has not been sealed.
+         *
+         * @return the list of statements of this element.
+         */
+        public List<Statement> getStatements() {
+            return statements;
+        }
+
+        /**
+         * Add a collection of statements to the end of the statement list of
+         * this element. Requires that this not be sealed.
+         *
+         * @param stmts a non-collection of non-null statements to add
+         * @throws SealedException if the ast has been sealed.
+         */
+        public void addStatements(Collection<? extends Statement> stmts) {
+            statements.addAll(stmts);
+        }
+
+        /**
+         * Replace the statements of this element by the given collection of
+         * statements. Requires that this not be sealed.
+         *
+         * @param stmts a non-collection of non-null statements to replace with.
+         * @throws SealedException if the ast has been sealed.
+         */
+        public void setStatements(Collection<? extends Statement> stmts) {
+            statements.clear();
+            statements.addAll(stmts);
+        }
+
+        @Override
+        public void seal() {
+            super.seal();
+            for (Statement statement : statements) {
+                statement.seal();
+            }
+        }
     }
 
     /**
      * This class captures an entire script -- which is essentially a list of statements.
      */
     public static final class Script extends StatementList {
-
-        /** The sequence of statements in the script */
-        private final List<Statement> statements = new LinkedList<>();
-
-        public List<Statement> getStatements() {
-            return statements;
-        }
-
-        /**
-         * Ad a single statement to the list of statements.
-         *
-         * @param stmt, a non-null statement
-         */
-        public void addStatement(Statement stmt) {
-            statements.add(stmt);
-        }
 
         public <A, R, Ex extends Exception> R accept(ScriptASTVisitor<A, R, Ex> visitor, A arg) throws Ex {
             return visitor.visitScript(this, arg);
@@ -150,22 +218,31 @@ public abstract class ScriptAST {
     public static final class Command extends Statement {
 
         /** The actual command name token */
-        private Token command;
+        private final Sealable<Token> command = new Sealable<>(sealCheck);
 
-        private ByClause byClause;
+        private final Sealable<ByClause> byClause = new Sealable<>(sealCheck);
 
         /** The list of all parameters to the command */
-        private final List<Parameter> parameters = new ArrayList<>();
+        private final SealableList<Parameter> parameters =
+                new SealableList<>(sealCheck, new ArrayList<>());
 
-        /** A pointer to the proof node to which this command is applied */
-        private ProofNode proofNode;
+        /**
+         * A pointer to the proof node to which this command is applied
+         */
+        private final Sealable<ProofNode> proofNode = new Sealable<>(sealCheck);
 
+        /**
+         * Set the command token for this command.
+         * Requires that the ast has not been sealed.
+         * @param command non-null token to set for the command
+         * @throws SealedException if this node has been sealed.
+         */
         public void setCommand(Token command) {
-            this.command = command;
+            this.command.set(command);
         }
 
         public Token getCommand() {
-            return command;
+            return command.get();
         }
 
         public void addParameter(Parameter p) {
@@ -186,19 +263,30 @@ public abstract class ScriptAST {
          * @return a pointer into the proof to which this AST refers.
          */
         public ProofNode getProofNode() {
-            return proofNode;
+            return proofNode.get();
         }
 
         public void setProofNode(ProofNode proofNode) {
-            this.proofNode = proofNode;
+            this.proofNode.set(proofNode);
         }
 
         public ByClause getByClause() {
-            return byClause;
+            return byClause.get();
         }
 
         public void setByClause(ByClause byClause) {
-            this.byClause = byClause;
+            this.byClause.set(byClause);
+        }
+
+        @Override
+        public void seal() {
+            super.seal();
+            if(byClause.isSet()) {
+                byClause.get().seal();
+            }
+            for (Parameter parameter : parameters) {
+                parameter.seal();
+            }
         }
     }
 
@@ -209,27 +297,27 @@ public abstract class ScriptAST {
     public static final class Parameter extends ScriptAST {
 
         /** The name of the parameter. This may be null if ommitted in the script! */
-        private Token name;
+        private final Sealable<Token> name = new Sealable<>(sealCheck);
 
         /** The value assigned to the parameter. Not null. The
          * type of the token may be divers.
          */
-        private Token value;
+        private final Sealable<Token> value = new Sealable<>(sealCheck);
 
         public void setName(Token name) {
-            this.name = name;
+            this.name.set(name);
         }
 
         public Token getName() {
-            return name;
+            return name.get();
         }
 
         public void setValue(Token value) {
-            this.value = value;
+            this.value.set(value);
         }
 
         public Token getValue() {
-            return value;
+            return value.get();
         }
 
         @Override
@@ -244,7 +332,8 @@ public abstract class ScriptAST {
      * of a collection of {@link Case} objects.
      */
     public static final class Cases extends Statement {
-        private final List<Case> cases = new LinkedList<>();
+        private final SealableList<Case> cases =
+                new SealableList<>(sealCheck, new LinkedList<>());
 
         public void addCase(Case cas) {
             cases.add(cas);
@@ -258,6 +347,14 @@ public abstract class ScriptAST {
         public <A, R, Ex extends Exception> R accept(ScriptASTVisitor<A, R, Ex> visitor, A arg) throws Ex {
             return  visitor.visitCases(this, arg);
         }
+
+        @Override
+        public void seal() {
+            super.seal();
+            for (Case aCase : cases) {
+                aCase.seal();
+            }
+        }
     }
 
     /**
@@ -266,38 +363,17 @@ public abstract class ScriptAST {
      */
     public static final class Case extends StatementList {
         /** The label of the case of type STRING_LITERAL */
-        private Token label;
-
-        /** The list of statements of this case */
-        private final List<Statement> statements = new LinkedList<>();
+        private final Sealable<Token> label = new Sealable<>(sealCheck);
 
         /** The node to which the head of the case points */
-        private ProofNode proofNode;
+        private final Sealable<ProofNode> proofNode = new Sealable<>(sealCheck);
 
         public void setLabel(Token label) {
-            this.label = label;
+            this.label.set(label);
         }
 
         public Token getLabel() {
-            return label;
-        }
-
-        public void addStatement(Statement stmt) {
-            statements.add(stmt);
-        }
-
-        public void addStatements(Collection<? extends Statement> stmts) {
-            statements.addAll(stmts);
-        }
-
-
-        public void setStatements(Collection<? extends Statement> stmts) {
-            statements.clear();
-            statements.addAll(stmts);
-        }
-
-        public List<Statement> getStatements() {
-            return statements;
+            return label.get();
         }
 
         @Override
@@ -306,11 +382,11 @@ public abstract class ScriptAST {
         }
 
         public void setProofNode(ProofNode node) {
-            this.proofNode = node;
+            this.proofNode.set(node);
         }
 
         public ProofNode getProofNode() {
-            return proofNode;
+            return proofNode.get();
         }
     }
 
@@ -320,43 +396,27 @@ public abstract class ScriptAST {
      */
     public static final class ByClause extends StatementList {
 
-        /** The list of statements of this clause */
-        private final List<Statement> statements = new LinkedList<>();
-
         /** If there is a '{', let's remember that for highlighting. */
-        private Token openingBrace = null;
+        private final Sealable<Token> openingBrace = new Sealable<>(sealCheck);
 
         /** The node to which the head of the case points */
-        private ProofNode proofNode;
-
-        public void addStatement(Statement stmt) {
-            statements.add(stmt);
-        }
-
-        public void addStatements(Collection<? extends Statement> stmts) {
-            statements.addAll(stmts);
-        }
+        private final Sealable<ProofNode> proofNode = new Sealable<>(sealCheck);
 
         @Override
         public <A, R, Ex extends Exception> R accept(ScriptASTVisitor<A, R, Ex> visitor, A arg) throws Ex {
             return visitor.visitByClause(this, arg);
         }
 
-
-        public List<Statement> getStatements() {
-            return statements;
-        }
-
         public Token getOpeningBrace() {
-            return openingBrace;
+            return openingBrace.get();
         }
 
         public void setOpeningBrace(Token openingBrace) {
-            this.openingBrace = openingBrace;
+            this.openingBrace.set(openingBrace);
         }
 
         public ProofNode getProofNode() {
-            return proofNode;
+            return proofNode.get();
         }
     }
 
