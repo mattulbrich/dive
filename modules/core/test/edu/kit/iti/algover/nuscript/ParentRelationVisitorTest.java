@@ -22,9 +22,10 @@ public class ParentRelationVisitorTest {
     public void testParentRelation() throws Exception {
         Script script = Scripts.parseScript(testScript);
         ParentRelationVisitor.setParentRelation(script);
+        script.accept(new ParentCheck(), null);
     }
 
-    private class ParentCheck implements ScriptASTVisitor<ScriptAST, Void, RuntimeException> {
+    private static class ParentCheck implements ScriptASTVisitor<ScriptAST, Void, RuntimeException> {
 
         @Override
         public Void visitScript(Script script, ScriptAST arg) throws RuntimeException {
@@ -41,7 +42,7 @@ public class ParentRelationVisitorTest {
             for (Parameter parameter : command.getParameters()) {
                 parameter.accept(this, command);
             }
-            if(command.getCommand() != null) {
+            if(command.getByClause() != null) {
                 command.getByClause().accept(this, command);
             }
             return null;
