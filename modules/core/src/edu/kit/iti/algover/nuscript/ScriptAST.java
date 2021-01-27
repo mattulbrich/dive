@@ -23,16 +23,15 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * This class is the base class for the abstract syntax tree of the new script parser.
+ * This class is the base class for the abstract syntax tree of the new script
+ * parser.
  *
- * There are: entire scripts, commands, parameters cases-statements, a single case,
+ * Objects of this class are in
+ *
+ * There are: entire scripts, commands, parameters cases-statements, a single
+ * case,
  *
  * @author Mattias Ulbrich
- *
- * remark from Valentin Springsklee: Maybe introduce common super type only for Script and Case,
- * (which is again subtype of ScriptAST). Something like Container. Should define a list of
- * statements.
- *
  */
 public abstract class ScriptAST {
 
@@ -74,14 +73,16 @@ public abstract class ScriptAST {
     /**
      * Set the parent node in the AST for this node.
      * Requires that the ast has not been sealed.
-     * @param parent, null only if this is instance of {@link Script}
+     *
+     * @param parent null only if this is instance of {@link Script}
      * @throws SealedException if this node has been sealed.
      */
     public void setParent(ScriptAST parent) throws SealedException {
         this.parent.set(parent);
     }
 
-    /** Get the script AST element to which this element belongs.
+    /**
+     * Get the script AST element to which this element belongs.
      * @return null only for instances of {@link Script}
      */
     public ScriptAST getParent() {
@@ -105,7 +106,7 @@ public abstract class ScriptAST {
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         try {
             StringBuilder sb = new StringBuilder();
             this.accept(new PrintVisitor(sb), 0);
@@ -116,13 +117,23 @@ public abstract class ScriptAST {
         }
     }
 
+    /**
+     * Seal this ScriptAST and, transitively, all its children.
+     * Once sealed, the ast cannot be modified any more.
+     * The method may be called more than once.
+     *
+     * Note: This method does not seal the parent node to which it points!
+     */
     public void seal() {
         this.sealed = true;
-        if(this.parent.isSet() && !this.parent.get().isSealed()) {
-            this.parent.get().seal();
-        }
     }
 
+    /**
+     * Find out if this object has  been sealed
+     * Once this method returns true, all subsequent calls will return true.
+     *
+     * @return true iff sealed
+     */
     public boolean isSealed() {
         return this.sealed;
     }
@@ -131,9 +142,27 @@ public abstract class ScriptAST {
         R accept(ScriptASTVisitor<A, R, Ex> visitor, A arg) throws Ex;
 
     /**
+     * Obtain a fresh modifiable copy of this AST. It will be a deep tree copy
+     * (but tokens and proof nodes are not cloned).
+     *
+     * This method returns a {@link ScriptAST} object. If you want to avoid
+     * casts to a more detailed subtype, consider invoking:
+     * <pre>
+     *     UnsealedCopyVisitor.INSTANCE.visitScript(script, null);
+     * </pre>
+     * which returns a {@link Script} object, similarly for other classes.
+     *
+     * @return a freshly created, not sealed script ast of the same class as
+     * this object.
+     */
+    public ScriptAST mkUnsealedCopy() {
+        return accept(UnsealedCopyVisitor.INSTANCE, getParent());
+    }
+
+    /**
      * This abstract class has the functionality of retrieving a list of statements.
      */
-    public static abstract class StatementList extends ScriptAST {
+    public abstract static class StatementList extends ScriptAST {
 
         /** The sequence of statements in this element */
         private SealableList<Statement> statements =
