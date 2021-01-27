@@ -158,10 +158,10 @@ public class PropertyManager {
         // TODO: review Proof and maybe use beans/fx properties.
         currentProof.addListener(((observable, oldValue, newValue) -> {
             if (oldValue != null) {
-                oldValue.proofStatusObservableValue().removeObserver(proofStatusSyncer);
+                oldValue.removeProofStatusListener(proofStatusSyncer);
             }
             if (newValue != null) {
-                newValue.proofStatusObservableValue().addObserver(proofStatusSyncer);
+                newValue.addProofStatusListener(proofStatusSyncer);
                 newValue.interpretScript();
             }
         }));

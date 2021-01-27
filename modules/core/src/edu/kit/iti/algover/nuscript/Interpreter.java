@@ -58,7 +58,7 @@ public final class Interpreter extends DefaultScriptASTVisitor<Void, Void, Scrip
     /** Used for debugging */
     private static final boolean VERBOSE = false;
 
-    /** The set of avaiable rules for this particular proof */
+    /** The set of available rules for this particular proof */
     private final Map<String, ProofRule> knownRules;
 
     /** The freshly created proof root */

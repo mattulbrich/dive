@@ -39,14 +39,12 @@ public class ProofNode {
 
     /**
      * Pointer to command that produced this node.
-     * Null if root
-     *
-     * Can be set after construction.
+     * null if root.
      */
     private final @Nullable Command command;
 
     /**
-     * Pointer to children; mutable
+     * Pointer to children; mutable list
      */
     private @Nullable List<ProofNode> children;
 
