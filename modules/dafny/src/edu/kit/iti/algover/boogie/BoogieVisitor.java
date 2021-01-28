@@ -331,6 +331,8 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
 
     private List<String> axioms = new ArrayList<>();
 
+    private int suffix = -1;
+
     private @NonNull Function<Term, Term> triggerFunction = EMPTY_TRIGGER;
 
     /*
@@ -385,6 +387,10 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
             args = "(" + Util.commatize(Util.map(fs.getArgumentSorts(), BoogieVisitor::visitSort)) + ")";
         }
 
+        if (suffix != -1) {
+            name = name + "_" + suffix;
+        }
+
         boolean added = declarations.add(
                 String.format("%s %s%s : %s;",
                         type, name, args,
@@ -393,7 +399,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
         // is indeed a new symbol
         if (added) {
             if(fs.getArity() == 0) {
-                axioms.add(String.format("axiom $Is(%s, %s);",
+                axioms.add(String.format("$Is(%s, %s)",
                         name, typeConstant(fs.getResultSort())));
             } else {
                 StringBuilder quants = new StringBuilder();
@@ -404,7 +410,7 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
                     arglist.add("v" + i);
                     i++;
                 }
-                axioms.add(String.format("axiom %s $Is(%s(%s), %s) %s;",
+                axioms.add(String.format("%s $Is(%s(%s), %s) %s",
                         quants, name, Util.commatize(arglist),
                         typeConstant(fs.getResultSort()),
                         Util.duplicate(")", i)));
@@ -543,4 +549,9 @@ public class BoogieVisitor extends DefaultTermVisitor<Void, String, NoExceptions
             this.triggerFunction = triggerFunction;
         }
     }
+
+    public void setSuffix(int suffix) {
+        this.suffix = suffix;
+    }
+
 }

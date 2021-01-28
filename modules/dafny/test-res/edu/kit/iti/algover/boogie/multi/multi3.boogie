@@ -1,0 +1,47 @@
+### Comment
+  With a function symbol and its definition now
+
+### project
+
+function f(a: int) : int { 0 }
+
+### decls1
+x : int
+### sequent1
+
+x == 0 |- x == f(5)
+
+### decls2
+x : int
+### sequent2
+
+x == 0 |- x == f(7)
+
+### translation
+
+const _$heap_0 : Heap;
+const _x_0 : int;
+function f_$$f_0(Heap, int) : int;
+procedure Sequent_0()
+  ensures false;
+{
+  assume $Is(_x_0, TInt);
+  assume (forall v0: Heap :: (forall v1: int ::  $Is(f_$$f_0(v0, v1), TInt) ));
+  assume $Is(_$heap_0, THeap);
+  assume (forall var_a:int, var_heap:Heap :: {f_$$f_0(var_heap, var_a)} (f_$$f_0(var_heap, var_a) == 0));
+  assume (_x_0 == 0);
+  assume !((_x_0 == f_$$f_0(_$heap_0, 5)));
+}
+const _$heap_1 : Heap;
+const _x_1 : int;
+function f_$$f_1(Heap, int) : int;
+procedure Sequent_1()
+  ensures false;
+{
+  assume $Is(_x_1, TInt);
+  assume (forall v0: Heap :: (forall v1: int ::  $Is(f_$$f_1(v0, v1), TInt) ));
+  assume $Is(_$heap_1, THeap);
+  assume (forall var_a:int, var_heap:Heap :: {f_$$f_1(var_heap, var_a)} (f_$$f_1(var_heap, var_a) == 0));
+  assume (_x_1 == 0);
+  assume !((_x_1 == f_$$f_1(_$heap_1, 7)));
+}

@@ -1,0 +1,19 @@
+### Comment
+  For a single entry this works also.
+
+### decls1
+x : int
+### sequent1
+
+x > 1 |- x > 0
+
+### translation
+
+const _x : int;
+procedure Sequent()
+  ensures false;
+{
+  assume $Is(_x, TInt);
+  assume (_x > 1);
+  assume !((_x > 0));
+}

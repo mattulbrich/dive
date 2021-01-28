@@ -1,0 +1,30 @@
+### decls1
+x : int
+### sequent1
+
+x > 1 |- x > 0
+
+### decls2
+x : bool
+### sequent2
+
+x |- x
+
+### translation
+
+const _x_0 : int;
+procedure Sequent_0()
+  ensures false;
+{
+  assume $Is(_x_0, TInt);
+  assume (_x_0 > 1);
+  assume !((_x_0 > 0));
+}
+const _x_1 : bool;
+procedure Sequent_1()
+  ensures false;
+{
+  assume $Is(_x_1, TBool);
+  assume _x_1;
+  assume !(_x_1);
+}

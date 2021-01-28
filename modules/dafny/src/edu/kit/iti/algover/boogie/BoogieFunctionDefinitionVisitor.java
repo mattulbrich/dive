@@ -140,7 +140,7 @@ public class BoogieFunctionDefinitionVisitor extends ReplacementVisitor<Void> {
                     t == equality ? t.getTerm(0) :
                             oldTrigFunc != null ? oldTrigFunc.apply(t) : null);
 
-            visitor.getAxioms().add("axiom " + axiom.accept(visitor, null) + ";");
+            visitor.getAxioms().add(axiom.accept(visitor, null));
         }
         visitor.setTriggerFunction(oldTrigFunc);
 
@@ -164,7 +164,7 @@ public class BoogieFunctionDefinitionVisitor extends ReplacementVisitor<Void> {
             visitor.setTriggerFunction(t ->
                     t == equality ? t.getTerm(0) :
                             oldTrigFunc != null ? oldTrigFunc.apply(t) : null);
-            visitor.getAxioms().add("axiom " + axiom.accept(visitor, null) + ";");
+            visitor.getAxioms().add(axiom.accept(visitor, null) + ";");
         }
         visitor.setTriggerFunction(oldTrigFunc);
     }

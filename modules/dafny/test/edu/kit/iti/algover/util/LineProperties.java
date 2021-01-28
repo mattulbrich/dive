@@ -84,4 +84,8 @@ public class LineProperties {
         }
         return Arrays.asList(str.split("\n"));
     }
+
+    public boolean containsKey(String key) {
+        return map.containsKey(key);
+    }
 }

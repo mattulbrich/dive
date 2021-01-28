@@ -44,14 +44,14 @@ public class BoogieProcess {
     /**
      * If true, all produced temporary .bpl files are kept.
      */
-    public static final boolean KEEP_BPL =
-            Boolean.getBoolean("edu.kit.iti.algover.keepBPL");
+    public static final boolean KEEP_BPL = true;
+//            Boolean.getBoolean("edu.kit.iti.algover.keepBPL");
 
     /**
      * If true, all produced temporary .bpl files are kept.
      */
-    public static final boolean VERBOSE_BOOGIE =
-            Boolean.getBoolean("edu.kit.iti.algover.verboseBPL");
+    public static final boolean VERBOSE_BOOGIE = true;
+//            Boolean.getBoolean("edu.kit.iti.algover.verboseBPL");
 
     /**
      * The collection of sequent translations
@@ -59,22 +59,35 @@ public class BoogieProcess {
     private final List<BoogieTranslation> translations;
 
     /**
-     * Instantiate a new boogie connection for a single sequent
+     * Instantiate a new boogie connection for a single sequent.
      *
      * @param project the project for which to translate a sequent.
      * @param table the table containing all symbols occurring on the sequent
-     * @param sequent the logical encoding of the problem to solve
+     * @param proofNode the proof node of the problem to solve
      */
     public BoogieProcess(@NonNull Project project, SymbolTable table, ProofNode proofNode) {
         this(project, table, List.of(proofNode));
     }
 
+    /**
+     * Instantiate a new boogie connection for a list of sequents.
+     *
+     * @param project the project for which to translate a sequent.
+     * @param table the table containing all symbols occurring on the sequent
+     * @param proofNodes the list of proof nodes of the problem to solve
+     */
     public BoogieProcess(@NonNull Project project, SymbolTable table, List<ProofNode> proofNodes) {
         this.translations = new ArrayList<>();
+        int suffix = 0;
+        boolean multiProcess = proofNodes.size() > 1;
         for (ProofNode pnode : proofNodes) {
             BoogieTranslation translation = new BoogieTranslation(project);
             translation.setProofNode(pnode);
             translation.setSymbolTable(table);
+            if (multiProcess) {
+                translation.setSuffix(suffix);
+                suffix++;
+            }
             translations.add(translation);
         }
     }
@@ -125,7 +138,8 @@ public class BoogieProcess {
         }
     }
 
-    private Process buildProcess(Path tmpFile) throws IOException {
+    /* can be used in testing, too. Hence, package visible */
+    static Process buildProcess(Path tmpFile) throws IOException {
         ProcessBuilder pb;
         if(System.getProperty("os.name").toLowerCase().contains("windows")) {
             pb = new ProcessBuilder("cmd", "/c", COMMAND + " " + tmpFile.toString());
@@ -166,11 +180,11 @@ public class BoogieProcess {
      * @throws TermBuildException if obligation creation is broken
      */
     public String getBoogieCode() throws TermBuildException {
-        Collection<String> elements = new LinkedHashSet<>();
+        Collection<String> elements = new ArrayList<>();
         for (BoogieTranslation translation : translations) {
             elements.addAll(translation.getObligation());
         }
-        String boogieCode = Util.join(elements, "\n\n");
+        String boogieCode = Util.join(elements, "\n");
         return boogieCode;
     }
 

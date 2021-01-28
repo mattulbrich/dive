@@ -44,12 +44,14 @@ public class BoogieTranslation {
      * the boogie transcript before the obligation.
      */
     public final static String PRELUDE = loadPrelude();
+    public final static int PRELUDE_LINE_COUNT = PRELUDE.split("\n").length + 1;
 
     private final Project project;
     private ProofNode proofNode;
     private SymbolTable symbolTable;
     private @Nullable List<String> obligation;
     private boolean verified;
+    private int suffix = -1;
 
     public BoogieTranslation(Project project) {
         this.project = project;
@@ -79,6 +81,7 @@ public class BoogieTranslation {
         BoogieVisitor v = new BoogieVisitor();
         BoogieFunctionDefinitionVisitor fdv = new BoogieFunctionDefinitionVisitor();
 
+        v.setSuffix(suffix);
         v.addClassDeclarations(project);
 
         for (ProofFormula formula : proofNode.getSequent().getAntecedent()) {
@@ -105,15 +108,24 @@ public class BoogieTranslation {
 
         List<String> result = new ArrayList<>();
         result.addAll(v.getDeclarations());
-        result.addAll(v.getAxioms());
-
+        result.add("");
         StringBuilder sb = new StringBuilder();
-        sb.append("procedure Sequent()\n  ensures false;\n{\n");
-        for (String clause : clauses) {
-            sb.append("  assume " + clause + ";\n");
+        sb.append("procedure Sequent");
+        if (suffix != -1) {
+            sb.append("_" + suffix);
         }
-        sb.append("}");
+        sb.append("()");
         result.add(sb.toString());
+        result.add("  ensures false;");
+        result.add("{");
+        for (String axiom : v.getAxioms()) {
+            result.add("  assume " + axiom + ";");
+        }
+        for (String clause : clauses) {
+            result.add("  assume " + clause + ";");
+        }
+        result.add("}");
+        result.add("");
 
         return result;
     }
@@ -145,6 +157,10 @@ public class BoogieTranslation {
 
     public void setProofNode(ProofNode proofNode) {
         this.proofNode = proofNode;
+    }
+
+    public void setSuffix(int suffix) {
+        this.suffix = suffix;
     }
 
     public void setVerified(boolean b) {
