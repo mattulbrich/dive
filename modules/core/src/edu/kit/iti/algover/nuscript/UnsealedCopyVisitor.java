@@ -13,11 +13,12 @@ public class UnsealedCopyVisitor extends DefaultScriptASTVisitor<ScriptAST, Scri
 
     public static final UnsealedCopyVisitor INSTANCE = new UnsealedCopyVisitor();
 
+
     @Override
     public Script visitScript(Script script, ScriptAST arg) throws NoExceptions {
         Script ret = new Script();
         for (Statement statement : script.getStatements()) {
-            ret.addStatement((Statement)statement.accept(this, arg));
+            ret.addStatement((Statement)statement.accept(this, ret));
         }
         ret.setParent(arg);
         return ret;
@@ -47,6 +48,9 @@ public class UnsealedCopyVisitor extends DefaultScriptASTVisitor<ScriptAST, Scri
 
     @Override
     public ByClause visitByClause(ByClause byClause, ScriptAST arg) throws NoExceptions {
+        if (byClause == null) {
+            return null;
+        }
         ByClause ret = new ByClause();
         ret.setOpeningBrace(byClause.getOpeningBrace());
         for (Statement statement : byClause.getStatements()) {
@@ -59,7 +63,7 @@ public class UnsealedCopyVisitor extends DefaultScriptASTVisitor<ScriptAST, Scri
     @Override
     public Case visitCase(Case aCase, ScriptAST arg) throws NoExceptions {
         Case ret = new Case();
-        aCase.setLabel(aCase.getLabel());
+        ret.setLabel(aCase.getLabel());
         for (Statement statement : aCase.getStatements()) {
             ret.addStatement((Statement)statement.accept(this, ret));
         }
@@ -74,6 +78,7 @@ public class UnsealedCopyVisitor extends DefaultScriptASTVisitor<ScriptAST, Scri
         for (Case aCase : cases.getCases()) {
             ret.addCase(visitCase(aCase, ret));
         }
+        ret.setParent(arg);
         return ret;
     }
 }

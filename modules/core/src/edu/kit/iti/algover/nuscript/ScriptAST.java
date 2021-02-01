@@ -176,6 +176,7 @@ public abstract class ScriptAST {
          * @throws SealedException if the ast has been sealed.
          */
         public void addStatement(Statement stmt) {
+            // Valentin: Consider setting parent relationship here
             statements.add(stmt);
         }
 
