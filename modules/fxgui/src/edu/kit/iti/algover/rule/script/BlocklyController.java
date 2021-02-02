@@ -143,7 +143,7 @@ public class BlocklyController implements ScriptViewListener {
         if (script == null) {
             return;
         }
-        ProofNode pn = script.accept(new ProofNodeExtractionVisitor(), null);
+        ProofNode pn = script.accept(ProofNodeExtractionVisitor.INSTANCE, null);
         if (pn != null) {
             if (pn.isClosed()) {
                 view.setClosedProofEnd(script);
@@ -160,7 +160,7 @@ public class BlocklyController implements ScriptViewListener {
                     System.out.println("Case" + aCase.getLabel().toString());
                     scanProofEnds(aCase);
                 }
-                ProofNode splitting = cases.accept(new ProofNodeExtractionVisitor(), null).getParent();
+                ProofNode splitting = cases.accept(ProofNodeExtractionVisitor.INSTANCE, null).getParent();
                 System.out.println("parent pn has " + splitting.getChildren().size() + " children.");
                 if (splitting.getChildren().size() > cases.getCases().size()) {
                     caseOpen = true;
@@ -182,19 +182,22 @@ public class BlocklyController implements ScriptViewListener {
 
     /**
      * Insert AST to position of display
-     * @param
-     * @return
+     * @param app
+     * @param ruleScript parsed app
+     * Parameters redundant
      */
     public void insertAtCurrentPosition(ProofRuleApplication app, ScriptAST.Script ruleScript) {
         // introduced for readabilty
-        ProofNode selectedPN = PropertyManager.getInstance().currentProofNode.get();
         Script currentProofScript = PropertyManager.getInstance().currentProof.get().getProofScript();
 
         if (highlightedStatement.get() == null) {
             return;
         }
 
-        Script updatedScript = ScriptASTUtil.insertStatementAfter(currentProofScript, ruleScript.getStatements().get(0),
+        // TODO: create from ProofRuleApplication, also look at RuleApplicationController for that.
+        ScriptAST.Statement newStatement = ruleScript.getStatements().get(0);
+
+        Script updatedScript = ScriptASTUtil.insertStatementAfter(currentProofScript, newStatement,
                highlightedStatement.getValue());
 
         PropertyManager.getInstance().currentProof.get().setScriptAST(updatedScript);
@@ -242,7 +245,7 @@ public class BlocklyController implements ScriptViewListener {
     @Override
     public void onASTElemSelected(ScriptAST astElem) {
         highlightedStatement.set(astElem);
-        ProofNode displayNode = astElem.accept(new ProofNodeExtractionVisitor(), null);
+        ProofNode displayNode = astElem.accept(ProofNodeExtractionVisitor.INSTANCE, null);
         PropertyManager.getInstance().currentProofNode.set(displayNode);
     }
 

@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 /**
  * Utility class for Creating new ScriptASTs. Used for inserting a new Statement
  * into a given ScriptAST.Script
- * Could and probabily will be extended to insert any statement after a given statement.
  *
  * @author Valentin Springsklee
  *
@@ -28,8 +27,10 @@ public class ScriptASTUtil {
         throw new Error();
     }
 
-
     public static Script insertStatementAfter(Script script, Statement newStatement, ScriptAST referenceASTElem) {
+        // Maybe implement InsertAfterStatementVisitor class, extends
+        // DefaultScriptASTVisitor<Triple<Statement, ScriptAST, ScriptAST>, ScriptAST, SomeException>
+        // pass new Triple<>(newStatement, referenceStatememnt, parentAST) a arg
         ScriptAST updated = script.accept(new UnsealedCopyVisitor() {
 
             protected void visitStatements(ScriptAST.StatementList old,
@@ -132,7 +133,7 @@ public class ScriptASTUtil {
         for(ProofNode p : pn.getChildren()) {
             boolean found = false;
             for(ScriptAST.Case caze : cases) {
-                //apparently some guards are string literals and some are MathcExpressions...
+                // apparently some guards are string literals and some are MathcExpressions...
                 String caseString = Util.stripQuotes(caze.getLabel().getText());
                 if (caseString.equals(p.getLabel())) {
                     List<ScriptAST.Statement> statements = insertCasesForStatement(p, caze.getStatements());

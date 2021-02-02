@@ -16,6 +16,8 @@ import java.util.List;
  */
 public class ProofNodeExtractionVisitor extends DefaultScriptASTVisitor<Void, ProofNode, IllegalArgumentException> {
 
+    public static final ProofNodeExtractionVisitor INSTANCE = new ProofNodeExtractionVisitor();
+
     /**
      * TODO: add documentation
      * @param statementList
