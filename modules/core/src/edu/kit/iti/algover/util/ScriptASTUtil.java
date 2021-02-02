@@ -30,7 +30,7 @@ public class ScriptASTUtil {
     public static Script insertStatementAfter(Script script, Statement newStatement, ScriptAST referenceASTElem) {
         // Maybe implement InsertAfterStatementVisitor class, extends
         // DefaultScriptASTVisitor<Triple<Statement, ScriptAST, ScriptAST>, ScriptAST, SomeException>
-        // pass new Triple<>(newStatement, referenceStatememnt, parentAST) a arg
+        // pass new Triple<>(newStatement, referenceASTElem, parentAST) a arg
         ScriptAST updated = script.accept(new UnsealedCopyVisitor() {
 
             protected void visitStatements(ScriptAST.StatementList old,
@@ -66,6 +66,53 @@ public class ScriptASTUtil {
                 ret.setLabel(aCase.getLabel());
 
                 visitStatements(aCase, ret, newStatement, referenceASTElem);
+
+                ret.setProofNode(aCase.getProofNode());
+                ret.setParent(arg);
+
+                return ret;
+            }
+
+
+        }, null);
+
+
+        return (Script) updated;
+    }
+
+    public static Script removeStatementFromScript (Script script, ScriptAST toBeRemoved) {
+        // Also consider separate class as described in insertAfterStatement
+        ScriptAST updated = script.accept(new UnsealedCopyVisitor() {
+
+            protected void visitStatements(ScriptAST.StatementList old,
+                                           ScriptAST.StatementList newList,
+                                           ScriptAST toBeRemoved) {
+                for (Statement statement : old.getStatements()) {
+                    if (statement != toBeRemoved) {
+                        newList.addStatement((Statement) statement.accept(this, newList));
+                    }
+                }
+
+                if (old == toBeRemoved) {
+                    newList.getStatements().clear();
+                }
+            }
+
+            @Override
+            public Script visitScript(Script script, ScriptAST arg) throws NoExceptions {
+                Script ret = new Script();
+                visitStatements(script, ret, toBeRemoved);
+                ret.setParent(arg);
+
+                return ret;
+            }
+
+            @Override
+            public Case visitCase(Case aCase, ScriptAST arg) throws NoExceptions {
+                Case ret = new Case();
+                ret.setLabel(aCase.getLabel());
+
+                visitStatements(aCase, ret, toBeRemoved);
 
                 ret.setProofNode(aCase.getProofNode());
                 ret.setParent(arg);

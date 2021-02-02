@@ -25,6 +25,7 @@ import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.util.ScriptASTUtil;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.input.KeyCode;
 
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class BlocklyController implements ScriptViewListener {
             if (newValue != null) {
                 view.highlight(newValue);
             }
-            //scanProofEnds(PropertyManager.getInstance().currentProof.get().getProofScript());
+            view.requestFocus();
         });
 
         PropertyManager.getInstance().currentProof.addListener(((observable, oldValue, newValue) -> {
@@ -113,6 +114,17 @@ public class BlocklyController implements ScriptViewListener {
                      }
                  }
             }
+
+        });
+
+        view.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.BACK_SPACE) {
+                PropertyManager.getInstance().currentProof.get().setScriptAST(
+                        ScriptASTUtil.removeStatementFromScript(PropertyManager.getInstance().currentProof.get().getProofScript(),
+                                highlightedStatement.get()));
+            }
+
+            PropertyManager.getInstance().currentProof.get().interpretScript();
 
         });
 
