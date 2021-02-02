@@ -150,7 +150,6 @@ public class RuleApplicationController extends FxmlController implements Referen
         ruleGrid.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
 
         btInsertCases.setOnAction(event -> {
-            System.out.println("trying to insert cases");
             scriptRepWeb.onInsertCases();
         });
 
@@ -227,6 +226,8 @@ public class RuleApplicationController extends FxmlController implements Referen
             resetConsideration();
             // TODO: create new Statement directly from ProofRuleApplication.
             ScriptAST.Script newLine = Scripts.parseScript(application.getScriptTranscript());
+
+
 
             scriptRepWeb.insertAtCurrentPosition(application, newLine);
 

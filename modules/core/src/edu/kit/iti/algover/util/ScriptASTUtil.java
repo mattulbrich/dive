@@ -1,13 +1,10 @@
 package edu.kit.iti.algover.util;
 
-import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
-import edu.kit.iti.algover.nuscript.ParentRelationVisitor;
-import edu.kit.iti.algover.nuscript.ScriptAST;
+import de.uka.ilkd.pp.NoExceptions;
+import edu.kit.iti.algover.nuscript.*;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
-import edu.kit.iti.algover.nuscript.ScriptAST.Cases;
 import edu.kit.iti.algover.nuscript.ScriptAST.Case;
-import edu.kit.iti.algover.nuscript.ScriptAST.Command;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser;
 import edu.kit.iti.algover.proof.ProofNode;
 
@@ -20,7 +17,6 @@ import java.util.logging.Logger;
 /**
  * Utility class for Creating new ScriptASTs. Used for inserting a new Statement
  * into a given ScriptAST.Script
- * Could and probabily will be extended to insert any statement after a given statement.
  *
  * @author Valentin Springsklee
  *
@@ -31,54 +27,57 @@ public class ScriptASTUtil {
         throw new Error();
     }
 
-    public static Script createScriptWithStatements(List<Statement> statements) {
-        Script script = new Script();
-        script.getStatements().addAll(statements);
-        ParentRelationVisitor.setParentRelation(script);
-        return script;
-    }
+    public static Script insertStatementAfter(Script script, Statement newStatement, ScriptAST referenceASTElem) {
+        // Maybe implement InsertAfterStatementVisitor class, extends
+        // DefaultScriptASTVisitor<Triple<Statement, ScriptAST, ScriptAST>, ScriptAST, SomeException>
+        // pass new Triple<>(newStatement, referenceStatememnt, parentAST) a arg
+        ScriptAST updated = script.accept(new UnsealedCopyVisitor() {
 
-
-    public static Case createEmptyCaseFrom(Case oldCase) {
-        Case newCase = new Case();
-        newCase.setLabel(oldCase.getLabel());
-        newCase.setProofNode(oldCase.getProofNode());
-
-        return newCase;
-    }
-
-
-    public static Script insertIntoCase(Script script, Statement newStatement, Case target) {
-        Script updatedScript = new Script();
-
-        for (Statement stmt: script.getStatements()) {
-            updatedScript.addStatement(stmt.accept(new DefaultScriptASTVisitor<Void, Statement, RuntimeException>() {
-                @Override
-                public Command visitCommand(Command command, Void arg) throws RuntimeException {
-                    return command;
-                }
-
-                @Override
-                public Cases visitCases(Cases cases, Void arg) throws RuntimeException {
-                    Cases newCases = new Cases();
-                    for (Case c: cases.getCases()) {
-                        Case newCase = createEmptyCaseFrom(c);
-                        for (Statement stmtC: c.getStatements()) {
-                            newCase.addStatement(stmtC.accept(this, null));
-                        }
-                        if (c == target) {
-                            newCase.addStatement(newStatement);
-                        }
-                        newCases.addCase(newCase);
+            protected void visitStatements(ScriptAST.StatementList old,
+                                           ScriptAST.StatementList newList,
+                                           Statement newStatement,
+                                           ScriptAST referenceASTElem) {
+                for (Statement statement : old.getStatements()) {
+                    if (statement == referenceASTElem) {
+                        newList.addStatement(newStatement);
+                        newStatement.setParent(newList);
                     }
-                    return newCases;
+                    newList.addStatement((Statement) statement.accept(this, newList));
                 }
-            }, null));
-        }
 
-        ParentRelationVisitor.setParentRelation(updatedScript);
+                if (old == referenceASTElem) {
+                    newList.addStatement(newStatement);
+                    newStatement.setParent(newList);
+                }
+            }
 
-        return updatedScript;
+            @Override
+            public Script visitScript(Script script, ScriptAST arg) throws NoExceptions {
+                Script ret = new Script();
+                visitStatements(script, ret, newStatement, referenceASTElem);
+                ret.setParent(arg);
+
+                return ret;
+            }
+
+            @Override
+            public Case visitCase(Case aCase, ScriptAST arg) throws NoExceptions {
+                Case ret = new Case();
+                ret.setLabel(aCase.getLabel());
+
+                visitStatements(aCase, ret, newStatement, referenceASTElem);
+
+                ret.setProofNode(aCase.getProofNode());
+                ret.setParent(arg);
+
+                return ret;
+            }
+
+
+        }, null);
+
+
+        return (Script) updated;
     }
 
     /**
@@ -134,7 +133,7 @@ public class ScriptASTUtil {
         for(ProofNode p : pn.getChildren()) {
             boolean found = false;
             for(ScriptAST.Case caze : cases) {
-                //apparently some guards are string literals and some are MathcExpressions...
+                // apparently some guards are string literals and some are MathcExpressions...
                 String caseString = Util.stripQuotes(caze.getLabel().getText());
                 if (caseString.equals(p.getLabel())) {
                     List<ScriptAST.Statement> statements = insertCasesForStatement(p, caze.getStatements());
@@ -154,67 +153,5 @@ public class ScriptASTUtil {
 
     private static ScriptAST.Statement createCasesForNode(ProofNode pn) {
         return createCasesForNode(pn, new ArrayList<>());
-    }
-
-    public static List<Statement> insertStatementAfter(List<Statement>  statements, Statement newStatement, ScriptAST referenceStatement) {
-        for(int i = 0; i < statements.size(); ++i) {
-            if(statements.get(i) == referenceStatement) {
-                statements.add(i + 1, newStatement);
-                return statements;
-            }
-            if(statements.get(i) instanceof Cases) {
-                for(int j = 0; j < ((Cases) statements.get(i)).getCases().size(); ++j) {
-                    List<Statement> res = insertStatementAfter(((Cases) statements.get(i)).getCases().get(j).getStatements(), newStatement, referenceStatement);
-                    if(res != null) {
-                        return res;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    public static Script insertStatementAfter(Script script, Statement newStatement, Statement referenceStatement) {
-        List<Statement> res = insertStatementAfter(script.getStatements(), newStatement, referenceStatement);
-        if(res == null) {
-            System.out.println("Couldnt find reference statement to insert new statement.");
-        }
-        return script;
-
-    }
-
-    public static Script insertStatementAfter(Script script, Statement newStatement, Case referenceStatement) {
-        List<Statement> res = insertStatementAfter(script.getStatements(), newStatement, referenceStatement);
-        if (res == null) {
-            System.out.println("Couldnt find reference statement to insert new statement.");
-        }
-        return script;
-    }
-
-    public static List<Statement> insertStatementAfter(List<Statement> statements, Statement newStatement, Case referenceStatement) {
-        for(int i = 0; i < statements.size(); ++i) {
-            if(statements.get(i) instanceof Cases) {
-                for(int j = 0; j < ((Cases) statements.get(i)).getCases().size(); ++j) {
-                    if(((Cases) statements.get(i)).getCases().get(j) == referenceStatement) {
-                        ((Cases) statements.get(i)).getCases().get(j).getStatements().add(newStatement);
-                        return statements;
-                    }
-                    List<Statement> res = insertStatementAfter(((Cases) statements.get(i)).getCases().get(j).getStatements(), newStatement, referenceStatement);
-                    if(res != null) {
-                        return res;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    public static Script insertStatementAfter(Script script, Statement newStatement, ScriptAST referenceStatement) {
-        if(referenceStatement instanceof Statement) {
-            return insertStatementAfter(script, newStatement, (Statement) referenceStatement);
-        } else if (referenceStatement instanceof Case) {
-            return insertStatementAfter(script, newStatement, (Case) referenceStatement);
-        }
-        return null;
     }
 }

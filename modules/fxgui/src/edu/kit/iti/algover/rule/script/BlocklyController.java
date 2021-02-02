@@ -18,15 +18,11 @@
 package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.PropertyManager;
-import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
-import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.settings.ProjectSettings;
-import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.ScriptASTUtil;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -147,7 +143,7 @@ public class BlocklyController implements ScriptViewListener {
         if (script == null) {
             return;
         }
-        ProofNode pn = script.accept(new ProofNodeExtractionVisitor(), null);
+        ProofNode pn = script.accept(ProofNodeExtractionVisitor.INSTANCE, null);
         if (pn != null) {
             if (pn.isClosed()) {
                 view.setClosedProofEnd(script);
@@ -164,7 +160,7 @@ public class BlocklyController implements ScriptViewListener {
                     System.out.println("Case" + aCase.getLabel().toString());
                     scanProofEnds(aCase);
                 }
-                ProofNode splitting = cases.accept(new ProofNodeExtractionVisitor(), null).getParent();
+                ProofNode splitting = cases.accept(ProofNodeExtractionVisitor.INSTANCE, null).getParent();
                 System.out.println("parent pn has " + splitting.getChildren().size() + " children.");
                 if (splitting.getChildren().size() > cases.getCases().size()) {
                     caseOpen = true;
@@ -186,63 +182,25 @@ public class BlocklyController implements ScriptViewListener {
 
     /**
      * Insert AST to position of display
-     * @param
-     * @return
+     * @param app
+     * @param ruleScript parsed app
+     * Parameters redundant
      */
-    public boolean insertAtCurrentPosition(ProofRuleApplication app, ScriptAST.Script ruleScript) {
+    public void insertAtCurrentPosition(ProofRuleApplication app, ScriptAST.Script ruleScript) {
         // introduced for readabilty
-        ProofNode selectedPN = PropertyManager.getInstance().currentProofNode.get();
         Script currentProofScript = PropertyManager.getInstance().currentProof.get().getProofScript();
-        if (selectedPN.getChildren() != null && selectedPN.getChildren().size() > 0) {
-            return false;
-        }
 
         if (highlightedStatement.get() == null) {
-            return false;
+            return;
         }
 
-        // TODO: create ScriptAST.Statement objects from ProofRuleApplication directly
-        ScriptAST.Statement ruleApplicationStatement = ruleScript.getStatements().get(0);
+        // TODO: create from ProofRuleApplication, also look at RuleApplicationController for that.
+        ScriptAST.Statement newStatement = ruleScript.getStatements().get(0);
 
-        Script updatedScript = highlightedStatement.get().accept(new DefaultScriptASTVisitor<Pair<Script, ScriptAST.Statement>, Script, RuntimeException>() {
-            @Override
-            public Script visitCommand(ScriptAST.Command command, Pair<Script, ScriptAST.Statement> arg) throws RuntimeException {
-                return arg.getFst();
-            }
-
-            @Override
-            public Script visitCases(ScriptAST.Cases cases, Pair<Script, ScriptAST.Statement> arg) throws RuntimeException {
-                return arg.getFst();
-            }
-
-            @Override
-            public Script visitCase(ScriptAST.Case aCase, Pair<Script, ScriptAST.Statement> arg) throws RuntimeException {
-                Script updated = ScriptASTUtil.insertIntoCase(arg.getFst(), arg.getSnd(), aCase);
-                return updated;
-            }
-
-            /**
-             * TODO: review. Check legality here?
-             * @param script
-             * @param arg
-             * @return
-             * @throws RuntimeException
-             */
-            @Override
-            public Script visitScript(Script script, Pair<Script, ScriptAST.Statement> arg) throws RuntimeException {
-                List<ScriptAST.Statement> stmts = script.getStatements();
-                stmts.add(arg.getSnd());
-                Script updatedScript = ScriptASTUtil.createScriptWithStatements(stmts);
-                return updatedScript;
-            }
-        }, new Pair<>(currentProofScript, ruleApplicationStatement));
-
-        boolean scriptChanged = currentProofScript.equals(updatedScript);
+        Script updatedScript = ScriptASTUtil.insertStatementAfter(currentProofScript, newStatement,
+               highlightedStatement.getValue());
 
         PropertyManager.getInstance().currentProof.get().setScriptAST(updatedScript);
-
-        //return true iff ast added to script ast
-        return scriptChanged;
     }
 
     @Override
@@ -265,9 +223,11 @@ public class BlocklyController implements ScriptViewListener {
         List<ScriptAST.Statement> updatedScript = ScriptASTUtil.insertCasesForStatement(PropertyManager.getInstance()
                         .currentProof.get().getProofRoot(),
                 PropertyManager.getInstance().currentProof.get().getProofScript().getStatements());
-        ScriptAST.Script newScript = ScriptASTUtil.createScriptWithStatements(updatedScript);
 
-        PropertyManager.getInstance().currentProof.get().setScriptAST(newScript);
+        Script updated = new Script();
+        updated.addStatements(updatedScript);
+
+        PropertyManager.getInstance().currentProof.get().setScriptAST(updated);
         PropertyManager.getInstance().currentProof.get().interpretScript();
     }
 
@@ -285,7 +245,7 @@ public class BlocklyController implements ScriptViewListener {
     @Override
     public void onASTElemSelected(ScriptAST astElem) {
         highlightedStatement.set(astElem);
-        ProofNode displayNode = astElem.accept(new ProofNodeExtractionVisitor(), null);
+        ProofNode displayNode = astElem.accept(ProofNodeExtractionVisitor.INSTANCE, null);
         PropertyManager.getInstance().currentProofNode.set(displayNode);
     }
 

@@ -25,7 +25,7 @@ public enum ProofStatus {
     /** Initial state. The proof's root is null.*/
     NON_EXISTING,
 
-    /** script has changed but has not been interpreted yet. */
+    /** script text or ast has changed but has not been interpreted yet. */
     CHANGED_SCRIPT,
 
     /** script has been run on proof, there remain unclosed branches */
