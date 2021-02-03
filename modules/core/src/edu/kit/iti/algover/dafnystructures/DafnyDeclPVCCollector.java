@@ -6,6 +6,7 @@
 package edu.kit.iti.algover.dafnystructures;
 
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,6 +57,7 @@ public class DafnyDeclPVCCollector {
 
         Symbex symbex = new Symbex();
         List<SymbexPath> paths = symbex.symbolicExecution(m.getRepresentation());
+        paths.sort(Comparator.comparing(SymbexPath::getPathIdentifier));
         for (SymbexPath path : paths) {
             List<SymbexPath> subpaths = path.split();
             for (SymbexPath subpath : subpaths) {
