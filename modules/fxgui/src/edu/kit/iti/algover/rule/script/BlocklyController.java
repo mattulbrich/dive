@@ -81,9 +81,6 @@ public class BlocklyController implements ScriptViewListener {
                  } else if (!(newValue == null || newValue.getCommand() == null)) {
                      if (newValue.getChildren() == null || newValue.getChildren().size() == 0) {
                          ScriptAST.StatementList parentList = (ScriptAST.StatementList) newValue.getCommand().getParent();
-                         /*if (parentList.getStatements().size() <= 0 ) {
-                             highlightedStatement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
-                         }*/
 
                          if (newValue.getCommand() == parentList.getStatements().get(parentList.getStatements().size() - 1)) {
                              highlightedStatement.set(parentList);
@@ -107,10 +104,6 @@ public class BlocklyController implements ScriptViewListener {
                                  }
                              }
                          }
-
-                         //highlightedStatement.set(newValue.getCommand().getParent());
-                     } else {
-                         //highlightedStatement.set(newValue.getChildren().get(0).getCommand());
                      }
                  }
             }
