@@ -43,9 +43,6 @@ public class BlocklyView extends VBox {
 
     private final ScriptViewListener listener;
 
-    private final Button btRunScript;
-    private final Button btInsertCases;
-
     private ScriptHTML scriptHTML;
 
     public BlocklyView(ScriptViewListener listener) {
@@ -53,10 +50,6 @@ public class BlocklyView extends VBox {
 
         webView = new WebView();
         engine = webView.getEngine();
-
-        btRunScript = new Button("Replay");
-        btInsertCases = new Button("Insert cases");
-
         engine.setJavaScriptEnabled(true);
         engine.setOnAlert(event -> showAlert(event.getData()));
 
@@ -167,7 +160,6 @@ public class BlocklyView extends VBox {
 
 
     public void highlight(ScriptAST astElem) {
-        //String hexColor = "#" + Integer.toHexString(color.getRGB()).substring(2);
         Integer elemid = scriptHTML.getID(astElem);
         if (elemid != null) {
             executeJavaScript("highlight(" + elemid + ");");
@@ -216,7 +208,6 @@ public class BlocklyView extends VBox {
 
     private void executeJavaScript(String js) {
         try {
-            System.out.println("trying to execute " + js);
             engine.executeScript(js);
         } catch (JSException jsex) {
             System.out.println("Failed to run javascript code, due to js exception: " + jsex.getMessage());

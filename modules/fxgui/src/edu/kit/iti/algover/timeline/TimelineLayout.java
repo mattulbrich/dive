@@ -20,6 +20,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.util.Duration;
 import org.controlsfx.control.HiddenSidesPane;
 
@@ -152,8 +153,6 @@ public class TimelineLayout extends HiddenSidesPane {
             currentAnimation.play();
 
             updateFrame(newValue.intValue());
-
-            requestFocus();
         });
     }
 
@@ -167,7 +166,9 @@ public class TimelineLayout extends HiddenSidesPane {
                 PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.getInstance().currentlyDisplayedView.get() + 1));
 
         // Key listening. May be moved to global Controls class
-        setOnKeyPressed(event -> {
+
+
+        addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.isControlDown() && event.isAltDown()) {
                 if (event.getCode() == KeyCode.RIGHT) {
                     moveFrameRight();

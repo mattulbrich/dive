@@ -21,6 +21,7 @@ import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import edu.kit.iti.algover.timeline.TimelineFactory;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -140,6 +141,12 @@ public class RuleApplicationController extends FxmlController implements Referen
                 );
             }
         }));
+
+        PropertyManager.getInstance().currentlyDisplayedView.addListener((observable, oldValue, newValue) -> {
+            if (newValue.intValue() == TimelineFactory.DefaultViewPosition.SEQUENT_RULE.index) {
+                scriptRepWeb.getView().requestFocus();
+            }
+        });
 
         logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         this.manager = manager;
