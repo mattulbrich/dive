@@ -155,13 +155,6 @@ public class MainController implements RuleApplicationListener {
         ContextMenu contextMenu = new ContextMenu();
         statusBar.setContextMenu(contextMenu);
 
-        //ScriptTextController sc = new ScriptTextController(highlightingExecutor, this, lookup);
-
-       /* this.timelineView = TimelineFactory.testWebviewAlongScriptEditor(browserController,
-                editorController,
-                sequentController,
-                ruleApplicationController);*/
-
         this.timelineView = TimelineFactory.getDefaultTimeLineLayout(browserController,
                 editorController,
                 sequentController,

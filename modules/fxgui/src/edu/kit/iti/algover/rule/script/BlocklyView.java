@@ -43,9 +43,6 @@ public class BlocklyView extends VBox {
 
     private final ScriptViewListener listener;
 
-    private final Button btRunScript;
-    private final Button btInsertCases;
-
     private ScriptHTML scriptHTML;
 
     public BlocklyView(ScriptViewListener listener) {
@@ -53,10 +50,6 @@ public class BlocklyView extends VBox {
 
         webView = new WebView();
         engine = webView.getEngine();
-
-        btRunScript = new Button("Replay");
-        btInsertCases = new Button("Insert cases");
-
         engine.setJavaScriptEnabled(true);
         engine.setOnAlert(event -> showAlert(event.getData()));
 
