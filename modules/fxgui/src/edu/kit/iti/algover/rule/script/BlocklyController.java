@@ -57,7 +57,6 @@ public class BlocklyController implements ScriptViewListener {
         });
 
         PropertyManager.getInstance().currentProof.addListener(((observable, oldValue, newValue) -> {
-            System.out.println("Proof changed");
             if (newValue != null) {
                 if (newValue.getProofScript() != null) {
                     // TODO: (maybe) select open end
@@ -129,8 +128,6 @@ public class BlocklyController implements ScriptViewListener {
         });
 
         PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
-            System.out.println("Proof Status changed to " + newValue);
-
             if(PropertyManager.getInstance().currentProof.get() != null) {
                 /* TODO: Somehow consider filtering newValue*/
                 /*  If newValue == CHANGED_SCRIPT the proof is rerun (triggered by a different listener)
@@ -169,11 +166,9 @@ public class BlocklyController implements ScriptViewListener {
                 casesInList = true;
                 ScriptAST.Cases cases = (ScriptAST.Cases) stmt;
                 for (ScriptAST.Case aCase : cases.getCases()) {
-                    System.out.println("Case" + aCase.getLabel().toString());
                     scanProofEnds(aCase);
                 }
                 ProofNode splitting = cases.accept(ProofNodeExtractionVisitor.INSTANCE, null).getParent();
-                System.out.println("parent pn has " + splitting.getChildren().size() + " children.");
                 if (splitting.getChildren().size() > cases.getCases().size()) {
                     caseOpen = true;
                 }
