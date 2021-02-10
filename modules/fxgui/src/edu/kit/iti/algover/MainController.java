@@ -478,6 +478,9 @@ public class MainController implements RuleApplicationListener {
 
     private void onClickSaveVisibleContent(ActionEvent actionEvent) {
         // TODO: Save the project
+        if (actionEvent != null) {
+            this.onScriptSave();
+        }
         try {
             editorController.saveAllFiles();
             manager.saveProofScripts();
@@ -650,7 +653,8 @@ public class MainController implements RuleApplicationListener {
     public void onScriptSave() {
         String pvcIdentifier = PropertyManager.getInstance().currentProof.get().getPVC().getIdentifier();
         try {
-            manager.saveProofScriptForPVC(pvcIdentifier, PropertyManager.getInstance().currentProof.get());
+            //manager.saveProofScriptForPVC(pvcIdentifier, PropertyManager.getInstance().currentProof.get());
+            manager.saveProofScripts();
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved script " + pvcIdentifier + ".");
         } catch (IOException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving script.");

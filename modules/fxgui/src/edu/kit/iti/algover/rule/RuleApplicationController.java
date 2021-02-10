@@ -243,9 +243,6 @@ public class RuleApplicationController extends FxmlController implements Referen
         } catch(RuleException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
         }
-
-        System.out.println("In applyRule PN is " + PropertyManager.getInstance().currentProofNodeSelector.get());
-
     }
 
 

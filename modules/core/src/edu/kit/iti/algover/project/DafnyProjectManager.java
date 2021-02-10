@@ -211,7 +211,11 @@ public class DafnyProjectManager extends AbstractProjectManager {
         }
 
         Properties p = new Properties();
-        p.putAll(scriptDatabase);
+        scriptDatabase.forEach((k, v) -> {
+            if (k != null && v != null) {
+                p.put(k, v);
+            }
+        });
 
         try(FileOutputStream fileOutputStream = new FileOutputStream(scriptFile)) {
             p.storeToXML(fileOutputStream,

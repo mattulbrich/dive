@@ -17,21 +17,20 @@
 
 package edu.kit.iti.algover.rule.script;
 
-import de.uka.ilkd.pp.NoExceptions;
 import edu.kit.iti.algover.PropertyManager;
-import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
-import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
-import edu.kit.iti.algover.nuscript.ScriptAST.StatementList;
+import edu.kit.iti.algover.nuscript.UnsealedCopyVisitor;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.timeline.TimelineFactory;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.util.ScriptASTUtil;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 
 import java.util.List;
 
@@ -40,8 +39,11 @@ public class BlocklyController implements ScriptViewListener {
     private BlocklyView view;
     private final SimpleObjectProperty<ScriptAST> highlightedASTElement = new SimpleObjectProperty<>(null);
 
+    private Script beforeStep;
+
     public BlocklyController() {
         this.view = new BlocklyView(this);
+        beforeStep = null;
         configureListeners();
     }
 
@@ -62,12 +64,12 @@ public class BlocklyController implements ScriptViewListener {
         });
 
         PropertyManager.getInstance().currentProof.addListener(((observable, oldValue, newValue) -> {
-            if (newValue != null) {
+            /*if (newValue != null) {
                 if (newValue.getProofScript() != null) {
                     // TODO: (maybe) select open end
                     highlightedASTElement.set(null);
                 }
-            }
+            }*/
 
             view.update();
 
@@ -121,39 +123,59 @@ public class BlocklyController implements ScriptViewListener {
 
         });
 
-        view.setOnKeyPressed(event -> {
+        view.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+
+            if (event.isControlDown() && event.getCode() == KeyCode.Z) {
+                if (beforeStep != null) {
+                    PropertyManager.getInstance().currentProof.get().setScriptAST(beforeStep);
+                    PropertyManager.getInstance().currentProof.get().interpretScript();
+                    System.out.println("Current node: " + PropertyManager.getInstance().currentProofNodeSelector);
+                    try {
+                        highlightedASTElement.set(
+                                PropertyManager.getInstance().currentProofNodeSelector.get().get(
+                                        PropertyManager.getInstance().currentProof.get()).getCommand()
+                        );
+                    } catch (RuleException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                return;
+            }
 
             ScriptAST newHighlight = highlightedASTElement.get();
-                 event.consume();
             if (highlightedASTElement.get() != null) {
 
                 if (event.getCode() == KeyCode.BACK_SPACE) {
                     Proof currentProof = PropertyManager.getInstance().currentProof.get();
                     Script updatedScript = ScriptASTUtil.removeStatementFromScript(
                             currentProof.getProofScript(), highlightedASTElement.get());
+                    beforeStep = UnsealedCopyVisitor.INSTANCE.visitScript(
+                            PropertyManager.getInstance().currentProof.get().getProofScript(), null);
                     currentProof.setScriptAST(updatedScript);
 
                     if (currentProof.getProofStatus() == ProofStatus.CHANGED_SCRIPT) {
                         currentProof.interpretScript();
+                        newHighlight = PropertyManager.getInstance().currentProofNode.get().getCommand();
                     }
-                    event.consume();
-                } else if (event.getCode() == KeyCode.DOWN) {
-                    newHighlight = highlightedASTElement.get().accept(NavigateDownVisitor.INSTANCE, null);
-                    event.consume();
-                } else if (event.getCode() == KeyCode.UP) {
-                    newHighlight = highlightedASTElement.get().accept(NavigateUpVisitor.INSTANCE, null);
-                    event.consume();
+
+                } else {
+                    if (event.getCode() == KeyCode.DOWN) {
+                        newHighlight = highlightedASTElement.get().accept(NavigateDownVisitor.INSTANCE, null);
+                    } else if (event.getCode() == KeyCode.UP) {
+                        newHighlight = highlightedASTElement.get().accept(NavigateUpVisitor.INSTANCE, null);
+                    }
+                    if (newHighlight != null) {
+                        PropertyManager.getInstance().currentProofNode.set(
+                                newHighlight.accept(ProofNodeExtractionVisitor.INSTANCE, null));
+                    }
                 }
 
-                if (newHighlight != null) {
-                    PropertyManager.getInstance().currentProofNode.set(
-                            newHighlight.accept(ProofNodeExtractionVisitor.INSTANCE, null));
-                }
                 highlightedASTElement.set(newHighlight);
             }
+            event.consume();
             view.requestFocus();
         });
-
 
         PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
             if(PropertyManager.getInstance().currentProof.get() != null) {
@@ -235,6 +257,8 @@ public class BlocklyController implements ScriptViewListener {
         Script updatedScript = ScriptASTUtil.insertStatementAfter(currentProofScript, newStatement,
                highlightedASTElement.getValue());
 
+        beforeStep = UnsealedCopyVisitor.INSTANCE.visitScript(
+                PropertyManager.getInstance().currentProof.get().getProofScript(), null);
         PropertyManager.getInstance().currentProof.get().setScriptAST(updatedScript);
     }
 
@@ -262,7 +286,8 @@ public class BlocklyController implements ScriptViewListener {
         Script updated = new Script();
         updated.addStatements(updatedScript);
 
-        PropertyManager.getInstance().currentProof.get().setScriptAST(updated);
+        beforeStep = UnsealedCopyVisitor.INSTANCE.visitScript(
+                PropertyManager.getInstance().currentProof.get().getProofScript(), null);        PropertyManager.getInstance().currentProof.get().setScriptAST(updated);
         PropertyManager.getInstance().currentProof.get().interpretScript();
     }
 
