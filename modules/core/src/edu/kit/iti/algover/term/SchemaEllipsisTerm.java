@@ -5,6 +5,9 @@
  */
 package edu.kit.iti.algover.term;
 
-public class SchemaEllipsisTerm {
+public class SchemaEllipsisTerm extends SchemaVarTerm {
 
+    public SchemaEllipsisTerm() {
+        super("_");
+    }
 }
