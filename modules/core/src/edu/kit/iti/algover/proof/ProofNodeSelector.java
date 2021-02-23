@@ -94,6 +94,21 @@ public class ProofNodeSelector {
         return currentNode;
     }
 
+    public ProofNode followAsFarAsPossible(@NonNull ProofNode node) {
+        ProofNode currentNode = node;
+        for (int i = 0; i < path.length; i++) {
+            List<ProofNode> children = currentNode.getChildren();
+            if (children == null) {
+                return currentNode;
+            }
+            if (children.size() <= path[i]) {
+                return currentNode;
+            }
+            currentNode = children.get(path[i]);
+        }
+        return currentNode;
+    }
+
     public String toString() {
         if (path.length == 0) {
             return "<root>";

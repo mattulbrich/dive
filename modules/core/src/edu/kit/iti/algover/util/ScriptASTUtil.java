@@ -80,22 +80,35 @@ public class ScriptASTUtil {
         return (Script) updated;
     }
 
+    /**
+     * Remove specified {@link ScriptAST} element from specified {@link Script}.
+     * Use specialized {@link UnsealedCopyVisitor} to iterate over script and
+     * instantiate new {@link Script} Object
+     * @param script
+     * @param toBeRemoved
+     * @return new {@link Script} that contains all {@link ScriptAST} elements from script except for
+     * toBeRemoved.
+     */
     public static Script removeStatementFromScript (Script script, ScriptAST toBeRemoved) {
         // Also consider separate class as described in insertAfterStatement
         ScriptAST updated = script.accept(new UnsealedCopyVisitor() {
 
-            protected void visitStatements(ScriptAST.StatementList old,
+            protected boolean visitStatements(ScriptAST.StatementList old,
                                            ScriptAST.StatementList newList,
                                            ScriptAST toBeRemoved) {
-                for (Statement statement : old.getStatements()) {
-                    if (statement != toBeRemoved) {
-                        newList.addStatement((Statement) statement.accept(this, newList));
+                if (old == toBeRemoved) {
+                    newList.getStatements().clear();
+                    return true;
+                } else {
+                    for (Statement statement : old.getStatements()) {
+                        if (statement != toBeRemoved) {
+                            newList.addStatement((Statement) statement.accept(this, newList));
+                        }
                     }
                 }
 
-                if (old == toBeRemoved) {
-                    newList.getStatements().clear();
-                }
+                return false;
+
             }
 
             @Override
