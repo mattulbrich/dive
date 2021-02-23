@@ -40,7 +40,6 @@ public class BlocklyController implements ScriptViewListener {
     /**
      * This property hols the AST element in the current proof script (currentProof.getProofScript())
      * that is selected for highlighting in the BlocklyView.
-     * TODO: provide and assert consistency between AST element and currentProofNode.
      */
     private final SimpleObjectProperty<ScriptAST> highlightedASTElement = new SimpleObjectProperty<>(null);
 
@@ -341,11 +340,6 @@ public class BlocklyController implements ScriptViewListener {
         highlightedASTElement.set(astElem);
         ProofNode displayNode = astElem.accept(ProofNodeExtractionVisitor.INSTANCE, null);
         PropertyManager.getInstance().currentProofNode.set(displayNode);
-    }
-
-    @Override
-    public SimpleObjectProperty<ScriptAST> getHighlightedElemProperty() {
-        return highlightedASTElement;
     }
 
 }
