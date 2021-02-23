@@ -11,7 +11,6 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.impl.AddHypothesisRule;
-import edu.kit.iti.algover.rules.impl.QuantifierInstantiation;
 import edu.kit.iti.algover.rules.impl.AndRightRule;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
@@ -54,13 +53,13 @@ public class AbstractRuleTest {
         Parameters params = new Parameters();
         params.putValue(DefaultFocusProofRule.ON_PARAM_OPT, new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("|- (... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...)", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
+        assertEquals("|- _", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
         ProofRuleApplication app = rule.makeApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
         );
         assertEquals(1, params.entrySet().size());
-        assertEquals("|- (... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...)", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
+        assertEquals("|- _", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
     }
 
     @Test(expected = RuleException.class)
@@ -128,7 +127,7 @@ public class AbstractRuleTest {
         Parameters params = new Parameters();
         params.putValue(DefaultFocusProofRule.ON_PARAM_OPT, new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
+        assertEquals("$and((?m: _), _) |-", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
         rule.makeApplication(ProofMockUtil.mockProofNode(null, sequent), params);
     }
 }
