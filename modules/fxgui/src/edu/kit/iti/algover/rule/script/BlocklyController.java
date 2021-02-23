@@ -83,13 +83,10 @@ public class BlocklyController implements ScriptViewListener {
                      }
                  } else if (!(newValue == null || newValue.getCommand() == null)) {
                      if (newValue.getChildren() == null || newValue.getChildren().size() == 0) {
-                         ScriptAST.StatementList parentList = (ScriptAST.StatementList) newValue.getCommand().getParent();
-                         // mark next command
-                         if (newValue.getCommand() == parentList.getStatements().get(parentList.getStatements().size() - 1)) {
-                             highlightedASTElement.set(parentList);
-                         } else { // find correct case
-                             highlightedASTElement.set(findCaseEnd(newValue));
-                         }
+                         highlightedASTElement.set(findCaseEnd(newValue));
+                     } else {
+                         ScriptAST.StatementList parent = (ScriptAST.StatementList) findCaseEnd(newValue);
+                         highlightedASTElement.set(parent.getStatements().get(0));
                      }
                  }
             }

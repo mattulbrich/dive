@@ -53,6 +53,7 @@ public class BlocklyView extends VBox {
         engine.setJavaScriptEnabled(true);
         engine.setOnAlert(event -> showAlert(event.getData()));
 
+        // Add event listeners to html elements after the site is loaded.
         engine.getLoadWorker().stateProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     if (newValue != Worker.State.SUCCEEDED) {
@@ -143,6 +144,9 @@ public class BlocklyView extends VBox {
     }
 
 
+    /**
+     * Create html representation of current proof and reload page.
+     */
     public void update() {
         Proof currentProof = PropertyManager.getInstance().currentProof.get();
         if (currentProof != null) {
@@ -152,10 +156,6 @@ public class BlocklyView extends VBox {
         }
 
         engine.loadContent(scriptHTML.getHTML());
-    }
-
-    public void reload() {
-        engine.reload();
     }
 
 
