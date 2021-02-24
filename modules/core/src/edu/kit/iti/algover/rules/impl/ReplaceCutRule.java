@@ -1,4 +1,4 @@
-/**
+/*
  * This file is part of DIVE.
  *
  * Copyright (C) 2015-2019 Karlsruhe Institute of Technology
@@ -21,15 +21,11 @@ import java.util.Set;
  */
 public class ReplaceCutRule extends FocusProofRule {
 
-    private static final ParameterDescription<TermParameter> WITH_PARAM =
+    public static final ParameterDescription<TermParameter> WITH_PARAM =
             new ParameterDescription<>("with", ParameterType.TERM, true);
 
-
-    private static final ParameterDescription<Boolean> AUTO_PARAM =
-            new ParameterDescription<>("auto", ParameterType.BOOLEAN, false);
-
     public ReplaceCutRule() {
-        super(WITH_PARAM, AUTO_PARAM);
+        super(WITH_PARAM);
     }
 
     public String getName() {
@@ -57,7 +53,8 @@ public class ReplaceCutRule extends FocusProofRule {
 
         TermSelector selector = parameters.getValue(ON_PARAM_REQ).getTermSelector();
 
-        if(!on.getSort().equals(with.getSort())) {
+        // BUG! Subtypes are to be allowed: if(!on.getSort().equals(with.getSort())) {
+        if(!with.getSort().isSubtypeOf(on.getSort())) {
             throw new NotApplicableException("Found type " + with.getSort().toString() + " as replacement but original term has type "
              + on.getSort().toString() + " (has to be the same type).");
         }
@@ -68,7 +65,7 @@ public class ReplaceCutRule extends FocusProofRule {
             // Probably universal closure is required here.
             Set<VariableTerm> freeVars = FreeVarVisitor.findFreeVars(on);
             if(!freeVars.isEmpty()) {
-                throw new NotApplicableException("The replacement-Term may not contain free variables.");
+                throw new NotApplicableException("The replacement-Term must not contain free variables.");
             }
             Term justificationTerm = tb.eq(on, with);
             pra.newBranch().addAdditionsSuccedent(new ProofFormula(justificationTerm)).setLabel("justification");
@@ -76,8 +73,6 @@ public class ReplaceCutRule extends FocusProofRule {
         } catch (TermBuildException e) {
             throw new RuleException("Error building justification term: " + e.getMessage(), e);
         }
-
-        // TODO: auto parameter!
 
        /* pra.setApplicability(ProofRuleApplication.Applicability.APPLICABLE);
         pra.newBranch().addReplacement(selector, with).setLabel("replace");

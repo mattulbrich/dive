@@ -53,7 +53,10 @@ public class BranchInfo {
      */
     private final @DeepNonNull ImmutableList<Pair<TermSelector, Term>> replacements;
 
-    private final String label;
+    /**
+     * Every branch has a label, unique amongst its siblings.
+     */
+    private final @NonNull String label;
 
     /**
      * Instantiates a new branch info.
