@@ -70,7 +70,6 @@ public class TermParameter {
     private Sequent oSchematicSequent;
     private Term schematicTerm;
     private Term oSchematicTerm;
-    private List<Term> defaultMatchingTerms;
     private static final String matchKeyword = "?m";
 
     /**
@@ -156,7 +155,7 @@ public class TermParameter {
         if(containsMatchTerm(oSchematicTerm)) {
             termSelector = matchTermInSequentUniquely(oSchematicTerm, sequent);
         } else {
-            SchemaCaptureTerm matchTerm = new SchemaCaptureTerm("?match", oSchematicTerm);
+            SchemaCaptureTerm matchTerm = new SchemaCaptureTerm(matchKeyword, oSchematicTerm);
             termSelector = matchTermInSequentUniquely(matchTerm, sequent);
         }
         term = termSelector.selectSubterm(sequent);
@@ -232,13 +231,13 @@ public class TermParameter {
      * This a basically a heuristic and does not provide guaranteed good matchingparameters
      * @throws RuleException
      */
-    private void createDefaultMatchingTerms() throws RuleException {
+    private List<Term> createDefaultMatchingTerms() throws RuleException {
         try {
             this.term = getTerm();
         } catch (RuleException e) {
             e.printStackTrace();
         }
-        defaultMatchingTerms = new ArrayList<>();
+        List<Term> defaultMatchingTerms = new ArrayList<>();
 
         try {
             Term copy = this.term.accept(new EllipsisVisitor(), null);
@@ -270,6 +269,7 @@ public class TermParameter {
 
         //we sort be the length of the match term. other sortings are possible and should be considered
         defaultMatchingTerms.sort(Comparator.comparingInt(term1 -> term1.toString().length()));
+        return defaultMatchingTerms;
     }
 
 
@@ -284,7 +284,7 @@ public class TermParameter {
         if(schematicSequent != null) {
             return schematicSequent;
         }
-        createDefaultMatchingTerms();
+
         Sequent res = null;
         if(oSchematicTerm != null) {
             res = getUniqueSequent(oSchematicTerm, getTermSelector().getPolarity());
@@ -297,9 +297,11 @@ public class TermParameter {
             }
         }
 
+        List<Term> defaultMatchingTerms = createDefaultMatchingTerms();
         for(Term t : defaultMatchingTerms) {
             res = getUniqueSequent(t, getTermSelector().getPolarity());
             if(res != null) {
+                schematicSequent = res;
                 return res;
             }
         }
