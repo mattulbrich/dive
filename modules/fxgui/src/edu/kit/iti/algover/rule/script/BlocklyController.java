@@ -23,7 +23,6 @@ import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.UnsealedCopyVisitor;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
@@ -281,7 +280,7 @@ public class BlocklyController implements ScriptViewListener {
     public void onInsertCases() {
         List<ScriptAST.Statement> updatedScript = ScriptASTUtil.insertCasesForStatement(PropertyManager.getInstance()
                         .currentProof.get().getProofRoot(),
-                PropertyManager.getInstance().currentProof.get().getProofScript().getStatements());
+                PropertyManager.getInstance().currentProof.get().getProofScript());
 
         Script updated = new Script();
         updated.addStatements(updatedScript);

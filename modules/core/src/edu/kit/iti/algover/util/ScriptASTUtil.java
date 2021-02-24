@@ -1,18 +1,19 @@
 package edu.kit.iti.algover.util;
 
 import de.uka.ilkd.pp.NoExceptions;
-import edu.kit.iti.algover.nuscript.*;
+import edu.kit.iti.algover.nuscript.ScriptAST;
+import edu.kit.iti.algover.nuscript.ScriptAST.Case;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
-import edu.kit.iti.algover.nuscript.ScriptAST.Case;
+import edu.kit.iti.algover.nuscript.UnsealedCopyVisitor;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
-
 import org.antlr.v4.runtime.CommonToken;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Utility class for Creating new ScriptASTs. Used for inserting a new Statement
@@ -127,44 +128,54 @@ public class ScriptASTUtil {
         return (Script) updated;
     }
 
+    public static List<ScriptAST.Statement> insertCasesForStatement(ProofNode root, Script script) {
+        Script scriptCopy = UnsealedCopyVisitor.INSTANCE.visitScript(script, null);
+        List<Statement> stmts = scriptCopy.getStatements();
+        return insertCasesForStatement(root, stmts);
+    }
     /**
      * recursively inserts all missing case statements in the given script
      *
-     * @param pn the proofnode for which the cases should be inserted
+     * @param root the proofnode for which the cases should be inserted
      * @param stmts the current script that should be extended by the missing case statements
      * @return a new script containing all necessary case statements
      */
-    // MU: Adapted the existing code to nuscript. But it does not seem to be recursive at all.
-    // TODO: Make it work for "implicit" second cases (syntax level)
-    public static List<ScriptAST.Statement> insertCasesForStatement(ProofNode pn, List<ScriptAST.Statement> stmts) {
+    private static List<ScriptAST.Statement> insertCasesForStatement(ProofNode root, List<Statement> stmts) {
         if(stmts.size() == 0) {
             return stmts;
         }
         List<ScriptAST.Statement> result = new ArrayList<>();
-        for (int i = 0; i < stmts.size() - 1; ++i) {
+        for (int i = 0; i < stmts.size(); ++i) {
             if(stmts.get(i) instanceof ScriptAST.Command) {
-                result.add(stmts.get(i));
-            } else {
-                Logger.getGlobal().warning("Only the last statement may be a cases-statement.");
-                return stmts;
-            }
-            if((pn.getChildren() != null && pn.getChildren().size() == 1)) {
-                pn = pn.getChildren().get(0);
-            } else if (stmts.size() - 2 != i) {
-                Logger.getGlobal().warning("Script has unexpected number of children at some point.");
-                return stmts;
+                List<ProofNode> pns = getPNsForAST(root, stmts.get(i));
+                if (pns.size() == 1) {
+                    //no branching rule. nothing to do
+                    result.add(stmts.get(i));
+                } else if (pns.size() > 1) {
+                    result.add(stmts.get(i));
+                    //branching rule
+                    //next statement has to be a cases
+                    if(i + 1 >= stmts.size()) {
+                        //there is no next statement so we have to insert the cases
+                        result.add(createCasesForNode(pns.get(0).getParent()));
+                    } else if(stmts.get(i + 1) instanceof ScriptAST.Cases) {
+                        ScriptAST.Cases cases = (ScriptAST.Cases) stmts.get(i + 1);
+                        if(cases.getCases().size() == pns.size() || cases.getCases().size() == pns.size() - 1) {
+                            //all cases already covered OR one implicit case still open. both leave nothing to do.
+                            result.add(cases);
+                            ++i;
+                        } else {
+                            //there are at least 2 cases missing which means something has to be added.
+                            ScriptAST.Cases casesCopy =  UnsealedCopyVisitor.INSTANCE.visitCases(cases, null);
+                            result.add(createCasesForNode(pns.get(0).getParent(), cases.getCases()));
+                        }
+                    }
+                } else {
+                    //TODO error handling
+                    return stmts;
+                }
             }
         }
-        ScriptAST.Statement st = stmts.get(stmts.size() - 1);
-        if((pn.getChildren() == null || pn.getSuccessors().size() == 1) && st instanceof ScriptAST.Command) {
-            result.add(st);
-        } else if (pn.getChildren().size() > 1 && st instanceof ScriptAST.Cases) {
-            result.add(createCasesForNode(pn, ((ScriptAST.Cases) st).getCases()));
-        } else if (pn.getChildren().size() > 1 && !(st instanceof ScriptAST.Cases)) {
-            result.add(st);
-            result.add(createCasesForNode(pn));
-        }
-
         return result;
     }
 
@@ -200,5 +211,38 @@ public class ScriptASTUtil {
 
     private static ScriptAST.Statement createCasesForNode(ProofNode pn) {
         return createCasesForNode(pn, new ArrayList<>());
+    }
+
+    public static List<ProofNode> getPNsForAST(Proof proof, ScriptAST astNode) {
+        return getPNsForAST(proof.getProofRoot(), astNode);
+    }
+
+    public static List<ProofNode> getPNsForAST(ProofNode root, ScriptAST astNode) {
+        if(root == null) {
+            return new ArrayList<>();
+        }
+        if(root.getCommand() != null && root.getCommand().equals(astNode)) {
+            return Collections.singletonList(root);
+        }
+        List<ProofNode> res = new ArrayList<>();
+        if(root.getChildren() != null) {
+            for (ProofNode ch : root.getChildren()) {
+                res.addAll(getPNsForAST(ch, astNode));
+            }
+        }
+        return res;
+    }
+
+    public static ScriptAST.Command getASTForPN(ProofNode root, ProofNode pn) {
+        if(root.equals(pn)) {
+            return pn.getCommand();
+        }
+        for(ProofNode ch : root.getChildren()) {
+            ScriptAST.Command t = getASTForPN(ch, pn);
+            if(t != null) {
+                return t;
+            }
+        }
+        return null;
     }
 }
