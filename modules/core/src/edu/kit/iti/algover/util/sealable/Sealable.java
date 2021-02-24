@@ -28,6 +28,9 @@ public final class Sealable<T> {
 
     public boolean equals(Object other) {
         if(get() == null) {
+            if(other instanceof Sealable) {
+                return ((Sealable<?>) other).get() == null;
+            }
             return other == null;
         }
         if(other instanceof Sealable) {
