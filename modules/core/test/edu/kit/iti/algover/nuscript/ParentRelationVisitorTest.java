@@ -10,8 +10,7 @@ import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
 import edu.kit.iti.algover.nuscript.parser.Scripts;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class ParentRelationVisitorTest {
 
@@ -74,7 +73,7 @@ public class ParentRelationVisitorTest {
 
         @Override
         public Void visitByClause(ByClause byClause, ScriptAST arg) throws RuntimeException {
-            assertEquals(arg, byClause.getParent());
+            assertTrue(arg.equals(byClause.getParent()));
             return null;
         }
     }

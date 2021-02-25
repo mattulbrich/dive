@@ -25,4 +25,17 @@ public final class Sealable<T> {
     public boolean isSet() {
         return value != null;
     }
+
+    public boolean equals(Object other) {
+        if(get() == null) {
+            if(other instanceof Sealable) {
+                return ((Sealable<?>) other).get() == null;
+            }
+            return other == null;
+        }
+        if(other instanceof Sealable) {
+            return get().equals(((Sealable<?>) other).get());
+        }
+        return get().equals(other);
+    }
 }

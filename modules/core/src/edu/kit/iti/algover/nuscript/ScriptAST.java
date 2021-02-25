@@ -318,6 +318,18 @@ public abstract class ScriptAST {
                 parameter.seal();
             }
         }
+
+        @Override
+        public boolean equals(Object other) {
+            if(other instanceof Command) {
+                Command o = (Command) other;
+                return command == null ? o.command == null : command.equals(o.command) &&
+                        byClause == null ? o.byClause == null : byClause.equals(o.byClause) &&
+                        parameters == null ? o.parameters == null : parameters.equals(o.parameters) &&
+                        proofNode == null ? o.proofNode == null : proofNode.equals(o.proofNode);
+            }
+            return false;
+        }
     }
 
     /**
