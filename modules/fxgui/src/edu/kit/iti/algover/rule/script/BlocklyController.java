@@ -23,6 +23,7 @@ import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.UnsealedCopyVisitor;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.util.ScriptASTUtil;
