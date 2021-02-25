@@ -8,17 +8,6 @@ public class NavigateDownVisitor extends DefaultScriptASTVisitor<ScriptAST, Scri
 
     public static NavigateDownVisitor INSTANCE = new NavigateDownVisitor();
 
-    private ScriptAST moveDownFromStatement(ScriptAST.Statement stmt) {
-        ScriptAST.StatementList parent = (ScriptAST.StatementList) stmt.getParent();
-        int idx = parent.getStatements().indexOf(stmt);
-        if (idx >= 0 && idx < parent.getStatements().size() - 1) {
-            return parent.getStatements().get(idx + 1);
-        } else if (idx == parent.getStatements().size() - 1) {
-            return parent;
-        }
-        return stmt;
-    }
-
 
     @Override
     public ScriptAST visitScript(ScriptAST.Script script, ScriptAST arg) throws NoExceptions {
@@ -32,11 +21,25 @@ public class NavigateDownVisitor extends DefaultScriptASTVisitor<ScriptAST, Scri
 
     @Override
     public ScriptAST visitCases(ScriptAST.Cases cases, ScriptAST arg) throws NoExceptions {
-        return moveDownFromStatement(cases);
+        ScriptAST.StatementList parent = (ScriptAST.StatementList) cases.getParent();
+        int idx = parent.getStatements().indexOf(cases);
+        if (idx >= 0 && idx < parent.getStatements().size() - 1) {
+            return parent.getStatements().get(idx + 1);
+        } else if (idx == parent.getStatements().size() - 1) {
+            return cases.getCases().get(0);
+        }
+        return cases;
     }
 
     @Override
     public ScriptAST visitCommand(ScriptAST.Command command, ScriptAST arg) throws NoExceptions {
-        return moveDownFromStatement(command);
+        ScriptAST.StatementList parent = (ScriptAST.StatementList) command.getParent();
+        int idx = parent.getStatements().indexOf(command);
+        if (idx >= 0 && idx < parent.getStatements().size() - 1) {
+            return parent.getStatements().get(idx + 1);
+        } else if (idx == parent.getStatements().size() - 1) {
+            return parent;
+        }
+        return command;
     }
 }

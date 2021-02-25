@@ -85,7 +85,9 @@ public class BlocklyController implements ScriptViewListener {
                          highlightedASTElement.set(findCaseEnd(newValue));
                      } else {
                          ScriptAST.StatementList parent = (ScriptAST.StatementList) findCaseEnd(newValue);
-                         highlightedASTElement.set(parent.getStatements().get(0));
+                         if (newValue.getCommand().getParent() != parent) {
+                             highlightedASTElement.set(parent.getStatements().get(0));
+                         }
                      }
                  }
             }
@@ -109,7 +111,6 @@ public class BlocklyController implements ScriptViewListener {
             if (highlightedASTElement.get() != null) {
                 if (event.getCode() == KeyCode.BACK_SPACE) {
                     ScriptAST newHighlight = highlightedASTElement.get();
-
                     Proof currentProof = PropertyManager.getInstance().currentProof.get();
                     Script updatedScript = ScriptASTUtil.removeStatementFromScript(
                             currentProof.getProofScript(), highlightedASTElement.get());
@@ -204,7 +205,9 @@ public class BlocklyController implements ScriptViewListener {
 
 
     private ScriptAST getHighlightFromProofNodeSelector(ProofNodeSelector selector) {
-        System.out.println("Current node: " + PropertyManager.getInstance().currentProofNodeSelector.get());
+        if (selector == null) {
+            return null;
+        }
         ScriptAST highlight = null;
         ProofNode displayedNode = selector.followAsFarAsPossible(PropertyManager.getInstance().currentProof.get().getProofRoot());
         if (displayedNode.getChildren() != null) {
@@ -252,8 +255,11 @@ public class BlocklyController implements ScriptViewListener {
                     scanProofEnds(aCase);
                 }
                 ProofNode splitting = cases.accept(ProofNodeExtractionVisitor.INSTANCE, null).getParent();
-                if (splitting.getChildren().size() > cases.getCases().size()) {
-                    caseOpen = true;
+                // assert non empty cases
+                if (splitting.getChildren() != null) {
+                    if (splitting.getChildren().size() > cases.getCases().size()) {
+                        caseOpen = true;
+                    }
                 }
             }
         }
