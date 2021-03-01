@@ -6,10 +6,7 @@
 package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.nuscript.ScriptAST;
-import javafx.beans.property.SimpleObjectProperty;
 
-// TODO: rename. Should also pose as an interface for
-// necessary data
 public interface ScriptViewListener {
 
     void onScriptSave();
@@ -23,9 +20,5 @@ public interface ScriptViewListener {
     void onViewReloaded();
 
     void onASTElemSelected(ScriptAST astElem);
-
-
-    // TODO: review
-    SimpleObjectProperty<ScriptAST> getHighlightedElemProperty();
 
 }

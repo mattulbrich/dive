@@ -1,3 +1,5 @@
+body {-webkit-user-select: none;}
+
 .script {
     padding: 10px;
     font-family: Verdana;
@@ -92,5 +94,3 @@
     color: #999;
     border: 1px solid #999;
 }
-
-

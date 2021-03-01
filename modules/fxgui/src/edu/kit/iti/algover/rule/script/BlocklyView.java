@@ -21,21 +21,23 @@ import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.proof.Proof;
 import javafx.concurrent.Worker;
-import javafx.scene.control.Button;
+import javafx.event.EventHandler;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Dialog;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.PopupWindow;
+import javafx.stage.Window;
 import netscape.javascript.JSException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
-import java.awt.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class BlocklyView extends VBox {
     private final WebView webView;
@@ -49,10 +51,36 @@ public class BlocklyView extends VBox {
         this.listener = listener;
 
         webView = new WebView();
+
+        webView.setContextMenuEnabled(false);
+
+        // optional set custom context menu
+        /*webView.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+            @Override
+            public void handle(ContextMenuEvent event) {
+                final Iterator<Window> windows = Window.getWindows().iterator();
+                while (windows.hasNext()) {
+                    Window win = null;
+                    try {
+                        win = windows.next();
+                    } catch (NoSuchElementException ex) {
+                        // somehow iteration fail (hasNext() might return
+                        // true even if elem does not exist anymore.
+                        return;
+                    }
+                    if (win instanceof ContextMenu) {
+                        // create custom context menu here
+                        win.hide();
+                    }
+                }
+            }
+        });*/
+
         engine = webView.getEngine();
         engine.setJavaScriptEnabled(true);
         engine.setOnAlert(event -> showAlert(event.getData()));
 
+        // Add event listeners to html elements after the site is loaded.
         engine.getLoadWorker().stateProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     if (newValue != Worker.State.SUCCEEDED) {
@@ -143,6 +171,9 @@ public class BlocklyView extends VBox {
     }
 
 
+    /**
+     * Create html representation of current proof and reload page.
+     */
     public void update() {
         Proof currentProof = PropertyManager.getInstance().currentProof.get();
         if (currentProof != null) {
@@ -152,10 +183,6 @@ public class BlocklyView extends VBox {
         }
 
         engine.loadContent(scriptHTML.getHTML());
-    }
-
-    public void reload() {
-        engine.reload();
     }
 
 

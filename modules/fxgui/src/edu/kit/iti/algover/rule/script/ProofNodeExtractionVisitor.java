@@ -65,7 +65,14 @@ public class ProofNodeExtractionVisitor extends DefaultScriptASTVisitor<Void, Pr
     @Override
     public ProofNode visitCases(ScriptAST.Cases cases, Void arg) throws IllegalArgumentException {
         // TODO: external second case validation and support
-        ProofNode ret = cases.getCases().get(0).getProofNode();
+        ProofNode ret = null;
+
+        if (cases.getCases().size() > 0) {
+            ret = cases.getCases().get(0).getProofNode();
+        } else {
+            ret = PropertyManager.getInstance().currentProofNode.get();
+        }
+
         return ret;
     }
 }
