@@ -1,6 +1,7 @@
 package edu.kit.iti.algover.util;
 
 import de.uka.ilkd.pp.NoExceptions;
+import edu.kit.iti.algover.nuscript.ParentRelationVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Case;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
@@ -141,6 +142,20 @@ public class ScriptASTUtil {
         return (Script) updated;
     }
 
+    public static Script insertMissingCases(ProofNode root, Script script) {
+        Script scriptCopy = UnsealedCopyVisitor.INSTANCE.visitScript(script, null);
+
+        // not very pretty still
+        List<Statement> updatedStatements = insertCasesForStatement(root, script);
+        scriptCopy.getStatements().clear();
+        scriptCopy.getStatements().addAll(updatedStatements);
+
+        ParentRelationVisitor.setParentRelation(scriptCopy);
+
+        return scriptCopy;
+    }
+
+
     public static List<ScriptAST.Statement> insertCasesForStatement(ProofNode root, Script script) {
         Script scriptCopy = UnsealedCopyVisitor.INSTANCE.visitScript(script, null);
         List<Statement> stmts = scriptCopy.getStatements();
@@ -180,7 +195,7 @@ public class ScriptASTUtil {
                         } else {
                             //there are at least 2 cases missing which means something has to be added.
                             ScriptAST.Cases casesCopy =  UnsealedCopyVisitor.INSTANCE.visitCases(cases, null);
-                            result.add(createCasesForNode(pns.get(0).getParent(), cases.getCases()));
+                            result.add(createCasesForNode(pns.get(0).getParent(), casesCopy.getCases()));
                         }
                     }
                 } else {
@@ -250,6 +265,11 @@ public class ScriptASTUtil {
         if(root.equals(pn)) {
             return pn.getCommand();
         }
+
+        if (root.getChildren() == null) {
+            return root.getCommand();
+        }
+
         for(ProofNode ch : root.getChildren()) {
             ScriptAST.Command t = getASTForPN(ch, pn);
             if(t != null) {
