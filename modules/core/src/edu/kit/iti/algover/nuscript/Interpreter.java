@@ -32,6 +32,7 @@ import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.parser.TermParser;
+import edu.kit.iti.algover.util.Either;
 import edu.kit.iti.algover.util.FormatException;
 import edu.kit.iti.algover.util.Util;
 import org.antlr.v4.runtime.RecognitionException;
@@ -281,13 +282,11 @@ public final class Interpreter extends DefaultScriptASTVisitor<Void, Void, Scrip
                 try {
                     TermParser tp = new TermParser(node.getAllSymbols());
                     tp.setSchemaMode(true);
-                    // TODO this may actually be rather naive ...
-                    if (string.contains("|-")) {
-                        Sequent seq = tp.parseSequent(string);
-                        obj = new TermParameter(seq, node.getSequent());
+                    Either<Term, Sequent> expOrSeq = tp.parseTermOrSequent(string);
+                    if (expOrSeq.isRight()) {
+                        obj = new TermParameter(expOrSeq.getRight(), node.getSequent());
                     } else {
-                        Term term = tp.parse(string);
-                        obj = new TermParameter(term, node.getSequent());
+                        obj = new TermParameter(expOrSeq.getLeft(), node.getSequent());
                     }
                 } catch (DafnyException | DafnyParserException e) {
                     throw new ScriptException("Cannot parse term/sequent '" + string + "'", e, param, node);
