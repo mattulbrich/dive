@@ -20,14 +20,18 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.FormatException;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * Created by jklamroth on 9/13/18.
  */
+@RunWith(JUnitParamsRunner.class)
 public class TermParameterTest {
     SymbolTable symbolTable;
 
@@ -45,15 +49,26 @@ public class TermParameterTest {
         symbolTable.addFunctionSymbol(new FunctionSymbol("$$a", Sort.INT, Sort.HEAP, Sort.INT));
     }
 
-    @Test
-    public void TsToTest()
-            throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
-        TermSelector selector = new TermSelector("A.0");
+    public String[][] parametersForTsToTest() {
+        return new String[][] {
+                { "A.0", "i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2", "_ |-" },
+                { "A.0.0", "i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2", "?m && _ |-" },
+                { "A.0.1", "i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2", "_ && ?m |-" },
+                { "S.0", "i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2", "|- _" },
+                { "A.0.0", "1+2 > 1 |-", "?m+2" },
+                { "A.0.1", "1+2 > 1 |-", "2" },
+        };
+    }
+
+    @Test @Parameters
+    public void TsToTest(String termSelStr, String seqStr, String expected) throws Exception {
+        TermSelector selector = new TermSelector(termSelStr);
         TermParser tp = new TermParser(symbolTable);
-        Sequent sequent = tp.parseSequent("i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2");
+        Sequent sequent = tp.parseSequent(seqStr);
         TermParameter p = new TermParameter(selector, sequent);
-        assertEquals("_ |-", p.getSchematicSequent().toString());
-        assertEquals("$and($lt(i1, i2), $lt(i1, i2))", p.getTerm().toString());
+        tp.setSchemaMode(true);
+        String expectedStr = tp.parseTermOrSequent(expected).toString();
+        assertEquals(expectedStr, p.getSchematicSequent().toString());
         assertEquals(selector, p.getTermSelector());
     }
 
