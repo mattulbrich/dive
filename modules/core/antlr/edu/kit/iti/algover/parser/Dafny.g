@@ -410,6 +410,16 @@ sequent:
   | ante=expressions '|' '-' succ=expressions? EOF -> ^(SEQ ^(BLOCK $ante?) ^(BLOCK $succ?))
   ;
 
+// In scripts, it is admissible to specify either a term or a sequent
+expression_or_sequent:
+    ('|' '-') => '|' '-' succ=expressions? EOF -> ^(SEQ ^(BLOCK) ^(BLOCK $succ?))
+  | single=expression
+      ( -> $single
+      | ( ',' ante=expressions )? '|' '-' succ=expressions? EOF
+                    -> ^(SEQ ^(BLOCK $single $ante?) ^(BLOCK $succ?))
+      ) EOF
+  ;
+
 //
 // ---------------- Expressions!
 //

@@ -19,6 +19,7 @@ import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.ASTUtil;
+import edu.kit.iti.algover.util.Either;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.TestUtil;
 import junitparams.JUnitParamsRunner;
@@ -685,4 +686,14 @@ public class TreeTermTranslatorTest {
         assertEquals(expected, result);
     }
 
+    // was a bug
+    @Test
+    public void testExpOrSeq() throws Exception {
+        TermParser tp = new TermParser(symbTable);
+        Either<Term, Sequent> seq = tp.parseTermOrSequent("true |-");
+        assertEquals("true |-", seq.toString());
+
+        seq = tp.parseTermOrSequent("true, false |-");
+        assertEquals("true, false |-", seq.toString());
+    }
 }

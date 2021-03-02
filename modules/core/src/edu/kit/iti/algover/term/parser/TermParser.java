@@ -6,13 +6,17 @@
 package edu.kit.iti.algover.term.parser;
 
 import java.util.*;
+import java.util.function.Function;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.builder.TermBuildException;
+import edu.kit.iti.algover.util.Either;
+import edu.kit.iti.algover.util.FunctionWithException;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.ParserRuleReturnScope;
 import org.antlr.runtime.RecognitionException;
 
 import edu.kit.iti.algover.data.SymbolTable;
@@ -94,47 +98,6 @@ public class TermParser {
     }
 
     /**
-     * Parses a string to a {@link edu.kit.iti.algover.term.Sequent}.
-     *
-     * @param string the string to parse
-     * @return the corresponding term resulting from parsing
-     * @throws DafnyParserException if the term was illegally formed. The exception contains a
-     *                              reference to the erring part of the tree
-     */
-    public Sequent parseSequent(String string) throws DafnyParserException, DafnyException {
-
-        // create stream and lexer
-        ANTLRStringStream input = new ANTLRStringStream(string);
-        DafnyLexer lexer = new DafnyLexer(input);
-
-        // create the buffer of tokens between the lexer and parser
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-
-        // create the parser attached to the token buffer
-        DafnyParser parser = new DafnyParser(tokens);
-        parser.setTreeAdaptor(new DafnyTree.Adaptor());
-        parser.setLogicMode(true);
-        parser.setSchemaMode(schemaMode);
-
-        // launch the parser starting at rule r, get return object
-        DafnyParser.sequent_return result;
-        try {
-            result = parser.sequent();
-        } catch (RecognitionException e) {
-            DafnyParserException lex = generateDafnyParserException(parser, e);
-            throw lex;
-        }
-
-        // pull out the tree and cast it
-        DafnyTree t = result.getTree();
-
-        // syntactic desugaring
-        SyntacticSugarVistor.visit(t);
-
-        return toSequent(t, new HistoryMap<>(new HashMap<>()));
-    }
-
-    /**
      * Generate a DafnyParserException when term parsing fails
      *
      * @param parser DafnyParser
@@ -152,17 +115,11 @@ public class TermParser {
         return lex;
     }
 
-    /**
-     * Parses a string to a {@link Term}.
-     *
-     * @param string
-     *            the string to parse
-     * @return the corresponding term resulting from parsing
-     * @throws DafnyParserException
-     *             if the term was illegally formed. The exception contains a
-     *             reference to the erring part of the tree
-     */
-    public Term parse(String string) throws DafnyParserException, DafnyException {
+    private DafnyTree rawParse(String string,
+                               FunctionWithException<DafnyParser,
+                                       ParserRuleReturnScope,
+                                       RecognitionException> parseFunction)
+            throws DafnyParserException, DafnyException {
 
         // create stream and lexer
         ANTLRStringStream input = new ANTLRStringStream(string);
@@ -178,21 +135,65 @@ public class TermParser {
         parser.setSchemaMode(schemaMode);
 
         // launch the parser starting at rule r, get return object
-        expression_only_return result;
+        ParserRuleReturnScope result;
         try {
-            result = parser.expression_only();
+            result = parseFunction.apply(parser);
         } catch (RecognitionException e) {
-            DafnyParserException lex = generateDafnyParserException(parser, e);
-            throw lex;
+            throw generateDafnyParserException(parser, e);
         }
 
         // pull out the tree and cast it
-        DafnyTree t = result.getTree();
+        DafnyTree t = (DafnyTree) result.getTree();
 
         // syntactic desugaring
         SyntacticSugarVistor.visit(t);
 
+        return t;
+    }
+
+    /**
+     * Parses a string to a {@link Term}.
+     *
+     * @param string
+     *            the string to parse
+     * @return the corresponding term resulting from parsing
+     * @throws DafnyParserException
+     *             if the term was illegally formed. The exception contains a
+     *             reference to the erring part of the tree
+     */
+    public Term parse(String string) throws DafnyParserException, DafnyException {
+        DafnyTree t = rawParse(string, DafnyParser::expression_only);
         return toTerm(t, new HistoryMap<>(new HashMap<>()));
+    }
+
+    /**
+     * Parses a string to a {@link edu.kit.iti.algover.term.Sequent}.
+     *
+     * @param string the string to parse
+     * @return the corresponding term resulting from parsing
+     * @throws DafnyParserException if the term was illegally formed. The exception contains a
+     *                              reference to the erring part of the tree
+     */
+    public Sequent parseSequent(String string) throws DafnyParserException, DafnyException {
+        DafnyTree t = rawParse(string, DafnyParser::sequent);
+        return toSequent(t, new HistoryMap<>(new HashMap<>()));
+    }
+
+    /**
+     * Parses a string to a {@link edu.kit.iti.algover.term.Sequent}.
+     *
+     * @param string the string to parse
+     * @return the corresponding term resulting from parsing
+     * @throws DafnyParserException if the term was illegally formed. The exception contains a
+     *                              reference to the erring part of the tree
+     */
+    public Either<Term, Sequent> parseTermOrSequent(String string) throws DafnyParserException, DafnyException {
+        DafnyTree t = rawParse(string, DafnyParser::expression_or_sequent);
+        if(t.getType() == DafnyParser.SEQ) {
+            return Either.right(toSequent(t, new HistoryMap<>(new HashMap<>())));
+        } else {
+            return Either.left(toTerm(t, new HistoryMap<>(new HashMap<>())));
+        }
     }
 
     /**
