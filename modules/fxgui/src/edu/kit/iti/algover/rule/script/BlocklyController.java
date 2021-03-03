@@ -135,6 +135,14 @@ public class BlocklyController implements ScriptViewListener {
                     }
                 }
 
+                if (newValue == ProofStatus.OPEN || newValue == ProofStatus.CLOSED) {
+                    ProofNode currentPN = PropertyManager.getInstance().currentProofNode.get();
+                    if (currentPN != null) {
+                        PropertyManager.getInstance().currentProofNode.set(currentPN.getParent());
+                        PropertyManager.getInstance().currentProofNode.set(currentPN);
+                    }
+                }
+
             }
         }));
     }
