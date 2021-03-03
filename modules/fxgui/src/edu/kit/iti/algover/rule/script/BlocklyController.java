@@ -31,8 +31,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
-import java.util.List;
-
 public class BlocklyController implements ScriptViewListener {
 
     private BlocklyView view;
@@ -67,10 +65,7 @@ public class BlocklyController implements ScriptViewListener {
             }
         });
 
-        PropertyManager.getInstance().currentProof.addListener(((observable, oldValue, newValue) -> {
-            System.out.println("Proof changed " + newValue);
-            view.update();
-        }));
+        PropertyManager.getInstance().currentProof.addListener((observable, oldValue, newValue) -> view.update());
 
         PropertyManager.getInstance().currentProofNode.addListener((observable, oldValue, newValue) ->
                 reconsiderHighlighting(newValue));
@@ -155,7 +150,6 @@ public class BlocklyController implements ScriptViewListener {
             } else if (!(newValue == null || newValue.getCommand() == null)) {
                 if (newValue.getChildren() == null || newValue.getChildren().size() == 0) {
                     ScriptAST newHighlight = findCaseEnd(newValue);
-                    System.out.println("New highlight " + newHighlight);
                     highlightedASTElement.set(newHighlight);
                 } else {
                     ScriptAST.StatementList parent = (ScriptAST.StatementList) findCaseEnd(newValue);
