@@ -159,7 +159,7 @@ LENGTH: 'Length' ('0' .. '9')*;
 ARRAY : 'array' (('1' .. '9') ('0' .. '9')*)?;
 
 // Is resolved by a syntactic sugar visitor: ResolveUnicodeVisitor!
-UNICODE_INDEXED_ID : ( ID | LOGIC_ID ) ('\u2080' .. '\u2089')+ ( '_' ('\u2080' .. '\u2089')+ )*;
+UNICODE_INDEXED_ID : LOGIC_ID ('\u2080' .. '\u2089')+ ( '_' ('\u2080' .. '\u2089')+ )*;
 
 ID : ('a' .. 'z' | 'A' .. 'Z' | '_' )
      ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*;
@@ -408,6 +408,16 @@ ids:
 sequent:
     ('|' '-') => '|' '-' succ=expressions? EOF -> ^(SEQ ^(BLOCK) ^(BLOCK $succ?))
   | ante=expressions '|' '-' succ=expressions? EOF -> ^(SEQ ^(BLOCK $ante?) ^(BLOCK $succ?))
+  ;
+
+// In scripts, it is admissible to specify either a term or a sequent
+expression_or_sequent:
+    ('|' '-') => '|' '-' succ=expressions? EOF -> ^(SEQ ^(BLOCK) ^(BLOCK $succ?))
+  | single=expression
+      ( -> $single
+      | ( ',' ante=expressions )? '|' '-' succ=expressions? EOF
+                    -> ^(SEQ ^(BLOCK $single $ante?) ^(BLOCK $succ?))
+      ) EOF
   ;
 
 //
