@@ -70,11 +70,13 @@ public class HeapSelectionPrinterExtension implements PrettyPrintExtension {
                     ((ApplTerm)heap).getFunctionSymbol() == BuiltinSymbols.HEAP) {
                 // do not print
             } else {
-                printer.append("@");
+                if(!heap.toString().equals("$heap")) {
+                    printer.append("@");
 
-                printer.beginTerm(0);
-                heap.accept(visitor, null);
-                printer.endTerm();
+                    printer.beginTerm(0);
+                    heap.accept(visitor, null);
+                    printer.endTerm();
+                }
             }
 
         } else if(family == BuiltinSymbols.ARRAY_SELECT) {

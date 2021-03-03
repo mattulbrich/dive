@@ -198,23 +198,30 @@ class PrettyPrintVisitor implements TermVisitor<Void, Void, RuntimeException> {
             printer.append("(");
         }
 
-        Term inner = updateTerm.getTerm(0);
-        int indent = inner instanceof LetTerm ? 0 : 2;
+        if(updateTerm.getSubstitutions().size() == 1 && updateTerm.getSubstitutions().get(0).fst.getName().equals("$heap") &&
+            updateTerm.getSubstitutions().get(0).snd.toString().equals("$oldheap")) {
+            printer.append("old(");
+            visitMaybeParen(updateTerm.getTerm(0), Integer.MAX_VALUE);
+            printer.append(")");
+        } else {
+            Term inner = updateTerm.getTerm(0);
+            int indent = inner instanceof LetTerm ? 0 : 2;
 
-        printer.beginBlock(indent);
-        printer.setStyle(Style.KEYWORD);
-        printer.append("let ");
-        printer.resetPreviousStyle();
+            printer.beginBlock(indent);
+            printer.setStyle(Style.KEYWORD);
+            printer.append("let ");
+            printer.resetPreviousStyle();
 
-        List<Pair<VariableTerm, Term>> assignments = updateTerm.getSubstitutions();
-        visit(assignments);
+            List<Pair<VariableTerm, Term>> assignments = updateTerm.getSubstitutions();
+            visit(assignments);
 
-        printer.append(" ::").breakBlock(1, 0);
-        printer.beginTerm(0);
-        setLeftPrecedence(0);
-        visitMaybeParen(inner, Integer.MAX_VALUE);
-        printer.endTerm();
-        printer.endBlock();
+            printer.append(" ::").breakBlock(1, 0);
+            printer.beginTerm(0);
+            setLeftPrecedence(0);
+            visitMaybeParen(inner, Integer.MAX_VALUE);
+            printer.endTerm();
+            printer.endBlock();
+        }
 
         if (isInParens) {
             printer.append(")");

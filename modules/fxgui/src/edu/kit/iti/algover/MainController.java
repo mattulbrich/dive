@@ -38,6 +38,7 @@ import edu.kit.iti.algover.settings.SettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
 import edu.kit.iti.algover.timeline.TimelineLayout;
+import edu.kit.iti.algover.trace.TraceViewController;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.ExceptionDialog;
 import edu.kit.iti.algover.util.StatusBarLoggingHandler;
@@ -153,10 +154,13 @@ public class MainController implements RuleApplicationListener {
         ContextMenu contextMenu = new ContextMenu();
         statusBar.setContextMenu(contextMenu);
 
+        TraceViewController tvc = new TraceViewController();
+
         this.timelineView = new TimelineLayout(
                 browserController.getView(),
                 editorController.getView(),
                 sequentController.getView(),
+                tvc.getView(),
                 ruleApplicationController.getRuleApplicationView());
         timelineView.setDividerPosition(0.2);
 
