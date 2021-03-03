@@ -42,11 +42,11 @@ public class ReferenceGraphHistoryTest {
             pm.reload();
 
             proofBranched = pm.getProofForPVC("max/else/Post.1");
-            String script2 = "substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n"+
+            String script2 = "substitute on='... ((?m: let m := x :: !(m < y))) ... |-';\n"+
                     "skip;\n"+
-                    "substitute on='|- ... ((?match: let m := x :: m >= x && m >= y)) ...'; \n"+
+                    "substitute on='|- ... ((?m: let m := x :: m >= x && m >= y)) ...'; \n"+
                     "skip;\n"+
-                    "andRight on='|- ... ((?match: x >= x && x >= y)) ...';\n"+
+                    "andRight on='|- ... ((?m: x >= x && x >= y)) ...';\n"+
                     "cases {\n"+
                     "    case match \"case 1\": {\n"+
                     "        skip;\n"+
@@ -59,8 +59,8 @@ public class ReferenceGraphHistoryTest {
 
             //has addlist+delList
             proofWithRemoval = pm.getProofForPVC("ff/Post");
-            proofWithRemoval.setScriptTextAndInterpret("andLeft on='... ((?match: a >= 0 && a < 100)) ... |-';\n"+
-                    "removeAssumption on='... ((?match: a + 1 == a + 1 && a > 0 ==> b >= 0)) ... |-';\nskip;\n");
+            proofWithRemoval.setScriptTextAndInterpret("andLeft on='... ((?m: a >= 0 && a < 100)) ... |-';\n"+
+                    "removeAssumption on='... ((?m: a + 1 == a + 1 && a > 0 ==> b >= 0)) ... |-';\nskip;\n");
 
 
 

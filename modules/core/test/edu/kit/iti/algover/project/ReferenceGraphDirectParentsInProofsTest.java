@@ -72,9 +72,9 @@ public class ReferenceGraphDirectParentsInProofsTest {
     /**
      * Proof:
      * Root: (let m := x :: $not($lt(m, y))) |- (let m := x :: $gt(m, 1))
-     * Rule: substitute on='... ((?match: let m := x :: !(m < y))) ... |-';
+     * Rule: substitute on='... ((?m: let m := x :: !(m < y))) ... |-';
      * 0: $not($lt(x, y)) |- (let m := x :: $gt(m, 1))
-     * Rule: substitute on='|- ... ((?match: let m := x :: m > 1)) ...';
+     * Rule: substitute on='|- ... ((?m: let m := x :: m > 1)) ...';
      * 0.0: $not($lt(x, y)) |- $gt(x, 1)
      */
 
@@ -87,18 +87,18 @@ public class ReferenceGraphDirectParentsInProofsTest {
             pm = new XMLProjectManager(new File(resource.getFile()), "config.xml");
             pm.reload();
             proofWithTwoSubstitutionsAndSkips = pm.getProofForPVC("max/else/Post");
-            proofWithTwoSubstitutionsAndSkips.setScriptTextAndInterpret("substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
-                    "substitute on='|- ... ((?match: let m := x :: m > 1)) ...';\n"+"skip;\n"+"skip;\n");
+            proofWithTwoSubstitutionsAndSkips.setScriptTextAndInterpret("substitute on='... ((?m: let m := x :: !(m < y))) ... |-';\n" +
+                    "substitute on='|- ... ((?m: let m := x :: m > 1)) ...';\n"+"skip;\n"+"skip;\n");
 
         TestUtil.assertNoException(proofWithTwoSubstitutionsAndSkips.getFailures());
             assertEquals(ProofStatus.OPEN, proofWithTwoSubstitutionsAndSkips.getProofStatus());
 
             proofBranched = pm.getProofForPVC("max/then/Post.1");
-            String script2 = "substitute on='... ((?match: let m := x :: m < y)) ... |-';\n" +
+            String script2 = "substitute on='... ((?m: let m := x :: m < y)) ... |-';\n" +
                     "skip;\n" +
-                    "substitute on='|- ... ((?match: let m := y :: m >= x && m >= y)) ...';\n" +
+                    "substitute on='|- ... ((?m: let m := y :: m >= x && m >= y)) ...';\n" +
                     "skip;\n" +
-                    "andRight on='|- ... ((?match: y >= x && y >= y)) ...';\n" +
+                    "andRight on='|- ... ((?m: y >= x && y >= y)) ...';\n" +
                     "cases {\n" +
                     "\tcase match \"case 1\": {\n" +
                     "\t\n" +
@@ -117,12 +117,12 @@ public class ReferenceGraphDirectParentsInProofsTest {
 
             //has addlist+delList
             proofWithRemoval = pm.getProofForPVC("ff/Post");
-            proofWithRemoval.setScriptTextAndInterpret("andLeft on='... ((?match: a >= 0 && a < 100)) ... |-';\n"+
-                    "removeAssumption on='... ((?match: a + 1 == a + 1 && a > 0 ==> b >= 0)) ... |-';\n");
+            proofWithRemoval.setScriptTextAndInterpret("andLeft on='... ((?m: a >= 0 && a < 100)) ... |-';\n"+
+                    "removeAssumption on='... ((?m: a + 1 == a + 1 && a > 0 ==> b >= 0)) ... |-';\n");
 
 
-            String script = "substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
-                    "replace with='x == y' on='... ((?match: !(x < y))) ... |-';\n" +
+            String script = "substitute on='... ((?m: let m := x :: !(m < y))) ... |-';\n" +
+                    "replace with='x == y' on='... ((?m: !(x < y))) ... |-';\n" +
                     "cases {\n" +
                     "\tcase match \"replace\": {\n" +
                     "\t\n" +

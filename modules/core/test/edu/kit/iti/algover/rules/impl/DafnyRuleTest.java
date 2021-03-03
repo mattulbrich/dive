@@ -90,7 +90,7 @@ public class DafnyRuleTest {
 
         ProofRuleApplication pra = dafnyRule.considerApplication(pn, testSequent, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
-        assertEquals("addZero on='(?m: _) > _ |-';", pra.getScriptTranscript());
+        assertEquals("addZero on='?m > _ |-';", pra.getScriptTranscript());
 
         pra = dafnyRule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
@@ -111,7 +111,7 @@ public class DafnyRuleTest {
 
         ProofRuleApplication pra = dafnyRule.considerApplication(pn, testSequent, ts);
         assertEquals(pra.getApplicability(), ProofRuleApplication.Applicability.APPLICABLE);
-        assertEquals("commAddition on='|- (?m: _) > _';", pra.getScriptTranscript());
+        assertEquals("commAddition on='|- ?m > _';", pra.getScriptTranscript());
 
         pra = dafnyRule.makeApplication(pn, params);
         List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, pn);
