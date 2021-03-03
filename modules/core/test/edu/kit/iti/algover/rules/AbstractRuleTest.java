@@ -53,13 +53,13 @@ public class AbstractRuleTest {
         Parameters params = new Parameters();
         params.putValue(DefaultFocusProofRule.ON_PARAM_OPT, new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("|- _", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
+        assertEquals("|- _", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getMatchParameter().toString());
         ProofRuleApplication app = rule.makeApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
         );
         assertEquals(1, params.entrySet().size());
-        assertEquals("|- _", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
+        assertEquals("|- _", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getMatchParameter().toString());
     }
 
     @Test(expected = RuleException.class)
@@ -76,7 +76,7 @@ public class AbstractRuleTest {
                         new ApplTerm(new FunctionSymbol("i2", Sort.INT)
                         )
                 );
-        t = new SchemaCaptureTerm("?match", t);
+        t = new SchemaCaptureTerm("?m", t);
         t = new SchemaOccurTerm(t);
         Sequent schemaSeq = new Sequent(Collections.singletonList(new ProofFormula(t)), Collections.emptyList());
 
@@ -103,7 +103,7 @@ public class AbstractRuleTest {
         );
         t = new ApplTerm(BuiltinSymbols.AND,
                 t,
-                new SchemaCaptureTerm("?match", t)
+                new SchemaCaptureTerm("?m", t)
         );
         t = new SchemaOccurTerm(t);
         Sequent schemaSeq = new Sequent(Collections.singletonList(new ProofFormula(t)), Collections.emptyList());
@@ -127,7 +127,7 @@ public class AbstractRuleTest {
         Parameters params = new Parameters();
         params.putValue(DefaultFocusProofRule.ON_PARAM_OPT, new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("$and((?m: _), _) |-", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
+        assertEquals("$and(?m, _) |-", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getMatchParameter().toString());
         rule.makeApplication(ProofMockUtil.mockProofNode(null, sequent), params);
     }
 }

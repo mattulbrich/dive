@@ -5,11 +5,13 @@
  */
 package edu.kit.iti.algover.rules;
 
-import java.math.BigInteger;
-
+import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import edu.kit.iti.algover.util.Either;
 import edu.kit.iti.algover.util.Util;
+
+import java.math.BigInteger;
 
 /**
  * This is an explicit enumeration type. Since type parameters are used, it is
@@ -128,7 +130,12 @@ public abstract class ParameterType<T> {
             pp = prettyPrint.print(parameter.getOriginalSchematicTerm()).toString();
         } else {
             try {
-                pp = prettyPrint.print(parameter.getSchematicSequent()).toString();
+                Either<Sequent, Term> matchParameter = parameter.getMatchParameter();
+                if(matchParameter.isLeft()) {
+                    pp = prettyPrint.print(matchParameter.getLeft()).toString();
+                } else {
+                    pp = prettyPrint.print(matchParameter.getRight()).toString();
+                }
             } catch (RuleException e) {
                 // FIXME
                 e.printStackTrace();

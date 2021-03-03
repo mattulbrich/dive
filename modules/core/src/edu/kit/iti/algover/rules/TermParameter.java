@@ -15,6 +15,7 @@ import edu.kit.iti.algover.term.match.Matching;
 import edu.kit.iti.algover.term.match.MatchingEntry;
 import edu.kit.iti.algover.term.match.SequentMatcher;
 import edu.kit.iti.algover.term.match.TermMatcher;
+import edu.kit.iti.algover.util.Either;
 import edu.kit.iti.algover.util.ImmutableList;
 import edu.kit.iti.algover.util.Pair;
 import edu.kit.iti.algover.util.RuleUtil;
@@ -195,7 +196,7 @@ public class TermParameter {
             if(containsMatchTerm(oSchematicTerm)) {
                 termSelector = matchTermInSequentUniquely(oSchematicTerm, sequent);
             } else {
-                SchemaCaptureTerm matchTerm = new SchemaCaptureTerm("?match", oSchematicTerm);
+                SchemaCaptureTerm matchTerm = new SchemaCaptureTerm("?m", oSchematicTerm);
                 termSelector = matchTermInSequentUniquely(matchTerm, sequent);
             }
 
@@ -238,11 +239,12 @@ public class TermParameter {
             e.printStackTrace();
         }
         List<Term> defaultMatchingTerms = new ArrayList<>();
+        defaultMatchingTerms.add(this.term);
 
         try {
             Term copy = this.term.accept(new EllipsisVisitor(), null);
             if(getTermSelector().isToplevel()) {
-                //if its a toplevel term we can will try to just use the empty wildcar sequent or
+                //if its a toplevel term we can will try to just use the empty wildcard sequent or
                 //use the toplevel term with only wildcards as parameters
                 defaultMatchingTerms.add(new SchemaEllipsisTerm());
                 defaultMatchingTerms.add(copy);
@@ -258,7 +260,7 @@ public class TermParameter {
                 //or we try to use the parent term with wildcards
                 TermSelector parentSelector = getParentSelector(getTermSelector());
                 Term parentTerm = parentSelector.selectSubterm(sequent);
-                parentTerm = parentTerm.accept(new ReplaceSubtermVisitor(), getTermSelector().getTermNo());
+                parentTerm = parentTerm.accept(new ReplaceSubtermVisitor(), getTermSelector().getSubtermSelector().getSubtermNumber(getTermSelector().getDepth() - 1));
                 defaultMatchingTerms.add(parentTerm);
                 Term occurTerm = new SchemaOccurTerm(new SchemaCaptureTerm(matchKeyword, copy));
                 defaultMatchingTerms.add(occurTerm);
@@ -285,7 +287,20 @@ public class TermParameter {
             return schematicSequent;
         }
 
-        Sequent res = null;
+        Either<Sequent, Term> res = getMatchParameter(true);
+        if(res.isLeft()) {
+            return res.getLeft();
+        } else {
+            throw new RuleException("Expected sequent but got term for matching sequent.");
+        }
+    }
+
+    private Either<Sequent, Term> getMatchParameter(boolean forceSequent) throws RuleException {
+        if(schematicSequent != null) {
+            return Either.left(schematicSequent);
+        }
+
+        Either<Sequent, Term> res = null;
         if(oSchematicTerm != null) {
             res = getUniqueSequent(oSchematicTerm, getTermSelector().getPolarity());
             if(res != null) {
@@ -301,31 +316,50 @@ public class TermParameter {
         for(Term t : defaultMatchingTerms) {
             res = getUniqueSequent(t, getTermSelector().getPolarity());
             if(res != null) {
-                schematicSequent = res;
-                return res;
+                if(!forceSequent || res.isLeft()) {
+                    if (res.isLeft() && schematicSequent == null) {
+                        schematicSequent = res.getLeft();
+                    }
+                    return res;
+                }
             }
         }
 
         if(termSelector != null) {
             schematicSequent = getUniqueMatchingTerm(sequent, termSelector);
-            return schematicSequent;
+            return Either.left(schematicSequent);
         }
 
         schematicSequent = getUniqueMatchingTerm(sequent, term);
-        return schematicSequent;
+        return Either.left(schematicSequent);
     }
 
-    private Sequent getUniqueSequent(Term t, TermSelector.SequentPolarity polarity) {
-        Sequent s = null;
-        if(polarity.equals(SequentPolarity.ANTECEDENT)) {
-            s = new Sequent(Collections.singletonList(new ProofFormula(t)), new ArrayList<>());
-        } else {
-            s = new Sequent(new ArrayList<>(), Collections.singletonList(new ProofFormula(t)));
+    public Either<Sequent, Term> getMatchParameter() throws RuleException {
+        return getMatchParameter(false);
+    }
+
+    private Either<Sequent, Term> getUniqueSequent(Term t, TermSelector.SequentPolarity polarity) {
+        List<TermSelector> tss = RuleUtil.matchSubtermsInSequent(t::equals, sequent);
+        if(tss.size() == 1) {
+            return Either.right(t);
         }
         SequentMatcher sequentMatcher = new SequentMatcher();
-        ImmutableList<Matching> matchings = sequentMatcher.match(s, sequent);
+        ImmutableList<Matching> matchings = sequentMatcher.matchTermInSequent(sequent, t);
         if (matchings.size() == 1) {
-            return s;
+            return Either.right(t);
+        }
+
+        if(t.getSort().equals(Sort.BOOL) || t.getSort().equals(Sort.UNTYPED_SORT)) {
+            Sequent s = null;
+            if (polarity.equals(SequentPolarity.ANTECEDENT)) {
+                s = new Sequent(Collections.singletonList(new ProofFormula(t)), new ArrayList<>());
+            } else {
+                s = new Sequent(new ArrayList<>(), Collections.singletonList(new ProofFormula(t)));
+            }
+            matchings = sequentMatcher.match(s, sequent);
+            if (matchings.size() == 1) {
+                return Either.left(s);
+            }
         }
         return null;
     }
@@ -378,12 +412,12 @@ public class TermParameter {
             int postsize = schemaSeq.getSuccedent().size();
             int countFormulas = antesize + postsize;
             if (countFormulas != 1) {
-                throw new RuleException("Schematic sequent must either contain '?match' or must contain a single formula");
+                throw new RuleException("Schematic sequent must either contain '?m' or must contain a single formula");
             }
             ProofFormula single =
                     antesize == 1 ? schemaSeq.getAntecedent().get(0) :
                     schemaSeq.getSuccedent().get(0);
-            SchemaCaptureTerm matchTerm = new SchemaCaptureTerm("?match", single.getTerm());
+            SchemaCaptureTerm matchTerm = new SchemaCaptureTerm("?m", single.getTerm());
             ProofFormula matchFormula = new ProofFormula(matchTerm);
             if (antesize == 1) {
                 schemaSeq = new Sequent(Collections.singleton(matchFormula), Collections.emptyList());
@@ -405,9 +439,9 @@ public class TermParameter {
                     " matches more than once.");
         }
 
-        MatchingEntry m = matchings.get(0).get("?match");
+        MatchingEntry m = matchings.get(0).get("?m");
         if(m == null) {
-            throw new RuleException("No ?match variable was found in schematic term " + schemaSeq);
+            throw new RuleException("No ?m variable was found in schematic term " + schemaSeq);
         }
         return m;
     }
@@ -435,7 +469,7 @@ public class TermParameter {
      * @throws RuleException if no unique matching term is available (only if 2 identical Terms in same polarity)
      */
     private Sequent getUniqueMatchingTerm(Sequent sequent, TermSelector selector, Term t) throws RuleException {
-        Term schemaCaptureTerm = new SchemaCaptureTerm("?match", t);
+        Term schemaCaptureTerm = new SchemaCaptureTerm("?m", t);
         t = new SchemaOccurTerm(schemaCaptureTerm);
         SequentMatcher sequentMatcher = new SequentMatcher();
         Sequent schemaSeq;
@@ -542,7 +576,7 @@ public class TermParameter {
 
         @Override
         public Boolean visit(SchemaCaptureTerm schemaCaptureTerm, Object arg) throws NoExceptions {
-            if(schemaCaptureTerm.getName().equals("?match")) {
+            if(schemaCaptureTerm.getName().equals("?m")) {
                 return true;
             }
             for (Term t : schemaCaptureTerm.getSubterms()) {
@@ -555,7 +589,7 @@ public class TermParameter {
 
         @Override
         public Boolean visit(SchemaVarTerm term, Object arg) throws NoExceptions {
-            return term.getName().equals("?match");
+            return term.getName().equals("?m");
         }
 
         @Override
@@ -609,7 +643,7 @@ public class TermParameter {
         for(int i = 0; i < s.getAntecedent().size(); ++i) {
             ImmutableList<Matching> matches = tm.match(schemaTerm, s.getAntecedent().get(i).getTerm());
             if(matches.size() == 1 && ts == null) {
-                ts = new TermSelector(SequentPolarity.ANTECEDENT, i, matches.get(0).get("?match").getSelector());
+                ts = new TermSelector(SequentPolarity.ANTECEDENT, i, matches.get(0).get("?m").getSelector());
             } else if((matches.size() == 1 && ts != null) || matches.size() > 1) {
                 throw new RuleException("Matching of term " + schemaTerm + " is ambiguous.");
             }
@@ -617,7 +651,7 @@ public class TermParameter {
         for(int i = 0; i < s.getSuccedent().size(); ++i) {
             ImmutableList<Matching> matches = tm.match(schemaTerm, s.getSuccedent().get(i).getTerm());
             if(matches.size() == 1 && ts == null) {
-                ts = new TermSelector(SequentPolarity.SUCCEDENT, i, matches.get(0).get("?match").getSelector());
+                ts = new TermSelector(SequentPolarity.SUCCEDENT, i, matches.get(0).get("?m").getSelector());
             } else if((matches.size() == 1 && ts != null) || matches.size() > 1) {
                 throw new RuleException("Matching of term " + schemaTerm + " is ambiguous.");
             }
@@ -770,7 +804,7 @@ public class TermParameter {
             List<Term> arguments = new ArrayList<>();
             for(int i = 0; i < applTerm.getSubterms().size(); ++i) {
                 if(i == arg) {
-                    arguments.add(new SchemaCaptureTerm(matchKeyword, new SchemaEllipsisTerm()));
+                    arguments.add(new SchemaVarTerm(matchKeyword));
                 } else {
                     arguments.add(new SchemaEllipsisTerm());
                 }

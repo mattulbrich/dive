@@ -158,7 +158,7 @@ public class InterpreterTest {
         Exception exc = interpreter.getFailures().get(0);
         assertThat(exc, Matchers.instanceOf(ScriptException.class));
         assertThat(exc.getMessage(),
-                Matchers.containsString("Schematic sequent |- (?match: $and(_, _)) does not match."));
+                Matchers.containsString("Schematic sequent |- (?m: $and(_, _)) does not match."));
 
     }
 
