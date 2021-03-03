@@ -8,6 +8,7 @@ package edu.kit.iti.algover.term.match;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 
 public class SequentMatcher {
@@ -58,6 +59,37 @@ public class SequentMatcher {
                 ImmutableList<ProofFormula> remainder = list.filter(x -> x != formula);
                 ImmutableList<Matching> newMatches2 = newMatches.flatMap(x -> matchSemiSequent(tail, remainder, polarity, x));
                 result = result.appendAll(newMatches2);
+            }
+            no++;
+        }
+
+        return result;
+    }
+
+    public ImmutableList<Matching> matchTermInSequent(Sequent sequent, Term term) {
+        Matching m = Matching.emptyMatching();
+        ImmutableList<Matching> anteMatchings = matchTermInSemiSequent(sequent, term, TermSelector.SequentPolarity.ANTECEDENT, m);
+        ImmutableList<Matching> succMatchings = matchTermInSemiSequent(sequent, term, TermSelector.SequentPolarity.SUCCEDENT, m);
+        ImmutableList<Matching> res = anteMatchings.appendAll(succMatchings);
+        return res;
+    }
+
+    public ImmutableList<Matching> matchTermInSemiSequent(Sequent sequent, Term term, TermSelector.SequentPolarity polarity) {
+        return matchTermInSemiSequent(sequent, term, polarity, Matching.emptyMatching());
+    }
+
+    public ImmutableList<Matching> matchTermInSemiSequent(Sequent sequent, Term term, TermSelector.SequentPolarity polarity, Matching m) {
+
+        ImmutableList<Matching> result = ImmutableList.nil();
+        ImmutableList<ProofFormula> list = ImmutableList.from(polarity == TermSelector.SequentPolarity.ANTECEDENT ? sequent.getAntecedent() : sequent.getSuccedent());
+
+        int no = 0;
+
+        for (ProofFormula formula : list) {
+            ImmutableList<Matching> newMatches = tm.match(term, formula.getTerm(), m);
+            if (!newMatches.isEmpty()) {
+                final int no2 = no;
+                newMatches.forEach(x -> x.refineContext(polarity, no2));
             }
             no++;
         }
