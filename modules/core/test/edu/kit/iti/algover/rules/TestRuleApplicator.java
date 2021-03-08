@@ -11,10 +11,12 @@ import edu.kit.iti.algover.data.SymbolTable;
 import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.parser.DafnyTree;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.rules.impl.AndLeftRule;
 import edu.kit.iti.algover.rules.impl.AndRightRule;
+import edu.kit.iti.algover.rules.impl.ReplaceCutRule;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Sort;
@@ -161,5 +163,22 @@ public class TestRuleApplicator {
         assertEquals(2, newNodes.size());
         assertEquals("$lt(i1, i3) |- $lt(i1, i2)", newNodes.get(0).getSequent().toString());
         assertEquals("$lt(i1, i3) |- $lt(i2, i3)", newNodes.get(1).getSequent().toString());
+    }
+
+    @Test
+    public void subtypeReplacement() throws Exception {
+        TermParser tp = new TermParser(symbTable);
+        Proof proof = ProofMockUtil.makeProof(symbTable, "c==c");
+        proof.setScriptTextAndInterpret("");
+        Sequent sequent = proof.getProofRoot().getSequent();
+        ReplaceCutRule rule = new ReplaceCutRule();
+        Parameters p = new Parameters();
+        p.checkAndPutValue(FocusProofRule.ON_PARAM_REQ, new TermParameter(new TermSelector("S.0.0"), sequent));
+        p.checkAndPutValue(ReplaceCutRule.WITH_PARAM, new TermParameter(tp.parse("null"), sequent));
+        ProofRuleApplication pra = rule.makeApplication(proof.getProofRoot(), p);
+        List<ProofNode> newNodes = RuleApplicator.applyRule(pra, null, proof.getProofRoot());
+        assertEquals(2, newNodes.size());
+        assertEquals("|- $eq<C>(c, c), $eq<C>(c, null)", newNodes.get(0).getSequent().toString());
+        assertEquals("|- $eq<C>(null, c)", newNodes.get(1).getSequent().toString());
     }
 }

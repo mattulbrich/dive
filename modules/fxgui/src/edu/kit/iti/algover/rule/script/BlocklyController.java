@@ -31,8 +31,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
-import java.util.List;
-
 public class BlocklyController implements ScriptViewListener {
 
     private BlocklyView view;
@@ -67,32 +65,10 @@ public class BlocklyController implements ScriptViewListener {
             }
         });
 
-        PropertyManager.getInstance().currentProof.addListener(((observable, oldValue, newValue) -> {
-            view.update();
-        }));
+        PropertyManager.getInstance().currentProof.addListener((observable, oldValue, newValue) -> view.update());
 
         PropertyManager.getInstance().currentProofNode.addListener((observable, oldValue, newValue) ->
-        {
-            if (newValue != null) {
-                 if (newValue == PropertyManager.getInstance().currentProof.get().getProofRoot()) {
-                     if (PropertyManager.getInstance().currentProof.get().getProofScript() != null &&
-                         PropertyManager.getInstance().currentProof.get().getProofScript().getStatements().size() == 0) {
-                         highlightedASTElement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
-
-                     }
-                 } else if (!(newValue == null || newValue.getCommand() == null)) {
-                     if (newValue.getChildren() == null || newValue.getChildren().size() == 0) {
-                         highlightedASTElement.set(findCaseEnd(newValue));
-                     } else {
-                         ScriptAST.StatementList parent = (ScriptAST.StatementList) findCaseEnd(newValue);
-                         if (newValue.getCommand().getParent() != parent) {
-                             highlightedASTElement.set(parent.getStatements().get(0));
-                         }
-                     }
-                 }
-            }
-
-        });
+                reconsiderHighlighting(newValue));
 
         view.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 
@@ -147,13 +123,8 @@ public class BlocklyController implements ScriptViewListener {
 
         PropertyManager.getInstance().currentProofStatus.addListener(((observable, oldValue, newValue) -> {
             if(PropertyManager.getInstance().currentProof.get() != null) {
-                /* TODO: Somehow consider filtering newValue*/
-                /*  If newValue == CHANGED_SCRIPT the proof is rerun (triggered by a different listener)
-                    the satus is immediately set to OPEN, CLOSED or FAILING.*/
-
-                Script currentScript = PropertyManager.getInstance().currentProof.get().getProofScript();
-
                 view.update();
+                Script currentScript = PropertyManager.getInstance().currentProof.get().getProofScript();
 
                 if (currentScript != null) {
                     if (currentScript.getStatements().isEmpty()) {
@@ -163,8 +134,39 @@ public class BlocklyController implements ScriptViewListener {
                         highlightedASTElement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
                     }
                 }
+
+                if (newValue == ProofStatus.OPEN || newValue == ProofStatus.CLOSED) {
+                    ProofNode currentPN = PropertyManager.getInstance().currentProofNode.get();
+                    if (currentPN != null) {
+                        PropertyManager.getInstance().currentProofNode.set(currentPN.getParent());
+                        PropertyManager.getInstance().currentProofNode.set(currentPN);
+                    }
+                }
+
             }
         }));
+    }
+
+    private void reconsiderHighlighting(ProofNode newValue) {
+        if (newValue != null) {
+            if (newValue == PropertyManager.getInstance().currentProof.get().getProofRoot()) {
+                if (PropertyManager.getInstance().currentProof.get().getProofScript() != null &&
+                        PropertyManager.getInstance().currentProof.get().getProofScript().getStatements().size() == 0) {
+                    highlightedASTElement.set(PropertyManager.getInstance().currentProof.get().getProofScript());
+
+                }
+            } else if (!(newValue == null || newValue.getCommand() == null)) {
+                if (newValue.getChildren() == null || newValue.getChildren().size() == 0) {
+                    ScriptAST newHighlight = findCaseEnd(newValue);
+                    highlightedASTElement.set(newHighlight);
+                } else {
+                    ScriptAST.StatementList parent = (ScriptAST.StatementList) findCaseEnd(newValue);
+                    if (newValue.getCommand().getParent() != parent) {
+                        highlightedASTElement.set(parent.getStatements().get(0));
+                    }
+                }
+            }
+        }
     }
 
     private void highlightAndSetProofNode(ScriptAST toHighlight) {
@@ -178,7 +180,7 @@ public class BlocklyController implements ScriptViewListener {
     private ScriptAST findCaseEnd(ProofNode displayedNode) {
         ScriptAST.StatementList parentList = (ScriptAST.StatementList) displayedNode.getCommand().getParent();
         ScriptAST highlight = parentList;
-        for (int i = 0; i < parentList.getStatements().size() - 1; i++) {
+        for (int i = 0; i < parentList.getStatements().size() - 1; ++i) {
             ScriptAST.Statement stmt = parentList.getStatements().get(i);
             if (stmt == displayedNode.getCommand()) {
                 ScriptAST.Statement nextStmt = parentList.getStatements().get(i + 1);
@@ -318,16 +320,19 @@ public class BlocklyController implements ScriptViewListener {
 
     @Override
     public void onInsertCases() {
-        List<ScriptAST.Statement> updatedScript = ScriptASTUtil.insertCasesForStatement(PropertyManager.getInstance()
+        Script updated = ScriptASTUtil.insertMissingCases(PropertyManager.getInstance()
                         .currentProof.get().getProofRoot(),
                 PropertyManager.getInstance().currentProof.get().getProofScript());
 
-        Script updated = new Script();
-        updated.addStatements(updatedScript);
-
         beforeStep = UnsealedCopyVisitor.INSTANCE.visitScript(
-                PropertyManager.getInstance().currentProof.get().getProofScript(), null);        PropertyManager.getInstance().currentProof.get().setScriptAST(updated);
+                PropertyManager.getInstance().currentProof.get().getProofScript(), null);
+        PropertyManager.getInstance().currentProof.get().setScriptAST(updated);
         PropertyManager.getInstance().currentProof.get().interpretScript();
+
+        ProofNode currentPN = PropertyManager.getInstance().currentProofNode.get();
+        PropertyManager.getInstance().currentProofNode.set(currentPN.getParent());
+        PropertyManager.getInstance().currentProofNode.set(currentPN);
+
     }
 
     @Override
