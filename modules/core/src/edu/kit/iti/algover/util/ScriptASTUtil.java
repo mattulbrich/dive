@@ -278,4 +278,33 @@ public class ScriptASTUtil {
         }
         return null;
     }
+
+    public static ScriptAST getASTListFromPN(ProofNode displayedNode) {
+        ScriptAST.StatementList parentList = (ScriptAST.StatementList) displayedNode.getCommand().getParent();
+        ScriptAST highlight = parentList;
+        for (int i = 0; i < parentList.getStatements().size() - 1; ++i) {
+            ScriptAST.Statement stmt = parentList.getStatements().get(i);
+            if (stmt == displayedNode.getCommand()) {
+                ScriptAST.Statement nextStmt = parentList.getStatements().get(i + 1);
+                // Use visitor?
+                if (nextStmt instanceof ScriptAST.Cases) {
+                    ScriptAST.Cases cases = (ScriptAST.Cases) nextStmt;
+                    for (int j = 0; j < displayedNode.getParent().getChildren().size(); j++) {
+                        // TODO: tests and assertions
+                        // Handle implicit cases
+                        ProofNode pChild = displayedNode.getParent().getChildren().get(j);
+                        if (pChild == displayedNode) {
+                            if (j < cases.getCases().size()) {
+                                return cases.getCases().get(j);
+                            }
+                        }
+                    }
+                } else {
+                    return displayedNode.getCommand().getParent();
+                }
+            }
+        }
+        return highlight;
+    }
+
 }

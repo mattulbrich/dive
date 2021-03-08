@@ -136,10 +136,12 @@ public class BlocklyController implements ScriptViewListener {
                 }
 
                 if (newValue == ProofStatus.OPEN || newValue == ProofStatus.CLOSED) {
-                    ProofNode currentPN = PropertyManager.getInstance().currentProofNode.get();
-                    if (currentPN != null) {
-                        PropertyManager.getInstance().currentProofNode.set(currentPN.getParent());
-                        PropertyManager.getInstance().currentProofNode.set(currentPN);
+                    ProofNodeSelector currentSelector = PropertyManager.getInstance().currentProofNodeSelector.get();
+                    if (currentSelector != null) {
+                        ProofNode afap = currentSelector.followAsFarAsPossible(
+                                PropertyManager.getInstance().currentProof.get().getProofRoot());
+                        PropertyManager.getInstance().currentProofNode.set(afap.getParent());
+                        PropertyManager.getInstance().currentProofNode.set(afap);
                     }
                 }
 
@@ -157,10 +159,10 @@ public class BlocklyController implements ScriptViewListener {
                 }
             } else if (!(newValue == null || newValue.getCommand() == null)) {
                 if (newValue.getChildren() == null || newValue.getChildren().size() == 0) {
-                    ScriptAST newHighlight = findCaseEnd(newValue);
+                    ScriptAST newHighlight = ScriptASTUtil.getASTListFromPN(newValue);
                     highlightedASTElement.set(newHighlight);
                 } else {
-                    ScriptAST.StatementList parent = (ScriptAST.StatementList) findCaseEnd(newValue);
+                    ScriptAST.StatementList parent = (ScriptAST.StatementList) ScriptASTUtil.getASTListFromPN(newValue);
                     if (newValue.getCommand().getParent() != parent) {
                         highlightedASTElement.set(parent.getStatements().get(0));
                     }
@@ -177,33 +179,7 @@ public class BlocklyController implements ScriptViewListener {
         highlightedASTElement.set(toHighlight);
     }
 
-    private ScriptAST findCaseEnd(ProofNode displayedNode) {
-        ScriptAST.StatementList parentList = (ScriptAST.StatementList) displayedNode.getCommand().getParent();
-        ScriptAST highlight = parentList;
-        for (int i = 0; i < parentList.getStatements().size() - 1; ++i) {
-            ScriptAST.Statement stmt = parentList.getStatements().get(i);
-            if (stmt == displayedNode.getCommand()) {
-                ScriptAST.Statement nextStmt = parentList.getStatements().get(i + 1);
-                // Use visitor?
-                if (nextStmt instanceof ScriptAST.Cases) {
-                    ScriptAST.Cases cases = (ScriptAST.Cases) nextStmt;
-                    for (int j = 0; j < displayedNode.getParent().getChildren().size(); j++) {
-                        // TODO: tests and assertions
-                        // Handle implicit cases
-                        ProofNode pChild = displayedNode.getParent().getChildren().get(j);
-                        if (pChild == displayedNode) {
-                            if (j < cases.getCases().size()) {
-                                return cases.getCases().get(j);
-                            }
-                        }
-                    }
-                } else {
-                    return displayedNode.getCommand().getParent();
-                }
-            }
-        }
-        return highlight;
-    }
+
 
 
     private ScriptAST getHighlightFromProofNodeSelector(ProofNodeSelector selector) {
@@ -227,7 +203,7 @@ public class BlocklyController implements ScriptViewListener {
                 highlight = PropertyManager.getInstance().currentProof.get().getProofScript();
             } else {
                 // Statement List or last statement of it
-                highlight = findCaseEnd(displayedNode);
+                highlight = ScriptASTUtil.getASTListFromPN(displayedNode);
 
             }
         }
