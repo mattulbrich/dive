@@ -344,11 +344,14 @@ public class TermParameter {
             return Either.right(t);
         }
         SequentMatcher sequentMatcher = new SequentMatcher();
-        ImmutableList<Matching> matchings = sequentMatcher.matchTermInSequent(sequent, t);
-        if (matchings.size() == 1) {
-            return Either.right(t);
+        List<ImmutableList<Matching>> matchingsList = sequentMatcher.matchTermInSequent(sequent, t);
+        if (matchingsList.size() == 1) {
+            if(matchingsList.get(0).size() == 1) {
+                return Either.right(t);
+            }
         }
 
+        ImmutableList<Matching> matchings = ImmutableList.nil();
         if(t.getSort().equals(Sort.BOOL) || t.getSort().equals(Sort.UNTYPED_SORT)) {
             Sequent s = null;
             if (polarity.equals(SequentPolarity.ANTECEDENT)) {

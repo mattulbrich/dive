@@ -11,6 +11,9 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SequentMatcher {
     private TermMatcher tm = new TermMatcher();
 
@@ -66,35 +69,35 @@ public class SequentMatcher {
         return result;
     }
 
-    public ImmutableList<Matching> matchTermInSequent(Sequent sequent, Term term) {
-        Matching m = Matching.emptyMatching();
-        ImmutableList<Matching> anteMatchings = matchTermInSemiSequent(sequent, term, TermSelector.SequentPolarity.ANTECEDENT, m);
-        ImmutableList<Matching> succMatchings = matchTermInSemiSequent(sequent, term, TermSelector.SequentPolarity.SUCCEDENT, m);
-        ImmutableList<Matching> res = anteMatchings.appendAll(succMatchings);
-        return res;
+    public List<ImmutableList<Matching>> matchTermInSequent(Sequent sequent, Term term) {
+        List<ImmutableList<Matching>> matchings = matchTermInSemiSequent(sequent, term, TermSelector.SequentPolarity.ANTECEDENT);
+        matchings.addAll(matchTermInSemiSequent(sequent, term, TermSelector.SequentPolarity.SUCCEDENT));
+
+        return matchings;
     }
 
-    public ImmutableList<Matching> matchTermInSemiSequent(Sequent sequent, Term term, TermSelector.SequentPolarity polarity) {
-        return matchTermInSemiSequent(sequent, term, polarity, Matching.emptyMatching());
-    }
+    public List<ImmutableList<Matching>> matchTermInSemiSequent(Sequent sequent, Term term, TermSelector.SequentPolarity polarity) {
 
-    public ImmutableList<Matching> matchTermInSemiSequent(Sequent sequent, Term term, TermSelector.SequentPolarity polarity, Matching m) {
-
-        ImmutableList<Matching> result = ImmutableList.nil();
+        List<ImmutableList<Matching>> result = new ArrayList<>();
         ImmutableList<ProofFormula> list = ImmutableList.from(polarity == TermSelector.SequentPolarity.ANTECEDENT ? sequent.getAntecedent() : sequent.getSuccedent());
 
-        int no = 0;
-
         for (ProofFormula formula : list) {
-            ImmutableList<Matching> newMatches = tm.match(term, formula.getTerm(), m);
-            if (!newMatches.isEmpty()) {
-                final int no2 = no;
-                newMatches.forEach(x -> x.refineContext(polarity, no2));
-            }
-            no++;
+            result.addAll(matchTermInTermRec(formula.getTerm(), term));
         }
 
         return result;
+    }
+
+    public List<ImmutableList<Matching>> matchTermInTermRec(Term term, Term matchTerm) {
+        List<ImmutableList<Matching>> res = new ArrayList<>();
+        for(Term t : term.getSubterms()) {
+            res.addAll(matchTermInTermRec(t, matchTerm));
+        }
+        ImmutableList<Matching> newMatches = tm.match(matchTerm, term);
+        if(!newMatches.isEmpty()) {
+            res.add(newMatches);
+        }
+        return res;
     }
 
 
