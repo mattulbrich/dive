@@ -55,7 +55,8 @@ public class TermParameterTest {
                 { "A.0.0", "i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2", "?m && _ |-" },
                 { "A.0.1", "i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2", "_ && ?m |-" },
                 { "S.0", "i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2", "|- _" },
-                //{ "A.0.0.0", "1+2 > 1 |-", "?m+2" }, //are you sure we actually support this in the matcher?
+                {"A.0.0", "1+2 > 1 |-", "?m > _"},
+                { "A.0.0.0", "1+2 > 1 |-", "$plus(?m, _)" },
                 { "A.0.0.1", "1+2 > 1 |-", "2" },
         };
     }
