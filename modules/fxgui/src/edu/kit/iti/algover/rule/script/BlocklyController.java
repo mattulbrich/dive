@@ -20,16 +20,22 @@ package edu.kit.iti.algover.rule.script;
 import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
+import edu.kit.iti.algover.nuscript.ScriptException;
 import edu.kit.iti.algover.nuscript.UnsealedCopyVisitor;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.util.ExceptionDetails;
 import edu.kit.iti.algover.util.ScriptASTUtil;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 public class BlocklyController implements ScriptViewListener {
 
@@ -73,9 +79,10 @@ public class BlocklyController implements ScriptViewListener {
         view.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 
             if (event.isControlDown() && event.getCode() == KeyCode.Z) {
+                // undo script
                 if (beforeStep != null) {
-                    PropertyManager.getInstance().currentProof.get().setScriptAST(beforeStep);
-                    PropertyManager.getInstance().currentProof.get().interpretScript();
+                    runCurrentScript();
+
                     highlightedASTElement.set(getHighlightFromProofNodeSelector(
                             PropertyManager.getInstance().currentProofNodeSelector.get()));
                     beforeStep = null;
@@ -86,6 +93,8 @@ public class BlocklyController implements ScriptViewListener {
 
             if (highlightedASTElement.get() != null) {
                 if (event.getCode() == KeyCode.BACK_SPACE) {
+                    // remove selected element
+                    // whole list if leaf (last pn in list) is selected
                     ScriptAST newHighlight = highlightedASTElement.get();
                     Proof currentProof = PropertyManager.getInstance().currentProof.get();
                     Script updatedScript = ScriptASTUtil.removeStatementFromScript(
@@ -93,15 +102,13 @@ public class BlocklyController implements ScriptViewListener {
                     beforeStep = UnsealedCopyVisitor.INSTANCE.visitScript(
                             PropertyManager.getInstance().currentProof.get().getProofScript(), null);
 
-                    currentProof.setScriptAST(updatedScript);
 
-                    if (currentProof.getProofStatus() == ProofStatus.CHANGED_SCRIPT) {
-                        currentProof.interpretScript();
-                        newHighlight = getHighlightFromProofNodeSelector(
-                                PropertyManager.getInstance().currentProofNodeSelector.get());
+                    PropertyManager.getInstance().currentProof.get().setScriptAST(updatedScript);
+                    runCurrentScript();
 
-                        highlightAndSetProofNode(newHighlight);
-                    }
+                    newHighlight = getHighlightFromProofNodeSelector(
+                           PropertyManager.getInstance().currentProofNodeSelector.get());
+                    highlightAndSetProofNode(newHighlight);
                     event.consume();
                     view.requestFocus();
                     return;
@@ -149,6 +156,51 @@ public class BlocklyController implements ScriptViewListener {
         }));
     }
 
+    public boolean runCurrentScript() {
+        Proof proof = PropertyManager.getInstance().currentProof.get();
+        Script proofScript = PropertyManager.getInstance().currentProof.get().getProofScript();
+        // (!proofScript.isSealed()) ==> (ProofStatus == CHANGED)
+
+        if (proofScript != null && proofScript.isSealed()) {
+            // error
+            return false;
+        }
+
+        proof.setScriptAST(proofScript);
+        proof.interpretScript();
+
+        return true;
+    }
+
+    private void highlightScriptErrors() {
+        Proof proof = PropertyManager.getInstance().currentProof.get();
+        List<Exception> exceptions = proof.getFailures();
+        List<ExceptionDetails.ExceptionReportInfo> eris = new ArrayList<>();
+
+        System.out.println(exceptions);
+
+        for (Exception ex: exceptions) {
+            ExceptionDetails.ExceptionReportInfo eri = ExceptionDetails.extractReportInfo(ex);
+            eris.add(eri);
+            createErrorReport(ex);
+            Logger.getGlobal().warning(ex.getMessage());
+        }
+    }
+
+    private void createErrorReport(Exception ex) {
+        if (ex instanceof ScriptException) {
+            ScriptException scriptException = (ScriptException) ex;
+
+            System.out.println("AST Exception " + ex);
+
+            ScriptAST astError = scriptException.getScriptAST();
+
+            System.out.println("scriptAST error" + astError);
+
+            view.highlightError(astError);
+        }
+    }
+
     private void reconsiderHighlighting(ProofNode newValue) {
         if (newValue != null) {
             if (newValue == PropertyManager.getInstance().currentProof.get().getProofRoot()) {
@@ -178,7 +230,6 @@ public class BlocklyController implements ScriptViewListener {
         }
         highlightedASTElement.set(toHighlight);
     }
-
 
 
 
@@ -302,13 +353,13 @@ public class BlocklyController implements ScriptViewListener {
 
         beforeStep = UnsealedCopyVisitor.INSTANCE.visitScript(
                 PropertyManager.getInstance().currentProof.get().getProofScript(), null);
+
         PropertyManager.getInstance().currentProof.get().setScriptAST(updated);
-        PropertyManager.getInstance().currentProof.get().interpretScript();
+        runCurrentScript();
 
         ProofNode currentPN = PropertyManager.getInstance().currentProofNode.get();
         PropertyManager.getInstance().currentProofNode.set(currentPN.getParent());
         PropertyManager.getInstance().currentProofNode.set(currentPN);
-
     }
 
     @Override
@@ -316,6 +367,8 @@ public class BlocklyController implements ScriptViewListener {
         ProofStatus proofState = PropertyManager.getInstance().currentProofStatus.get();
         if (proofState == ProofStatus.OPEN || proofState == ProofStatus.CLOSED) {
             scanProofEnds(PropertyManager.getInstance().currentProof.get().getProofScript());
+        } else if (proofState == ProofStatus.FAILING) {
+            highlightScriptErrors();
         }
 
         view.highlight(highlightedASTElement.get());
@@ -326,7 +379,13 @@ public class BlocklyController implements ScriptViewListener {
     public void onASTElemSelected(ScriptAST astElem) {
         highlightedASTElement.set(astElem);
         ProofNode displayNode = astElem.accept(ProofNodeExtractionVisitor.INSTANCE, null);
-        PropertyManager.getInstance().currentProofNode.set(displayNode);
+        try {
+            ProofNodeSelector pns = new ProofNodeSelector(displayNode);
+            PropertyManager.getInstance().currentProofNodeSelector.set(pns);
+        } catch (RuntimeException rex) {
+
+        }
+
     }
 
 }

@@ -48,6 +48,8 @@ public final class ExceptionDetails {
         private int column = -1;
         private int length = 1;
 
+        private ScriptAST astElem;
+
         public String getMessage() {
             return message;
         }
@@ -146,16 +148,19 @@ public final class ExceptionDetails {
             return result;
         }
 
-        if(ex instanceof ScriptException) {
+        if (ex instanceof ScriptException) {
             ScriptException sex = (ScriptException) ex;
             ExceptionReportInfo result = new ExceptionReportInfo();
             result.message = sex.getMessage();
             ScriptAST ast = sex.getScriptAST();
             if(ast != null) {
-                result.line = ast.getBeginToken().getLine();
-                result.column = ast.getBeginToken().getCharPositionInLine();
-                result.length = ast.getEndToken().getStopIndex() -
-                        ast.getBeginToken().getStartIndex();
+                if (ast.getBeginToken() != null) {
+                    result.line = ast.getBeginToken().getLine();
+                    result.column = ast.getBeginToken().getCharPositionInLine();
+                    result.length = ast.getEndToken().getStopIndex() -
+                            ast.getBeginToken().getStartIndex();
+                }
+                result.astElem = ast;
             }
             return result;
         }

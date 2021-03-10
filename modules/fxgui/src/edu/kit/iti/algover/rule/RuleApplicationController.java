@@ -26,8 +26,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.util.concurrent.ExecutorService;
@@ -233,18 +231,13 @@ public class RuleApplicationController extends FxmlController implements Referen
             resetConsideration();
             // TODO: create new Statement directly from ProofRuleApplication.
             ScriptAST.Script newLine = Scripts.parseScript(application.getScriptTranscript());
-
-
-
             scriptRepWeb.insertAtCurrentPosition(application, newLine);
-
-
+            scriptRepWeb.runCurrentScript();
 
         } catch(RuleException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
         }
     }
-
 
     public void onReset() {
         ruleGrid.setAllRules(manager.getProject().getAllProofRules().stream()

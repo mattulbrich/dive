@@ -8,6 +8,17 @@ function highlight(elemid) {
     elem.style.borderTopColor = "c80000";
 }
 
+function setError(elemid) {
+    const elem = document.getElementById(elemid);
+    if (elem === null) {
+        return;
+    }
+
+    elem.style.borderWidth = "5px";
+    elem.style.borderColor = "red";
+
+}
+
 function unhighlight(elemid) {
     const elem = document.getElementById(elemid);
     if (elem === null) {

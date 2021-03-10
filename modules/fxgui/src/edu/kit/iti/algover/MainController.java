@@ -638,8 +638,6 @@ public class MainController implements RuleApplicationListener {
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
         ruleApplicationController.applyRule(application);
 
-        PropertyManager.getInstance().currentProof.get().interpretScript();
-
         ruleApplicationController.resetConsideration();
         if(PropertyManager.getInstance().currentProofStatus.get() != ProofStatus.FAILING) {
             sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()

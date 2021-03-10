@@ -52,7 +52,7 @@ public class BlocklyView extends VBox {
 
         webView = new WebView();
 
-        webView.setContextMenuEnabled(false);
+        //webView.setContextMenuEnabled(false);
 
         // optional set custom context menu
         /*webView.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
@@ -224,6 +224,16 @@ public class BlocklyView extends VBox {
                 }
             }, null);
         }
+    }
+
+    public void highlightError(ScriptAST scriptAST) {
+        Integer elemid = scriptHTML.getID(scriptAST);
+        executeJavaScript("setError(" + elemid + ");");
+    }
+
+    public void highlightUnreachedCode(ScriptAST scriptAST) {
+        Integer elemid = scriptHTML.getID(scriptAST);
+        executeJavaScript("setStyle(" + elemid + ", " + "\"ignore\"" + ");");
     }
     
     public void hideProofEnd (ScriptAST statementList) {
