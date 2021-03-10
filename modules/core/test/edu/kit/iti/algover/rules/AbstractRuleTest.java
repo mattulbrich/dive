@@ -123,7 +123,7 @@ public class AbstractRuleTest {
         AndRightRule rule = new AndRightRule();
         TermSelector selector = new TermSelector("A.0.0");
         TermParser tp = new TermParser(symbolTable);
-        Sequent sequent = tp.parseSequent("i1 < i2 && i3 < i4 |- i1 < i2");
+        Sequent sequent = tp.parseSequent("i1 < i2 && i3 < i4 |- i1 < i2 && i3 < i4, i1 < i2");
         Parameters params = new Parameters();
         params.putValue(DefaultFocusProofRule.ON_PARAM_OPT, new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
