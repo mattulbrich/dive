@@ -18,6 +18,7 @@
 package edu.kit.iti.algover.rule.script;
 
 import edu.kit.iti.algover.PropertyManager;
+import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.ScriptException;
@@ -27,6 +28,7 @@ import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import edu.kit.iti.algover.util.ScriptASTUtil;
 import javafx.beans.property.SimpleObjectProperty;
@@ -113,6 +115,7 @@ public class BlocklyController implements ScriptViewListener {
                     view.requestFocus();
                     return;
                 } else {
+                    // TODO: catch invalid ProofNodes
                     if (event.getCode() == KeyCode.DOWN) {
                         ScriptAST newHighlight = highlightedASTElement.get().accept(NavigateDownVisitor.INSTANCE, null);
                         highlightAndSetProofNode(newHighlight);
@@ -144,11 +147,13 @@ public class BlocklyController implements ScriptViewListener {
 
                 if (newValue == ProofStatus.OPEN || newValue == ProofStatus.CLOSED) {
                     ProofNodeSelector currentSelector = PropertyManager.getInstance().currentProofNodeSelector.get();
+                    Logger.getGlobal().info("Successfully ran script.");
                     if (currentSelector != null) {
                         ProofNode afap = currentSelector.followAsFarAsPossible(
                                 PropertyManager.getInstance().currentProof.get().getProofRoot());
                         PropertyManager.getInstance().currentProofNode.set(afap.getParent());
                         PropertyManager.getInstance().currentProofNode.set(afap);
+
                     }
                 }
 
@@ -181,7 +186,7 @@ public class BlocklyController implements ScriptViewListener {
             ExceptionDetails.ExceptionReportInfo eri = ExceptionDetails.extractReportInfo(ex);
             eris.add(eri);
             createErrorReport(ex);
-            Logger.getGlobal().warning(ex.getMessage());
+            Logger.getGlobal().severe(ex.getMessage());
         }
     }
 
@@ -190,19 +195,19 @@ public class BlocklyController implements ScriptViewListener {
         highlightScriptErrors(proof.getFailures());
     }
 
-    private void createErrorReport(Exception ex) {
+
+    private void createErrorReport(Throwable ex) {
+        if (ex instanceof RuleException) {
+            System.out.println("Also Rule Exception");
+        }
+
         if (ex instanceof ScriptException) {
             ScriptException scriptException = (ScriptException) ex;
-
-            System.out.println("AST Exception " + ex);
-
-            ScriptAST astError = scriptException.getScriptAST();
-
-            System.out.println("scriptAST error" + astError);
-
-            view.highlightError(astError);
+            ScriptAST errorAST = scriptException.getScriptAST();
+            view.highlightError(errorAST);
         }
     }
+
 
     private void reconsiderHighlighting(ProofNode newValue) {
         if (newValue != null) {
@@ -224,6 +229,41 @@ public class BlocklyController implements ScriptViewListener {
                 }
             }
         }
+    }
+
+    /**
+     * prototypic to sort nested Exception (from ScriptException)
+     * ASTVisitor should locate failing parameter
+     * @param ex
+     */
+    private void propagateScriptException(ScriptException ex) {
+        ScriptAST errorAST = ex.getScriptAST();
+        Throwable cause = ex.getCause();
+        if (ex != cause) {
+            if (cause instanceof RuleException) {
+                String message = cause.getMessage();
+                ScriptAST detailedError = errorAST.accept(new DefaultScriptASTVisitor<String, ScriptAST, IllegalArgumentException>() {
+                    @Override
+                    public ScriptAST visitCommand(ScriptAST.Command command, String arg) throws IllegalArgumentException {
+                        for (ScriptAST.Parameter p: command.getParameters()) {
+                            final String schemaKey = "Schematic sequent ";
+                            if (arg.startsWith(schemaKey)) {
+                                String schemaSeq = arg.substring(schemaKey.length());
+                                //String prettyPrinted = schemaSeq.
+                                if (p.getValue().toString().contains(schemaSeq)) {
+                                    return p;
+                                }
+                            }
+                        }
+                        return null;
+                    }
+                }, message);
+
+                view.highlightError(detailedError);
+
+            }
+        }
+
     }
 
     private void highlightAndSetProofNode(ScriptAST toHighlight) {
