@@ -102,7 +102,11 @@ public class RuleViewOverlay extends AnchorPane {
             String on;
             try {
                 PrettyPrint pp = new PrettyPrint();
-                on = pp.print(selector.selectSubterm(PropertyManager.getInstance().currentProofNode.get().getSequent())).toString();
+                if(selector != null) {
+                    on = pp.print(selector.selectSubterm(PropertyManager.getInstance().currentProofNode.get().getSequent())).toString();
+                } else {
+                    on = null;
+                }
             } catch (RuleException e) {
                 on = null;
             }
