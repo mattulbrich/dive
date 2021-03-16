@@ -6,6 +6,7 @@ import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Case;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.ScriptAST.Statement;
+import edu.kit.iti.algover.nuscript.ScriptException;
 import edu.kit.iti.algover.nuscript.UnsealedCopyVisitor;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser;
 import edu.kit.iti.algover.proof.Proof;
@@ -142,7 +143,14 @@ public class ScriptASTUtil {
         return (Script) updated;
     }
 
-    public static Script insertMissingCases(ProofNode root, Script script) {
+    /**
+     * recursively inserts all missing case statements into the given script
+     *
+     * @param root the proofnode for which the cases should be inserted
+     * @param script the current script that should be extended by the missing case statements
+     * @return a new script containing all necessary case statements
+     */
+    public static Script insertMissingCases(ProofNode root, Script script) throws ScriptException {
         Script scriptCopy = UnsealedCopyVisitor.INSTANCE.visitScript(script, null);
 
         // not very pretty still
@@ -156,19 +164,27 @@ public class ScriptASTUtil {
     }
 
 
-    public static List<ScriptAST.Statement> insertCasesForStatement(ProofNode root, Script script) {
+    /**
+     * recursively inserts all missing case statements into the given script
+     *
+     * @param root the proofnode for which the cases should be inserted
+     * @param script the current script that should be extended by the missing case statements
+     * @return a new script containing all necessary case statements
+     */
+    public static List<ScriptAST.Statement> insertCasesForStatement(ProofNode root, Script script) throws ScriptException {
         Script scriptCopy = UnsealedCopyVisitor.INSTANCE.visitScript(script, null);
         List<Statement> stmts = scriptCopy.getStatements();
         return insertCasesForStatement(root, stmts);
     }
+
     /**
-     * recursively inserts all missing case statements in the given script
+     * recursively inserts all missing case statements into the given script
      *
      * @param root the proofnode for which the cases should be inserted
      * @param stmts the current script that should be extended by the missing case statements
      * @return a new script containing all necessary case statements
      */
-    private static List<ScriptAST.Statement> insertCasesForStatement(ProofNode root, List<Statement> stmts) {
+    private static List<ScriptAST.Statement> insertCasesForStatement(ProofNode root, List<Statement> stmts) throws ScriptException {
         if(stmts.size() == 0) {
             return stmts;
         }
@@ -188,19 +204,11 @@ public class ScriptASTUtil {
                         result.add(createCasesForNode(pns.get(0).getParent()));
                     } else if(stmts.get(i + 1) instanceof ScriptAST.Cases) {
                         ScriptAST.Cases cases = (ScriptAST.Cases) stmts.get(i + 1);
-                        if(cases.getCases().size() == pns.size() || cases.getCases().size() == pns.size() - 1) {
-                            //all cases already covered OR one implicit case still open. both leave nothing to do.
-                            result.add(cases);
-                            ++i;
-                        } else {
-                            //there are at least 2 cases missing which means something has to be added.
-                            ScriptAST.Cases casesCopy =  UnsealedCopyVisitor.INSTANCE.visitCases(cases, null);
-                            result.add(createCasesForNode(pns.get(0).getParent(), casesCopy.getCases()));
-                        }
+                        ScriptAST.Cases casesCopy =  UnsealedCopyVisitor.INSTANCE.visitCases(cases, null);
+                        result.add(createCasesForNode(pns.get(0).getParent(), casesCopy.getCases()));
                     }
                 } else {
-                    //TODO error handling
-                    return stmts;
+                    throw new ScriptException("Couldn't find matching proof nodes for given ast.", stmts.get(i), root);
                 }
             }
         }
@@ -214,10 +222,14 @@ public class ScriptASTUtil {
      * @param cases the cases that already exist
      * @return a case statement containing all necessary cases
      */
-    private static ScriptAST.Statement createCasesForNode(ProofNode pn, List<ScriptAST.Case> cases) {
+    private static ScriptAST.Statement createCasesForNode(ProofNode pn, List<ScriptAST.Case> cases) throws ScriptException {
         ScriptAST.Cases res = new ScriptAST.Cases();
         for(ProofNode p : pn.getChildren()) {
             boolean found = false;
+            //if only one case is missing this is the abbreviated version and we dont have to add it
+            if(pn.getChildren().size() == cases.size() + 1) {
+                found = true;
+            }
             for(ScriptAST.Case caze : cases) {
                 // apparently some guards are string literals and some are MathcExpressions...
                 String caseString = Util.stripQuotes(caze.getLabel().getText());
@@ -237,7 +249,7 @@ public class ScriptASTUtil {
         return res;
     }
 
-    private static ScriptAST.Statement createCasesForNode(ProofNode pn) {
+    private static ScriptAST.Statement createCasesForNode(ProofNode pn) throws ScriptException {
         return createCasesForNode(pn, new ArrayList<>());
     }
 

@@ -172,9 +172,7 @@ public class BlocklyController implements ScriptViewListener {
         return true;
     }
 
-    private void highlightScriptErrors() {
-        Proof proof = PropertyManager.getInstance().currentProof.get();
-        List<Exception> exceptions = proof.getFailures();
+    private void highlightScriptErrors(List<Exception> exceptions) {
         List<ExceptionDetails.ExceptionReportInfo> eris = new ArrayList<>();
 
         System.out.println(exceptions);
@@ -185,6 +183,11 @@ public class BlocklyController implements ScriptViewListener {
             createErrorReport(ex);
             Logger.getGlobal().warning(ex.getMessage());
         }
+    }
+
+    private void highlightScriptErrors() {
+        Proof proof = PropertyManager.getInstance().currentProof.get();
+        highlightScriptErrors(proof.getFailures());
     }
 
     private void createErrorReport(Exception ex) {
@@ -347,9 +350,14 @@ public class BlocklyController implements ScriptViewListener {
 
     @Override
     public void onInsertCases() {
-        Script updated = ScriptASTUtil.insertMissingCases(PropertyManager.getInstance()
-                        .currentProof.get().getProofRoot(),
-                PropertyManager.getInstance().currentProof.get().getProofScript());
+        Script updated = null;
+        try {
+            updated = ScriptASTUtil.insertMissingCases(PropertyManager.getInstance()
+                            .currentProof.get().getProofRoot(),
+                    PropertyManager.getInstance().currentProof.get().getProofScript());
+        } catch (ScriptException e) {
+            highlightScriptErrors();
+        }
 
         beforeStep = UnsealedCopyVisitor.INSTANCE.visitScript(
                 PropertyManager.getInstance().currentProof.get().getProofScript(), null);
