@@ -47,12 +47,13 @@ public class ScriptTextController implements ScriptViewListener {
                     } else {
                         view.clear();
                     }
+                    //PropertyManager.getInstance().currentProof.get().setScriptText(view.getText());
                 });
 
     }
 
 
-    public Region getView() {
+    public ScriptCodeView getView() {
         return view;
     }
 

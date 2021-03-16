@@ -7,6 +7,7 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.nuscript.Interpreter;
+import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.project.Project;
@@ -252,6 +253,15 @@ public class Proof {
             this.failures = Collections.singletonList(ex);
             proofStatus.setValue(ProofStatus.FAILING);
         }
+
+        // provide consistency
+        if (scriptAST != null) {
+            scriptText = "";
+            for (ScriptAST.Statement stmt: scriptAST.getStatements()){
+                scriptText += stmt.toString();
+            }
+        }
+
     }
 
 

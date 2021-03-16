@@ -9,6 +9,8 @@ import java.util.*;
 import java.util.function.Function;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
+import edu.kit.iti.algover.parser.*;
+import edu.kit.iti.algover.parser.DafnyLexer;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.builder.TermBuildException;
@@ -18,15 +20,9 @@ import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.ParserRuleReturnScope;
 import org.antlr.runtime.RecognitionException;
+import edu.kit.iti.algover.parser.DafnyParser;
 
 import edu.kit.iti.algover.data.SymbolTable;
-import edu.kit.iti.algover.parser.DafnyException;
-import edu.kit.iti.algover.parser.DafnyLexer;
-import edu.kit.iti.algover.parser.DafnyParser;
-import edu.kit.iti.algover.parser.DafnyParser.expression_only_return;
-import edu.kit.iti.algover.parser.DafnyParserException;
-import edu.kit.iti.algover.parser.DafnyTree;
-import edu.kit.iti.algover.parser.SyntacticSugarVistor;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.VariableTerm;
 import edu.kit.iti.algover.term.builder.TreeTermTranslator;
@@ -104,7 +100,7 @@ public class TermParser {
      * @param e      RecognitionException object
      * @return DafnyParserException
      */
-    private DafnyParserException generateDafnyParserException(DafnyParser parser, RecognitionException e) {
+    private DafnyParserException generateDafnyParserException(edu.kit.iti.algover.parser.DafnyParser parser, RecognitionException e) {
         String msg = parser.getErrorMessage(e, DafnyParser.tokenNames);
         DafnyParserException lex = new DafnyParserException(msg, e);
         lex.setLine(e.line);

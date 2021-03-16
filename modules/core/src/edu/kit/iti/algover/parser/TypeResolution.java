@@ -14,6 +14,7 @@ import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.ASTUtil;
 import edu.kit.iti.algover.util.Util;
 import org.antlr.runtime.tree.Tree;
+import edu.kit.iti.algover.parser.DafnyParser;
 
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.util.TreeUtil;
