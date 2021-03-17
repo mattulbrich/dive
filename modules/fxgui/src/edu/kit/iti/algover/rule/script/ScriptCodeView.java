@@ -84,12 +84,15 @@ public class ScriptCodeView extends AsyncHighlightingCodeArea {
         createCases.setOnAction(event -> listener.onInsertCases());
 
 
-        ContextMenu menu = new ContextMenu(
+        /*ContextMenu menu = new ContextMenu(
                 run,
                 save,
                 createCases
         );
-        setContextMenu(menu);
+        setContextMenu(menu);*/
+
+        setContextMenu(null);
+
         //set gutter factory for checkpoints
         gutter = new GutterFactory(this, fontsizeProperty());
         this.setParagraphGraphicFactory(gutter);

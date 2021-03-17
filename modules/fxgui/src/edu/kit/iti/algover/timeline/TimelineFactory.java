@@ -68,18 +68,4 @@ public class TimelineFactory {
         return tll;
     }
 
-    public static TimelineLayout testWebviewAlongScriptEditor(BrowserController browserController,
-                                                              EditorController editorController,
-                                                              SequentTabViewController sequentTabViewController,
-                                                              RuleApplicationController ruleApplicationController) {
-        TimelineLayout tll = new TimelineLayout(browserController.getView(), editorController.getView(),
-                sequentTabViewController.getView(), ruleApplicationController.getView(),
-                ruleApplicationController.getScriptView());
-
-        tll.setDividerPosition(0.5);
-
-        return tll;
-    }
-
-
 }

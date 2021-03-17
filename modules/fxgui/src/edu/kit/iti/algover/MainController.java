@@ -651,8 +651,9 @@ public class MainController implements RuleApplicationListener {
     public void onScriptSave() {
         String pvcIdentifier = PropertyManager.getInstance().currentProof.get().getPVC().getIdentifier();
         try {
-            //manager.saveProofScriptForPVC(pvcIdentifier, PropertyManager.getInstance().currentProof.get());
-            manager.saveProofScripts();
+            manager.saveProofScriptForPVC(pvcIdentifier, PropertyManager.getInstance().currentProof.get());
+            //manager.saveProofScripts();
+            ruleApplicationController.notifyScriptSaved();
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved script " + pvcIdentifier + ".");
         } catch (IOException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving script.");

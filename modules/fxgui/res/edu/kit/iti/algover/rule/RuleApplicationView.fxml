@@ -21,6 +21,10 @@
             <Button fx:id="btToggleView" visible="true" prefWidth="81011" text="ToggleView"></Button>
         </HBox>
 
+        <HBox>
+            <Label fx:id="lbUnsavedScript" visible="false" prefWidth="8011" text="* proof script unsaved"></Label>
+        </HBox>
+
 
         <!--
      Here the RuleApplicationController is going to insert a new VirtualizedScrollPane(new ScriptView(...)),

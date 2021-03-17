@@ -52,6 +52,9 @@ public class RuleApplicationController extends FxmlController implements Referen
     private Button btToggleView;
 
     @FXML
+    private Label lbUnsavedScript;
+
+    @FXML
     private RuleGrid ruleGrid;
 
     @FXML
@@ -76,9 +79,9 @@ public class RuleApplicationController extends FxmlController implements Referen
         super("RuleApplicationView.fxml");
         this.listener = listener;
 
+        // Could be a collection
         this.scriptRepWeb = new BlocklyController();
         this.scriptRepText = new ScriptTextController(executor);
-        //this.scriptView = scriptControllers.getView();
         lookup.register(this, RuleApplicationController.class);
         lookup.register(this, ReferenceHighlightingHandler.class);
 
@@ -140,6 +143,11 @@ public class RuleApplicationController extends FxmlController implements Referen
             }
         }));
 
+
+        scriptRepText.getView().textProperty().addListener((observable, oldValue, newValue) -> {
+            lbUnsavedScript.setVisible(true);
+        });
+
         PropertyManager.getInstance().currentlyDisplayedView.addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() == TimelineFactory.DefaultViewPosition.SEQUENT_RULE.index) {
                 scriptRepWeb.getView().requestFocus();
@@ -159,24 +167,26 @@ public class RuleApplicationController extends FxmlController implements Referen
         });
 
         btReplay.setOnAction(event -> {
+            listener.onScriptSave();
+            lbUnsavedScript.setVisible(false);
             scriptRepText.runScript();
+            lbUnsavedScript.setVisible(false);
         });
 
 
         scriptRepText.getView().prefHeightProperty().bind(buttonBox.heightProperty());
 
         btToggleView.setOnAction(event -> {
-            Node currentView = buttonBox.getChildren().get(1);
+            Node currentView = buttonBox.getChildren().get(2);
             if (currentView == scriptRepWeb.getView()) {
-                buttonBox.getChildren().set(1, scriptRepText.getView());
+                buttonBox.getChildren().set(2, scriptRepText.getView());
             } else if (currentView == scriptRepText.getView()) {
-                buttonBox.getChildren().set(1, scriptRepWeb.getView());
+                buttonBox.getChildren().set(2, scriptRepWeb.getView());
             }
 
         });
 
         buttonBox.getChildren().add(scriptRepWeb.getView());
-
 
     }
 
@@ -209,8 +219,6 @@ public class RuleApplicationController extends FxmlController implements Referen
         ruleGrid.filterRules();
     }
 
-
-
     private void onSelectedItemChanged(ObservableValue<? extends RuleView> obs, RuleView before, RuleView selected) {
         if (selected == null) {
             listener.onResetRuleApplicationPreview();
@@ -233,6 +241,7 @@ public class RuleApplicationController extends FxmlController implements Referen
             ScriptAST.Script newLine = Scripts.parseScript(application.getScriptTranscript());
             scriptRepWeb.insertAtCurrentPosition(application, newLine);
             scriptRepWeb.runCurrentScript();
+            lbUnsavedScript.setVisible(true);
 
         } catch(RuleException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
@@ -257,6 +266,10 @@ public class RuleApplicationController extends FxmlController implements Referen
 
     public Node getScriptView() {
         return this.scriptRepText.getView();
+    }
+
+    public void notifyScriptSaved() {
+        lbUnsavedScript.setVisible(false);
     }
 
 }

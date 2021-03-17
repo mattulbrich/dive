@@ -60,7 +60,7 @@ public class ScriptTextController implements ScriptViewListener {
 
     @Override
     public void onScriptSave() {
-        // TODO: parse script and build AST
+
     }
 
     @Override
