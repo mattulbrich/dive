@@ -17,6 +17,7 @@
 
 package edu.kit.iti.algover.rule.script;
 
+import antlr.RecognitionException;
 import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.nuscript.DefaultScriptASTVisitor;
 import edu.kit.iti.algover.nuscript.ScriptAST;
@@ -27,13 +28,16 @@ import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.rules.DafnyRuleException;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.util.ExceptionDetails;
+import edu.kit.iti.algover.util.ExceptionDialog;
 import edu.kit.iti.algover.util.ScriptASTUtil;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -198,13 +202,22 @@ public class BlocklyController implements ScriptViewListener {
 
     private void createErrorReport(Throwable ex) {
         if (ex instanceof RuleException) {
-            System.out.println("Also Rule Exception");
-        }
-
-        if (ex instanceof ScriptException) {
+            System.out.println("Rule Exception occurred");
+        } else if (ex instanceof ScriptException) {
             ScriptException scriptException = (ScriptException) ex;
             ScriptAST errorAST = scriptException.getScriptAST();
             view.highlightError(errorAST);
+        } else if (ex instanceof ParseCancellationException) {
+            ExceptionDialog ed = new ExceptionDialog(ex);
+            ed.showAndWait();
+            System.out.println("Parse Cancellation Exception Exception occurred");
+        } else if (ex instanceof RecognitionException) {
+            System.out.println("Recognition Exception occurred");
+        } else if (ex instanceof DafnyRuleException) {
+            System.out.println("Dafny Rule Exception occurred");
+        } else {
+            ExceptionDialog ed = new ExceptionDialog(ex);
+            ed.showAndWait();
         }
     }
 
