@@ -12,6 +12,8 @@ import edu.kit.iti.algover.proof.ProofStatus;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
+import org.antlr.v4.runtime.NoViableAltException;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 import java.util.concurrent.ExecutorService;
 
@@ -57,15 +59,16 @@ public class ScriptTextController implements ScriptViewListener {
         return view;
     }
 
-
-    @Override
-    public void onScriptSave() {
-
-    }
-
-    @Override
-    public void onAsyncScriptTextChanged(String text) {
-
+    /**
+     * Highlight the exceptions that occurred upon the last interpretation
+     * of the script of {@link PropertyManager#currentProof} in Text
+     */
+    public void highlightScriptErrors() {
+        Proof proof = PropertyManager.getInstance().currentProof.get();
+        for (Exception ex: proof.getFailures()) {
+            System.out.println(ex.getMessage());
+            view.setHighlightedException(ex);
+        }
     }
 
     @Override
@@ -74,8 +77,6 @@ public class ScriptTextController implements ScriptViewListener {
         String scriptStr = view.getText();
         PropertyManager.getInstance().currentProof.get().setScriptText(scriptStr);
         PropertyManager.getInstance().currentProof.get().interpretScript();
-
-
     }
 
     @Override

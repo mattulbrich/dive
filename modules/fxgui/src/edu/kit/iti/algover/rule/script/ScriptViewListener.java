@@ -9,10 +9,6 @@ import edu.kit.iti.algover.nuscript.ScriptAST;
 
 public interface ScriptViewListener {
 
-    void onScriptSave();
-
-    void onAsyncScriptTextChanged(String text);
-
     void runScript();
 
     void onInsertCases();

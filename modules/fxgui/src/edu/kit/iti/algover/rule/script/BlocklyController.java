@@ -87,7 +87,7 @@ public class BlocklyController implements ScriptViewListener {
             if (event.isControlDown() && event.getCode() == KeyCode.Z) {
                 // undo script
                 if (beforeStep != null) {
-                    runCurrentScript();
+                    runScript();
 
                     highlightedASTElement.set(getHighlightFromProofNodeSelector(
                             PropertyManager.getInstance().currentProofNodeSelector.get()));
@@ -110,7 +110,7 @@ public class BlocklyController implements ScriptViewListener {
 
 
                     PropertyManager.getInstance().currentProof.get().setScriptAST(updatedScript);
-                    runCurrentScript();
+                    runScript();
 
                     newHighlight = getHighlightFromProofNodeSelector(
                            PropertyManager.getInstance().currentProofNodeSelector.get());
@@ -165,32 +165,22 @@ public class BlocklyController implements ScriptViewListener {
         }));
     }
 
-    public boolean runCurrentScript() {
+    @Override
+    public void runScript() {
         Proof proof = PropertyManager.getInstance().currentProof.get();
         Script proofScript = PropertyManager.getInstance().currentProof.get().getProofScript();
         // (!proofScript.isSealed()) ==> (ProofStatus == CHANGED)
-
         if (proofScript != null && proofScript.isSealed()) {
             // error
-            return false;
+            return;
         }
-
         proof.setScriptAST(proofScript);
         proof.interpretScript();
-
-        return true;
     }
 
     private void highlightScriptErrors(List<Exception> exceptions) {
-        List<ExceptionDetails.ExceptionReportInfo> eris = new ArrayList<>();
-
-        System.out.println(exceptions);
-
         for (Exception ex: exceptions) {
-            ExceptionDetails.ExceptionReportInfo eri = ExceptionDetails.extractReportInfo(ex);
-            eris.add(eri);
             createErrorReport(ex);
-            Logger.getGlobal().severe(ex.getMessage());
         }
     }
 
@@ -202,7 +192,6 @@ public class BlocklyController implements ScriptViewListener {
         Proof proof = PropertyManager.getInstance().currentProof.get();
         highlightScriptErrors(proof.getFailures());
     }
-
 
     private void createErrorReport(Throwable ex) {
         if (ex instanceof RuleException) {
@@ -395,21 +384,6 @@ public class BlocklyController implements ScriptViewListener {
     }
 
     @Override
-    public void onScriptSave() {
-
-    }
-
-    @Override
-    public void onAsyncScriptTextChanged(String text) {
-
-    }
-
-    @Override
-    public void runScript() {
-
-    }
-
-    @Override
     public void onInsertCases() {
         Script updated = null;
         try {
@@ -424,7 +398,7 @@ public class BlocklyController implements ScriptViewListener {
                 PropertyManager.getInstance().currentProof.get().getProofScript(), null);
 
         PropertyManager.getInstance().currentProof.get().setScriptAST(updated);
-        runCurrentScript();
+        runScript();
 
         ProofNode currentPN = PropertyManager.getInstance().currentProofNode.get();
         PropertyManager.getInstance().currentProofNode.set(currentPN.getParent());

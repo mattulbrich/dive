@@ -9,8 +9,10 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import edu.kit.iti.algover.AlgoVerApplication;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.editor.HighlightingRule;
 import edu.kit.iti.algover.nuscript.parser.ScriptLexer;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -74,23 +76,6 @@ public class ScriptCodeView extends AsyncHighlightingCodeArea {
         setStyle("-fx-font-size: "+fontsizeProperty().get()+"pt;");
 
         getStylesheets().add(AlgoVerApplication.class.getResource("syntax-highlighting.css").toExternalForm());
-
-        MenuItem save = new MenuItem("Save Proof Script", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
-        MenuItem run = new MenuItem("Run Proof Script", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ARROW_RIGHT));
-        MenuItem createCases = new MenuItem("Insert cases", FontAwesomeIconFactory.get().createIcon(MaterialDesignIcon.CALL_SPLIT));
-
-        save.setOnAction(event -> this.listener.onScriptSave());
-        run.setOnAction(event -> this.listener.runScript());
-        createCases.setOnAction(event -> listener.onInsertCases());
-
-
-        /*ContextMenu menu = new ContextMenu(
-                run,
-                save,
-                createCases
-        );
-        setContextMenu(menu);*/
-
         setContextMenu(null);
 
         //set gutter factory for checkpoints
@@ -100,14 +85,11 @@ public class ScriptCodeView extends AsyncHighlightingCodeArea {
 
         setupAsyncSyntaxhighlighting();
 
-        //textProperty().addListener((observable, oldValue, newValue) -> listener.onAsyncScriptTextChanged(newValue));
         setOnMouseMoved(this::handleHover);
 
         fontsizeProperty().addListener((observable, oldValue, newValue) -> {
             setStyle("-fx-font-size: "+fontsizeProperty().get()+"pt;");
-            System.out.println("fontsizeProperty() = " + fontsizeProperty());
             requestLayout();
-
         });
         /*this.caretPositionProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println("oldValue = " + oldValue);
@@ -226,12 +208,14 @@ public class ScriptCodeView extends AsyncHighlightingCodeArea {
 
     private void handleHover(MouseEvent mouseEvent) {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
+        System.out.println("Char hit");
         OptionalInt charIdx = hit.getCharacterIndex();
         if(charIdx.isPresent() && highlightedException != null) {
             edu.kit.iti.algover.nuscript.Position moPos = computePositionFromCharIdx(charIdx.getAsInt(), getText());
             if(moPos.getLineNumber() == highlightedExceptionInfo.getLine()) {
-                tooltip.setText(highlightedException.getMessage());
+                tooltip.setText(highlightedExceptionInfo.getMessage());
                 Tooltip.install(this, tooltip);
+
             }
         } else {
             Tooltip.uninstall(this, tooltip);
@@ -257,6 +241,14 @@ public class ScriptCodeView extends AsyncHighlightingCodeArea {
     public void setHighlightedException(Exception e) {
         this.highlightedException = e;
         highlightedExceptionInfo = ExceptionDetails.extractReportInfo(highlightedException);
+        String[] lines = getText().split("\n");
+        int start = 0;
+        for (int i = 0; i < highlightedExceptionInfo.getLine() - 1; i++) {
+            start += lines[i].length();
+            start += 1;
+        }
+        selectRange(start, start + lines[highlightedExceptionInfo.getLine() - 1].length());
+
     }
     public ObservableList<GutterAnnotation> getGutterAnnotations() {
         return gutter.getAnnotations();
