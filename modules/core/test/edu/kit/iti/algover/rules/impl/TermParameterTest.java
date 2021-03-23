@@ -20,14 +20,18 @@ import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.term.parser.TermParser;
 import edu.kit.iti.algover.util.FormatException;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * Created by jklamroth on 9/13/18.
  */
+@RunWith(JUnitParamsRunner.class)
 public class TermParameterTest {
     SymbolTable symbolTable;
 
@@ -45,15 +49,27 @@ public class TermParameterTest {
         symbolTable.addFunctionSymbol(new FunctionSymbol("$$a", Sort.INT, Sort.HEAP, Sort.INT));
     }
 
-    @Test
-    public void TsToTest()
-            throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
-        TermSelector selector = new TermSelector("A.0");
+    public String[][] parametersForTsToTest() {
+        return new String[][] {
+                { "A.0", "i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2", "_ |-" },
+                { "A.0.0", "i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2", "?m && _ |-" },
+                { "A.0.1", "i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2", "_ && ?m |-" },
+                { "S.0", "i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2", "|- _" },
+                {"A.0.0", "1+2 > 1 |-", "?m > _"},
+                { "A.0.0.0", "1+2 > 1 |-", "$plus(?m, _)" },
+                { "A.0.0.1", "1+2 > 1 |-", "2" },
+        };
+    }
+
+    @Test @Parameters
+    public void TsToTest(String termSelStr, String seqStr, String expected) throws Exception {
+        TermSelector selector = new TermSelector(termSelStr);
         TermParser tp = new TermParser(symbolTable);
-        Sequent sequent = tp.parseSequent("i1 < i2 && i1 < i2 |- i1 < i2 && i1 < i2");
+        Sequent sequent = tp.parseSequent(seqStr);
         TermParameter p = new TermParameter(selector, sequent);
-        assertEquals("(... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...) |-", p.getSchematicSequent().toString());
-        assertEquals("$and($lt(i1, i2), $lt(i1, i2))", p.getTerm().toString());
+        tp.setSchemaMode(true);
+        String expectedStr = tp.parseTermOrSequent(expected).toString();
+        assertEquals(expectedStr, p.getMatchParameter().toString());
         assertEquals(selector, p.getTermSelector());
     }
 
@@ -64,9 +80,51 @@ public class TermParameterTest {
         Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2 > 0");
         TermParameter parameter = new TermParameter(term, sequent);
         assertEquals(new TermSelector("A.0"), parameter.getTermSelector());
-        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", parameter.getSchematicSequent().toString());
+        assertEquals("_ |-", parameter.getMatchParameter().toString());
         assertEquals(term, parameter.getTerm());
     }
+
+    @Test
+    public void EllipsisTest() throws DafnyParserException, DafnyException, FormatException, RuleException {
+        TermParser tp = new TermParser(symbolTable);
+        tp.setSchemaMode(true);
+        Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2 > 0");
+        TermParameter parameter = new TermParameter(new TermSelector("A.0"), sequent);
+        assertEquals(new TermSelector("A.0"), parameter.getTermSelector());
+        assertEquals("_ |-", parameter.getMatchParameter().toString());
+    }
+
+    @Test
+    public void EllipsisTest2() throws DafnyParserException, DafnyException, FormatException, RuleException {
+        TermParser tp = new TermParser(symbolTable);
+        tp.setSchemaMode(true);
+        Sequent sequent = tp.parseSequent("i1 < i2, b1 |- i1 < i2, i1 + i2 > 0");
+        TermParameter parameter = new TermParameter(new TermSelector("A.0"), sequent);
+        assertEquals(new TermSelector("A.0"), parameter.getTermSelector());
+        assertEquals("$lt(_, _) |-", parameter.getMatchParameter().toString());
+    }
+
+    @Test
+    public void EllipsisTest3() throws DafnyParserException, DafnyException, FormatException, RuleException {
+        TermParser tp = new TermParser(symbolTable);
+        tp.setSchemaMode(true);
+        Sequent sequent = tp.parseSequent("i2 > 0, i1 < i2, b1 |- i1 < i2, i1 + i2 > 0");
+        TermParameter parameter = new TermParameter(new TermSelector("S.1.0"), sequent);
+        assertEquals(new TermSelector("S.1.0"), parameter.getTermSelector());
+        assertEquals("|- $gt(?m, _)", parameter.getMatchParameter().toString());
+    }
+
+
+    @Test
+    public void EllipsisTest4() throws DafnyParserException, DafnyException, FormatException, RuleException {
+        TermParser tp = new TermParser(symbolTable);
+        tp.setSchemaMode(true);
+        Sequent sequent = tp.parseSequent("let i1 := i2 :: (let i2 := i3 :: (i1 < i2)), let i1 := i2 :: (let i2 := i3 :: (i2 > i3)), b1 |- let i1 := i2 :: (let i2 := i3 :: (i1 < i2)), let i1 := i2 :: (let i2 := i3 :: (i2 > i3)), i1 + i2 > 0");
+        TermParameter parameter = new TermParameter(new TermSelector("A.0"), sequent);
+        assertEquals(new TermSelector("A.0"), parameter.getTermSelector());
+        assertEquals("(let i1 := i2 :: (... $lt(i1, i2) ...)) |-", parameter.getMatchParameter().toString());
+    }
+
 
     @Test(expected = RuleException.class)
     public void TermToTest2() throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
@@ -82,7 +140,7 @@ public class TermParameterTest {
     public void SchematicToTest() throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
         TermParser tp = new TermParser(symbolTable);
         tp.setSchemaMode(true);
-        Sequent schematic = tp.parseSequent("(... (?match: $lt(i1, i2)) ...) |-");
+        Sequent schematic = tp.parseSequent("(... (?m: $lt(i1, i2)) ...) |-");
         Sequent sequent = tp.parseSequent("i1 < i2 |- i1 < i2");
         TermParameter parameter = new TermParameter(schematic, sequent);
         assertEquals(new TermSelector("A.0"), parameter.getTermSelector());
@@ -126,7 +184,7 @@ public class TermParameterTest {
     public void termSelectorAfterTerm() throws Exception {
         TermParser tp = new TermParser(symbolTable);
         tp.setSchemaMode(true);
-        Sequent schematic = tp.parseSequent("|- (?match: _ < _)");
+        Sequent schematic = tp.parseSequent("|- (?m: _ < _)");
         Sequent sequent = tp.parseSequent("i1 < i2 |- i1 < i2");
         TermParameter parameter = new TermParameter(schematic, sequent);
         assertEquals(tp.parse("i1 < i2"), parameter.getTerm());
@@ -137,7 +195,7 @@ public class TermParameterTest {
     public void termMatchAsSchemaVar() throws Exception {
         TermParser tp = new TermParser(symbolTable);
         tp.setSchemaMode(true);
-        Sequent schematic = tp.parseSequent("|- ?match < _");
+        Sequent schematic = tp.parseSequent("|- ?m < _");
         Sequent sequent = tp.parseSequent("i1 < i2 |- i3 < i4");
         TermParameter parameter = new TermParameter(schematic, sequent);
         assertEquals(tp.parse("i3"), parameter.getTerm());
@@ -182,7 +240,7 @@ public class TermParameterTest {
     public void matchInSchemaTerm() throws Exception {
         TermParser tp = new TermParser(symbolTable);
         tp.setSchemaMode(true);
-        Term schematic = tp.parse("(?match: ?x+1)");
+        Term schematic = tp.parse("(?m: ?x+1)");
         Sequent sequent = tp.parseSequent("i1+1 < i2 |- i1 < i2");
         TermParameter parameter = new TermParameter(schematic, sequent);
         assertEquals(new TermSelector(SequentPolarity.ANTECEDENT, 0, 0), parameter.getTermSelector());
@@ -208,7 +266,7 @@ public class TermParameterTest {
         Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2 > 0");
         TermParameter parameter = new TermParameter(schematic, sequent);
         assertEquals(new TermSelector("A.0"), parameter.getTermSelector());
-        assertEquals("(... $lt(_, _) ...) |-", parameter.getSchematicSequent().toString());
+        assertEquals("$lt(_, _)", parameter.getMatchParameter().toString());
         assertEquals(schematic, parameter.getSchematicTerm());
         assertEquals("$lt(i1, i2)", parameter.getTerm().toString());
     }
@@ -217,11 +275,11 @@ public class TermParameterTest {
     public void SchematicTermToSequentTest3() throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
         TermParser tp = new TermParser(symbolTable);
         tp.setSchemaMode(true);
-        Term schematic = tp.parse("_ < (?match: _)");
+        Term schematic = tp.parse("_ < (?m: _)");
         Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2 > 0");
         TermParameter parameter = new TermParameter(schematic, sequent);
         assertEquals(new TermSelector("A.0.1"), parameter.getTermSelector());
-        assertEquals("(... $lt(_, (?match: _)) ...) |-", parameter.getSchematicSequent().toString());
+        assertEquals("$lt(_, (?m: _))", parameter.getMatchParameter().toString());
         assertEquals(schematic, parameter.getSchematicTerm());
         assertEquals("i2", parameter.getTerm().toString());
     }
@@ -230,15 +288,15 @@ public class TermParameterTest {
     public void toStringTest() throws FormatException, TermBuildException, RuleException, DafnyParserException, DafnyException {
         TermParser tp = new TermParser(symbolTable);
         tp.setSchemaMode(true);
-        Term schematic = tp.parse("_ < (?match: _)");
+        Term schematic = tp.parse("_ < (?m: _)");
         Sequent sequent = tp.parseSequent("i1 < i2 |- i1 + i2 > 0");
         TermParameter parameter = new TermParameter(schematic, sequent);
         assertEquals("TermParameter[originally a schematic term, " +
-                        "term = null, schematicTerm = $lt(_, (?match: _)), schematicSequent = null, termSelector = null]",
+                        "term = null, schematicTerm = $lt(_, (?m: _)), schematicSequent = null, termSelector = null]",
                 parameter.toString());
         parameter.getTermSelector();
         assertEquals("TermParameter[originally a schematic term, " +
-                        "term = null, schematicTerm = $lt(_, (?match: _)), schematicSequent = null, termSelector = A.0.1]",
+                        "term = null, schematicTerm = $lt(_, (?m: _)), schematicSequent = null, termSelector = A.0.1]",
                 parameter.toString());
     }
 }

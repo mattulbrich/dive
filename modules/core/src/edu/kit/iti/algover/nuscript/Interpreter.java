@@ -155,6 +155,13 @@ public final class Interpreter extends DefaultScriptASTVisitor<Void, Void, Scrip
 
     @Override
     public Void visitCases(Cases cases, Void arg) throws ScriptException {
+        if(currentNodes.size() < 2) {
+            throw new ScriptException("Unexpected cases statement", cases);
+        }
+        if(currentNodes.size() != cases.getCases().size() && currentNodes.size() != cases.getCases().size() + 1) {
+            throw new ScriptException("Unexpected number of case statements. Expected " + (currentNodes.size() - 1) + " or " +
+                    currentNodes.size() + " but found " + cases.getCases().size(), cases);
+        }
         for (Case cas : cases.getCases()) {
             ProofNode node = findCase(cas);
             cas.setProofNode(node);
@@ -170,10 +177,10 @@ public final class Interpreter extends DefaultScriptASTVisitor<Void, Void, Scrip
         return null;
     }
 
-    private ProofNode findCase(Case cas) {
+    private ProofNode findCase(Case cas) throws ScriptException {
         String label = Util.stripQuotes(cas.getLabel().getText());
         for (ProofNode node : currentNodes) {
-            if (node.getLabel().equals(label)) {
+            if (label.equals(node.getLabel())) {
                 return node;
             }
         }

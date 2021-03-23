@@ -8,7 +8,11 @@ package edu.kit.iti.algover.term.match;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.util.ImmutableList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SequentMatcher {
     private TermMatcher tm = new TermMatcher();
@@ -63,6 +67,37 @@ public class SequentMatcher {
         }
 
         return result;
+    }
+
+    public List<ImmutableList<Matching>> matchTermInSequent(Sequent sequent, Term term) {
+        List<ImmutableList<Matching>> matchings = matchTermInSemiSequent(sequent, term, TermSelector.SequentPolarity.ANTECEDENT);
+        matchings.addAll(matchTermInSemiSequent(sequent, term, TermSelector.SequentPolarity.SUCCEDENT));
+
+        return matchings;
+    }
+
+    public List<ImmutableList<Matching>> matchTermInSemiSequent(Sequent sequent, Term term, TermSelector.SequentPolarity polarity) {
+
+        List<ImmutableList<Matching>> result = new ArrayList<>();
+        ImmutableList<ProofFormula> list = ImmutableList.from(polarity == TermSelector.SequentPolarity.ANTECEDENT ? sequent.getAntecedent() : sequent.getSuccedent());
+
+        for (ProofFormula formula : list) {
+            result.addAll(matchTermInTermRec(formula.getTerm(), term));
+        }
+
+        return result;
+    }
+
+    public List<ImmutableList<Matching>> matchTermInTermRec(Term term, Term matchTerm) {
+        List<ImmutableList<Matching>> res = new ArrayList<>();
+        for(Term t : term.getSubterms()) {
+            res.addAll(matchTermInTermRec(t, matchTerm));
+        }
+        ImmutableList<Matching> newMatches = tm.match(matchTerm, term);
+        if(!newMatches.isEmpty()) {
+            res.add(newMatches);
+        }
+        return res;
     }
 
 

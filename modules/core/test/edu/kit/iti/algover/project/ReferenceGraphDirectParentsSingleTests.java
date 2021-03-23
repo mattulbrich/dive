@@ -40,15 +40,15 @@ public class ReferenceGraphDirectParentsSingleTests {
             pm = new XMLProjectManager(new File(resource.getFile()), "config.xml");
             pm.reload();
            /* proofWithTwoSubstitutionsAndSkips = pm.getProofForPVC("max/else/Post");
-            proofWithTwoSubstitutionsAndSkips.setScriptTextAndInterpret("substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
-                    "substitute on='|- ... ((?match: let m := x :: m > 1)) ...';\n"+"skip;\n"+"skip;\n");
+            proofWithTwoSubstitutionsAndSkips.setScriptTextAndInterpret("substitute on='... ((?m: let m := x :: !(m < y))) ... |-';\n" +
+                    "substitute on='|- ... ((?m: let m := x :: m > 1)) ...';\n"+"skip;\n"+"skip;\n");
 
             proofBranched = pm.getProofForPVC("max/then/Post.1");
-            String script2 = "substitute on='... ((?match: let m := x :: m < y)) ... |-';\n" +
+            String script2 = "substitute on='... ((?m: let m := x :: m < y)) ... |-';\n" +
                     "skip;\n" +
-                    "substitute on='|- ... ((?match: let m := y :: m >= x && m >= y)) ...';\n" +
+                    "substitute on='|- ... ((?m: let m := y :: m >= x && m >= y)) ...';\n" +
                     "skip;\n" +
-                    "andRight on='|- ... ((?match: y >= x && y >= y)) ...';\n" +
+                    "andRight on='|- ... ((?m: y >= x && y >= y)) ...';\n" +
                     "cases {\n" +
                     "\tcase match \"case 1\": {\n" +
                     "\t\n" +
@@ -63,12 +63,12 @@ public class ReferenceGraphDirectParentsSingleTests {
 
             //has addlist+delList
             proofWithRemoval = pm.getProofForPVC("ff/Post");
-            proofWithRemoval.setScriptTextAndInterpret("andLeft on='... ((?match: a >= 0 && a < 100)) ... |-';\n"+
-                    "removeAssumption on='... ((?match: a + 1 == a + 1 && a > 0 ==> b >= 0)) ... |-';\n");
+            proofWithRemoval.setScriptTextAndInterpret("andLeft on='... ((?m: a >= 0 && a < 100)) ... |-';\n"+
+                    "removeAssumption on='... ((?m: a + 1 == a + 1 && a > 0 ==> b >= 0)) ... |-';\n");
 
 
-            String script = "substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
-                    "replace with='x == y' on='... ((?match: !(x < y))) ... |-';\n" +
+            String script = "substitute on='... ((?m: let m := x :: !(m < y))) ... |-';\n" +
+                    "replace with='x == y' on='... ((?m: !(x < y))) ... |-';\n" +
                     "cases {\n" +
                     "\tcase match \"replace\": {\n" +
                     "\t\n" +
@@ -102,8 +102,8 @@ public class ReferenceGraphDirectParentsSingleTests {
     @Test
     public void testSkipRule() throws RuleException, FormatException {
         Proof proofWithTwoSubstitutionsAndSkips = pm.getProofForPVC("max/else/Post");
-        proofWithTwoSubstitutionsAndSkips.setScriptTextAndInterpret("substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n" +
-                "substitute on='|- ... ((?match: let m := x :: m > 1)) ...';\n"+"skip;");
+        proofWithTwoSubstitutionsAndSkips.setScriptTextAndInterpret("substitute on='... ((?m: let m := x :: !(m < y))) ... |-';\n" +
+                "substitute on='|- ... ((?m: let m := x :: m > 1)) ...';\n"+"skip;");
 
         ProofNodeSelector lastNode = ProofUtils.computeProofNodeSelector("0,0,0");
         Sequent lastSeq = lastNode.get(proofWithTwoSubstitutionsAndSkips).getSequent();
@@ -125,7 +125,7 @@ public class ReferenceGraphDirectParentsSingleTests {
     @Test
     public void testLetParents() throws FormatException, RuleException{
         Proof letExpansionAntec = pm.getProofForPVC("max/else/Post");
-        letExpansionAntec.setScriptTextAndInterpret("substitute on='... ((?match: let m := x :: !(m < y))) ... |-';\n");
+        letExpansionAntec.setScriptTextAndInterpret("substitute on='... ((?m: let m := x :: !(m < y))) ... |-';\n");
 
         ReferenceGraph graph = letExpansionAntec.getReferenceGraph();
 
@@ -182,7 +182,7 @@ public class ReferenceGraphDirectParentsSingleTests {
         Assert.assertEquals(new TermSelector("S.0.0.1"), directParentTarget.getTermSelector());
         Assert.assertTrue(HistoryProofUtils.compareTerms(right, directParentTarget, proofDisj));
 
-        //proofDisj.setScriptTextAndInterpret("orRight on= '|- _ || _';\n plus_0 on='|- ... ((?match: a + 0)) ...';");
+        //proofDisj.setScriptTextAndInterpret("orRight on= '|- _ || _';\n plus_0 on='|- ... ((?m: a + 0)) ...';");
 
 
         Proof proof = pm.getProofForPVC("simpleSplit/Post.1");

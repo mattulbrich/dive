@@ -10,7 +10,6 @@ import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.proof.PVC;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.term.FunctionSymbol;
 import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.util.TestUtil;
@@ -158,7 +157,7 @@ public class InterpreterTest {
         Exception exc = interpreter.getFailures().get(0);
         assertThat(exc, Matchers.instanceOf(ScriptException.class));
         assertThat(exc.getMessage(),
-                Matchers.containsString("Schematic sequent |- (?match: $and(_, _)) does not match."));
+                Matchers.containsString("Schematic sequent |- (?m: $and(_, _)) does not match."));
 
     }
 
@@ -216,6 +215,62 @@ public class InterpreterTest {
         assertThat(exc, Matchers.instanceOf(ParseCancellationException.class));
         assertThat(exc.getMessage(),
                 Matchers.containsString("mismatched input ';' expecting <EOF>"));
+    }
+
+    @Test
+    public void testIllegalCases() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 && b1 { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret("cases{}");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.equalToIgnoringCase("Unexpected cases statement"));
+    }
+
+    @Test
+    public void testIllegalCases2() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 && b1 { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret("skip; cases{}");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.equalToIgnoringCase("Unexpected cases statement"));
+    }
+
+    @Test
+    public void testIllegalNumberCases() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 && b1 { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret("andRight; cases{}");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.equalToIgnoringCase("Unexpected number of case statements. Expected 1 or 2 but found 0"));
+    }
+
+    @Test
+    public void testIllegalNumberCases2() throws Exception {
+        Project p = TestUtil.mockProject("method m(b1: bool) ensures b1 && b1 { }");
+        PVC pvc = p.getPVCByName("m/Post");
+        Proof proof = new Proof(pvc);
+        Interpreter interpreter = new Interpreter(proof);
+        interpreter.interpret("andRight; cases{\"positive\": \"negative\": \"strange\":}");
+        assertTrue(interpreter.hasFailure());
+        Exception exc = interpreter.getFailures().get(0);
+        assertThat(exc, Matchers.instanceOf(ScriptException.class));
+        assertThat(exc.getMessage(),
+                Matchers.equalToIgnoringCase("Unexpected number of case statements. Expected 1 or 2 but found 3"));
     }
 
     @Test

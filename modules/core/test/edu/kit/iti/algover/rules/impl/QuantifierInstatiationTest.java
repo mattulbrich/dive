@@ -126,7 +126,7 @@ public class QuantifierInstatiationTest {
         Parameters params = new Parameters();
         params.putValue(rule.getOnParameter(), new TermParameter(new TermSelector("A.0"), s));
         tp.setSchemaMode(true);
-        Term rt = tp.parse("... (?match:_) == 42 ...");
+        Term rt = tp.parse("... (?m:_) == 42 ...");
         params.putValue(QuantifierInstantiation.WITH_PARAM, new TermParameter(rt, s));
         ProofRuleApplication pra = rule.makeApplication(pn, params);
     }

@@ -289,8 +289,8 @@ public class TreeTermTranslatorTest {
         return new String[][]{
                 { "b1 ==> b2, b2 ==> b3 |- b1 && b2, b2&&b3",
                         "$imp(b1, b2), $imp(b2, b3) |- $and(b1, b2), $and(b2, b3)" },
-                { "... ((?match: let m := i1 :: !(m < i2))) ... |-",
-                        "(... (?match: (let m := i1 :: $not($lt(m, i2)))) ...) |-" },
+                { "... ((?m: let m := i1 :: !(m < i2))) ... |-",
+                        "(... (?m: (let m := i1 :: $not($lt(m, i2)))) ...) |-" },
         };
     }
 

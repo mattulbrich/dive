@@ -11,7 +11,6 @@ import edu.kit.iti.algover.parser.DafnyException;
 import edu.kit.iti.algover.parser.DafnyParserException;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.rules.impl.AddHypothesisRule;
-import edu.kit.iti.algover.rules.impl.QuantifierInstantiation;
 import edu.kit.iti.algover.rules.impl.AndRightRule;
 import edu.kit.iti.algover.term.*;
 import edu.kit.iti.algover.term.builder.TermBuildException;
@@ -54,13 +53,13 @@ public class AbstractRuleTest {
         Parameters params = new Parameters();
         params.putValue(DefaultFocusProofRule.ON_PARAM_OPT, new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("|- (... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...)", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
+        assertEquals("|- _", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getMatchParameter().toString());
         ProofRuleApplication app = rule.makeApplication(
                 ProofMockUtil.mockProofNode(null, sequent.getAntecedent(), sequent.getSuccedent()),
                 params
         );
         assertEquals(1, params.entrySet().size());
-        assertEquals("|- (... (?match: $and($lt(i1, i2), $lt(i1, i2))) ...)", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
+        assertEquals("|- _", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getMatchParameter().toString());
     }
 
     @Test(expected = RuleException.class)
@@ -77,7 +76,7 @@ public class AbstractRuleTest {
                         new ApplTerm(new FunctionSymbol("i2", Sort.INT)
                         )
                 );
-        t = new SchemaCaptureTerm("?match", t);
+        t = new SchemaCaptureTerm("?m", t);
         t = new SchemaOccurTerm(t);
         Sequent schemaSeq = new Sequent(Collections.singletonList(new ProofFormula(t)), Collections.emptyList());
 
@@ -104,7 +103,7 @@ public class AbstractRuleTest {
         );
         t = new ApplTerm(BuiltinSymbols.AND,
                 t,
-                new SchemaCaptureTerm("?match", t)
+                new SchemaCaptureTerm("?m", t)
         );
         t = new SchemaOccurTerm(t);
         Sequent schemaSeq = new Sequent(Collections.singletonList(new ProofFormula(t)), Collections.emptyList());
@@ -124,11 +123,11 @@ public class AbstractRuleTest {
         AndRightRule rule = new AndRightRule();
         TermSelector selector = new TermSelector("A.0.0");
         TermParser tp = new TermParser(symbolTable);
-        Sequent sequent = tp.parseSequent("i1 < i2 && i3 < i4 |- i1 < i2");
+        Sequent sequent = tp.parseSequent("i1 < i2 && i3 < i4 |- i1 < i2 && i3 < i4, i1 < i2");
         Parameters params = new Parameters();
         params.putValue(DefaultFocusProofRule.ON_PARAM_OPT, new TermParameter(selector, sequent));
         assertEquals(1, params.entrySet().size());
-        assertEquals("(... (?match: $lt(i1, i2)) ...) |-", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getSchematicSequent().toString());
+        assertEquals("$and(?m, _) |-", ((TermParameter)params.getValue(DefaultFocusProofRule.ON_PARAM_OPT)).getMatchParameter().toString());
         rule.makeApplication(ProofMockUtil.mockProofNode(null, sequent), params);
     }
 }
