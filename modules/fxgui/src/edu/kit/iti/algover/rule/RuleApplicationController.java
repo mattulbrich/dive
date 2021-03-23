@@ -22,12 +22,14 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.timeline.TimelineFactory;
+import edu.kit.iti.algover.util.ExceptionDialog;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -145,7 +147,17 @@ public class RuleApplicationController extends FxmlController implements Referen
 
 
         scriptRepText.getView().textProperty().addListener((observable, oldValue, newValue) -> {
-            lbUnsavedScript.setVisible(true);
+            String pvcIdentifier = PropertyManager.getInstance().currentProof.get().getPVC().getIdentifier();
+            String inFile = "";
+            try {
+                inFile = manager.loadScriptForPVC(pvcIdentifier);
+            } catch (IOException ioex) {
+                ExceptionDialog ed = new ExceptionDialog(ioex);
+                ed.showAndWait();
+            }
+            inFile = inFile.replaceAll("[\\n\\t ]", "");
+            String textFieldReference = newValue.replaceAll("[\\n\\t ]", "");
+            lbUnsavedScript.setVisible(!inFile.equals(textFieldReference));
         });
 
         PropertyManager.getInstance().currentlyDisplayedView.addListener((observable, oldValue, newValue) -> {
@@ -167,10 +179,9 @@ public class RuleApplicationController extends FxmlController implements Referen
         });
 
         btReplay.setOnAction(event -> {
-            listener.onScriptSave();
+            onScriptSave();
             lbUnsavedScript.setVisible(false);
             scriptRepText.runScript();
-            lbUnsavedScript.setVisible(false);
         });
 
 
@@ -268,7 +279,18 @@ public class RuleApplicationController extends FxmlController implements Referen
         return this.scriptRepText.getView();
     }
 
-    public void notifyScriptSaved() {
+    public void onScriptSave() {
+        String pvcIdentifier = PropertyManager.getInstance().currentProof.get().getPVC().getIdentifier();
+        try {
+            manager.saveProofScripts();
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved script " + pvcIdentifier + ".");
+        } catch (IOException e) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving script.");
+            e.printStackTrace();
+        }
+    }
+
+    public void notifyEverythingSaved() {
         lbUnsavedScript.setVisible(false);
     }
 

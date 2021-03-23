@@ -229,7 +229,7 @@ public class DafnyProjectManager extends AbstractProjectManager {
         if(scriptDatabase == null) {
             reloadScripts();
         }
-        System.out.println(proof.getScriptText());
+        //System.out.println(proof.getScriptText());
         scriptDatabase.put(pvcIdentifier, proof.getScriptText());
     }
 

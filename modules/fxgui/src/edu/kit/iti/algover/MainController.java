@@ -484,6 +484,7 @@ public class MainController implements RuleApplicationListener {
         try {
             editorController.saveAllFiles();
             manager.saveProofScripts();
+            ruleApplicationController.notifyEverythingSaved();
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved project.");
         } catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Error saving the project.");
@@ -651,9 +652,8 @@ public class MainController implements RuleApplicationListener {
     public void onScriptSave() {
         String pvcIdentifier = PropertyManager.getInstance().currentProof.get().getPVC().getIdentifier();
         try {
-            manager.saveProofScriptForPVC(pvcIdentifier, PropertyManager.getInstance().currentProof.get());
-            //manager.saveProofScripts();
-            ruleApplicationController.notifyScriptSaved();
+            //manager.saveProofScriptForPVC(pvcIdentifier, PropertyManager.getInstance().currentProof.get());
+            manager.saveProofScripts();
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved script " + pvcIdentifier + ".");
         } catch (IOException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving script.");

@@ -52,7 +52,7 @@ public class BlocklyView extends VBox {
 
         webView = new WebView();
 
-        //webView.setContextMenuEnabled(false);
+        webView.setContextMenuEnabled(false);
 
         // optional set custom context menu
         /*webView.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
