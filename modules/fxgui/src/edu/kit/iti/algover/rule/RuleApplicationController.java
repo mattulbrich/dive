@@ -12,6 +12,7 @@ import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.project.ProjectManager;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
@@ -22,6 +23,7 @@ import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
 import edu.kit.iti.algover.timeline.TimelineFactory;
+import edu.kit.iti.algover.util.ExceptionDetails;
 import edu.kit.iti.algover.util.ExceptionDialog;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -30,6 +32,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -252,6 +256,7 @@ public class RuleApplicationController extends FxmlController implements Referen
             ScriptAST.Script newLine = Scripts.parseScript(application.getScriptTranscript());
             scriptRepWeb.insertAtCurrentPosition(application, newLine);
             scriptRepWeb.runCurrentScript();
+            scriptRepWeb.highlightScriptErrors();
             lbUnsavedScript.setVisible(true);
 
         } catch(RuleException e) {

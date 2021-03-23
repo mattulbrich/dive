@@ -194,7 +194,11 @@ public class BlocklyController implements ScriptViewListener {
         }
     }
 
-    private void highlightScriptErrors() {
+    /**
+     * Highlight the exceptions that occurred upon the last interpretation
+     * of the script of {@link PropertyManager#currentProof} in Blockly
+     */
+    public void highlightScriptErrors() {
         Proof proof = PropertyManager.getInstance().currentProof.get();
         highlightScriptErrors(proof.getFailures());
     }
