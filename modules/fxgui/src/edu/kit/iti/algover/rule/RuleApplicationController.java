@@ -180,8 +180,8 @@ public class RuleApplicationController extends FxmlController implements Referen
 
         btReplay.setOnAction(event -> {
             onScriptSave();
-            lbUnsavedScript.setVisible(false);
             scriptRepText.runScript();
+            lbUnsavedScript.setVisible(false);
         });
 
 

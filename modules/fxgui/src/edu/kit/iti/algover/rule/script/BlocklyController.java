@@ -202,19 +202,23 @@ public class BlocklyController implements ScriptViewListener {
 
     private void createErrorReport(Throwable ex) {
         if (ex instanceof RuleException) {
-            System.out.println("Rule Exception occurred");
+            ExceptionDialog ed = new ExceptionDialog(ex);
+            ed.showAndWait();
         } else if (ex instanceof ScriptException) {
             ScriptException scriptException = (ScriptException) ex;
             ScriptAST errorAST = scriptException.getScriptAST();
             view.highlightError(errorAST);
+            ExceptionDialog ed = new ExceptionDialog(ex);
+            ed.showAndWait();
         } else if (ex instanceof ParseCancellationException) {
             ExceptionDialog ed = new ExceptionDialog(ex);
             ed.showAndWait();
-            System.out.println("Parse Cancellation Exception Exception occurred");
         } else if (ex instanceof RecognitionException) {
-            System.out.println("Recognition Exception occurred");
+            ExceptionDialog ed = new ExceptionDialog(ex);
+            ed.showAndWait();
         } else if (ex instanceof DafnyRuleException) {
-            System.out.println("Dafny Rule Exception occurred");
+            ExceptionDialog ed = new ExceptionDialog(ex);
+            ed.showAndWait();
         } else {
             ExceptionDialog ed = new ExceptionDialog(ex);
             ed.showAndWait();
