@@ -85,7 +85,7 @@ public class ProofNode {
 
     public static ProofNode createClosureChild(ProofNode parent, ProofRuleApplication pra,
                                                Command command) {
-        return new ProofNode(parent, pra, "*error*", command, Sequent.EMPTY, parent.getPVC());
+        return new ProofNode(parent, pra, "*closed*", command, Sequent.EMPTY, parent.getPVC());
     }
 
     // TODO Make this private and call it with reflection from test cases to hide it.
