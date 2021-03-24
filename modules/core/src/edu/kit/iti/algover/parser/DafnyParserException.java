@@ -10,7 +10,7 @@ package edu.kit.iti.algover.parser;
  * This error class wraps {@link RecognitionException}s from ANTLR which have a
  * rather poor interface regarding their error messages etc.
  *
- * Unlike most exception classes, this calss has mutable objects as knowledge
+ * Unlike most exception classes, this class has mutable objects as knowledge
  * may be added later after creation.
  */
 @SuppressWarnings("serial")

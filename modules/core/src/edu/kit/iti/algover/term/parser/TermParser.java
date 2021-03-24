@@ -11,6 +11,7 @@ import java.util.function.Function;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.term.Sequent;
+import edu.kit.iti.algover.term.Sort;
 import edu.kit.iti.algover.term.builder.TermBuildException;
 import edu.kit.iti.algover.util.Either;
 import edu.kit.iti.algover.util.FunctionWithException;
@@ -236,7 +237,13 @@ public class TermParser {
     }
 
     private DafnyParserException generateDafnyParserException(DafnyTree antecForm, Exception e) {
-        DafnyParserException lex = new DafnyParserException(e.getMessage(), e);
+        DafnyParserException lex = generateDafnyParserException(antecForm, e.getMessage());
+        lex.initCause(e);
+        return lex;
+    }
+
+    private DafnyParserException generateDafnyParserException(DafnyTree antecForm, String msg) {
+        DafnyParserException lex = new DafnyParserException(msg);
         lex.setLine(antecForm.getLine());
         lex.setColumn(antecForm.getCharPositionInLine());
         lex.setLength(antecForm.getText().length());
@@ -249,15 +256,19 @@ public class TermParser {
 
     private List<ProofFormula> translateSemiSequent(DafnyTree semiseq) throws DafnyParserException {
         List<ProofFormula> retList = new ArrayList<>();
-        TreeTermTranslator ttt = new TreeTermTranslator(symbols);
 
         for (DafnyTree antecForm : semiseq.getChildren()) {
             try {
-                ProofFormula pf = new ProofFormula(toTerm(antecForm));
+                Term formula = toTerm(antecForm);
+                if (!formula.getSort().isSubtypeOf(Sort.BOOL)) {
+                    throw new IllegalArgumentException(
+                            "The terms on sequent-level must be Boolean, not " +
+                                    formula.getSort());
+                }
+                ProofFormula pf = new ProofFormula(formula);
                 retList.add(pf);
             } catch (Exception e) {
-                DafnyParserException lex = generateDafnyParserException(antecForm, e);
-                throw lex;
+                throw generateDafnyParserException(antecForm, e);
             }
         }
         return retList;
