@@ -140,7 +140,11 @@ public final class ScriptHTML {
         params.add(span(attrs(".ruleName"), command.getCommand().getText()));
 
         for(ScriptAST.Parameter key : command.getParameters()) {
-            params.add(span(span(attrs(".paramName"), " " + key.getName().getText() + "="),
+            String paramText = "invalid";
+            if (key.getName() != null) {
+                paramText = key.getName().getText();
+            }
+            params.add(span(span(attrs(".paramName"), " " + paramText + "="),
                     span(attrs(".termParam"), key.getValue().getText())));
         }
 

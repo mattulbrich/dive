@@ -9,6 +9,7 @@ import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNodeSelector;
 import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.util.ExceptionDialog;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
@@ -66,7 +67,6 @@ public class ScriptTextController implements ScriptViewListener {
     public void highlightScriptErrors() {
         Proof proof = PropertyManager.getInstance().currentProof.get();
         for (Exception ex: proof.getFailures()) {
-            System.out.println(ex.getMessage());
             view.setHighlightedException(ex);
         }
     }

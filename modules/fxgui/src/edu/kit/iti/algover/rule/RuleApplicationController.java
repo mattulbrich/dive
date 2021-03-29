@@ -12,6 +12,7 @@ import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.project.ProjectManager;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
@@ -183,6 +184,7 @@ public class RuleApplicationController extends FxmlController implements Referen
             onScriptSave();
             scriptRepText.runScript();
             scriptRepText.highlightScriptErrors();
+            scriptRepWeb.highlightScriptErrors();
             lbUnsavedScript.setVisible(false);
         });
 
@@ -201,6 +203,14 @@ public class RuleApplicationController extends FxmlController implements Referen
 
         buttonBox.getChildren().add(scriptRepWeb.getView());
 
+    }
+
+    private void showExceptionDialogsLastRun() {
+        Proof proof = PropertyManager.getInstance().currentProof.get();
+        for (Exception ex: proof.getFailures()) {
+            ExceptionDialog ed = new ExceptionDialog(ex);
+            ed.showAndWait();
+        }
     }
 
     public void addProofRule(ProofRule rule) {
@@ -266,6 +276,8 @@ public class RuleApplicationController extends FxmlController implements Referen
 
         scriptRepWeb.highlightScriptErrors();
         scriptRepText.highlightScriptErrors();
+        showExceptionDialogsLastRun();
+
     }
 
     public void onReset() {

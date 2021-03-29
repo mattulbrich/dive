@@ -208,7 +208,6 @@ public class ScriptCodeView extends AsyncHighlightingCodeArea {
 
     private void handleHover(MouseEvent mouseEvent) {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
-        System.out.println("Char hit");
         OptionalInt charIdx = hit.getCharacterIndex();
         if(charIdx.isPresent() && highlightedException != null) {
             edu.kit.iti.algover.nuscript.Position moPos = computePositionFromCharIdx(charIdx.getAsInt(), getText());
@@ -247,7 +246,10 @@ public class ScriptCodeView extends AsyncHighlightingCodeArea {
             start += lines[i].length();
             start += 1;
         }
-        selectRange(start, start + lines[highlightedExceptionInfo.getLine() - 1].length());
+        if (0 <= highlightedExceptionInfo.getLine() && highlightedExceptionInfo.getLine() <= lines.length) {
+            start += lines[highlightedExceptionInfo.getLine() - 1].length();
+        }
+        selectRange(start, start + getText().length() - start);
 
     }
     public ObservableList<GutterAnnotation> getGutterAnnotations() {
