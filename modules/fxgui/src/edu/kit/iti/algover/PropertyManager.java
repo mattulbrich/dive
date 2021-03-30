@@ -162,9 +162,6 @@ public class PropertyManager {
             }
             if (newValue != null) {
                 newValue.addProofStatusListener(proofStatusSyncer);
-                if (newValue.getProofStatus() == ProofStatus.CHANGED_SCRIPT) {
-                    newValue.interpretScript();
-                }
             }
         }));
 

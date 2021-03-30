@@ -144,7 +144,11 @@ public final class ExceptionDetails {
             result.message = rex.getMessage();
             extractLineAndColumn(rex.getOffendingToken(), result);
             if(rex.getOffendingToken() != null) {
-                result.length = rex.getOffendingToken().getText().length();
+                if (rex.getOffendingToken().getType() == Token.EOF) {
+                    result.length = 1;
+                } else {
+                    result.length = rex.getOffendingToken().getText().length();
+                }
             }
             return result;
         }
@@ -167,15 +171,6 @@ public final class ExceptionDetails {
         }
 
         // ... add other classes here!
-
-        if (ex instanceof NoViableAltException) {
-            NoViableAltException nvex = (NoViableAltException) ex;
-            ExceptionReportInfo result = new ExceptionReportInfo();
-            result.line = nvex.getStartToken().getLine();
-            result.column = nvex.getStartToken().getCharPositionInLine();
-
-            return  result;
-        }
 
         Throwable cause = ex.getCause();
         if(cause != null) {

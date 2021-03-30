@@ -85,7 +85,7 @@ public class ScriptCodeView extends AsyncHighlightingCodeArea {
 
         setupAsyncSyntaxhighlighting();
 
-        setOnMouseMoved(this::handleHover);
+        //setOnMouseMoved(this::handleHover);
 
         fontsizeProperty().addListener((observable, oldValue, newValue) -> {
             setStyle("-fx-font-size: "+fontsizeProperty().get()+"pt;");
@@ -241,15 +241,19 @@ public class ScriptCodeView extends AsyncHighlightingCodeArea {
         this.highlightedException = e;
         highlightedExceptionInfo = ExceptionDetails.extractReportInfo(highlightedException);
         String[] lines = getText().split("\n");
+        if (highlightedExceptionInfo.getLine() <= 0) {
+            selectRange(0, highlightedExceptionInfo.getLength());
+            return;
+        }
+
         int start = 0;
+
         for (int i = 0; i < highlightedExceptionInfo.getLine() - 1; i++) {
             start += lines[i].length();
             start += 1;
         }
-        if (0 <= highlightedExceptionInfo.getLine() && highlightedExceptionInfo.getLine() <= lines.length) {
-            start += lines[highlightedExceptionInfo.getLine() - 1].length();
-        }
-        selectRange(start, start + getText().length() - start);
+
+        selectRange(start, start + highlightedExceptionInfo.getLength());
 
     }
     public ObservableList<GutterAnnotation> getGutterAnnotations() {

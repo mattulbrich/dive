@@ -185,6 +185,7 @@ public class RuleApplicationController extends FxmlController implements Referen
             scriptRepText.runScript();
             scriptRepText.highlightScriptErrors();
             scriptRepWeb.highlightScriptErrors();
+            showExceptionDialogsLastRun();
             lbUnsavedScript.setVisible(false);
         });
 

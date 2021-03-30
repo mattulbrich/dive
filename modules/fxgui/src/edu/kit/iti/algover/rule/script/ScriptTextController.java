@@ -34,6 +34,9 @@ public class ScriptTextController implements ScriptViewListener {
                 view.setDisable(true);
             } else {
                 view.setDisable(false);
+                view.clear();
+                view.insertText(0, newValue.getScriptText());
+                runScript();
             }
         });
 
@@ -68,6 +71,7 @@ public class ScriptTextController implements ScriptViewListener {
         Proof proof = PropertyManager.getInstance().currentProof.get();
         for (Exception ex: proof.getFailures()) {
             view.setHighlightedException(ex);
+            break;
         }
     }
 
