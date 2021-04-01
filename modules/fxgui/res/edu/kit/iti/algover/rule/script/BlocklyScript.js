@@ -1,3 +1,4 @@
+var errorNode = null
 
 function highlight(elemid) {
     const elem = document.getElementById(elemid);
@@ -8,14 +9,18 @@ function highlight(elemid) {
     elem.style.borderTopColor = "c80000";
 }
 
+function resetError() {
+    errorNode == null;
+}
+
 function setError(elemid) {
     const elem = document.getElementById(elemid);
+    errorNode = elem
     if (elem === null) {
         return;
     }
 
-    elem.style.borderWidth = "5px";
-    elem.style.borderColor = "red";
+    errorNode.style.border = "5px solid red";
 
 }
 
@@ -26,6 +31,11 @@ function unhighlight(elemid) {
     }
     elem.style.borderTopWidth = "";
     elem.style.borderTopColor = "";
+
+    if (elem == errorNode) {
+        errorNode.style.border = "5px solid red";
+    }
+
 }
 
 function hide(elemid) {

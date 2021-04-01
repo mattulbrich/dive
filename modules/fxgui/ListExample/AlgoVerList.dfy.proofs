@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-<comment>Created by DIVE at Thu Apr 01 08:02:57 CEST 2021</comment>
+<comment>Created by DIVE at Thu Apr 01 09:05:25 CEST 2021</comment>
 <entry key="List.removeAt/then/else/Bounds">boogie;</entry>
 <entry key="List.insertAt/loop_exit/Post.1">boogie;</entry>
 <entry key="List.getAt/InitInv">boogie;</entry>
@@ -12,11 +12,12 @@
 <entry key="List.size/loop_exit/Post">boogie;</entry>
 <entry key="List.removeAt/then/then/Post.1">boogie;</entry>
 <entry key="List.getAt/loop/Inv.1">boogie;</entry>
-<entry key="List.size/InitInv.2">expand on=A.0;</entry>
-<entry key="List.size/InitInv.1">skip;skip;substitute on='|- _';andRight on='|- _';cases {
-  "case 1":
-  "case 2":
-}</entry>
+<entry key="List.size/InitInv.2">skip;
+expand on='_ |-';
+vsasad</entry>
+<entry key="List.size/InitInv.1">expand on='_ |-';
+skip;fwef
+</entry>
 <entry key="List.removeAt/else/loop/Inv.1">boogie;</entry>
 <entry key="List.removeAt/then/then/Post">boogie;</entry>
 <entry key="List.getAt/loop/Inv">boogie;</entry>
@@ -88,7 +89,7 @@
 <entry key="List.removeAt/else/loop_exit/then/Post.1">boogie;</entry>
 <entry key="List.removeAt/else/InitInv.1">boogie;</entry>
 <entry key="List.insertAt/loop_exit/Modifies"></entry>
-<entry key="List.size/Null">vfsavdsfv</entry>
+<entry key="List.size/Null">expand on='_.Valid()@_';</entry>
 <entry key="List.Valid/Null">boogie;</entry>
 <entry key="List.size/loop/Inv.1">boogie;</entry>
 <entry key="List.size/loop/Inv.2">boogie;</entry>

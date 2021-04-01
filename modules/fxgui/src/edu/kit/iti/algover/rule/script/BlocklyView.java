@@ -176,6 +176,7 @@ public class BlocklyView extends VBox {
      */
     public void update() {
         Proof currentProof = PropertyManager.getInstance().currentProof.get();
+        executeJavaScript("resetError();");
         if (currentProof != null) {
             scriptHTML = new ScriptHTML(PropertyManager.getInstance().currentProof.get().getProofScript());
         } else {

@@ -144,8 +144,9 @@ public final class ScriptHTML {
             if (key.getName() != null) {
                 paramText = key.getName().getText();
             }
+            this.astElemIDs.put(key, this.count++);
             params.add(span(span(attrs(".paramName"), " " + paramText + "="),
-                    span(attrs(".termParam"), key.getValue().getText())));
+                    span(attrs("#" + getID(key) + ".termParam"), key.getValue().getText())));
         }
 
         this.astElemIDs.put(command, this.count++);
