@@ -7,9 +7,9 @@ package edu.kit.iti.algover;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,12 +54,19 @@ public class AlgoVerApplication extends Application {
         System.setProperty("prism.text", "t2k");
 
         primaryStage.setTitle("DIVE");
+
+        primaryStage.getIcons().add(loadLogoIcon());
+
         WelcomePane p = new WelcomePane(primaryStage, opendirectly);
         primaryStage.setScene(new Scene(p.getRootPane()));
         primaryStage.setWidth(1000);
         primaryStage.setHeight(900);
         primaryStage.show();
 
+    }
+
+    private static Image loadLogoIcon() {
+        return new Image(AlgoVerApplication.class.getResourceAsStream("icon.png"));
     }
 
 

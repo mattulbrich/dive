@@ -3,16 +3,12 @@ package edu.kit.iti.algover;
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.project.ProjectManager;
-import edu.kit.iti.algover.proof.PVC;
-import edu.kit.iti.algover.proof.Proof;
-import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.proof.ProofNodeSelector;
-import edu.kit.iti.algover.proof.ProofStatus;
+import edu.kit.iti.algover.proof.*;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.util.ObservableValue;
 import edu.kit.iti.algover.util.TypedBindings;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 
 /**
  * This class holds all relevant properties for the FXGUI.
@@ -21,10 +17,10 @@ import javafx.beans.property.SimpleObjectProperty;
  */
 public class PropertyManager {
 
-    public static final int BROWSER_VIEW = 0;
-    public static final int EDITOR_VIEW = 1;
-    public static final int SEQUENT_VIEW = 2;
-    public static final int RULE_VIEW = 3;
+    /**
+     * The singleton instance
+     */
+    private static PropertyManager instance;
 
     /**
      * the {@link ProofNodeSelector} pointing to the {@link ProofNode} that is currently displayed in the sequent view
@@ -62,10 +58,6 @@ public class PropertyManager {
      */
     public final SimpleObjectProperty<Project> currentProject = new SimpleObjectProperty<>();
 
-    /**
-     * The singleton instance
-     */
-    private static PropertyManager instance;
 
     /**
      * Whichever Term was clicked to apply rules to.
@@ -87,7 +79,19 @@ public class PropertyManager {
 
     public final SimpleObjectProperty<ProjectManager> projectManager = new SimpleObjectProperty<>();
 
-    public final SimpleIntegerProperty currentlyDisplayedView = new SimpleIntegerProperty(0);
+    /**
+     * Representing the current position of the timeline.
+     */
+    public final IntegerProperty currentlyDisplayedView = new SimpleIntegerProperty(0);
+
+    /**
+     * ChangeListener that binds the back end representation of the proof staus
+     * to the status of the currently selected proof.
+     */
+    public final ObservableValue.ChangeListener<ProofStatus> proofStatusSyncer =
+            (observableValue, oldValue, newValue) -> {
+        currentProofStatus.set(newValue);
+    };
 
     /**
      * Provides the singleton for this class
@@ -141,6 +145,7 @@ public class PropertyManager {
                 })
         );
 
+
         TypedBindings.bind(currentProof, currentProofNode,
                 (proof -> {
                     if (proof != null) {
@@ -150,10 +155,15 @@ public class PropertyManager {
                 })
         );
 
+        // TODO: review Proof and maybe use beans/fx properties.
         currentProof.addListener(((observable, oldValue, newValue) -> {
-            if(newValue != null && newValue.getProofRoot() == null) newValue.interpretScript();
+            if (oldValue != null) {
+                oldValue.removeProofStatusListener(proofStatusSyncer);
+            }
+            if (newValue != null) {
+                newValue.addProofStatusListener(proofStatusSyncer);
+            }
         }));
-
 
 
         currentPVC.addListener(((observable, oldValue, newValue) -> selectedTermForReference.set(null)));

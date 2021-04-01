@@ -36,7 +36,7 @@ public class ProofNodeCheckpointsBuilder extends DefaultScriptASTVisitor<Void, V
         }
         builder.collectCheckpoints();
         if(builder.getCheckpoints().isEmpty()) {
-            builder.getCheckpoints().add(new ProofNodeCheckpoint(new ProofNodeSelector(),
+            builder.getCheckpoints().add( new ProofNodeCheckpoint(new ProofNodeSelector(),
                     new Position(1,0), new Position(1,0)));
         }
         return builder.getCheckpoints();

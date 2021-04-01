@@ -34,6 +34,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEngine;
@@ -438,6 +439,9 @@ public class WelcomePane {
         substage.setWidth(width);
         substage.setHeight(height);
         substage.setTitle("DIVE - " + projectFile);
+        if (primaryStage.getIcons().size() > 0) {
+            substage.getIcons().add(primaryStage.getIcons().get(0));
+        }
         substage.setMinWidth(500);
         substage.setMinHeight(350);
         substage.show();

@@ -5,11 +5,9 @@
  */
 package edu.kit.iti.algover.rule.script;
 
-import javafx.beans.Observable;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -21,15 +19,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
-import javafx.util.Callback;
-import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.LineNumberFactory;
 import org.reactfx.collection.LiveList;
 import org.reactfx.value.Val;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.function.IntFunction;
 
 /**
@@ -56,11 +48,11 @@ public class GutterFactory implements IntFunction<Node> {
     private ObservableList<GutterAnnotation> lineAnnotations =
             new SimpleListProperty<>(FXCollections.observableArrayList());
 
-    private ScriptView codeArea;
+    private ScriptCodeView codeArea;
 
     private SimpleIntegerProperty fontsize = new SimpleIntegerProperty(12);
 
-    public GutterFactory(ScriptView codeArea, SimpleIntegerProperty fontsize) {
+    public GutterFactory(ScriptCodeView codeArea, SimpleIntegerProperty fontsize) {
         this.codeArea = codeArea;
         this.fontsize.bind(fontsize);
         nParagraphs = LiveList.sizeOf(codeArea.getParagraphs());

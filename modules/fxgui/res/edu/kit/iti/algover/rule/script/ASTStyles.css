@@ -1,0 +1,96 @@
+body {-webkit-user-select: none;}
+
+.script {
+    padding: 10px;
+    font-family: Verdana;
+}
+
+.call {
+    background-color: #99b3ff ;
+    padding: 5px;
+    border: 1px solid #0040ff;
+    border-radius: 5px;
+}
+
+.afterLeaf {
+    border-top:15px solid #c47e7e;
+}
+
+.afterLeafCase {
+    border-top:15px solid #c47e7e;
+    margin-left: 15px;
+}
+
+.closedScript {
+    border-top:15px solid #30a000;
+}
+
+.closedCase {
+    border-top:15px solid #30a000;
+    margin-left: 15px;
+}
+
+.comment {
+    background-color: #d9d9bf;
+    padding: 5px;
+    border-radius: 5px;
+    font-size:85%;
+}
+
+.ruleName {
+    font-weight: bold;
+}
+
+.paramName {
+    font-size: 70%;
+}
+
+.termParam, .stringParam, .booleanParam {
+    border: 1px solid gray;
+    padding: 3px;
+    border-radius: 5px;
+    background: white;
+}
+
+.cases {
+    background-color: #ffcc99;
+    border: 1px solid #ff8000;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.casesName {
+    font-weight: bold;
+}
+
+.case {
+    margin-left: 15px;
+}
+
+.caseLabel {
+    font-style: italic;
+}
+
+.block {
+    margin-left: 15px;
+}
+
+.opengoal {
+    height: 10px;
+    background: #990000;
+    border-radius: 5px;
+}
+
+.current {
+    border-top-width:15px;
+    border-top-color: #c80000;
+}
+
+.error {
+    border: 5px solid red;
+}
+
+.ignore {
+    color: #999;
+    border: 1px solid #999;
+}

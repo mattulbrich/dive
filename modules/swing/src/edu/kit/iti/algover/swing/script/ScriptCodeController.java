@@ -280,6 +280,7 @@ public class ScriptCodeController {
         proof.setScriptTextAndInterpret(textArea.getText());
         setProofState(proof);
         caretUpdated(null);
+        System.out.println(checkPoints);
     }
 
     private void setLabelText(ProofStatus proofStatus) {

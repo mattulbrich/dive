@@ -95,6 +95,10 @@
     -fx-border-color: #62b3cf;
 }
 
+.script-error {
+    -fx-effect: dropshadow(gaussian, red, 2, 0, 0, 0);
+}
+
 .rule-view .label.branch-count:closes .text {
     -fx-fill: #5E5;
 }

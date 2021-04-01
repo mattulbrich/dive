@@ -9,8 +9,10 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.utils.FontAwesomeIconFactory;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIcon;
 import edu.kit.iti.algover.AlgoVerApplication;
+import edu.kit.iti.algover.PropertyManager;
 import edu.kit.iti.algover.editor.HighlightingRule;
 import edu.kit.iti.algover.nuscript.parser.ScriptLexer;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.util.AsyncHighlightingCodeArea;
 import edu.kit.iti.algover.util.ExceptionDetails;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -30,19 +32,25 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.OptionalInt;
 import java.util.concurrent.ExecutorService;
 
 /**
  * Created by Philipp on 24.07.2017.
+ * Renamed from ScriptView to ScriptCodeView by Valentin on 20.10.2020
+ * Currently used as fallback. Could be implemented as a CodeArea without
+ * asynchronous highlighting
  */
-public class ScriptView extends AsyncHighlightingCodeArea {
-
+public class ScriptCodeView extends AsyncHighlightingCodeArea {
 
     private final ScriptViewListener listener;
     private HighlightingRulev4 highlightingRule;
-    private Exception highlightedException = null;
+    // currently unused, exceptions read directly from Proof
+    private List<Exception> highlightedExceptions = null;
+    // Also unused. Could be generated upon script interpretation, and not every highlighting update.
     private ExceptionDetails.ExceptionReportInfo highlightedExceptionInfo = null;
+
     private final Tooltip tooltip = new Tooltip("");
 
     public int getFontsize() {
@@ -65,7 +73,7 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
     private GutterFactory gutter;
 
-    public ScriptView(ExecutorService executor, ScriptViewListener listener) {
+    public ScriptCodeView(ExecutorService executor, ScriptViewListener listener) {
         super(executor);
         this.listener = listener;
         this.highlightingRule = (token, syntaxClasses) -> syntaxClasses;
@@ -73,22 +81,8 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         setStyle("-fx-font-size: "+fontsizeProperty().get()+"pt;");
 
         getStylesheets().add(AlgoVerApplication.class.getResource("syntax-highlighting.css").toExternalForm());
+        setContextMenu(null);
 
-        MenuItem save = new MenuItem("Save Proof Script", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.SAVE));
-        MenuItem run = new MenuItem("Run Proof Script", FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.ARROW_RIGHT));
-        MenuItem createCases = new MenuItem("Insert cases", FontAwesomeIconFactory.get().createIcon(MaterialDesignIcon.CALL_SPLIT));
-
-        save.setOnAction(event -> this.listener.onScriptSave());
-        run.setOnAction(event -> this.listener.runScript());
-        createCases.setOnAction(event -> listener.onInsertCases());
-
-
-        ContextMenu menu = new ContextMenu(
-                run,
-                save,
-                createCases
-        );
-        setContextMenu(menu);
         //set gutter factory for checkpoints
         gutter = new GutterFactory(this, fontsizeProperty());
         this.setParagraphGraphicFactory(gutter);
@@ -96,14 +90,11 @@ public class ScriptView extends AsyncHighlightingCodeArea {
 
         setupAsyncSyntaxhighlighting();
 
-        textProperty().addListener((observable, oldValue, newValue) -> listener.onAsyncScriptTextChanged(newValue));
-        setOnMouseMoved(this::handleHover);
+        //setOnMouseMoved(this::handleHover);
 
         fontsizeProperty().addListener((observable, oldValue, newValue) -> {
             setStyle("-fx-font-size: "+fontsizeProperty().get()+"pt;");
-            System.out.println("fontsizeProperty() = " + fontsizeProperty());
             requestLayout();
-
         });
         /*this.caretPositionProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println("oldValue = " + oldValue);
@@ -223,11 +214,12 @@ public class ScriptView extends AsyncHighlightingCodeArea {
     private void handleHover(MouseEvent mouseEvent) {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
         OptionalInt charIdx = hit.getCharacterIndex();
-        if(charIdx.isPresent() && highlightedException != null) {
+        if(charIdx.isPresent() && highlightedExceptions != null) {
             edu.kit.iti.algover.nuscript.Position moPos = computePositionFromCharIdx(charIdx.getAsInt(), getText());
             if(moPos.getLineNumber() == highlightedExceptionInfo.getLine()) {
-                tooltip.setText(highlightedException.getMessage());
+                tooltip.setText(highlightedExceptionInfo.getMessage());
                 Tooltip.install(this, tooltip);
+
             }
         } else {
             Tooltip.uninstall(this, tooltip);
@@ -250,10 +242,38 @@ public class ScriptView extends AsyncHighlightingCodeArea {
         return new edu.kit.iti.algover.nuscript.Position(line, charInLine);
     }
 
-    public void setHighlightedException(Exception e) {
-        this.highlightedException = e;
-        highlightedExceptionInfo = ExceptionDetails.extractReportInfo(highlightedException);
+    public void setHighlightedExceptions(List<Exception> exceps) {
+        this.highlightedExceptions = exceps;
     }
+
+    private void highlightException(Exception ex) {
+        ExceptionDetails.ExceptionReportInfo highlightedExceptionInfo = ExceptionDetails.extractReportInfo(ex);
+        String[] lines = getText().split("\n");
+
+        int start = 0;
+
+        for (int i = 0; i < highlightedExceptionInfo.getLine() - 1; i++) {
+            start += lines[i].length();
+            start += 1;
+        }
+
+        start += highlightedExceptionInfo.getColumn();
+
+        if (start + highlightedExceptionInfo.getLength() < getText().length()) {
+            setStyle(start, start + highlightedExceptionInfo.getLength(), Collections.singleton("script-error"));
+        }
+
+    }
+
+    protected void applyHighlighting(StyleSpans<Collection<String>> styleSpans) {
+        setStyleSpans(0, styleSpans);
+        Proof proof = PropertyManager.getInstance().currentProof.get();
+        for (Exception ex: proof.getFailures()) {
+            highlightException(ex);
+        }
+
+    }
+
     public ObservableList<GutterAnnotation> getGutterAnnotations() {
         return gutter.getAnnotations();
     }

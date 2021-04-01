@@ -9,28 +9,29 @@ import com.jfoenix.controls.JFXRadioButton;
 import edu.kit.iti.algover.FxmlController;
 import edu.kit.iti.algover.Lookup;
 import edu.kit.iti.algover.PropertyManager;
+import edu.kit.iti.algover.nuscript.ScriptAST;
+import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.project.ProjectManager;
+import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
-import edu.kit.iti.algover.rule.script.ScriptController;
-import edu.kit.iti.algover.rule.script.ScriptView;
-import edu.kit.iti.algover.rules.ProofRule;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
-import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermSelector;
+import edu.kit.iti.algover.rule.script.BlocklyController;
+import edu.kit.iti.algover.rule.script.ScriptTextController;
+import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.term.Sequent;
 import edu.kit.iti.algover.term.Term;
 import edu.kit.iti.algover.term.prettyprint.PrettyPrint;
+import edu.kit.iti.algover.timeline.TimelineFactory;
+import edu.kit.iti.algover.util.ExceptionDialog;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
-import org.fxmisc.flowless.VirtualizedScrollPane;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -43,6 +44,21 @@ public class RuleApplicationController extends FxmlController implements Referen
     private Label termToConsider;
 
     @FXML
+    private VBox buttonBox;
+
+    @FXML
+    private Button btInsertCases;
+
+    @FXML
+    private Button btReplay;
+
+    @FXML
+    private Button btToggleView;
+
+    @FXML
+    private Label lbUnsavedScript;
+
+    @FXML
     private RuleGrid ruleGrid;
 
     @FXML
@@ -51,13 +67,10 @@ public class RuleApplicationController extends FxmlController implements Referen
     @FXML
     private JFXRadioButton sortBranching;
 
-
-
-    private final ScriptView scriptView;
+    private BlocklyController scriptRepWeb;
+    private ScriptTextController scriptRepText;
 
     private final RuleApplicationListener listener;
-
-    private final ScriptController scriptController;
 
     private final Logger logger;
 
@@ -69,8 +82,10 @@ public class RuleApplicationController extends FxmlController implements Referen
     public RuleApplicationController(ExecutorService executor, RuleApplicationListener listener, ProjectManager manager, Lookup lookup) {
         super("RuleApplicationView.fxml");
         this.listener = listener;
-        this.scriptController = new ScriptController(executor, listener, lookup);
-        this.scriptView = scriptController.getView();
+
+        // Could be a collection
+        this.scriptRepWeb = new BlocklyController();
+        this.scriptRepText = new ScriptTextController(executor);
         lookup.register(this, RuleApplicationController.class);
         lookup.register(this, ReferenceHighlightingHandler.class);
 
@@ -105,11 +120,15 @@ public class RuleApplicationController extends FxmlController implements Referen
             }
         });*/
 
-        PropertyManager.getInstance().selectedTerm.addListener(((observable, oldValue, newValue) -> considerApplication(
-                PropertyManager.getInstance().currentProofNode.get(),
-                PropertyManager.getInstance().currentProofNode.get().getSequent(),
-                PropertyManager.getInstance().selectedTerm.get()
-        )));
+        PropertyManager.getInstance().selectedTerm.addListener(((observable, oldValue, newValue) -> {
+                if (newValue != null && PropertyManager.getInstance().currentProofNode.get() != null) {
+                    considerApplication(
+                    PropertyManager.getInstance().currentProofNode.get(),
+                    PropertyManager.getInstance().currentProofNode.get().getSequent(),
+                    PropertyManager.getInstance().selectedTerm.get());
+                }
+
+        }));
         PropertyManager.getInstance().currentProofNode.addListener(((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 considerApplication(
@@ -126,7 +145,33 @@ public class RuleApplicationController extends FxmlController implements Referen
                         PropertyManager.getInstance().selectedTerm.get()
                 );
             }
+
+            if (newValue == ProofStatus.FAILING) {
+                showExceptionDialogsLastRun();
+            }
+
         }));
+
+
+        scriptRepText.getView().textProperty().addListener((observable, oldValue, newValue) -> {
+            String pvcIdentifier = PropertyManager.getInstance().currentProof.get().getPVC().getIdentifier();
+            String inFile = "";
+            try {
+                inFile = manager.loadScriptForPVC(pvcIdentifier);
+            } catch (IOException ioex) {
+                ExceptionDialog ed = new ExceptionDialog(ioex);
+                ed.showAndWait();
+            }
+            inFile = inFile.replaceAll("[\\n\\t ]", "");
+            String textFieldReference = newValue.replaceAll("[\\n\\t ]", "");
+            lbUnsavedScript.setVisible(!inFile.equals(textFieldReference));
+        });
+
+        PropertyManager.getInstance().currentlyDisplayedView.addListener((observable, oldValue, newValue) -> {
+            if (newValue.intValue() == TimelineFactory.DefaultViewPosition.SEQUENT_RULE.index) {
+                scriptRepWeb.getView().requestFocus();
+            }
+        });
 
         logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         this.manager = manager;
@@ -135,9 +180,43 @@ public class RuleApplicationController extends FxmlController implements Referen
             addProofRule(rule);
         }
         ruleGrid.getSelectionModel().selectedItemProperty().addListener(this::onSelectedItemChanged);
-        VirtualizedScrollPane<ScriptView> proofScriptPane = new VirtualizedScrollPane<>(scriptView);
-        splitPane.getItems().add(0, proofScriptPane);
 
+        btInsertCases.setOnAction(event -> {
+            scriptRepWeb.onInsertCases();
+
+        });
+
+        btReplay.setOnAction(event -> {
+            onScriptSave();
+            scriptRepText.runScript();
+            scriptRepWeb.highlightScriptErrors();
+            lbUnsavedScript.setVisible(false);
+        });
+
+
+        scriptRepText.getView().prefHeightProperty().bind(buttonBox.heightProperty());
+
+        btToggleView.setOnAction(event -> {
+            Node currentView = buttonBox.getChildren().get(2);
+            if (currentView == scriptRepWeb.getView()) {
+                buttonBox.getChildren().set(2, scriptRepText.getView());
+            } else if (currentView == scriptRepText.getView()) {
+                buttonBox.getChildren().set(2, scriptRepWeb.getView());
+            }
+
+        });
+
+        buttonBox.getChildren().add(scriptRepWeb.getView());
+
+    }
+
+    private void showExceptionDialogsLastRun() {
+        Proof proof = PropertyManager.getInstance().currentProof.get();
+        for (Exception ex: proof.getFailures()) {
+            Logger.getGlobal().severe(ex.getMessage());
+            ExceptionDialog ed = new ExceptionDialog(ex);
+            ed.show();
+        }
     }
 
     public void addProofRule(ProofRule rule) {
@@ -169,8 +248,6 @@ public class RuleApplicationController extends FxmlController implements Referen
         ruleGrid.filterRules();
     }
 
-
-
     private void onSelectedItemChanged(ObservableValue<? extends RuleView> obs, RuleView before, RuleView selected) {
         if (selected == null) {
             listener.onResetRuleApplicationPreview();
@@ -185,21 +262,21 @@ public class RuleApplicationController extends FxmlController implements Referen
         return ruleGrid;
     }
 
-    public ScriptView getScriptView() {
-        return scriptView;
-    }
-
-    public ScriptController getScriptController() {
-        return scriptController;
-    }
-
+    // TODO: consider reimplementation
     public void applyRule(ProofRuleApplication application) {
         try {
             resetConsideration();
-            scriptController.insertTextForSelectedNode(application.getScriptTranscript()+"\n"); //SaG: removed newline character
+            // TODO: create new Statement directly from ProofRuleApplication.
+            ScriptAST.Script newLine = Scripts.parseScript(application.getScriptTranscript());
+            scriptRepWeb.insertAtCurrentPosition(application, newLine);
+            scriptRepWeb.runScript();
+            lbUnsavedScript.setVisible(true);
+
         } catch(RuleException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
         }
+
+        scriptRepWeb.highlightScriptErrors();
     }
 
     public void onReset() {
@@ -217,4 +294,24 @@ public class RuleApplicationController extends FxmlController implements Referen
     public void removeReferenceHighlighting() {
         //Do nothing at the moment
     }
+
+    public Node getScriptView() {
+        return this.scriptRepText.getView();
+    }
+
+    public void onScriptSave() {
+        String pvcIdentifier = PropertyManager.getInstance().currentProof.get().getPVC().getIdentifier();
+        try {
+            manager.saveProofScripts();
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved script " + pvcIdentifier + ".");
+        } catch (IOException e) {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving script.");
+            e.printStackTrace();
+        }
+    }
+
+    public void notifyEverythingSaved() {
+        lbUnsavedScript.setVisible(false);
+    }
+
 }

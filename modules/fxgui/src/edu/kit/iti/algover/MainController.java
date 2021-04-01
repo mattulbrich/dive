@@ -31,12 +31,14 @@ import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceGraphController;
 import edu.kit.iti.algover.rule.RuleApplicationController;
 import edu.kit.iti.algover.rule.RuleApplicationListener;
+import edu.kit.iti.algover.rule.script.ScriptTextController;
 import edu.kit.iti.algover.rules.ProofRuleApplication;
 import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.sequent.SequentTabViewController;
 import edu.kit.iti.algover.settings.SettingsController;
 import edu.kit.iti.algover.settings.SettingsFactory;
 import edu.kit.iti.algover.settings.SettingsWrapper;
+import edu.kit.iti.algover.timeline.TimelineFactory;
 import edu.kit.iti.algover.timeline.TimelineLayout;
 import edu.kit.iti.algover.util.CostumBreadCrumbBar;
 import edu.kit.iti.algover.util.ExceptionDialog;
@@ -88,6 +90,7 @@ public class MainController implements RuleApplicationListener {
 
     private final ProjectManager manager;
     private final ExecutorService executor;
+
     private final TimelineLayout timelineView;
     private final VBox view;
 
@@ -96,7 +99,6 @@ public class MainController implements RuleApplicationListener {
     private final EditorController editorController;
     private final SequentTabViewController sequentController;
     private final RuleApplicationController ruleApplicationController;
-    //is actually not unused
     private final ReferenceGraphController referenceGraphController;
     private final ToolBar toolbar;
     private final StatusBar statusBar;
@@ -109,15 +111,15 @@ public class MainController implements RuleApplicationListener {
     private final CostumBreadCrumbBar<Object> breadCrumbBar;
 
 
-    public MainController(ProjectManager manager, ExecutorService executor) {
+    public MainController(ProjectManager manager, ExecutorService highlightingExecutor) {
         this.manager = manager;
-        this.executor = executor;
+        this.executor = highlightingExecutor;
         this.browserController = new FlatBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
         //this.browserController = new FileBasedBrowserController(manager.getProject(), manager.getAllProofs(), this::onClickPVCEdit);
-        this.editorController = new EditorController(executor, manager.getProject().getBaseDir().getAbsolutePath(), this.lookup);
+        this.editorController = new EditorController(highlightingExecutor, manager.getProject().getBaseDir().getAbsolutePath(), this.lookup);
         this.editorController.anyFileChangedProperty().addListener(this::onDafnyFileChangedInEditor);
         this.sequentController = new SequentTabViewController(lookup);
-        this.ruleApplicationController = new RuleApplicationController(executor, this, manager, this.lookup);
+        this.ruleApplicationController = new RuleApplicationController(highlightingExecutor, this, manager, this.lookup);
         this.referenceGraphController = new ReferenceGraphController(this.lookup);
 
         PropertyManager.getInstance().projectManager.set(manager);
@@ -153,12 +155,10 @@ public class MainController implements RuleApplicationListener {
         ContextMenu contextMenu = new ContextMenu();
         statusBar.setContextMenu(contextMenu);
 
-        this.timelineView = new TimelineLayout(
-                browserController.getView(),
-                editorController.getView(),
-                sequentController.getView(),
-                ruleApplicationController.getRuleApplicationView());
-        timelineView.setDividerPosition(0.2);
+        this.timelineView = TimelineFactory.getDefaultTimeLineLayout(browserController,
+                editorController,
+                sequentController,
+                ruleApplicationController);
 
         this.view = new VBox(toolbar, breadCrumbBar, timelineView, statusBar);
         VBox.setVgrow(timelineView, Priority.ALWAYS);
@@ -353,7 +353,7 @@ public class MainController implements RuleApplicationListener {
                     DafnyFile file = (DafnyFile) item.getParent().getParent().getValue();
                     PropertyManager.getInstance().currentFile.set(file);
                     PropertyManager.getInstance().currentPVC.set(pvc);
-                    PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.SEQUENT_VIEW);
+                    PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.DefaultViewPosition.BROWSER_EDITOR.index);
                     onClickPVCEdit(new PVCEntity(manager.getProofForPVC(pvc.getIdentifier()), pvc, file));
                 } catch (NullPointerException e) {
                     Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).warning("Could not select pvc.");
@@ -365,7 +365,7 @@ public class MainController implements RuleApplicationListener {
             if (item.getValue() instanceof DafnyFile) {
                 PropertyManager.getInstance().currentFile.set((DafnyFile) item.getValue());
                 //editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getValue());
-                PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.EDITOR_VIEW);
+                PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.DefaultViewPosition.BROWSER_EDITOR.index);
                 PropertyManager.getInstance().currentPVC.set(null);
                 //editorController.resetPVCSelection();
             }
@@ -373,7 +373,7 @@ public class MainController implements RuleApplicationListener {
                 if (item.getParent().getValue() instanceof DafnyFile) {
                     PropertyManager.getInstance().currentFile.set((DafnyFile) item.getParent().getValue());
                     //editorController.viewFile(manager.getProject().getBaseDir(), (DafnyFile) item.getParent().getValue());
-                    PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.EDITOR_VIEW);
+                    PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.DefaultViewPosition.BROWSER_EDITOR.index);
                     PropertyManager.getInstance().currentPVC.set(null);
                     //editorController.resetPVCSelection();
                 }
@@ -478,9 +478,13 @@ public class MainController implements RuleApplicationListener {
 
     private void onClickSaveVisibleContent(ActionEvent actionEvent) {
         // TODO: Save the project
+        if (actionEvent != null) {
+            this.onScriptSave();
+        }
         try {
             editorController.saveAllFiles();
             manager.saveProofScripts();
+            ruleApplicationController.notifyEverythingSaved();
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved project.");
         } catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Error saving the project.");
@@ -522,7 +526,7 @@ public class MainController implements RuleApplicationListener {
             breadCrumbBar.setSelectedCrumb(ti);
             editorController.resetPVCSelection();
             sequentController.getActiveSequentController().clear();
-            PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.BROWSER_VIEW);
+            showStartTimeLineConfiguration();
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully reloaded project.");
         });
 
@@ -547,14 +551,17 @@ public class MainController implements RuleApplicationListener {
         executor.execute(t);
     }
 
+    private void showStartTimeLineConfiguration() {
+        PropertyManager.getInstance().currentlyDisplayedView.set(0);
+    }
+
     public void onClickPVCEdit(PVCEntity entity) {
         //Proof proof = manager.getProofForPVC(entity.getPVC().getIdentifier());
         //// MU: currently proofs are not automatically interpreted and/or uptodate. Make sure they are.
         //if (proof.getProofStatus() == ProofStatus.NON_EXISTING || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
         //    proof.interpretScript();
-        PropertyManager.getInstance().currentPVC.set(entity.getPVC());
         ruleApplicationController.resetConsideration();
-        PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.SEQUENT_VIEW);
+        PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.DefaultViewPosition.SEQUENT_RULE.index);
     }
 
     /**
@@ -609,7 +616,7 @@ public class MainController implements RuleApplicationListener {
 
     public void onClickSequentSubterm(TermSelector selector) {
         if (selector != null) {
-            PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.SEQUENT_VIEW);
+            PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.DefaultViewPosition.SEQUENT_RULE.index);
         }
     }
 
@@ -628,11 +635,10 @@ public class MainController implements RuleApplicationListener {
         // This can be implemented as an incremental algorithm in the future here!
         // Currently, this will reset the script text completely. That means the
         // script has to be parsed and rebuilt completely.
-        ruleApplicationController.applyRule(application);
+        //ruleApplicationController.applyRule(application);
         ruleApplicationController.getRuleGrid().getSelectionModel().clearSelection();
-        String newScript = ruleApplicationController.getScriptView().getText();
-        PropertyManager.getInstance().currentProof.get().setScriptTextAndInterpret(newScript);
-        PropertyManager.getInstance().currentProofStatus.set(PropertyManager.getInstance().currentProof.get().getProofStatus());
+        ruleApplicationController.applyRule(application);
+
         ruleApplicationController.resetConsideration();
         if(PropertyManager.getInstance().currentProofStatus.get() != ProofStatus.FAILING) {
             sequentController.getActiveSequentController().tryMovingOnEx(); //SaG: was tryMovingOn()
@@ -646,7 +652,8 @@ public class MainController implements RuleApplicationListener {
     public void onScriptSave() {
         String pvcIdentifier = PropertyManager.getInstance().currentProof.get().getPVC().getIdentifier();
         try {
-            manager.saveProofScriptForPVC(pvcIdentifier, PropertyManager.getInstance().currentProof.get());
+            //manager.saveProofScriptForPVC(pvcIdentifier, PropertyManager.getInstance().currentProof.get());
+            manager.saveProofScripts();
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved script " + pvcIdentifier + ".");
         } catch (IOException e) {
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving script.");

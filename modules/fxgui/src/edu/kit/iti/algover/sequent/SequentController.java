@@ -363,7 +363,7 @@ public class SequentController extends FxmlController {
             } else if(PropertyManager.getInstance().currentProofStatus.get() == ProofStatus.OPEN) {
                 goalTypeLabel.setText("Open Goal");
                 goalTypeLabel.setGraphic(FontAwesomeIconFactory.get().createIcon(FontAwesomeIcon.BULLSEYE));
-                goalTypeLabel.setStyle("-fx-text-fill: RED");
+                goalTypeLabel.setStyle("-fx-text-fill: #ff0000");
             } else if(PropertyManager.getInstance().currentProofStatus.get() == ProofStatus.CHANGED_SCRIPT) {
                 goalTypeLabel.setText("Script changed");
                 goalTypeLabel.setStyle("-fx-text-fill: GRAY");

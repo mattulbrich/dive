@@ -22,6 +22,7 @@ import edu.kit.iti.algover.nuscript.parser.ScriptParser.ParameterContext;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.ScriptContext;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.SingleCaseContext;
 import edu.kit.iti.algover.nuscript.parser.ScriptParser.StatementContext;
+import edu.kit.iti.algover.nuscript.parser.ScriptBaseVisitor;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 

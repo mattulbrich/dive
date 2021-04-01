@@ -20,6 +20,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.util.Duration;
 import org.controlsfx.control.HiddenSidesPane;
 
@@ -27,7 +28,7 @@ import org.controlsfx.control.HiddenSidesPane;
  * Created by philipp on 10.07.17.
  * updated by Valentin on 03.03.20.
  *
- * @author philipp and Valentin
+ * @author philipp
  */
 public class TimelineLayout extends HiddenSidesPane {
 
@@ -41,11 +42,7 @@ public class TimelineLayout extends HiddenSidesPane {
      * Holds the items of a TimelineView
      */
     private final ListProperty<Node> nodes;
-    /**
-     * Representing the current position of the timeline.
-     * Currently only set in this class.
-     */
-    private final SimpleIntegerProperty framePosition;
+
     /**
      * Number of views in the {@link TimelineLayout}.
      */
@@ -81,7 +78,6 @@ public class TimelineLayout extends HiddenSidesPane {
             throw new IllegalArgumentException("Need at least to nodes for a timeline layout");
         }
         this.numViews = new SimpleIntegerProperty(1);
-        this.framePosition = new SimpleIntegerProperty(0);
 
         ObservableList<Node> nodeList = FXCollections.observableArrayList(nodes);
         this.nodes = new SimpleListProperty<Node>(nodeList);
@@ -97,8 +93,7 @@ public class TimelineLayout extends HiddenSidesPane {
         this.configureActionHandling();
         // Auxiliary method to set up listener on framePosition property.
         // passed as parameter. May be retrieved from state holding class in the future.
-        this.configureFramePositionChangeListener(this.framePosition);
-        this.framePosition.bindBidirectional(PropertyManager.getInstance().currentlyDisplayedView);
+        configureFramePositionChangeListener();
 
         this.updateFrame(0);
     }
@@ -113,9 +108,11 @@ public class TimelineLayout extends HiddenSidesPane {
         this.setTriggerDistance(HOVER_AREA);
 
         this.widthProperty().addListener(newWidth -> {
-            if (framePosition.get() % 2 == 1 && viewPane.isScreenDividerOff()) {
-                viewPane.resetDividerPositions(framePosition.get(), framePosition.get() - 1);
-                viewPane.resetDividerPositions(framePosition.get() - 1, framePosition.get());
+            if (PropertyManager.getInstance().currentlyDisplayedView.get() % 2 == 1 && viewPane.isScreenDividerOff()) {
+                viewPane.resetDividerPositions(PropertyManager.getInstance().currentlyDisplayedView.get(),
+                        PropertyManager.getInstance().currentlyDisplayedView.get() - 1);
+                viewPane.resetDividerPositions(PropertyManager.getInstance().currentlyDisplayedView.get() - 1,
+                        PropertyManager.getInstance().currentlyDisplayedView.get());
             }
         });
     }
@@ -126,11 +123,10 @@ public class TimelineLayout extends HiddenSidesPane {
      * frame position must be triggered. The listener has to carefully handle this.
      * The {@link MultiViewSplitPane#shiftProperty()} is bound to correspond to the
      * position of the left node in the new frame position.
-     * @param framePosition
-     *          IntegerProperty holding the frame position.
+
      */
-    private void configureFramePositionChangeListener(IntegerProperty framePosition) {
-        framePosition.addListener((observableValue, oldValue, newValue) -> {
+    private void configureFramePositionChangeListener() {
+        PropertyManager.getInstance().currentlyDisplayedView.addListener((observableValue, oldValue, newValue) -> {
             // frame position set to an invalid value for display
             if (newValue.intValue() < 0 || newValue.intValue() >= numViews.get()) {
                 return;
@@ -149,14 +145,14 @@ public class TimelineLayout extends HiddenSidesPane {
 
             currentAnimation.setOnFinished(event -> {
                 viewPane.shiftProperty().bind(viewPane.nodePositionProperty(newValue.intValue()).negate());
+                viewPane.resetDividerPositions(1,0);
+
             });
 
             viewPane.shiftProperty().unbind();
             currentAnimation.play();
 
             updateFrame(newValue.intValue());
-
-            requestFocus();
         });
     }
 
@@ -164,11 +160,15 @@ public class TimelineLayout extends HiddenSidesPane {
      * Add listeners for reacting to state properties. Set Listeners for user interaction.
      */
     private void configureActionHandling() {
-        this.goLeft.setOnAction(actionEvent -> framePosition.set(framePosition.get() - 1));
-        this.goRight.setOnAction(actionEvent -> framePosition.set(framePosition.get() + 1));
+        this.goLeft.setOnAction(actionEvent ->
+                PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.getInstance().currentlyDisplayedView.get() - 1));
+        this.goRight.setOnAction(actionEvent ->
+                PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.getInstance().currentlyDisplayedView.get() + 1));
 
         // Key listening. May be moved to global Controls class
-        setOnKeyPressed(event -> {
+
+
+        addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.isControlDown() && event.isAltDown()) {
                 if (event.getCode() == KeyCode.RIGHT) {
                     moveFrameRight();
@@ -177,13 +177,13 @@ public class TimelineLayout extends HiddenSidesPane {
                     moveFrameLeft();
                     event.consume();
                 } else if (event.getCode() == KeyCode.DIGIT1) {
-                    framePosition.set(0);
+                    PropertyManager.getInstance().currentlyDisplayedView.set(0);
                     event.consume();
                 } else if (event.getCode() == KeyCode.DIGIT2) {
-                    framePosition.set(1);
+                    PropertyManager.getInstance().currentlyDisplayedView.set(1);
                     event.consume();
                 } else if (event.getCode() == KeyCode.DIGIT3) {
-                    framePosition.set(2);
+                    PropertyManager.getInstance().currentlyDisplayedView.set(2);
                     event.consume();
                 }
             }
@@ -233,12 +233,11 @@ public class TimelineLayout extends HiddenSidesPane {
      *
      * @return true iff move was possible.
      */
-    @Deprecated
-    public boolean moveFrameRight() {
-        if (framePosition.greaterThanOrEqualTo(numViews.subtract(1)).get()) {
+    private boolean moveFrameRight() {
+        if (PropertyManager.getInstance().currentlyDisplayedView.get() >= numViews.get() - 1){
             return false;
         }
-        framePosition.set(framePosition.get() + 1);
+        PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.getInstance().currentlyDisplayedView.get() + 1);
         return true;
     }
 
@@ -247,13 +246,12 @@ public class TimelineLayout extends HiddenSidesPane {
      *
      * @return true iff move was possible.
      */
-    @Deprecated
-    public boolean moveFrameLeft() {
-        if (framePosition.get() < 1) {
+    private boolean moveFrameLeft() {
+        if (PropertyManager.getInstance().currentlyDisplayedView.get() < 1) {
             return false;
         }
 
-        framePosition.set(framePosition.get() - 1);
+        PropertyManager.getInstance().currentlyDisplayedView.set(PropertyManager.getInstance().currentlyDisplayedView.get() - 1);
         return true;
     }
 }

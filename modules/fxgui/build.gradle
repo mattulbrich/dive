@@ -7,7 +7,7 @@ plugins{
 
 javafx {
     //can be upgraded to 12
-    version = "11"
+    version = "15"
     modules = ["javafx.controls", "javafx.fxml", "javafx.web","javafx.base"]
 }
 
@@ -34,6 +34,8 @@ dependencies {
     /*implementation name: 'rsyntaxtextarea-2.6.0-SNAPSHOT'
     implementation name: 'swingx-all-1.6.4'*/
     implementation group: 'com.jfoenix', name: 'jfoenix', version: '9.0.8'
+
+    compile group: 'com.j2html', name: 'j2html', version: '1.4.0'
 
     // actually only needed at runtime, but who cares ...
     testImplementation project(':core').sourceSets.test.output

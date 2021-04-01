@@ -7,12 +7,14 @@ package edu.kit.iti.algover.proof;
 
 import edu.kit.iti.algover.dafnystructures.DafnyFile;
 import edu.kit.iti.algover.nuscript.Interpreter;
+import edu.kit.iti.algover.nuscript.ScriptAST;
 import edu.kit.iti.algover.nuscript.ScriptAST.Script;
 import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.project.Project;
 import edu.kit.iti.algover.references.ReferenceGraph;
 import edu.kit.iti.algover.rules.RuleException;
 import edu.kit.iti.algover.util.ObservableValue;
+import edu.kit.iti.algover.util.ObservableValue.ChangeListener;
 import edu.kit.iti.algover.util.ProofTreeUtil;
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -55,15 +57,15 @@ public class Proof {
     /**
      * The script text.
      *
-     * mutable, should never be null.
-     * If a proofRoot is present, it results from this very script object.
+     * mutable, can be null if scriptAST has been set directly.
      */
-    private @NonNull String script = "";
+    private @Nullable String scriptText;
 
     /**
      * The AST of the script.
      *
-     * mutable, can be null if not yet parsed (in the beginning or after setting a script)
+     * mutable, can be null if not yet parsed
+     * (in the beginning or after setting a script)
      */
     private @Nullable Script scriptAST;
 
@@ -138,7 +140,7 @@ public class Proof {
     }
 
     public @Nullable String getScriptText() {
-        return script;
+        return scriptText;
     }
 
     /**
@@ -158,6 +160,10 @@ public class Proof {
         proofStatus.addObserver(listener);
     }
 
+    public void removeProofStatusListener(ChangeListener<ProofStatus> listener) {
+        proofStatus.removeObserver(listener);
+    }
+
     /**
      * Add all code references from a Dafny file to the refrence graph.
      *
@@ -168,30 +174,44 @@ public class Proof {
     }
 
     /**
-     * Parses a script as string representation and sets the parsed AST to null.
+     * Sets a script string representation and sets the parsed AST to null.
      * Set the state to {@link ProofStatus#CHANGED_SCRIPT}.
      *
      * @param script string representation of script
      */
     public void setScriptText(@NonNull String script) {
-        if (this.getScriptText() != null) {
-            saveOldDataStructures();
-        }
-
-        this.script = script;
+        this.scriptText = script;
         this.scriptAST = null;
+        this.proofStatus.setValue(ProofStatus.CHANGED_SCRIPT);
+    }
 
+    /**
+     * Sets a script string representation and sets the script text to null.
+     * Set the state to {@link ProofStatus#CHANGED_SCRIPT}.
+     *
+     * @param script string representation of script
+     */
+    public void setScriptAST (@NonNull Script script) {
+        this.scriptAST = script;
+        this.scriptText = null;
         this.proofStatus.setValue(ProofStatus.CHANGED_SCRIPT);
     }
 
     /**
      * Interpret Script. A script must have been set previously.
      *
-     * This will also parse the previously set script text. After this
-     * {@link #getProofScript()} will return a valid script, if parsing is successful.
+     * Requires that the proof state is {@link ProofStatus#CHANGED_SCRIPT}.
+     *
+     * This will also parse the previously set script text (if set via {@link
+     * #setScriptText(String)}). No parsing is involved if the script has been
+     * set with {@link #setScriptAST(Script)}.
+     *
+     * Afterwards, {@link #getProofScript()} will return a valid script, if
+     * parsing is successful.
      */
     public void interpretScript() {
-        assert script != null;
+
+        assert proofStatus.getValue() == ProofStatus.CHANGED_SCRIPT;
 
         Interpreter interpreter = new Interpreter(this);
 
@@ -199,13 +219,16 @@ public class Proof {
         // (Also a syntax error deserves a proof root.)
         this.proofRoot = interpreter.getRootNode();
 
-        try {
-            this.scriptAST = Scripts.parseScript(script);
-        } catch(Exception ex) {
-            this.failures = Collections.singletonList(ex);
-            this.scriptAST = null;
-            proofStatus.setValue(ProofStatus.FAILING);
-            return;
+        if (this.scriptAST == null) {
+            assert scriptText != null : "Either ast or text must not be null";
+            try {
+                this.scriptAST = Scripts.parseScript(scriptText);
+            } catch (Exception ex) {
+                this.failures = Collections.singletonList(ex);
+                this.scriptAST = null;
+                proofStatus.setValue(ProofStatus.FAILING);
+                return;
+            }
         }
 
         try {
@@ -223,12 +246,22 @@ public class Proof {
                 proofStatus.setValue(newRoot.allLeavesClosed() ?
                         ProofStatus.CLOSED : ProofStatus.OPEN);
             }
+            scriptAST.seal();
         } catch(Exception ex) {
-            System.err.println("This is an unexpected error (should not be raised):");
+            System.err.println("This is an unexpected error (that should never be raised):");
             ex.printStackTrace();
             this.failures = Collections.singletonList(ex);
             proofStatus.setValue(ProofStatus.FAILING);
         }
+
+        // provide consistency
+        if (scriptAST != null) {
+            scriptText = "";
+            for (ScriptAST.Statement stmt: scriptAST.getStatements()){
+                scriptText += stmt.toString();
+            }
+        }
+
     }
 
 
@@ -296,12 +329,5 @@ public class Proof {
             sb.append("<null> proof");
         }
         return sb.toString();
-    }
-
-    /**
-     * Save the old script and the old proof for comparison when reloading
-     */
-    private void saveOldDataStructures() {
-        // future ...
     }
 }

@@ -5,13 +5,16 @@
  */
 package edu.kit.iti.algover.rule.script;
 
+import edu.kit.iti.algover.nuscript.ScriptAST;
+
 public interface ScriptViewListener {
-
-    void onScriptSave();
-
-    void onAsyncScriptTextChanged(String text);
 
     void runScript();
 
     void onInsertCases();
+
+    void onViewReloaded();
+
+    void onASTElemSelected(ScriptAST astElem);
+
 }

@@ -1,323 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-<<<<<<< HEAD
-<comment>Created by DIVE at Fri May 22 13:49:57 CEST 2020</comment>
-<entry key="List.removeAt/then/else/Bounds">expand on='... ((?match: this.Valid())) ... |-';
-=======
-<comment>Created by DIVE at Mon Dec 21 15:48:08 CET 2020</comment>
-<entry key="List.removeAt/then/else/Bounds">expand on='... ((?m: this.Valid())) ... |-';
->>>>>>> a4abcfa6... towards supporting extended MatchParameterTests
-boogie ;
-
+<comment>Created by DIVE at Thu Apr 01 09:05:25 CEST 2021</comment>
+<entry key="List.removeAt/then/else/Bounds">boogie;</entry>
+<entry key="List.insertAt/loop_exit/Post.1">boogie;</entry>
+<entry key="List.getAt/InitInv">boogie;</entry>
+<entry key="List.removeAt/else/loop_exit/else/Post.1">boogie;</entry>
+<entry key="List.insertAt/loop/Inv.1">boogie;</entry>
+<entry key="List.removeAt/then/Null">boogie;</entry>
+<entry key="List.removeAt/else/loop/Dec">boogie;</entry>
+<entry key="List.size/loop_exit/Post">boogie;</entry>
+<entry key="List.removeAt/then/then/Post.1">boogie;</entry>
+<entry key="List.getAt/loop/Inv.1">boogie;</entry>
+<entry key="List.size/InitInv.2">skip;
+expand on='_ |-';
+vsasad</entry>
+<entry key="List.size/InitInv.1">expand on='_ |-';
+skip;fwef
 </entry>
-<entry key="List.getAt/InitInv">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.insertAt/loop/Inv.1">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.removeAt/else/loop/Dec">boogie;
-</entry>
-<entry key="List.getAt/InitInv[nodeInv]"></entry>
-<entry key="List.getAt/loop/Inv.1">boogie;
-</entry>
-<entry key="List.removeAt/else/loop/Inv.1">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.insertAt/loop_exit/Modifies[Init]">expand on='... ((?match: this.Valid())) ... |-';
-</entry>
-<entry key="List.removeAt/then/Post">boogie;
-</entry>
-<entry key="List.removeAt/then/then/Bounds.1">boogie;
-</entry>
-<entry key="List.removeAt/else/loop_exit/else/Post">boogie;
-</entry>
-<entry key="List.removeAt/then/else/Post.1">expand on='... ((?match: this.Valid())) ... |-';
-substitute on='|- ... ((?match: let $heap := $heap[this.head := this.head.next] :: let $heap := $heap[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, (pos + 1), |this.nodeseqq@$heap|)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + $seq_sub&lt;int&gt;(this.seqq@$heap, (pos + 1), |this.seqq@$heap|)] :: this.Valid()@$heap)) ...';
-substitute on='|- ... ((?match: let $heap := $heap[this.head := this.head.next][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + $seq_sub&lt;int&gt;(this.seqq@$heap, (pos + 1), |this.seqq@$heap|)] :: this.Valid()@$heap)) ...';
-substitute on='|- ... ((?match: let $heap := $heap[this.head := this.head.next][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)][this.seqq := $seq_sub&lt;int&gt;(this.seqq@(($heap[this.head := this.head.next])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)]), 0, pos) + $seq_sub&lt;int&gt;(this.seqq@(($heap[this.head := this.head.next])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)]), (pos + 1), |this.seqq@(($heap[this.head := this.head.next])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)])|)] :: this.Valid()@$heap)) ...';
-expand on='|- ... ((?match: this.Valid()@$heap[this.head := this.head.next][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)][this.seqq := $seq_sub&lt;int&gt;(this.seqq@(($heap[this.head := this.head.next])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)]), 0, pos) + $seq_sub&lt;int&gt;(this.seqq@(($heap[this.head := this.head.next])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)]), (pos + 1), |this.seqq@(($heap[this.head := this.head.next])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)])|)])) ...';
-boogie ;
-</entry>
-<entry key="List.Valid/Null.3">boogie;
-</entry>
-<entry key="List.Valid/Null.2">boogie;
-</entry>
-<entry key="List.Valid/Null.1">boogie;
-</entry>
-<entry key="List.getAt/loop_exit/Null">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.removeAt/else/loop_exit/Null.1">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.removeAt/else/loop_exit/Null.2">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<<<<<<< HEAD
-<entry key="List.getAt/InitInv.1">boogie;
-</entry>
-<entry key="List.insertAt/loop/Null">expand on='... ((?match: this.Valid())) ... |-';
-=======
-<entry key="List.insertAt/loop/Null">expand on='... ((?m: this.Valid())) ... |-';
->>>>>>> a4abcfa6... towards supporting extended MatchParameterTests
-boogie ;
-</entry>
-<entry key="List.removeAt/else/loop_exit/else/Bounds.3">boogie;
-</entry>
-<entry key="List.removeAt/else/loop_exit/else/Bounds.1">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.removeAt/else/loop_exit/else/Bounds.2">boogie;
-</entry>
-<entry key="List.insertAt/InitInv.1">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
+<entry key="List.removeAt/else/loop/Inv.1">boogie;</entry>
+<entry key="List.removeAt/then/then/Post">boogie;</entry>
+<entry key="List.getAt/loop/Inv">boogie;</entry>
+<entry key="List.removeAt/else/loop_exit/Modifies">boogie;</entry>
+<entry key="List.insertAt/loop_exit/Modifies[Init]">boogie;</entry>
+<entry key="List.insertAt/loop_exit/Bounds"></entry>
+<entry key="List.removeAt/then/then/Bounds.1">boogie;</entry>
+<entry key="List.removeAt/else/loop_exit/else/Post">boogie;</entry>
+<entry key="List.Valid/Bounds.7">boogie;</entry>
+<entry key="List.removeAt/else/loop_exit/else/Bounds">boogie;</entry>
+<entry key="List.Valid/Bounds.6">boogie;</entry>
+<entry key="List.removeAt/then/else/Post.1">boogie;</entry>
+<entry key="List.Valid/Null.3">boogie;</entry>
+<entry key="List.Valid/Null.2">boogie;</entry>
+<entry key="List.Valid/Null.1">boogie;</entry>
+<entry key="List.getAt/loop_exit/Null">boogie;</entry>
+<entry key="List.removeAt/else/loop_exit/Null.1">boogie;</entry>
+<entry key="List.removeAt/else/loop_exit/Null.2">boogie;</entry>
+<entry key="List.getAt/loop/Dec">boogie;</entry>
+<entry key="List.insertAt/loop/Null">boogie;</entry>
+<entry key="List.getAt/InitInv.1">boogie;</entry>
+<entry key="List.Valid/Bounds.1">boogie;</entry>
+<entry key="List.Valid/Bounds.5">boogie;</entry>
+<entry key="List.Valid/Bounds.4">boogie;</entry>
+<entry key="List.Valid/Bounds.3">boogie;</entry>
+<entry key="List.Valid/Bounds.2">boogie;</entry>
+<entry key="List.removeAt/else/InitInv">boogie;</entry>
+<entry key="List.size/loop/Inv">expand on='_.Valid()@_';</entry>
+<entry key="List.removeAt/else/loop_exit/else/Bounds.3">boogie;</entry>
+<entry key="List.removeAt/else/loop_exit/else/Bounds.1">boogie;</entry>
+<entry key="List.removeAt/else/loop_exit/else/Bounds.2">boogie;</entry>
+<entry key="List.removeAt/then/else/Post">boogie;</entry>
+<entry key="List.insertAt/InitInv.1">boogie;</entry>
+<entry key="List.size/loop/Dec">boogie;</entry>
 <entry key="List.insertAt/loop_exit/Bounds.1"></entry>
 <entry key="List.insertAt/loop_exit/Bounds.2"></entry>
 <entry key="List.insertAt/loop_exit/Bounds.3"></entry>
-<entry key="List.removeAt/else/loop_exit/then/Bounds">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-
-</entry>
+<entry key="List.removeAt/else/loop_exit/then/Bounds">boogie;</entry>
+<entry key="List.insertAt/loop/Dec">boogie;</entry>
 <entry key="List.Valid/Reads.14"></entry>
 <entry key="List.Valid/Reads.13"></entry>
 <entry key="List.Valid/Reads.12"></entry>
 <entry key="List.Valid/Reads.11"></entry>
-<<<<<<< HEAD
-<entry key="List.removeAt/then/else/Bounds.1">expand on='... ((?match: this.Valid())) ... |-';
-=======
 <entry key="List.Valid/Reads.10"></entry>
-<entry key="List.removeAt/then/else/Bounds.1">expand on='... ((?m: this.Valid())) ... |-';
->>>>>>> a4abcfa6... towards supporting extended MatchParameterTests
-boogie ;
-</entry>
-<entry key="List.Valid/Reads.10"></entry>
-<entry key="List.removeAt/then/else/Bounds.2">boogie;
-</entry>
-<entry key="List.removeAt/then/else/Bounds.3">boogie;
-</entry>
-<entry key="List.getAt/loop_exit/Post">expand on='... ((?match: this.Valid())) ... |-';
-andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| &gt;= 1 &amp;&amp; this.head != null &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; this.nodeseqq[n] != null)) &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[k].next != null)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])))) ... |-';
-andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| &gt;= 1 &amp;&amp; this.head != null &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; this.nodeseqq[n] != null)) &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[k].next != null)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null)) ... |-';
-andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| &gt;= 1 &amp;&amp; this.head != null &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; this.nodeseqq[n] != null)) &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[k].next != null)) &amp;&amp; this.nodeseqq[0] == this.head)) ... |-';
-andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| &gt;= 1 &amp;&amp; this.head != null &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; this.nodeseqq[n] != null)) &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[k].next != null)))) ... |-';
-andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| &gt;= 1 &amp;&amp; this.head != null &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; this.nodeseqq[n] != null)) &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)))) ... |-';
-inst on='(forall i:int :: i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)'
-     with='idx₁';
-boogie;</entry>
+<entry key="List.removeAt/then/else/Bounds.1">boogie;</entry>
+<entry key="List.removeAt/then/else/Bounds.2">boogie;</entry>
+<entry key="List.removeAt/then/else/Bounds.3">boogie;</entry>
+<entry key="List.getAt/loop_exit/Post">boogie;</entry>
+<entry key="List.Valid/Reads"></entry>
 <entry key="List.Valid/Reads.19"></entry>
 <entry key="List.Valid/Reads.18"></entry>
 <entry key="List.Valid/Reads.17"></entry>
 <entry key="List.Valid/Reads.16"></entry>
+<entry key="List.insertAt/loop/Inv">boogie;</entry>
 <entry key="List.Valid/Reads.15"></entry>
-<entry key="List.removeAt/else/loop/Null">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.removeAt/else/loop_exit/then/Post">boogie;
-</entry>
-<entry key="List.removeAt/then/else/Null"></entry>
-<entry key="List.insertAt/loop_exit/Null">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.Valid/Reads.21"></entry>
-<entry key="List.Valid/Reads.20"></entry>
-<entry key="List.removeAt/else/loop_exit/Post">boogie;
-</entry>
-<entry key="List.removeAt/else/InitInv.1">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.size/loop/Inv.1">expand on='... ((?m: this.Valid())) ... |-';
-andLeft on='... ((?m: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| &gt;= 1 &amp;&amp; this.head != null &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; this.nodeseqq[n] != null)) &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[k].next != null)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])))) ... |-';
-inst on='(forall j:int :: j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])'
-     with='s₁';
-boogie ;
-</entry>
-<<<<<<< HEAD
-<entry key="List.size/loop/Inv.2">expand on='... ((?match: this.Valid())) ... |-';
-substitute on='|- ... ((?match: let node := node₁ :: let s := s₁ :: let node := node.next :: let s := s + 1 :: node == this.nodeseqq[s])) ...';
-substitute on='|- ... ((?match: let s := s₁ :: let node := node₁.next :: let s := s + 1 :: node == this.nodeseqq[s])) ...';
-substitute on='|- ... ((?match: let node := node₁.next :: let s := s₁ + 1 :: node == this.nodeseqq[s])) ...';
-substitute on='|- ... ((?match: let s := s₁ + 1 :: node₁.next == this.nodeseqq[s])) ...';
-andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| &gt;= 1 &amp;&amp; this.head != null &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; this.nodeseqq[n] != null)) &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[k].next != null)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])))) ... |-';
-andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| &gt;= 1 &amp;&amp; this.head != null &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; this.nodeseqq[n] != null)) &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[k].next != null)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null)) ... |-';
-inst on='(forall j:int :: j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])'
-     with='s₁';
-substitute on='... ((?match: let node := node₁ :: node.next != null)) ... |-';
-substitute on='... ((?match: let node := node₁ :: let s := s₁ :: node == this.nodeseqq[s])) ... |-';
-substitute on='... ((?match: let s := s₁ :: node₁ == this.nodeseqq[s])) ... |-';
-boogie ;</entry>
-<entry key="List.size/InitInv">expand on='... ((?match: this.Valid())) ... |-';
-boogie ;
-=======
-<entry key="List.size/loop/Inv.2">boogie;
-</entry>
-<entry key="List.size/InitInv">skip;
-skip;
-expand on='... ((?m: this.Valid())) ... |-';
-branchCut with='true';
-cases {
-  "positive":
-    skip;
-}
-skip;
-prop;
->>>>>>> a4abcfa6... towards supporting extended MatchParameterTests
-</entry>
-<entry key="List.removeAt/else/loop_exit/then/Modifies"></entry>
-<entry key="List.removeAt/then/then/Bounds">boogie;
-</entry>
-<entry key="List.Valid/Bounds">boogie;
-</entry>
-<entry key="List.size/loop/Null">boogie;
-</entry>
-<entry key="List.insertAt/loop_exit/Post.1">substitute on='|- ... ((?match: let node := node₁ :: let $heap := $heap[$create($new₁)] :: let newNode := $new₁ :: let $heap := $heap[$anon(let this, value, next := newNode, value, node.next@$heap :: {this}, $aheap₁)] :: let $heap := $heap[node.next := newNode] :: let $heap := $heap[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, 0, pos) + ([newNode]) + $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, pos, |this.nodeseqq@$heap|)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + ([value]) + $seq_sub&lt;int&gt;(this.seqq@$heap, pos, |this.seqq@$heap|)] :: this.Valid()@$heap)) ...';
-</entry>
-<entry key="List.removeAt/else/loop_exit/else/Post.1">substitute on='|- ... ((?match: let node := node₁ :: let $heap := $heap[node.next := node.next.next] :: let $heap := $heap[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, (pos + 1), |this.nodeseqq@$heap|)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + $seq_sub&lt;int&gt;(this.seqq@$heap, (pos + 1), |this.seqq@$heap|)] :: this.Valid()@$heap)) ...';
-substitute on='|- ... ((?match: let $heap := $heap[node₁.next := ((node₁.next).next)] :: let $heap := $heap[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, (pos + 1), |this.nodeseqq@$heap|)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + $seq_sub&lt;int&gt;(this.seqq@$heap, (pos + 1), |this.seqq@$heap|)] :: this.Valid()@$heap)) ...';
-substitute on='|- ... ((?match: let $heap := $heap[node₁.next := ((node₁.next).next)][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + $seq_sub&lt;int&gt;(this.seqq@$heap, (pos + 1), |this.seqq@$heap|)] :: this.Valid()@$heap)) ...';
-substitute on='|- ... ((?match: let $heap := $heap[node₁.next := ((node₁.next).next)][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)][this.seqq := $seq_sub&lt;int&gt;(this.seqq@(($heap[node₁.next := ((node₁.next).next)])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)]), 0, pos) + $seq_sub&lt;int&gt;(this.seqq@(($heap[node₁.next := ((node₁.next).next)])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)]), (pos + 1), |this.seqq@(($heap[node₁.next := ((node₁.next).next)])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)])|)] :: this.Valid()@$heap)) ...';
-expand on='|- ... ((?match: this.Valid()@$heap[node₁.next := ((node₁.next).next)][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)][this.seqq := $seq_sub&lt;int&gt;(this.seqq@(($heap[node₁.next := ((node₁.next).next)])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)]), 0, pos) + $seq_sub&lt;int&gt;(this.seqq@(($heap[node₁.next := ((node₁.next).next)])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)]), (pos + 1), |this.seqq@(($heap[node₁.next := ((node₁.next).next)])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)])|)])) ...';
-expand on='... ((?match: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.removeAt/then/Null">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.removeAt/then/Bounds">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.getAt/loop/Inv[nodeInv]"></entry>
-<entry key="List.size/loop_exit/Post">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.removeAt/then/then/Post.1">boogie;
-</entry>
-<entry key="List.size/InitInv.2"></entry>
-<entry key="List.size/InitInv.1">expand on='... ((?match: this.Valid())) ... |-';
-</entry>
-<entry key="List.removeAt/then/then/Post">boogie;
-</entry>
-<entry key="List.getAt/loop/Inv">substitute on='|- ... ((?match: let node := node₁ :: let idx := idx₁ :: let node := node.next :: let idx := idx + 1 :: node == this.nodeseqq[idx])) ...';
-expand on='... ((?match: this.Valid())) ... |-';
-andLeft on='... ((?match: |this.seqq| == |this.nodeseqq| &amp;&amp; |this.seqq| &gt;= 1 &amp;&amp; this.head != null &amp;&amp; (forall n:int :: (n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; this.nodeseqq[n] != null)) &amp;&amp; (forall i:int :: (i &gt;= 0 &amp;&amp; i &lt; |this.seqq| ==&gt; this.seqq[i] == this.nodeseqq[i].value)) &amp;&amp; (forall k:int :: (k &gt;= 0 &amp;&amp; k &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[k].next != null)) &amp;&amp; this.nodeseqq[0] == this.head &amp;&amp; this.nodeseqq[(|this.nodeseqq| - 1)].next == null &amp;&amp; (forall j:int :: (j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])))) ... |-';
-inst on='(forall j:int :: j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])'
-     with='idx₁';
-substitute on='|- ... ((?match: let idx := idx₁ :: let node := node₁.next :: let idx := idx + 1 :: node == this.nodeseqq[idx])) ...';
-substitute on='|- ... ((?match: let node := node₁.next :: let idx := idx₁ + 1 :: node == this.nodeseqq[idx])) ...';
-substitute on='|- ... ((?match: let idx := idx₁ + 1 :: node₁.next == this.nodeseqq[idx])) ...';
-boogie;</entry>
-<entry key="List.removeAt/else/loop_exit/else/Null"></entry>
-<entry key="List.removeAt/else/loop_exit/Modifies">boogie;
-</entry>
-<entry key="List.insertAt/loop_exit/Bounds">substitute on='|- ... ((?match: let node := node₁ :: let $heap := $heap[$create($new₁)] :: let newNode := $new₁ :: let $heap := $heap[$anon(let this, value, next := newNode, value, node.next@$heap :: {this}, $aheap₁)] :: let $heap := $heap[node.next := newNode] :: 0 &lt;= pos &amp;&amp; pos &lt; |this.nodeseqq@$heap|)) ...';
-</entry>
-<entry key="List.removeAt/else/loop_exit/Bounds.3"></entry>
-<entry key="List.removeAt/else/loop_exit/Bounds.2">boogie;
-</entry>
-<entry key="List.removeAt/else/loop_exit/Bounds.1">expand on='... ((?m: this.Valid())) ... |-';
-substitute on='|- ... ((?m: let node := node₁ :: let $heap := $heap[node.next := node.next.next] :: 0 &lt;= pos + 1 &amp;&amp; pos + 1 &lt; |this.nodeseqq@$heap|)) ...';
-substitute on='|- ... ((?m: let $heap := $heap[node₁.next := ((node₁.next).next)] :: 0 &lt;= pos + 1 &amp;&amp; pos + 1 &lt; |this.nodeseqq@$heap|)) ...';
-</entry>
-<entry key="List.removeAt/then/Bounds.3">boogie;
-</entry>
-<entry key="List.Valid/Bounds.7">boogie;
-</entry>
-<entry key="List.removeAt/else/loop_exit/else/Bounds">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.Valid/Bounds.6">boogie;
-</entry>
-<entry key="List.removeAt/then/Bounds.2">boogie;
-</entry>
-<entry key="List.removeAt/then/Bounds.1">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.removeAt/else/loop_exit/else/Modifies"></entry>
-<entry key="List.getAt/loop/Dec">boogie;
-</entry>
-<entry key="List.Valid/Bounds.1">boogie;
-</entry>
-<entry key="List.Valid/Bounds.5">boogie;
-</entry>
-<entry key="List.Valid/Bounds.4">boogie;
-</entry>
-<entry key="List.Valid/Bounds.3">boogie;
-</entry>
-<entry key="List.Valid/Bounds.2">boogie;
-</entry>
-<entry key="List.removeAt/else/InitInv">boogie;
-</entry>
-<entry key="List.removeAt/then/Post.1">substitute on='|- ... ((?m: let $heap := $heap[this.head := this.head.next] :: let $heap := $heap[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, (pos + 1), |this.nodeseqq@$heap|)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + $seq_sub&lt;int&gt;(this.seqq@$heap, (pos + 1), |this.seqq@$heap|)] :: this.Valid()@$heap)) ...';
-substitute on='|- ... ((?m: let $heap := $heap[this.head := this.head.next][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + $seq_sub&lt;int&gt;(this.seqq@$heap, (pos + 1), |this.seqq@$heap|)] :: this.Valid()@$heap)) ...';
-substitute on='|- ... ((?m: let $heap := $heap[this.head := this.head.next][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)][this.seqq := $seq_sub&lt;int&gt;(this.seqq@(($heap[this.head := this.head.next])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)]), 0, pos) + $seq_sub&lt;int&gt;(this.seqq@(($heap[this.head := this.head.next])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)]), (pos + 1), |this.seqq@(($heap[this.head := this.head.next])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)])|)] :: this.Valid()@$heap)) ...';
-expand on='|- ... ((?m: this.Valid()@$heap[this.head := this.head.next][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)][this.seqq := $seq_sub&lt;int&gt;(this.seqq@(($heap[this.head := this.head.next])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)]), 0, pos) + $seq_sub&lt;int&gt;(this.seqq@(($heap[this.head := this.head.next])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)]), (pos + 1), |this.seqq@(($heap[this.head := this.head.next])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[this.head := this.head.next]), (pos + 1), |this.nodeseqq@($heap[this.head := this.head.next])|)])|)])) ...';
-expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.size/loop/Inv">boogie;
-</entry>
-<entry key="List.removeAt/then/else/Post">boogie;
-</entry>
-<entry key="List.getAt/InitInv[idxInv]"></entry>
-<entry key="List.removeAt/else/loop_exit/Post.1">expand on='... ((?m: this.Valid())) ... |-';
-substitute on='|- ... ((?m: let node := node₁ :: let $heap := $heap[node.next := node.next.next] :: let $heap := $heap[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, (pos + 1), |this.nodeseqq@$heap|)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + $seq_sub&lt;int&gt;(this.seqq@$heap, (pos + 1), |this.seqq@$heap|)] :: this.Valid()@$heap)) ...';
-substitute on='|- ... ((?m: let $heap := $heap[node₁.next := ((node₁.next).next)] :: let $heap := $heap[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, (pos + 1), |this.nodeseqq@$heap|)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + $seq_sub&lt;int&gt;(this.seqq@$heap, (pos + 1), |this.seqq@$heap|)] :: this.Valid()@$heap)) ...';
-substitute on='|- ... ((?m: let $heap := $heap[node₁.next := ((node₁.next).next)][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + $seq_sub&lt;int&gt;(this.seqq@$heap, (pos + 1), |this.seqq@$heap|)] :: this.Valid()@$heap)) ...';
-substitute on='|- ... ((?m: let $heap := $heap[node₁.next := ((node₁.next).next)][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)][this.seqq := $seq_sub&lt;int&gt;(this.seqq@(($heap[node₁.next := ((node₁.next).next)])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)]), 0, pos) + $seq_sub&lt;int&gt;(this.seqq@(($heap[node₁.next := ((node₁.next).next)])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)]), (pos + 1), |this.seqq@(($heap[node₁.next := ((node₁.next).next)])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)])|)] :: this.Valid()@$heap)) ...';
-expand on='|- ... ((?m: this.Valid()@$heap[node₁.next := ((node₁.next).next)][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)][this.seqq := $seq_sub&lt;int&gt;(this.seqq@(($heap[node₁.next := ((node₁.next).next)])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)]), 0, pos) + $seq_sub&lt;int&gt;(this.seqq@(($heap[node₁.next := ((node₁.next).next)])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)]), (pos + 1), |this.seqq@(($heap[node₁.next := ((node₁.next).next)])[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), 0, pos) + $seq_sub&lt;Node&gt;(this.nodeseqq@($heap[node₁.next := ((node₁.next).next)]), (pos + 1), |this.nodeseqq@($heap[node₁.next := ((node₁.next).next)])|)])|)])) ...';
-boogie ;
-</entry>
-<entry key="List.removeAt/else/loop_exit/then/Null"></entry>
-<entry key="List.size/loop/Dec"></entry>
-<entry key="List.insertAt/loop/Dec">boogie;
-</entry>
-<entry key="List.Valid/Reads"></entry>
-<entry key="List.insertAt/loop/Inv">boogie;
-</entry>
-<entry key="List.getAt/loop/Null">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.removeAt/else/loop_exit/Null">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
+<entry key="List.getAt/loop/Null">boogie;</entry>
+<entry key="List.removeAt/else/loop/Null">boogie;</entry>
+<entry key="List.removeAt/else/loop_exit/then/Post">boogie;</entry>
+<entry key="List.removeAt/else/loop_exit/Null">boogie;</entry>
 <entry key="List.Valid/Reads.9"></entry>
+<entry key="List.insertAt/loop_exit/Null">boogie;</entry>
 <entry key="List.Valid/Reads.8"></entry>
-<entry key="List.removeAt/else/loop_exit/else/Null.1">boogie;
-</entry>
 <entry key="List.Valid/Reads.7"></entry>
-<entry key="List.removeAt/else/loop_exit/else/Null.2"></entry>
+<entry key="List.Valid/Reads.21"></entry>
 <entry key="List.Valid/Reads.6"></entry>
+<entry key="List.Valid/Reads.20"></entry>
 <entry key="List.Valid/Reads.5"></entry>
 <entry key="List.Valid/Reads.4"></entry>
-<entry key="List.removeAt/else/loop_exit/then/Post.1">expand on='... ((?match: this.Valid())) ... |-';
-substitute on='|- ... ((?match: let node := node₁ :: let $heap := $heap[node.next := node.next.next] :: let $heap := $heap[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, 0, pos)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos)] :: this.Valid()@$heap)) ...';
-substitute on='|- ... ((?match: let $heap := $heap[node₁.next := ((node₁.next).next)] :: let $heap := $heap[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, 0, pos)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos)] :: this.Valid()@$heap)) ...';
-substitute on='|- ... ((?match: let $heap := $heap[node₁.next := ((node₁.next).next)][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap[node₁.next := ((node₁.next).next)], 0, pos)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos)] :: this.Valid()@$heap)) ...';
-substitute on='|- ... ((?match: let $heap := $heap[node₁.next := ((node₁.next).next)][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap[node₁.next := ((node₁.next).next)], 0, pos)][this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap[node₁.next := ((node₁.next).next)][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap[node₁.next := ((node₁.next).next)], 0, pos)], 0, pos)] :: this.Valid()@$heap)) ...';
-expand on='|- ... ((?match: this.Valid()@$heap[node₁.next := ((node₁.next).next)][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap[node₁.next := ((node₁.next).next)], 0, pos)][this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap[node₁.next := ((node₁.next).next)][this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap[node₁.next := ((node₁.next).next)], 0, pos)], 0, pos)])) ...';
-boogie ;
-</entry>
+<entry key="List.removeAt/else/loop_exit/then/Post.1">boogie;</entry>
+<entry key="List.removeAt/else/InitInv.1">boogie;</entry>
 <entry key="List.insertAt/loop_exit/Modifies"></entry>
-<entry key="List.size/Null">boogie;
-</entry>
-<entry key="List.Valid/Null">boogie;
-</entry>
-<entry key="List.getAt/loop/Inv[idxInv]"></entry>
-<entry key="List.removeAt/else/loop_exit/then/Bounds.1">boogie;
-</entry>
-<entry key="List.removeAt/else/loop_exit/Bounds">expand on='... ((?m: this.Valid())) ... |-';
-boogie ;
-</entry>
-<entry key="List.insertAt/InitInv">boogie;
-</entry>
+<entry key="List.size/Null">expand on='_.Valid()@_';</entry>
+<entry key="List.Valid/Null">boogie;</entry>
+<entry key="List.size/loop/Inv.1">boogie;</entry>
+<entry key="List.size/loop/Inv.2">boogie;</entry>
+<entry key="List.size/InitInv">skip;skip;skip;skip;expand on='_ |-';prop;skip;boogie;</entry>
+<entry key="List.removeAt/else/loop_exit/then/Bounds.1">boogie;</entry>
+<entry key="List.removeAt/then/then/Bounds">boogie;</entry>
+<entry key="List.Valid/Bounds">boogie;</entry>
+<entry key="List.insertAt/InitInv">boogie;</entry>
 <entry key="List.Valid/Reads.3"></entry>
+<entry key="List.size/loop/Null">boogie;</entry>
 <entry key="List.Valid/Reads.2"></entry>
-<entry key="List.insertAt/loop_exit/Post">expand on='... ((?match: this.Valid())) ... |-';
-substitute on='|- ... ((?match: let node := node₁ :: let $heap := $heap[$create($new₁)] :: let newNode := $new₁ :: let $heap := $heap[$anon(let this, value, next := newNode, value, node.next@$heap :: {this}, $aheap₁)] :: let $heap := $heap[node.next := newNode] :: let $heap := $heap[this.nodeseqq := $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, 0, pos) + ([newNode]) + $seq_sub&lt;Node&gt;(this.nodeseqq@$heap, pos, |this.nodeseqq@$heap|)] :: let $heap := $heap[this.seqq := $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + ([value]) + $seq_sub&lt;int&gt;(this.seqq@$heap, pos, |this.seqq@$heap|)] :: this.seqq@$heap == (let $heap := $oldheap :: $seq_sub&lt;int&gt;(this.seqq@$heap, 0, pos) + ([value]) + $seq_sub&lt;int&gt;(this.seqq@$heap, pos, |this.seqq@$heap|)))) ...';
-</entry>
 <entry key="List.Valid/Reads.1"></entry>
-<entry key="List.removeAt/else/loop/Inv">boogie;
-</entry>
+<entry key="List.insertAt/loop_exit/Post"></entry>
+<entry key="List.removeAt/else/loop/Inv">boogie;</entry>
 </properties>

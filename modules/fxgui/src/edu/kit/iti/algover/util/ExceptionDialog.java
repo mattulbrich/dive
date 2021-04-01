@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 import java.io.PrintWriter;
@@ -14,14 +15,14 @@ public class ExceptionDialog extends Alert {
 
     private Throwable exception;
 
-    private VBox content;
+    private BorderPane content;
 
     public ExceptionDialog(Throwable e) {
         super(AlertType.ERROR);
         this.exception = e;
         this.setHeaderText("An error occured: "+ e.getMessage());
 
-        content = new VBox();
+        content = new BorderPane();
 
         TextArea area = new TextArea();
         StringWriter sw = new StringWriter();
@@ -33,7 +34,8 @@ public class ExceptionDialog extends Alert {
         area.setText(s);
         area.setEditable(false);
 
-        content.getChildren().addAll(new Label("Stacktrace"), area);
+        content.setCenter(area);
+
         this.getDialogPane().setContent(content);
         this.setResizable(true);
         this.onShownProperty().addListener(eObservable -> {

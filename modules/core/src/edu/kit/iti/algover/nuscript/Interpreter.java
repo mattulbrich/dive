@@ -59,7 +59,7 @@ public final class Interpreter extends DefaultScriptASTVisitor<Void, Void, Scrip
     /** Used for debugging */
     private static final boolean VERBOSE = false;
 
-    /** The set of avaiable rules for this particular proof */
+    /** The set of available rules for this particular proof */
     private final Map<String, ProofRule> knownRules;
 
     /** The freshly created proof root */
@@ -193,6 +193,7 @@ public final class Interpreter extends DefaultScriptASTVisitor<Void, Void, Scrip
         if (currentNodes.size() != 1) {
             ProofNode node = null;
             if (currentNodes.size() > 0) {
+                // Valentin: Where is this used?
                 node = currentNodes.get(0).getParent();
             }
             throw new ScriptException(

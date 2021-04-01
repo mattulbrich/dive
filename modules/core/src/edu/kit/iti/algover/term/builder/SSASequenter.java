@@ -42,7 +42,8 @@ import java.util.Map;
  *
  * @author Mattias Ulbrich
  *
- * @divedoc "VC generation/Single Static Assignment"
+ * @divedoc "VC generation/Single Static Assignment" * as equalities on the sequent. Thus, the same variable x may occur under
+
  *
  * <h2>Verification conditions with single static assignment (SSA)</h2>
  *
