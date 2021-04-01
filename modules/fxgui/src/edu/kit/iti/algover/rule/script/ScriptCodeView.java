@@ -32,20 +32,25 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.OptionalInt;
 import java.util.concurrent.ExecutorService;
 
 /**
  * Created by Philipp on 24.07.2017.
  * Renamed from ScriptView to ScriptCodeView by Valentin on 20.10.2020
+ * Currently used as fallback. Could be implemented as a CodeArea without
+ * asynchronous highlighting
  */
 public class ScriptCodeView extends AsyncHighlightingCodeArea {
 
-
     private final ScriptViewListener listener;
     private HighlightingRulev4 highlightingRule;
-    private Exception highlightedException = null;
+    // currently unused, exceptions read directly from Proof
+    private List<Exception> highlightedExceptions = null;
+    // Also unused. Could be generated upon script interpretation, and not every highlighting update.
     private ExceptionDetails.ExceptionReportInfo highlightedExceptionInfo = null;
+
     private final Tooltip tooltip = new Tooltip("");
 
     public int getFontsize() {
@@ -209,7 +214,7 @@ public class ScriptCodeView extends AsyncHighlightingCodeArea {
     private void handleHover(MouseEvent mouseEvent) {
         CharacterHit hit = hit(mouseEvent.getX(), mouseEvent.getY());
         OptionalInt charIdx = hit.getCharacterIndex();
-        if(charIdx.isPresent() && highlightedException != null) {
+        if(charIdx.isPresent() && highlightedExceptions != null) {
             edu.kit.iti.algover.nuscript.Position moPos = computePositionFromCharIdx(charIdx.getAsInt(), getText());
             if(moPos.getLineNumber() == highlightedExceptionInfo.getLine()) {
                 tooltip.setText(highlightedExceptionInfo.getMessage());
@@ -237,14 +242,13 @@ public class ScriptCodeView extends AsyncHighlightingCodeArea {
         return new edu.kit.iti.algover.nuscript.Position(line, charInLine);
     }
 
-    public void setHighlightedException(Exception e) {
-        this.highlightedException = e;
-        highlightedExceptionInfo = ExceptionDetails.extractReportInfo(highlightedException);
+    public void setHighlightedExceptions(List<Exception> exceps) {
+        this.highlightedExceptions = exceps;
+    }
+
+    private void highlightException(Exception ex) {
+        ExceptionDetails.ExceptionReportInfo highlightedExceptionInfo = ExceptionDetails.extractReportInfo(ex);
         String[] lines = getText().split("\n");
-        if (highlightedExceptionInfo.getLine() <= 0) {
-            selectRange(0, highlightedExceptionInfo.getLength());
-            return;
-        }
 
         int start = 0;
 
@@ -253,9 +257,23 @@ public class ScriptCodeView extends AsyncHighlightingCodeArea {
             start += 1;
         }
 
-        selectRange(start, start + highlightedExceptionInfo.getLength());
+        start += highlightedExceptionInfo.getColumn();
+
+        if (start + highlightedExceptionInfo.getLength() < getText().length()) {
+            setStyle(start, start + highlightedExceptionInfo.getLength(), Collections.singleton("script-error"));
+        }
 
     }
+
+    protected void applyHighlighting(StyleSpans<Collection<String>> styleSpans) {
+        setStyleSpans(0, styleSpans);
+        Proof proof = PropertyManager.getInstance().currentProof.get();
+        for (Exception ex: proof.getFailures()) {
+            highlightException(ex);
+        }
+
+    }
+
     public ObservableList<GutterAnnotation> getGutterAnnotations() {
         return gutter.getAnnotations();
     }

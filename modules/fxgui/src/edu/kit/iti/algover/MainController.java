@@ -561,7 +561,7 @@ public class MainController implements RuleApplicationListener {
         //if (proof.getProofStatus() == ProofStatus.NON_EXISTING || proof.getProofStatus() == ProofStatus.CHANGED_SCRIPT)
         //    proof.interpretScript();
         ruleApplicationController.resetConsideration();
-        PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.DefaultViewPosition.EDITOR_SEQUENT.index);
+        PropertyManager.getInstance().currentlyDisplayedView.set(TimelineFactory.DefaultViewPosition.SEQUENT_RULE.index);
     }
 
     /**

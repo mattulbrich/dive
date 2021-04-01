@@ -16,7 +16,7 @@
 
     <VBox fx:id="buttonBox">
         <HBox>
-            <Button fx:id="btReplay" visible="true" prefWidth="81011" text="Replay"></Button>
+            <Button fx:id="btReplay" visible="true" prefWidth="81011" text="Save &#038; Run"></Button>
             <Button fx:id="btInsertCases" visible="true" prefWidth="81011" text="InsertCases"></Button>
             <Button fx:id="btToggleView" visible="true" prefWidth="81011" text="ToggleView"></Button>
         </HBox>

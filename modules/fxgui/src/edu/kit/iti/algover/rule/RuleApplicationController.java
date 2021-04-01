@@ -14,6 +14,7 @@ import edu.kit.iti.algover.nuscript.parser.Scripts;
 import edu.kit.iti.algover.project.ProjectManager;
 import edu.kit.iti.algover.proof.Proof;
 import edu.kit.iti.algover.proof.ProofNode;
+import edu.kit.iti.algover.proof.ProofStatus;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingHandler;
 import edu.kit.iti.algover.referenceHighlighting.ReferenceHighlightingObject;
 import edu.kit.iti.algover.rule.script.BlocklyController;
@@ -144,6 +145,11 @@ public class RuleApplicationController extends FxmlController implements Referen
                         PropertyManager.getInstance().selectedTerm.get()
                 );
             }
+
+            if (newValue == ProofStatus.FAILING) {
+                showExceptionDialogsLastRun();
+            }
+
         }));
 
 
@@ -183,9 +189,7 @@ public class RuleApplicationController extends FxmlController implements Referen
         btReplay.setOnAction(event -> {
             onScriptSave();
             scriptRepText.runScript();
-            scriptRepText.highlightScriptErrors();
             scriptRepWeb.highlightScriptErrors();
-            showExceptionDialogsLastRun();
             lbUnsavedScript.setVisible(false);
         });
 
@@ -209,8 +213,9 @@ public class RuleApplicationController extends FxmlController implements Referen
     private void showExceptionDialogsLastRun() {
         Proof proof = PropertyManager.getInstance().currentProof.get();
         for (Exception ex: proof.getFailures()) {
+            Logger.getGlobal().severe(ex.getMessage());
             ExceptionDialog ed = new ExceptionDialog(ex);
-            ed.showAndWait();
+            ed.show();
         }
     }
 
@@ -271,14 +276,7 @@ public class RuleApplicationController extends FxmlController implements Referen
             Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error applying rule: " + e.getMessage());
         }
 
-        for (Exception ex: PropertyManager.getInstance().currentProof.get().getFailures()) {
-            Logger.getGlobal().severe(ex.getMessage());
-        }
-
         scriptRepWeb.highlightScriptErrors();
-        scriptRepText.highlightScriptErrors();
-        showExceptionDialogsLastRun();
-
     }
 
     public void onReset() {

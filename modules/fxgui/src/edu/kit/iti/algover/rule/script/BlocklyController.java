@@ -39,7 +39,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 

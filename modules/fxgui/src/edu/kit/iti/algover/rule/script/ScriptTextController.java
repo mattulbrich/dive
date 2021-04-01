@@ -53,7 +53,6 @@ public class ScriptTextController implements ScriptViewListener {
                     } else {
                         view.clear();
                     }
-                    //PropertyManager.getInstance().currentProof.get().setScriptText(view.getText());
                 });
 
     }
@@ -63,21 +62,8 @@ public class ScriptTextController implements ScriptViewListener {
         return view;
     }
 
-    /**
-     * Highlight the exceptions that occurred upon the last interpretation
-     * of the script of {@link PropertyManager#currentProof} in Text
-     */
-    public void highlightScriptErrors() {
-        Proof proof = PropertyManager.getInstance().currentProof.get();
-        for (Exception ex: proof.getFailures()) {
-            view.setHighlightedException(ex);
-            break;
-        }
-    }
-
     @Override
     public void runScript() {
-        // TODO: save and run
         String scriptStr = view.getText();
         PropertyManager.getInstance().currentProof.get().setScriptText(scriptStr);
         PropertyManager.getInstance().currentProof.get().interpretScript();
