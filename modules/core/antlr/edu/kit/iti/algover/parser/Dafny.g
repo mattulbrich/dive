@@ -278,7 +278,7 @@ type:
     INT | BOOL | OBJECT
   | SET^ '<'! type '>'!
   | MULTISET^ '<'! type '>'!
-  | ARRAY^ '<'! type '>'!
+  | ARRAY^ ( '?'! )? '<'! type '>'!
   | SEQ^ '<'! type '>'!
   | ID^ ( '?'! )? ( '<'! type ( ','! type )* '>'! )?
   ;
