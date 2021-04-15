@@ -67,6 +67,9 @@ public class RuleApplicationController extends FxmlController implements Referen
     @FXML
     private JFXRadioButton sortBranching;
 
+    @FXML
+    private VBox scriptView;
+
     private BlocklyController scriptRepWeb;
     private ScriptTextController scriptRepText;
 
@@ -196,17 +199,30 @@ public class RuleApplicationController extends FxmlController implements Referen
 
         scriptRepText.getView().prefHeightProperty().bind(buttonBox.heightProperty());
 
+        this.scriptView.getChildren().setAll(scriptRepWeb.getView());
+
         btToggleView.setOnAction(event -> {
-            Node currentView = buttonBox.getChildren().get(2);
-            if (currentView == scriptRepWeb.getView()) {
-                buttonBox.getChildren().set(2, scriptRepText.getView());
-            } else if (currentView == scriptRepText.getView()) {
-                buttonBox.getChildren().set(2, scriptRepWeb.getView());
+            if (scriptView.getChildren().contains(scriptRepWeb.getView())) {
+                this.scriptView.getChildren().setAll(scriptRepText.getView());
+            } else if (scriptView.getChildren().contains(scriptRepText.getView())) {
+                this.scriptView.getChildren().setAll(scriptRepWeb.getView());
             }
 
         });
 
-        buttonBox.getChildren().add(scriptRepWeb.getView());
+        // Blockly view (and ScriptCodeView) are not greyed out when disabled
+        // (for some FX reason). Set the style here manually.
+        scriptView.disabledProperty().addListener((observable, oldValue, newValue) ->
+        {
+            for (Node child: scriptView.getChildren()) {
+                child.setDisable(newValue);
+                if (newValue) {
+                    child.setStyle("-fx-opacity: 0.4; -fx-font-size: " + scriptRepText.getView().fontsizeProperty().get() + "pt");
+                } else {
+                    child.setStyle("-fx-opacity: 1; -fx-font-size: " + scriptRepText.getView().fontsizeProperty().get() + "pt");
+                }
+            }
+        });
 
     }
 

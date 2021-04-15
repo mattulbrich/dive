@@ -25,6 +25,7 @@
             <Label fx:id="lbUnsavedScript" visible="false" prefWidth="8011" text="* proof script unsaved"></Label>
         </HBox>
 
+        <VBox fx:id="scriptView" visible="true"></VBox>
 
         <!--
      Here the RuleApplicationController is going to insert a new VirtualizedScrollPane(new ScriptView(...)),
