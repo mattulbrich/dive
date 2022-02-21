@@ -241,6 +241,7 @@ public class RuleApplicationController extends FxmlController implements Referen
 
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
         if(target != null) {
+            // isValidForSequent could be avoided if selector is properly reset on proofchange
             if (selector != null && selector.isValidForSequent(selection)) {
                 try {
                     Term term = selector.selectSubterm(selection);

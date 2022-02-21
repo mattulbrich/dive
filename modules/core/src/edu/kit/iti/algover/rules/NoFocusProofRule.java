@@ -29,6 +29,7 @@ public abstract class NoFocusProofRule extends AbstractProofRule {
 
         try {
             Parameters params = new Parameters();
+
             ProofRuleApplication result = makeApplication(target, params);
             return result;
         } catch (NotApplicableException e) {

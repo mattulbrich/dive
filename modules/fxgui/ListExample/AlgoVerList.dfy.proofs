@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-<comment>Created by DIVE at Thu Apr 01 09:05:25 CEST 2021</comment>
+<comment>Created by DIVE at Fri Feb 18 19:13:53 CET 2022</comment>
 <entry key="List.removeAt/then/else/Bounds">boogie;</entry>
 <entry key="List.insertAt/loop_exit/Post.1">boogie;</entry>
 <entry key="List.getAt/InitInv">boogie;</entry>
@@ -12,18 +12,111 @@
 <entry key="List.size/loop_exit/Post">boogie;</entry>
 <entry key="List.removeAt/then/then/Post.1">boogie;</entry>
 <entry key="List.getAt/loop/Inv.1">boogie;</entry>
-<entry key="List.size/InitInv.2">skip;
-expand on='_ |-';
-vsasad</entry>
-<entry key="List.size/InitInv.1">expand on='_ |-';
-skip;fwef
-</entry>
+<entry key="List.size/InitInv.2">boogie;</entry>
+<entry key="List.size/InitInv.1">boogie;</entry>
 <entry key="List.removeAt/else/loop/Inv.1">boogie;</entry>
 <entry key="List.removeAt/then/then/Post">boogie;</entry>
 <entry key="List.getAt/loop/Inv">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/Modifies">boogie;</entry>
 <entry key="List.insertAt/loop_exit/Modifies[Init]">boogie;</entry>
-<entry key="List.insertAt/loop_exit/Bounds"></entry>
+<entry key="List.insertAt/loop_exit/Bounds">substitute on='|- _';substitute on='|- _';substitute on='|- _';substitute on='|- _';substitute on='|- _';andRight on='|- _';cases {
+  "case 1":
+    boogie;
+  "case 2":
+    skip;
+    substitute on='let node := node₁ :: _';
+    substitute on='let idx := idx₁ :: node₁ == this.nodeseqq[idx]';
+    substitute on='let idx := idx₁ :: idx &lt;= pos &amp;&amp; idx &gt;= 0';
+    substitute on='let idx := idx₁ :: _';
+    substitute on='let this, value, next :=
+                                                  $new₁
+                                                  , value
+                                                  , (node₁.next@($heap[$create($new₁)])) :: _';
+    andLeft on='0 &lt;= pos &amp;&amp; pos &lt; |this.seqq| &amp;&amp; this.Valid()';
+    andLeft on='0 &lt;= pos &amp;&amp; pos &lt; |this.seqq|';
+    andLeft on='_ &amp;&amp; _';
+    expand on='this.Valid()';
+    prop;
+    skip;
+    inst on=A.10 with='pos';
+    inst on=A.11 with='pos';
+    inst on=A.12 with='pos';
+    inst on=A.15 with='pos';
+    skip;
+    impLeft on='pos &gt;= 0 &amp;&amp; pos &lt; |this.nodeseqq| ==&gt; this.nodeseqq[pos] != null';
+    cases {
+      "mainBranch":
+        impLeft on='pos &gt;= 0 &amp;&amp; pos &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[pos].next != null';
+        cases {
+          "mainBranch":
+            impLeft on='pos &gt;= 0 &amp;&amp; pos &lt; |this.seqq| ==&gt; this.seqq[pos] == this.nodeseqq[pos].value';
+            cases {
+              "mainBranch":
+                impLeft on='_ ==&gt; _';
+                cases {
+                  "mainBranch":
+                    notLeft on='!(idx₁ &lt; pos)';
+                    skip;
+                    notLeft on='!$isCreated($heap, $new₁)';
+                    skip;
+                  "":
+                    boogie;
+                }
+              "":
+                boogie;
+            }
+          "":
+            notLeft on='!(pos &gt;= 0 &amp;&amp; pos &lt; |this.nodeseqq| - 1)';
+            andRight on='|- _ &amp;&amp; _';
+            cases {
+              "case 1":
+                z3;
+              "case 2":
+                impLeft on='pos &gt;= 0 &amp;&amp; pos &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[pos].next == this.nodeseqq[(pos + 1)]';
+                cases {
+                  "mainBranch":
+                    notLeft on='!(idx₁ &lt; pos)';
+                    prop;
+                    cases {
+                      "case 1":
+                        z3;
+                      "case 2":
+                        boogie;
+                      "case 3":
+                        skip;
+                    }
+                  "":
+                    prop;
+                    cases {
+                      "case 1":
+                        skip;
+                        z3;
+                      "case 2":
+                      "case 3":
+                        skip;
+                        notLeft on='!(pos &gt;= 0 &amp;&amp; pos &lt; |this.nodeseqq| - 1)';
+                        andRight on='_ &amp;&amp; _';
+                        cases {
+                          "case 1":
+                            z3;
+                          "case 2":
+                            notLeft on='!(idx₁ &lt; pos)';
+                        }
+                    }
+                }
+            }
+        }
+      "":
+        notLeft on='!(pos &gt;= 0 &amp;&amp; pos &lt; |this.nodeseqq|)';
+        andRight on='|- _ &amp;&amp; _';
+        cases {
+          "case 1":
+            z3;
+          "case 2":
+            boogie;
+        }
+    }
+}</entry>
 <entry key="List.removeAt/then/then/Bounds.1">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/else/Post">boogie;</entry>
 <entry key="List.Valid/Bounds.7">boogie;</entry>
@@ -45,7 +138,7 @@ skip;fwef
 <entry key="List.Valid/Bounds.3">boogie;</entry>
 <entry key="List.Valid/Bounds.2">boogie;</entry>
 <entry key="List.removeAt/else/InitInv">boogie;</entry>
-<entry key="List.size/loop/Inv">expand on='_.Valid()@_';</entry>
+<entry key="List.size/loop/Inv">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/else/Bounds.3">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/else/Bounds.1">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/else/Bounds.2">boogie;</entry>
@@ -89,11 +182,11 @@ skip;fwef
 <entry key="List.removeAt/else/loop_exit/then/Post.1">boogie;</entry>
 <entry key="List.removeAt/else/InitInv.1">boogie;</entry>
 <entry key="List.insertAt/loop_exit/Modifies"></entry>
-<entry key="List.size/Null">expand on='_.Valid()@_';</entry>
+<entry key="List.size/Null">boogie;</entry>
 <entry key="List.Valid/Null">boogie;</entry>
 <entry key="List.size/loop/Inv.1">boogie;</entry>
 <entry key="List.size/loop/Inv.2">boogie;</entry>
-<entry key="List.size/InitInv">skip;skip;skip;skip;expand on='_ |-';prop;skip;boogie;</entry>
+<entry key="List.size/InitInv">expand on='_ |-';prop;skip;substitute on='|- _';close on='|- _';</entry>
 <entry key="List.removeAt/else/loop_exit/then/Bounds.1">boogie;</entry>
 <entry key="List.removeAt/then/then/Bounds">boogie;</entry>
 <entry key="List.Valid/Bounds">boogie;</entry>
@@ -102,6 +195,6 @@ skip;fwef
 <entry key="List.size/loop/Null">boogie;</entry>
 <entry key="List.Valid/Reads.2"></entry>
 <entry key="List.Valid/Reads.1"></entry>
-<entry key="List.insertAt/loop_exit/Post"></entry>
+<entry key="List.insertAt/loop_exit/Post">substitute on='let node := node₁ :: _ |-';substitute on='let idx := idx₁ :: node₁ == this.nodeseqq[idx]';substitute on='let idx := idx₁ :: idx &lt;= pos &amp;&amp; idx &gt;= 0';substitute on='let idx := idx₁ :: _';substitute on=S.0.0.0.0.0.0.0.0.0.1.0.0;substitute on=S.0.0.0.0.0.0.0.0.0.1.1;substitute on='|- _';substitute on='|- _';substitute on='|- _';substitute on='|- _';skip;substitute on=S.0.1.1;skip;substitute on='|- _';substitute on='|- _';substitute on='|- _';substitute on='|- _';prop;skip;expand on='this.Valid()';prop;skip;</entry>
 <entry key="List.removeAt/else/loop/Inv">boogie;</entry>
 </properties>

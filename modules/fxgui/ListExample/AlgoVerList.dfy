@@ -51,7 +51,7 @@ class List {
   //currently inserting at position 0 is not supported (but should be an easy extension)
   method insertAt(pos: int, value: int)
     requires 0 <= pos < |seqq| && Valid()
-    ensures seqq == old(seqq[..pos] + [value] + seqq[pos..]) 
+    ensures seqq == old(seqq[..pos]) + [value] + old(seqq[pos..]) 
     ensures Valid()
     modifies footprint
   {

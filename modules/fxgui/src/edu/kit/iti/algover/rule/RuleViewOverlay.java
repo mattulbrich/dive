@@ -95,10 +95,7 @@ public class RuleViewOverlay extends AnchorPane {
                 requiredParams++;
             }
         }
-        if (mouseEvent.isShiftDown() || (requiredParams > 0 &&
-                (application.getRule().getAllParameters().size() == 1 &&
-                        (!application.getRule().getAllParameters().containsValue(FocusProofRule.ON_PARAM_REQ) &&
-                                !application.getRule().getAllParameters().containsValue(DefaultFocusProofRule.ON_PARAM_OPT))))) {
+        if (mouseEvent.isShiftDown() || requiredParams > 0) {
             String on;
             try {
                 PrettyPrint pp = new PrettyPrint();
