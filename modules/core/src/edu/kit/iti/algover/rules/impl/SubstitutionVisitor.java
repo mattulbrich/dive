@@ -38,7 +38,6 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
     /**
      * Variables get substituted, when they have something to be substituted in the
      * substitution table "substitutions".
-     * TODO: unless they are being shadowed.
      */
     @Override
     public Term visit(VariableTerm variableTerm, Map<String, Term> substitutions) throws RuleException {
