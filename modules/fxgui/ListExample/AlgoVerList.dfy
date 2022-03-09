@@ -1,3 +1,11 @@
+// ---- Automatically generated settings ----
+//> settings {
+//>    "KeY Timeout" = "10",
+//>    "Dafny Timeout" = "5",
+//>    "SMT Timeout" = "10",
+//>    "Sequent Generation Type" = "inline"
+//> }
+// ---- End of settings ----
 
 class Node {
   var value: int
@@ -15,9 +23,12 @@ class List {
   ghost var seqq: seq<int>;
   ghost var nodeseqq: seq<Node>;
   ghost var footprint: set<object>;
+ 
 
   var head: Node;
+  
   function Valid() : bool
+    reads this
   {
     |seqq| == |nodeseqq| &&
     |seqq| >= 1 &&
@@ -65,8 +76,7 @@ class List {
       node := node.next;
       idx := idx + 1;
     }
-    var newNode := new Node;
-    newNode.Init(value, node.next);
+    var newNode := new Node.Init(value, node.next);
     node.next := newNode;
     nodeseqq := nodeseqq[..pos] + [newNode] + nodeseqq[pos..];
     seqq := seqq[..pos] + [value] + seqq[pos..];
@@ -119,17 +129,5 @@ class List {
         idx := idx + 1;
       }
       v := node.value;
-  }
-}
-
-class Node {
-  var value: int
-  var next: Node
-
-  method Init(value: int, next : Node) 
-    modifies this;
-  {
-    this.value := value;
-    this.next := next;
   }
 }
