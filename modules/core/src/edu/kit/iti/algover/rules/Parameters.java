@@ -87,8 +87,8 @@ public class Parameters {
      * via {@link ParameterDescription#getName()}.
      *
      * @param param the parameter description to look up.
-     * @return the value stored for that variable, <code>null</code> if no such
-     * value
+     * @return the value stored for that variable, {@link ParameterDescription#getDefaultValue()}, if value not
+     * explicitly specified, <code>null</code> if no such value.
      * @throws ClassCastException if the value is not assign-compatible with the
      *                            type in the parameter description.
      */

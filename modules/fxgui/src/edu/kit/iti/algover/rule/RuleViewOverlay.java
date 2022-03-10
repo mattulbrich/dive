@@ -90,15 +90,14 @@ public class RuleViewOverlay extends AnchorPane {
 
     private void onRuleApplication(MouseEvent mouseEvent) {
         int requiredParams = 0;
+
+
         for(ParameterDescription<?> p : application.getRule().getAllParameters().values()) {
-            if(p.isRequired() && p.getDefaultValue().isEmpty()) {
+            if(p.isRequired() && application.getParameters().getValue(p) == null) {
                 requiredParams++;
             }
         }
-        if (mouseEvent.isShiftDown() || (requiredParams > 0 &&
-                (application.getRule().getAllParameters().size() == 1 &&
-                        (!application.getRule().getAllParameters().containsValue(FocusProofRule.ON_PARAM_REQ) &&
-                                !application.getRule().getAllParameters().containsValue(DefaultFocusProofRule.ON_PARAM_OPT))))) {
+        if (mouseEvent.isShiftDown() || (requiredParams > 0 )) {
             String on;
             try {
                 PrettyPrint pp = new PrettyPrint();

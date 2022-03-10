@@ -650,14 +650,20 @@ public class MainController implements RuleApplicationListener {
 
     @Override
     public void onScriptSave() {
-        String pvcIdentifier = PropertyManager.getInstance().currentProof.get().getPVC().getIdentifier();
-        try {
-            //manager.saveProofScriptForPVC(pvcIdentifier, PropertyManager.getInstance().currentProof.get());
-            manager.saveProofScripts();
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved script " + pvcIdentifier + ".");
-        } catch (IOException e) {
-            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving script.");
-            e.printStackTrace();
+        Proof curP = PropertyManager.getInstance().currentProof.get();
+        String pvcIdentifier = "";
+        if (curP != null) {
+            pvcIdentifier = curP.getPVC().getIdentifier();
+            try {
+                //manager.saveProofScriptForPVC(pvcIdentifier, PropertyManager.getInstance().currentProof.get());
+                manager.saveProofScripts();
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("Successfully saved script " + pvcIdentifier + ".");
+            } catch (IOException e) {
+                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).severe("Error saving script.");
+                e.printStackTrace();
+            }
+        } else {
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).info("No PVC selected.");
         }
     }
 

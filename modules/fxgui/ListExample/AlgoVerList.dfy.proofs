@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-<comment>Created by DIVE at Thu Apr 01 09:05:25 CEST 2021</comment>
+<comment>Created by DIVE at Tue Mar 08 09:27:04 CET 2022</comment>
 <entry key="List.removeAt/then/else/Bounds">boogie;</entry>
 <entry key="List.insertAt/loop_exit/Post.1">boogie;</entry>
 <entry key="List.getAt/InitInv">boogie;</entry>
@@ -12,18 +12,44 @@
 <entry key="List.size/loop_exit/Post">boogie;</entry>
 <entry key="List.removeAt/then/then/Post.1">boogie;</entry>
 <entry key="List.getAt/loop/Inv.1">boogie;</entry>
-<entry key="List.size/InitInv.2">skip;
-expand on='_ |-';
-vsasad</entry>
-<entry key="List.size/InitInv.1">expand on='_ |-';
-skip;fwef
-</entry>
+<entry key="List.size/InitInv.2">boogie;</entry>
+<entry key="List.size/InitInv.1">boogie;</entry>
 <entry key="List.removeAt/else/loop/Inv.1">boogie;</entry>
 <entry key="List.removeAt/then/then/Post">boogie;</entry>
 <entry key="List.getAt/loop/Inv">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/Modifies">boogie;</entry>
 <entry key="List.insertAt/loop_exit/Modifies[Init]">boogie;</entry>
-<entry key="List.insertAt/loop_exit/Bounds"></entry>
+<entry key="List.insertAt/loop_exit/Bounds">andRight on='|- _';cases {
+  "case 1":
+    z3;
+  "case 2":
+    notLeft on='!$isCreated($heap, $new₁)';
+    notLeft on='!_';
+    prop;
+    skip;
+    expand on='this.Valid()';
+    prop;
+    skip;
+    inst on='(forall j:int :: j &gt;= 0 &amp;&amp; j &lt; |this.nodeseqq| - 1 ==&gt; this.nodeseqq[j].next == this.nodeseqq[(j + 1)])' with='idx₁';
+    impLeft on='_ ==&gt; _ |-';
+    cases {
+      "mainBranch":
+        inst on='(forall n:int :: n &gt;= 0 &amp;&amp; n &lt; |this.nodeseqq| ==&gt; this.nodeseqq[n] != null)' with='pos';
+        impLeft on='_ ==&gt; _ |-';
+        cases {
+          "mainBranch":
+          "":
+        }
+      "":
+        notLeft on='!(idx₁ &gt;= 0 &amp;&amp; idx₁ &lt; |this.nodeseqq| - 1)';
+        andRight on='|- _ &amp;&amp; _';
+        cases {
+          "case 1":
+            z3;
+          "case 2":
+        }
+    }
+}</entry>
 <entry key="List.removeAt/then/then/Bounds.1">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/else/Post">boogie;</entry>
 <entry key="List.Valid/Bounds.7">boogie;</entry>
@@ -45,7 +71,7 @@ skip;fwef
 <entry key="List.Valid/Bounds.3">boogie;</entry>
 <entry key="List.Valid/Bounds.2">boogie;</entry>
 <entry key="List.removeAt/else/InitInv">boogie;</entry>
-<entry key="List.size/loop/Inv">expand on='_.Valid()@_';</entry>
+<entry key="List.size/loop/Inv">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/else/Bounds.3">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/else/Bounds.1">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/else/Bounds.2">boogie;</entry>
@@ -53,55 +79,63 @@ skip;fwef
 <entry key="List.insertAt/InitInv.1">boogie;</entry>
 <entry key="List.size/loop/Dec">boogie;</entry>
 <entry key="List.insertAt/loop_exit/Bounds.1"></entry>
-<entry key="List.insertAt/loop_exit/Bounds.2"></entry>
-<entry key="List.insertAt/loop_exit/Bounds.3"></entry>
+<entry key="List.insertAt/loop_exit/Bounds.2">andRight on='|- _';cases {
+  "case 1":
+    z3;
+  "case 2":
+}</entry>
+<entry key="List.insertAt/loop_exit/Bounds.3">andRight on='|- _';cases {
+  "case 1":
+    z3;
+  "case 2":
+}</entry>
 <entry key="List.removeAt/else/loop_exit/then/Bounds">boogie;</entry>
 <entry key="List.insertAt/loop/Dec">boogie;</entry>
-<entry key="List.Valid/Reads.14"></entry>
-<entry key="List.Valid/Reads.13"></entry>
-<entry key="List.Valid/Reads.12"></entry>
-<entry key="List.Valid/Reads.11"></entry>
-<entry key="List.Valid/Reads.10"></entry>
+<entry key="List.Valid/Reads.14">boogie;</entry>
+<entry key="List.Valid/Reads.13">boogie;</entry>
+<entry key="List.Valid/Reads.12">boogie;</entry>
+<entry key="List.Valid/Reads.11">prop;skip;</entry>
+<entry key="List.Valid/Reads.10">boogie;</entry>
 <entry key="List.removeAt/then/else/Bounds.1">boogie;</entry>
 <entry key="List.removeAt/then/else/Bounds.2">boogie;</entry>
 <entry key="List.removeAt/then/else/Bounds.3">boogie;</entry>
 <entry key="List.getAt/loop_exit/Post">boogie;</entry>
-<entry key="List.Valid/Reads"></entry>
-<entry key="List.Valid/Reads.19"></entry>
-<entry key="List.Valid/Reads.18"></entry>
-<entry key="List.Valid/Reads.17"></entry>
-<entry key="List.Valid/Reads.16"></entry>
+<entry key="List.Valid/Reads">boogie;</entry>
+<entry key="List.Valid/Reads.19">prop;skip;</entry>
+<entry key="List.Valid/Reads.18">boogie;</entry>
+<entry key="List.Valid/Reads.17">boogie;</entry>
+<entry key="List.Valid/Reads.16">boogie;</entry>
 <entry key="List.insertAt/loop/Inv">boogie;</entry>
 <entry key="List.Valid/Reads.15"></entry>
 <entry key="List.getAt/loop/Null">boogie;</entry>
 <entry key="List.removeAt/else/loop/Null">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/then/Post">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/Null">boogie;</entry>
-<entry key="List.Valid/Reads.9"></entry>
+<entry key="List.Valid/Reads.9">boogie;</entry>
 <entry key="List.insertAt/loop_exit/Null">boogie;</entry>
-<entry key="List.Valid/Reads.8"></entry>
-<entry key="List.Valid/Reads.7"></entry>
-<entry key="List.Valid/Reads.21"></entry>
-<entry key="List.Valid/Reads.6"></entry>
-<entry key="List.Valid/Reads.20"></entry>
-<entry key="List.Valid/Reads.5"></entry>
-<entry key="List.Valid/Reads.4"></entry>
+<entry key="List.Valid/Reads.8">prop;skip;</entry>
+<entry key="List.Valid/Reads.7">boogie;</entry>
+<entry key="List.Valid/Reads.21">boogie;</entry>
+<entry key="List.Valid/Reads.6">boogie;</entry>
+<entry key="List.Valid/Reads.20">boogie;</entry>
+<entry key="List.Valid/Reads.5">prop;boogie;</entry>
+<entry key="List.Valid/Reads.4">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/then/Post.1">boogie;</entry>
 <entry key="List.removeAt/else/InitInv.1">boogie;</entry>
 <entry key="List.insertAt/loop_exit/Modifies"></entry>
-<entry key="List.size/Null">expand on='_.Valid()@_';</entry>
+<entry key="List.size/Null">boogie;</entry>
 <entry key="List.Valid/Null">boogie;</entry>
 <entry key="List.size/loop/Inv.1">boogie;</entry>
 <entry key="List.size/loop/Inv.2">boogie;</entry>
-<entry key="List.size/InitInv">skip;skip;skip;skip;expand on='_ |-';prop;skip;boogie;</entry>
+<entry key="List.size/InitInv">boogie;</entry>
 <entry key="List.removeAt/else/loop_exit/then/Bounds.1">boogie;</entry>
 <entry key="List.removeAt/then/then/Bounds">boogie;</entry>
 <entry key="List.Valid/Bounds">boogie;</entry>
 <entry key="List.insertAt/InitInv">boogie;</entry>
-<entry key="List.Valid/Reads.3"></entry>
+<entry key="List.Valid/Reads.3">prop;skip;boogie;</entry>
 <entry key="List.size/loop/Null">boogie;</entry>
-<entry key="List.Valid/Reads.2"></entry>
-<entry key="List.Valid/Reads.1"></entry>
-<entry key="List.insertAt/loop_exit/Post"></entry>
+<entry key="List.Valid/Reads.2">boogie;</entry>
+<entry key="List.Valid/Reads.1">boogie;</entry>
+<entry key="List.insertAt/loop_exit/Post">prop;skip;expand on='this.Valid()';</entry>
 <entry key="List.removeAt/else/loop/Inv">boogie;</entry>
 </properties>

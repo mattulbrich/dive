@@ -33,6 +33,7 @@ import edu.kit.iti.algover.util.RuleUtil;
 import edu.kit.iti.algover.util.Util;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This proof rule allows one to expand an application of a function symbol to
@@ -244,12 +245,29 @@ public class FunctionDefinitionExpansionRule extends FocusProofRule {
         }
 
         Term translation = ttt.build(tree);
-        translation = new LetTerm(assignments, translation);
+        LetTerm letTranslation = new LetTerm(assignments, translation);
+        /**
+         * Use {@link SubstitutionVisitor} that introduces bugfix for heap updates.
+         */
         if(inline) {
-            translation = LetInlineVisitor.inline(translation);
+            Map<String, Term> substitutionMap =
+                    letTranslation.getSubstitutions()
+                            .stream()
+                            .collect(Collectors.toMap(pair -> pair.fst.getName(), pair -> pair.snd));
+
+            Term inner = letTranslation.getTerm(0);
+            try {
+                Term result = inner.accept(new SubstitutionVisitor(), substitutionMap);
+                result = AlphaNormalisation.normalise(result);
+
+                return result;
+            }
+            catch(RuleException re) {
+                re.printStackTrace();
+            }
         }
 
-        return translation;
+        return letTranslation;
 
     }
 

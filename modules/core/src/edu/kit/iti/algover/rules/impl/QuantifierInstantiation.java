@@ -8,18 +8,8 @@ package edu.kit.iti.algover.rules.impl;
 import de.uka.ilkd.pp.NoExceptions;
 import edu.kit.iti.algover.proof.ProofFormula;
 import edu.kit.iti.algover.proof.ProofNode;
-import edu.kit.iti.algover.rules.DefaultFocusProofRule;
-import edu.kit.iti.algover.rules.NoFocusProofRule;
-import edu.kit.iti.algover.rules.NotApplicableException;
-import edu.kit.iti.algover.rules.ParameterDescription;
-import edu.kit.iti.algover.rules.ParameterType;
-import edu.kit.iti.algover.rules.Parameters;
-import edu.kit.iti.algover.rules.ProofRuleApplication;
+import edu.kit.iti.algover.rules.*;
 import edu.kit.iti.algover.rules.ProofRuleApplication.Applicability;
-import edu.kit.iti.algover.rules.ProofRuleApplicationBuilder;
-import edu.kit.iti.algover.rules.RuleException;
-import edu.kit.iti.algover.rules.TermParameter;
-import edu.kit.iti.algover.rules.TermSelector;
 import edu.kit.iti.algover.rules.TermSelector.SequentPolarity;
 import edu.kit.iti.algover.term.ApplTerm;
 import edu.kit.iti.algover.term.DefaultTermVisitor;
@@ -36,7 +26,7 @@ import java.util.Set;
 /**
  * Created by jklamroth on 10/25/18.
  */
-public class QuantifierInstantiation extends NoFocusProofRule {
+public class QuantifierInstantiation extends FocusProofRule {
 
     public static final ParameterDescription<TermParameter> WITH_PARAM =
             new ParameterDescription<>("with", ParameterType.TERM, true);
@@ -45,7 +35,7 @@ public class QuantifierInstantiation extends NoFocusProofRule {
             new ParameterDescription<>("var", ParameterType.STRING, false);
 
     public QuantifierInstantiation() {
-        super(DefaultFocusProofRule.ON_PARAM_OPT, WITH_PARAM);
+        super(ON_PARAM_REQ, WITH_PARAM);
     }
 
     @Override
@@ -56,7 +46,7 @@ public class QuantifierInstantiation extends NoFocusProofRule {
     @Override
     protected ProofRuleApplication makeApplicationImpl(ProofNode target, Parameters parameters) throws RuleException {
 
-        TermParameter onParam = parameters.getValue(DefaultFocusProofRule.ON_PARAM_OPT);
+        TermParameter onParam = parameters.getValue(ON_PARAM_REQ);
         TermParameter withParam = parameters.getValue(WITH_PARAM);
 
         if(onParam == null) {

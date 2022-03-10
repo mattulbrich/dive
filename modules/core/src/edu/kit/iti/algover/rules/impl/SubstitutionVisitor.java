@@ -101,10 +101,18 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
             Term inner = applTerm.getTerm(i);
             Term innerReplaced = inner.accept(this, substitutions);
             subterms[i] = innerReplaced;
-
-            anythingNew |= inner != innerReplaced; // So that we know, when we cannot preserve identity anymore
+            anythingNew |= !inner.equals(innerReplaced); // So that we know, when we cannot preserve identity anymore
         }
         if (!anythingNew) {
+            // $heap() is a ApplTerm. Updates are handled by substitution. I. e., heap() is
+            // substituted by Store(heap,...). If the heap is updated a substition of the for
+            // "heap" -> .. is in the substitutions map.
+            // So this is a quick fix (tests pass)
+            if (subterms.length == 0) {
+                Term sub = substitutions.get(applTerm.getSort().getName());
+                if (sub != null)
+                    return sub;
+            }
             return applTerm;
         } else {
             try {
@@ -129,11 +137,11 @@ public class SubstitutionVisitor implements TermVisitor<Map<String, Term>, Term,
             VariableTerm var = pair.fst;
             Term letSubst = pair.snd;
             // No need to shadow yet.
-            // (Valentin) Why not?
             Term letSubstChanged = letSubst.accept(this, substitutions);
+
             substitutedLetSubstitutions.add(new Pair<>(var, letSubstChanged));
 
-            substitutionsChanged |= letSubst != letSubstChanged;
+            substitutionsChanged |= !letSubst.equals(letSubstChanged);
         }
 
         // Substitute the inner of the let

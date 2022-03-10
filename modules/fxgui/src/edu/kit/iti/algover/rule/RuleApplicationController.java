@@ -156,7 +156,7 @@ public class RuleApplicationController extends FxmlController implements Referen
         }));
 
 
-        scriptRepText.getView().textProperty().addListener((observable, oldValue, newValue) -> {
+        /*scriptRepText.getView().textProperty().addListener((observable, oldValue, newValue) -> {
             String pvcIdentifier = PropertyManager.getInstance().currentProof.get().getPVC().getIdentifier();
             String inFile = "";
             try {
@@ -168,7 +168,7 @@ public class RuleApplicationController extends FxmlController implements Referen
             inFile = inFile.replaceAll("[\\n\\t ]", "");
             String textFieldReference = newValue.replaceAll("[\\n\\t ]", "");
             lbUnsavedScript.setVisible(!inFile.equals(textFieldReference));
-        });
+        });*/
 
         PropertyManager.getInstance().currentlyDisplayedView.addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() == TimelineFactory.DefaultViewPosition.SEQUENT_RULE.index) {
@@ -241,6 +241,7 @@ public class RuleApplicationController extends FxmlController implements Referen
 
     public void considerApplication(ProofNode target, Sequent selection, TermSelector selector) {
         if(target != null) {
+            // isValidForSequent could be avoided if selector is properly reset on proofchange
             if (selector != null && selector.isValidForSequent(selection)) {
                 try {
                     Term term = selector.selectSubterm(selection);
